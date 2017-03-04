@@ -26,6 +26,7 @@ void UPositionRecorder::BeginPlay()
 }
 
 TArray<FTimeStamp> UPositionRecorder::StopRecording() {
+	//UE_LOG(LogTemp, Warning, TEXT("stop recording"));
 	auto temp = TArray<FTimeStamp>(recordArray);
 	recordArray.Reset();
 	isRecording = false;
@@ -34,6 +35,7 @@ TArray<FTimeStamp> UPositionRecorder::StopRecording() {
 }
 
 void UPositionRecorder::StartRecording() {
+	//UE_LOG(LogTemp, Warning, TEXT("start recording"));
 	isRecording = true;
 	startRecordTimeSeconds = GetWorld()->GetTimeSeconds();
 	lastRecordTimeSeconds = GetWorld()->GetTimeSeconds();
@@ -67,11 +69,10 @@ void UPositionRecorder::TickComponent( float DeltaTime, ELevelTick TickType, FAc
 			bool locChanged = (recordArray.Last().Location - stamp.Location).Size() > MinLocationDistance;
 			bool rotChanged = recordArray.Last().Rotation.AngularDistance(stamp.Rotation) > MinRotationDistance;
 			if (locChanged || rotChanged) {
-				stamp.TimeSeconds = currendTimeSeconds;				
+				stamp.TimeSeconds = currendTimeSeconds;
 				recordArray.Add(stamp);
 			}
+			lastRecordTimeSeconds = currendTimeSeconds;
 		}
-		lastRecordTimeSeconds = currendTimeSeconds;
 	}	
 }
-

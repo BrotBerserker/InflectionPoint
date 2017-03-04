@@ -48,7 +48,7 @@ public:
 		bool BeginRecordOnBeginPlay = false;
 
 	UPROPERTY(EditAnywhere, Category = General)
-		float RecordInterval = 1.f;
+		float RecordInterval = 0.1f;
 
 	UPROPERTY(EditAnywhere, Category = General)
 		float MinLocationDistance = 0.1f;
@@ -57,8 +57,9 @@ public:
 		float MinRotationDistance = 0.1f;
 
 
+	UPROPERTY(VisibleAnywhere, Category = General)
+		TArray<FTimeStamp> recordArray;
 private:
-	TArray<FTimeStamp> recordArray;
 
 	bool isRecording = false;
 	float startRecordTimeSeconds;
