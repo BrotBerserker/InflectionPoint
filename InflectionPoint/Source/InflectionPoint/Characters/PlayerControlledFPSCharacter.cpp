@@ -37,8 +37,9 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
 	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetWorld()->GetFirstPlayerController());
 
 	FVector loc = playerStart->GetTransform().GetLocation();
+	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
 
-	ACharacter* newPlayer = (ACharacter*)GetWorld()->SpawnActor<AInflectionPointCharacter>(ReplayCharacter, loc, FRotator::ZeroRotator);
+	ACharacter* newPlayer = (ACharacter*)GetWorld()->SpawnActor<AInflectionPointCharacter>(ReplayCharacter, loc, rot);
 
 }
 
