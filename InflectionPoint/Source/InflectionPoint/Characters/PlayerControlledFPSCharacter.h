@@ -18,5 +18,5 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	// End of APawn interface
 	
-	
+	void DEBUG_SpawnReplay();
 };

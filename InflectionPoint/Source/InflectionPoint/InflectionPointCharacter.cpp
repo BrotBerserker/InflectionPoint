@@ -65,6 +65,7 @@ void AInflectionPointCharacter::BeginPlay() {
 
 
 void AInflectionPointCharacter::OnFire() {
+
 	// try and fire a projectile
 	if(ProjectileClass != NULL) {
 		UWorld* const World = GetWorld();

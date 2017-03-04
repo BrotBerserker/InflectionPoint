@@ -18,6 +18,7 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AInflectionPointCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AInflectionPointCharacter::MoveRight);
+	
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
@@ -26,5 +27,18 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindAxis("TurnRate", this, &AInflectionPointCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &AInflectionPointCharacter::LookUpAtRate);
+
+	// DEBUG Bindings
+	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_SpawnReplay);
+}
+
+void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
+
+	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetWorld()->GetFirstPlayerController());
+
+	FVector loc = playerStart->GetTransform().GetLocation();
+
+	ACharacter* newPlayer = (ACharacter*)GetWorld()->SpawnActor<AInflectionPointCharacter>(ReplayCharacter, loc, FRotator::ZeroRotator);
+
 }
 
