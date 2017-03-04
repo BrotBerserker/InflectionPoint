@@ -2,7 +2,8 @@
 
 #include "InflectionPoint.h"
 #include "PlayerControlledFPSCharacter.h"
-
+#include <InputRecording/InputRecorder.h>
+#include <Characters/ReplayControlledFPSCharacter.h>
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -18,7 +19,7 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AInflectionPointCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AInflectionPointCharacter::MoveRight);
-	
+
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
@@ -39,7 +40,13 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
 	FVector loc = playerStart->GetTransform().GetLocation();
 	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
 
-	ACharacter* newPlayer = (ACharacter*)GetWorld()->SpawnActor<AInflectionPointCharacter>(ReplayCharacter, loc, rot);
+	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, loc, rot);
+	if(newPlayer == nullptr) {
+		return;
+	}
 
+	UInputRecorder* recorder = FindComponentByClass<UInputRecorder>();
+	newPlayer->StartReplay(recorder->Inputs);
+	
 }
 
