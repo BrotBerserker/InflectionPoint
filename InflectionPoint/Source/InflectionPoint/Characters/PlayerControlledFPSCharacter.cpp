@@ -46,7 +46,7 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
 	}
 
 	UInputRecorder* recorder = FindComponentByClass<UInputRecorder>();
-	newPlayer->StartReplay(recorder->Inputs);
+	newPlayer->StartReplay(recorder->Inputs, recorder->Yaws, recorder->Pitches, recorder->MovementsForward, recorder->MovementsRight);
 	
 }
 

@@ -30,10 +30,10 @@ void UInputRecorder::BeginPlay() {
 	inputComponent->BindAxis("MoveForward", this, &UInputRecorder::MoveForward);
 	inputComponent->BindAxis("MoveRight", this, &UInputRecorder::MoveRight);
 
-	//	inputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	inputComponent->BindAxis("TurnRate", this, &UInputRecorder::TurnAtRate);
-	//	inputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	inputComponent->BindAxis("LookUpRate", this, &UInputRecorder::LookUpAtRate);
+	inputComponent->BindAxis("Turn", this, &UInputRecorder::RecordYaw);
+	//inputComponent->BindAxis("TurnRate", this, &UInputRecorder::TurnAtRate);
+	inputComponent->BindAxis("LookUp", this, &UInputRecorder::RecordPitch);
+	//inputComponent->BindAxis("LookUpRate", this, &UInputRecorder::LookUpAtRate);
 
 }
 
@@ -43,9 +43,9 @@ void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 void UInputRecorder::RecordKeyPressed(Key key) {
 	//UE_LOG(LogTemp, Warning, TEXT("Key pressed: %i after %f ms"), key + 0, passedTime);
-	Inputs.Add(-passedTime);
+	Inputs.Add(passedTime);
 	Inputs.Add(key + 0);
-	//passedTime = 0.f;
+	//UE_LOG(LogTemp, Warning, TEXT("%i Einträge in der Liste!"), Inputs.Num());
 }
 
 void UInputRecorder::OnFire() {
@@ -53,21 +53,18 @@ void UInputRecorder::OnFire() {
 }
 
 void UInputRecorder::MoveForward(float Value) {
-	/*if(Value > 0) {
-		RecordKeyPressed("W");
+	if(Value != 0) {
+		MovementsForward.Add(passedTime);
+		MovementsForward.Add(Value);
 	}
-	if(Value < 0) {
-		RecordKeyPressed("S");
-	}*/
+
 }
 
 void UInputRecorder::MoveRight(float Value) {
-	/*if(Value > 0) {
-		RecordKeyPressed("D");
+	if(Value != 0) {
+		MovementsRight.Add(passedTime);
+		MovementsRight.Add(Value);
 	}
-	if(Value < 0) {
-		RecordKeyPressed("A");
-	}*/
 }
 
 void UInputRecorder::StartJump() {
@@ -78,12 +75,18 @@ void UInputRecorder::StopJump() {
 
 }
 
-void UInputRecorder::TurnAtRate(float Rate) {
-
+void UInputRecorder::RecordYaw(float Value) {
+	if(Value != 0.f) {
+		Yaws.Add(passedTime);
+		Yaws.Add(Value);
+	}
 }
 
-void UInputRecorder::LookUpAtRate(float Rate) {
-
+void UInputRecorder::RecordPitch(float Value) {
+	if(Value != 0.f) {
+		Pitches.Add(passedTime);
+		Pitches.Add(Value);
+	}
 }
 
 

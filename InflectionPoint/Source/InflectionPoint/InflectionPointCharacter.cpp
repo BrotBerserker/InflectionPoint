@@ -64,7 +64,6 @@ void AInflectionPointCharacter::BeginPlay() {
 }
 
 void AInflectionPointCharacter::OnFire() {
-	UE_LOG(LogTemp, Warning, TEXT("On Fire!!!"));
 	// try and fire a projectile
 	if(ProjectileClass != NULL) {
 		UWorld* const World = GetWorld();

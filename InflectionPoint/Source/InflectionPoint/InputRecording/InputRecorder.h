@@ -35,15 +35,19 @@ public:
 
 	void MoveRight(float Val);
 
-	void TurnAtRate(float Rate);
+	void RecordYaw(float Rate);
 
-	void LookUpAtRate(float Rate);
+	void RecordPitch(float Rate);
 
 	void RecordKeyPressed(Key key);
 
 	TArray<float> Inputs;
+	TArray<float> Yaws;
+	TArray<float> Pitches;
+	TArray<float> MovementsForward;
+	TArray<float> MovementsRight;
 
 private:
 	float passedTime = 0.f;
-	
+
 };

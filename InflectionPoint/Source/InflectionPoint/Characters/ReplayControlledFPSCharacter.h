@@ -22,10 +22,22 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void StartReplay(TArray<float> inputs);
+	void StartReplay(TArray<float> inputs, TArray<float> yaws, TArray<float> pitches, TArray<float> moveForwards, TArray<float> moveRights);
 
 	UFUNCTION()
 	void PressKey(float key);
+
+	UFUNCTION()
+	void ApplyYaw(float value);
+
+	UFUNCTION()
+	void ApplyPitch(float value);
+
+	UFUNCTION()
+	void ReplayMoveForward(float value);
+
+	UFUNCTION()
+	void ReplayMoveRight(float value);
 
 private:
 	TArray<float> recordedInput;
