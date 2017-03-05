@@ -69,7 +69,7 @@ void UPositionRecorder::TickComponent( float DeltaTime, ELevelTick TickType, FAc
 			bool locChanged = (recordArray.Last().Location - stamp.Location).Size() > MinLocationDistance;
 			bool rotChanged = recordArray.Last().Rotation.AngularDistance(stamp.Rotation) > MinRotationDistance;
 			if (locChanged || rotChanged) {
-				stamp.TimeSeconds = currendTimeSeconds;
+				stamp.TimeSeconds = currendTimeSeconds - startRecordTimeSeconds;
 				recordArray.Add(stamp);
 			}
 			lastRecordTimeSeconds = currendTimeSeconds;

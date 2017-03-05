@@ -31,5 +31,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		UPositionRecorder* PositionRecorder;
-	
+
+	UFUNCTION()
+		void PerformMovingStep(FTimeStamp current, FTimeStamp next);	
 };
