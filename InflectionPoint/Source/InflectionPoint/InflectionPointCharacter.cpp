@@ -7,6 +7,7 @@
 #include "GameFramework/InputSettings.h"
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
+#include "InputRecording/InputRecorder.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -61,14 +62,29 @@ void AInflectionPointCharacter::BeginPlay() {
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
+
 }
 
 void AInflectionPointCharacter::OnFire() {
+	FireProjectile(ProjectileClass);
+}
+
+void AInflectionPointCharacter::OnDebugFire() {
+	FireProjectile(DebugProjectileClass);
+	FRotator rot = GetFirstPersonCameraComponent()->GetComponentRotation();
+	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *rot.ToString());
+
+	FVector pos = GetTransform().GetLocation();
+	UE_LOG(LogTemp, Warning, TEXT("Position: %s"), *pos.ToString());
+}
+
+void AInflectionPointCharacter::FireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClass) {
 	// try and fire a projectile
-	if(ProjectileClass != NULL) {
+	if(projectileClass != NULL) {
 		UWorld* const World = GetWorld();
 		if(World != NULL) {
-			const FRotator SpawnRotation = GetControlRotation();
+			//const FRotator SpawnRotation = GetControlRotation();
+			const FRotator SpawnRotation = FirstPersonCameraComponent->GetComponentRotation();
 			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 			const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
@@ -77,7 +93,7 @@ void AInflectionPointCharacter::OnFire() {
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
 
 			// spawn the projectile at the muzzle
-			World->SpawnActor<AInflectionPointProjectile>(ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			World->SpawnActor<AInflectionPointProjectile>(projectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 		}
 	}
 
@@ -112,10 +128,14 @@ void AInflectionPointCharacter::MoveRight(float Value) {
 
 void AInflectionPointCharacter::TurnAtRate(float Rate) {
 	// calculate delta for this frame from the rate information
-	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	//AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(Rate);
+
+	//UE_LOG(LogTemp, Warning, TEXT("Turn at rate!!1 %f"), Rate);
 }
 
 void AInflectionPointCharacter::LookUpAtRate(float Rate) {
 	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	//AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(Rate);
 }

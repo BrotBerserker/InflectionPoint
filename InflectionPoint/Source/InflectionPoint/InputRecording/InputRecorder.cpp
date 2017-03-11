@@ -18,6 +18,8 @@ UInputRecorder::UInputRecorder() {
 void UInputRecorder::BeginPlay() {
 	Super::BeginPlay();
 
+	owner = (AInflectionPointCharacter*)GetOwner();
+
 	// Schön wärs
 	// GetOwner()->InputComponent->BindAction("InputRecording", IE_Pressed, this, &UInputRecorder::RecordInput);
 
@@ -26,19 +28,28 @@ void UInputRecorder::BeginPlay() {
 	inputComponent->BindAction("Jump", IE_Released, this, &UInputRecorder::StopJump);
 
 	inputComponent->BindAction("Fire", IE_Pressed, this, &UInputRecorder::OnFire);
+	inputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &UInputRecorder::OnDebugFire);
 
 	inputComponent->BindAxis("MoveForward", this, &UInputRecorder::MoveForward);
 	inputComponent->BindAxis("MoveRight", this, &UInputRecorder::MoveRight);
 
-	inputComponent->BindAxis("Turn", this, &UInputRecorder::RecordYaw);
+	//inputComponent->BindAxis("Turn", this, &UInputRecorder::RecordYaw);
 	//inputComponent->BindAxis("TurnRate", this, &UInputRecorder::TurnAtRate);
-	inputComponent->BindAxis("LookUp", this, &UInputRecorder::RecordPitch);
+	//inputComponent->BindAxis("LookUp", this, &UInputRecorder::RecordPitch);
 	//inputComponent->BindAxis("LookUpRate", this, &UInputRecorder::LookUpAtRate);
 
 }
 
 void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction) {
 	passedTime += DeltaTime;
+
+	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
+	Yaws.Add(passedTime);
+	Yaws.Add(rotCapsule.Yaw);
+
+	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
+	Pitches.Add(passedTime);
+	Pitches.Add(rotCamera.Pitch);
 }
 
 void UInputRecorder::RecordKeyPressed(Key key) {
@@ -50,6 +61,10 @@ void UInputRecorder::RecordKeyPressed(Key key) {
 
 void UInputRecorder::OnFire() {
 	RecordKeyPressed(Key::LMB);
+}
+
+void UInputRecorder::OnDebugFire() {
+	RecordKeyPressed(Key::RMB);
 }
 
 void UInputRecorder::MoveForward(float Value) {
@@ -77,15 +92,27 @@ void UInputRecorder::StopJump() {
 
 void UInputRecorder::RecordYaw(float Value) {
 	if(Value != 0.f) {
-		Yaws.Add(passedTime);
-		Yaws.Add(Value);
+		//	Yaws.Add(passedTime);
+		//	Yaws.Add(Value);
+		//}
+		//ACharacter* owner = (ACharacter*)GetOwner();
+		//Yaws.Add(passedTime);
+		//FRotator rot = owner->GetCapsuleComponent()->GetComponentRotation();
+		//Yaws.Add(rot.Yaw);
+		//UE_LOG(LogTemp, Warning, TEXT("Rotation (yaw): %s"), *rot.ToString());
 	}
 }
 
 void UInputRecorder::RecordPitch(float Value) {
 	if(Value != 0.f) {
-		Pitches.Add(passedTime);
-		Pitches.Add(Value);
+		//	Pitches.Add(passedTime);
+		//	Pitches.Add(Value);
+		//}
+		//AInflectionPointCharacter* owner = (AInflectionPointCharacter*)GetOwner();
+		//Pitches.Add(passedTime);
+		//FRotator rot = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
+		//Pitches.Add(rot.Pitch);
+		//UE_LOG(LogTemp, Warning, TEXT("Rotation (pitch): %s"), *rot.ToString());
 	}
 }
 

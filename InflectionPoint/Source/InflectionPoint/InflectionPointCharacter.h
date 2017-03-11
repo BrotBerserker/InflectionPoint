@@ -50,6 +50,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
 
+	/** Debug projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		TSubclassOf<class AInflectionPointProjectile> DebugProjectileClass;
+
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		class USoundBase* FireSound;
@@ -62,6 +66,11 @@ public:
 
 	/** Fires a projectile. */
 	void OnFire();
+
+	/** Fires a debug projectile. */
+	void OnDebugFire();
+
+	void FireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClass);
 
 	/** Handles moving forward/backward */
 	void MoveForward(float Val);

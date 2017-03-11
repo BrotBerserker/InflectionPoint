@@ -39,7 +39,7 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<flo
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 	}
 	while(moveRights.Num() > 0) {
-		float right = moveRights.Last();
+		float forward = moveRights.Last();
 		moveRights.RemoveAt(moveRights.Num() - 1);
 		float wait = moveRights.Last();
 		moveRights.RemoveAt(moveRights.Num() - 1);
@@ -48,7 +48,35 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<flo
 
 		FTimerHandle TimerHandle;
 		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("ReplayMoveRight"), right);
+		TimerDel.BindUFunction(this, FName("ReplayMoveRight"), forward);
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
+	}
+	while(yaws.Num() > 0) {
+		float right = yaws.Last();
+		yaws.RemoveAt(yaws.Num() - 1);
+		float wait = yaws.Last();
+		yaws.RemoveAt(yaws.Num() - 1);
+
+		//UE_LOG(LogTemp, Warning, TEXT("Waiting %f and then applying yaw: %f!"), wait, yaw);
+
+		FTimerHandle TimerHandle;
+		FTimerDelegate TimerDel;
+		TimerDel.BindUFunction(this, FName("ApplyYaw"), right);
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
+	}
+	while(pitches.Num() > 0) {
+		float right = pitches.Last();
+		pitches.RemoveAt(pitches.Num() - 1);
+		float wait = pitches.Last();
+		pitches.RemoveAt(pitches.Num() - 1);
+
+		//UE_LOG(LogTemp, Warning, TEXT("Waiting %f and then applying yaw: %f!"), wait, yaw);
+
+		FTimerHandle TimerHandle;
+		FTimerDelegate TimerDel;
+		TimerDel.BindUFunction(this, FName("ApplyPitch"), right);
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 	}
@@ -60,17 +88,33 @@ void AReplayControlledFPSCharacter::PressKey(float key) {
 		Jump();
 	} else if(key == Key::LMB) {
 		OnFire();
+	} else if(key == Key::RMB) {
+		OnDebugFire();
 	}
 }
 
 void AReplayControlledFPSCharacter::ApplyYaw(float value) {
 	//UE_LOG(LogTemp, Warning, TEXT("Applying yaw: %f!"), value);
-	AddControllerYawInput(value);
+	//AddControllerYawInput(value);
+	FRotator rot = GetCapsuleComponent()->GetComponentRotation();
+	rot.Yaw = value;
+	rot.Roll = 0;
+	rot.Pitch = 0;
+	GetCapsuleComponent()->SetWorldRotation(rot);
+
+	FRotator rot2 = GetFirstPersonCameraComponent()->GetComponentRotation();
+	rot2.Yaw = value;
+	GetFirstPersonCameraComponent()->SetWorldRotation(rot2);
 }
 
 void AReplayControlledFPSCharacter::ApplyPitch(float value) {
 	//AddControllerPitchInput(value);
-	AddActorLocalRotation(FQuat(0, 0, value, 0));
+	//AddActorLocalRotation(FQuat(0, 0, value, 0));
+	FRotator rot = GetFirstPersonCameraComponent()->GetComponentRotation();
+	rot.Pitch = value;
+	rot.Roll = 0;
+	//rot.Yaw = 0;
+	GetFirstPersonCameraComponent()->SetWorldRotation(rot);
 }
 
 void AReplayControlledFPSCharacter::ReplayMoveForward(float value) {

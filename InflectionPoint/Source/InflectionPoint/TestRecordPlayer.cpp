@@ -28,7 +28,7 @@ void UTestRecordPlayer::BeginPlay()
 
 	if (!InputComponent)
 		return;
-	InputComponent->BindAction( "Jump", IE_Pressed, this, &UTestRecordPlayer::PLayReplay);	
+	InputComponent->BindAction( "DEBUG_SpawnReplay", IE_Pressed, this, &UTestRecordPlayer::PLayReplay);	
 }
 
 
@@ -52,10 +52,10 @@ void UTestRecordPlayer::PLayReplay() {
 	obj->SetActorLocation(record[0].Location);
 	obj->SetActorRotation(record[0].Rotation);
 	// print array
-	for (int i = 0; i < record.Num(); i++) {
-		FTimeStamp& aStamp = record[i];
-		UE_LOG(LogTemp, Warning, TEXT("Element [%i] time: %f rotation: %s location: %s"), i, aStamp.TimeSeconds, *aStamp.Location.ToString(), *aStamp.Rotation.ToString());
-	}
+	//for (int i = 0; i < record.Num(); i++) {
+	//	FTimeStamp& aStamp = record[i];
+	//	UE_LOG(LogTemp, Warning, TEXT("Element [%i] time: %f rotation: %s location: %s"), i, aStamp.TimeSeconds, *aStamp.Location.ToString(), *aStamp.Rotation.ToString());
+	//}
 
 	for (int i = 1; i < record.Num(); i++) {
 		FTimeStamp& aStamp = record[i-1];

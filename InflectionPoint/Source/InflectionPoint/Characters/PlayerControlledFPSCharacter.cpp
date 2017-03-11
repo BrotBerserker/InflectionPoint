@@ -16,6 +16,7 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AInflectionPointCharacter::OnFire);
+	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &AInflectionPointCharacter::OnDebugFire);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &AInflectionPointCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AInflectionPointCharacter::MoveRight);
@@ -24,10 +25,12 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("TurnRate", this, &AInflectionPointCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &AInflectionPointCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("Turn", this, &AInflectionPointCharacter::TurnAtRate);
+	//PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	//PlayerInputComponent->BindAxis("TurnRate", this, &AInflectionPointCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &AInflectionPointCharacter::LookUpAtRate);
+	//PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	//PlayerInputComponent->BindAxis("LookUpRate", this, &AInflectionPointCharacter::LookUpAtRate);
 
 	// DEBUG Bindings
 	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_SpawnReplay);

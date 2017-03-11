@@ -17,6 +17,7 @@ public:
 
 	enum Key {
 		LMB,
+		RMB,
 		SPACE
 	};
 

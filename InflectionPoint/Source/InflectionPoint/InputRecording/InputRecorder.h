@@ -3,7 +3,9 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "InflectionPointCharacter.h"
 #include "InputRecorder.generated.h"
+
 
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -14,6 +16,7 @@ public:
 
 	enum Key {
 		LMB,
+		RMB,
 		SPACE
 	};
 
@@ -31,6 +34,8 @@ public:
 
 	void OnFire();
 
+	void OnDebugFire();
+
 	void MoveForward(float Val);
 
 	void MoveRight(float Val);
@@ -47,7 +52,11 @@ public:
 	TArray<float> MovementsForward;
 	TArray<float> MovementsRight;
 
+	AInflectionPointCharacter * owner;
+
 private:
 	float passedTime = 0.f;
+
+
 
 };
