@@ -26,19 +26,19 @@ public:
 	void StartReplay(TArray<float> inputs, TArray<float> yaws, TArray<float> pitches, TArray<float> moveForwards, TArray<float> moveRights);
 
 	UFUNCTION()
-	void PressKey(float key);
+		void PressKey(float key, float yaw, float pitch);
 
 	UFUNCTION()
-	void ApplyYaw(float value);
+		void ApplyYaw(float value);
 
 	UFUNCTION()
-	void ApplyPitch(float value);
+		void ApplyPitch(float value);
 
 	UFUNCTION()
-	void ReplayMoveForward(float value);
+		void ReplayMoveForward(float value);
 
 	UFUNCTION()
-	void ReplayMoveRight(float value);
+		void ReplayMoveRight(float value);
 
 private:
 	TArray<float> recordedInput;

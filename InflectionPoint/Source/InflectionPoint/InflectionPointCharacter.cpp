@@ -7,7 +7,7 @@
 #include "GameFramework/InputSettings.h"
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
-#include "InputRecording/InputRecorder.h"
+#include "Recording/InputRecorder.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -70,12 +70,13 @@ void AInflectionPointCharacter::OnFire() {
 }
 
 void AInflectionPointCharacter::OnDebugFire() {
-	FireProjectile(DebugProjectileClass);
 	FRotator rot = GetFirstPersonCameraComponent()->GetComponentRotation();
 	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *rot.ToString());
 
-	FVector pos = GetTransform().GetLocation();
-	UE_LOG(LogTemp, Warning, TEXT("Position: %s"), *pos.ToString());
+	FireProjectile(DebugProjectileClass);
+
+	//FVector pos = GetTransform().GetLocation();
+	//UE_LOG(LogTemp, Warning, TEXT("Position: %s"), *pos.ToString());
 }
 
 void AInflectionPointCharacter::FireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClass) {

@@ -2,8 +2,10 @@
 
 #include "InflectionPoint.h"
 #include "PlayerControlledFPSCharacter.h"
-#include <InputRecording/InputRecorder.h>
+#include <Recording/InputRecorder.h>
 #include <Characters/ReplayControlledFPSCharacter.h>
+#include "Recording/PositionRecorder.h"
+#include "Recording/PositionCorrector.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -48,8 +50,12 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
 		return;
 	}
 
-	UInputRecorder* recorder = FindComponentByClass<UInputRecorder>();
-	newPlayer->StartReplay(recorder->Inputs, recorder->Yaws, recorder->Pitches, recorder->MovementsForward, recorder->MovementsRight);
-	
+	// Replay inputs
+	UInputRecorder* inputRecorder = FindComponentByClass<UInputRecorder>();
+	newPlayer->StartReplay(inputRecorder->Inputs, inputRecorder->Yaws, inputRecorder->Pitches, inputRecorder->MovementsForward, inputRecorder->MovementsRight);
+
+	// Correct positions
+	UPositionRecorder* posRecorder = FindComponentByClass<UPositionRecorder>();
+	newPlayer->FindComponentByClass<UPositionCorrector>()->StartCorrecting(posRecorder->RecordArray);
 }
 

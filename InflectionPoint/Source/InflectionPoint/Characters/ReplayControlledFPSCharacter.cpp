@@ -13,6 +13,10 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<flo
 	while(inputs.Num() > 0) {
 		float key = inputs.Last();
 		inputs.RemoveAt(inputs.Num() - 1);
+		float pitch = inputs.Last();
+		inputs.RemoveAt(inputs.Num() - 1);
+		float yaw = inputs.Last();
+		inputs.RemoveAt(inputs.Num() - 1);
 		float wait = inputs.Last();
 		inputs.RemoveAt(inputs.Num() - 1);
 
@@ -20,7 +24,7 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<flo
 
 		FTimerHandle TimerHandle;
 		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("PressKey"), key);
+		TimerDel.BindUFunction(this, FName("PressKey"), key, yaw, pitch);
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 	}
@@ -39,7 +43,7 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<flo
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 	}
 	while(moveRights.Num() > 0) {
-		float forward = moveRights.Last();
+		float right = moveRights.Last();
 		moveRights.RemoveAt(moveRights.Num() - 1);
 		float wait = moveRights.Last();
 		moveRights.RemoveAt(moveRights.Num() - 1);
@@ -48,12 +52,12 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<flo
 
 		FTimerHandle TimerHandle;
 		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("ReplayMoveRight"), forward);
+		TimerDel.BindUFunction(this, FName("ReplayMoveRight"), right);
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 	}
 	while(yaws.Num() > 0) {
-		float right = yaws.Last();
+		float yaw = yaws.Last();
 		yaws.RemoveAt(yaws.Num() - 1);
 		float wait = yaws.Last();
 		yaws.RemoveAt(yaws.Num() - 1);
@@ -62,12 +66,12 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<flo
 
 		FTimerHandle TimerHandle;
 		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("ApplyYaw"), right);
+		TimerDel.BindUFunction(this, FName("ApplyYaw"), yaw);
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 	}
 	while(pitches.Num() > 0) {
-		float right = pitches.Last();
+		float pitch = pitches.Last();
 		pitches.RemoveAt(pitches.Num() - 1);
 		float wait = pitches.Last();
 		pitches.RemoveAt(pitches.Num() - 1);
@@ -76,14 +80,16 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<flo
 
 		FTimerHandle TimerHandle;
 		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("ApplyPitch"), right);
+		TimerDel.BindUFunction(this, FName("ApplyPitch"), pitch);
 
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 	}
 }
 
-void AReplayControlledFPSCharacter::PressKey(float key) {
+void AReplayControlledFPSCharacter::PressKey(float key, float yaw, float pitch) {
 	//UE_LOG(LogTemp, Warning, TEXT("Pressing %f!"), key);
+	ApplyYaw(yaw);
+	ApplyPitch(pitch);
 	if(key == Key::SPACE) {
 		Jump();
 	} else if(key == Key::LMB) {
