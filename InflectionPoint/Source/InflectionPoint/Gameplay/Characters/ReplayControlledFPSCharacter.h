@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "InflectionPointCharacter.h"
+#include "BaseCharacter.h"
 #include "ReplayControlledFPSCharacter.generated.h"
 
 
@@ -10,7 +10,7 @@
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public AInflectionPointCharacter {
+class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public ABaseCharacter {
 	GENERATED_BODY()
 
 public:

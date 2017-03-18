@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "TransformRecorder.h"
+#include "Gameplay/Recording/TransformRecorder.h"
 #include "TransformReplayer.generated.h"
 
 

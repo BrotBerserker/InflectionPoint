@@ -1,21 +1,21 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "InflectionPoint.h"
-#include "InflectionPointCharacter.h"
-#include "InflectionPointProjectile.h"
+#include "BaseCharacter.h"
+#include "Gameplay/Weapons/InflectionPointProjectile.h"
 #include "Animation/AnimInstance.h"
 #include "GameFramework/InputSettings.h"
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
-#include "Recording/InputRecorder.h"
+#include "Gameplay/Recording/InputRecorder.h"
 #include "Utils/CheckFunctions.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
 //////////////////////////////////////////////////////////////////////////
-// AInflectionPointCharacter
+// ABaseCharacter
 
-AInflectionPointCharacter::AInflectionPointCharacter() {
+ABaseCharacter::ABaseCharacter() {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 	
@@ -54,7 +54,7 @@ AInflectionPointCharacter::AInflectionPointCharacter() {
 
 }
 
-void AInflectionPointCharacter::BeginPlay() {
+void ABaseCharacter::BeginPlay() {
 	// Call the base class  
 	Super::BeginPlay();
 
@@ -66,21 +66,17 @@ void AInflectionPointCharacter::BeginPlay() {
 
 }
 
-void AInflectionPointCharacter::OnFire() {
+void ABaseCharacter::OnFire() {
 	FireProjectile(ProjectileClass);
 }
 
-void AInflectionPointCharacter::OnDebugFire() {
+void ABaseCharacter::OnDebugFire() {
 	FRotator rot = GetFirstPersonCameraComponent()->GetComponentRotation();
-	UE_LOG(LogTemp, Warning, TEXT("Rotation: %s"), *rot.ToString());
 
 	FireProjectile(DebugProjectileClass);
-
-	//FVector pos = GetTransform().GetLocation();
-	//UE_LOG(LogTemp, Warning, TEXT("Position: %s"), *pos.ToString());
 }
 
-void AInflectionPointCharacter::FireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClass) {
+void ABaseCharacter::FireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClass) {
 	// try and fire a projectile
 	if(projectileClass != NULL) {
 		UWorld* const World = GetWorld();
@@ -114,21 +110,21 @@ void AInflectionPointCharacter::FireProjectile(TSubclassOf<class AInflectionPoin
 	}
 }
 
-void AInflectionPointCharacter::MoveForward(float Value) {
+void ABaseCharacter::MoveForward(float Value) {
 	if(Value != 0.0f) {
 		// add movement in that direction
 		AddMovementInput(GetActorForwardVector(), Value);
 	}
 }
 
-void AInflectionPointCharacter::MoveRight(float Value) {
+void ABaseCharacter::MoveRight(float Value) {
 	if(Value != 0.0f) {
 		// add movement in that direction
 		AddMovementInput(GetActorRightVector(), Value);
 	}
 }
 
-void AInflectionPointCharacter::TurnAtRate(float Rate) {
+void ABaseCharacter::TurnAtRate(float Rate) {
 	// calculate delta for this frame from the rate information
 	//AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 	AddControllerYawInput(Rate);
@@ -136,7 +132,7 @@ void AInflectionPointCharacter::TurnAtRate(float Rate) {
 	//UE_LOG(LogTemp, Warning, TEXT("Turn at rate!!1 %f"), Rate);
 }
 
-void AInflectionPointCharacter::LookUpAtRate(float Rate) {
+void ABaseCharacter::LookUpAtRate(float Rate) {
 	// calculate delta for this frame from the rate information
 	//AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 	AddControllerPitchInput(Rate);

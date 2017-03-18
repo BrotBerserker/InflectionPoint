@@ -1,12 +1,12 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
-#include "InflectionPointCharacter.generated.h"
+#include "BaseCharacter.generated.h"
 
 class UInputComponent;
 
 UCLASS(config = Game)
-class AInflectionPointCharacter : public ACharacter {
+class ABaseCharacter : public ACharacter {
 	GENERATED_BODY()
 
 		/** Pawn mesh: 1st person view (arms; seen only by self) */
@@ -27,7 +27,7 @@ class AInflectionPointCharacter : public ACharacter {
 
 
 public:
-	AInflectionPointCharacter();
+	ABaseCharacter();
 
 	virtual void BeginPlay();
 

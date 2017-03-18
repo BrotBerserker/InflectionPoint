@@ -18,7 +18,7 @@ UInputRecorder::UInputRecorder() {
 void UInputRecorder::BeginPlay() {
 	Super::BeginPlay();
 
-	owner = (AInflectionPointCharacter*)GetOwner();
+	owner = (ABaseCharacter*)GetOwner();
 
 	// Schön wärs
 	// GetOwner()->InputComponent->BindAction("InputRecording", IE_Pressed, this, &UInputRecorder::RecordInput);
@@ -113,7 +113,7 @@ void UInputRecorder::RecordPitch(float Value) {
 		//	Pitches.Add(passedTime);
 		//	Pitches.Add(Value);
 		//}
-		//AInflectionPointCharacter* owner = (AInflectionPointCharacter*)GetOwner();
+		//ABaseCharacter* owner = (ABaseCharacter*)GetOwner();
 		//Pitches.Add(passedTime);
 		//FRotator rot = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
 		//Pitches.Add(rot.Pitch);

@@ -2,14 +2,14 @@
 
 #pragma once
 
-#include "InflectionPointCharacter.h"
+#include "BaseCharacter.h"
 #include "PlayerControlledFPSCharacter.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class INFLECTIONPOINT_API APlayerControlledFPSCharacter : public AInflectionPointCharacter
+class INFLECTIONPOINT_API APlayerControlledFPSCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 	

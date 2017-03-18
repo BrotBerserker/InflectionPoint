@@ -2,10 +2,10 @@
 
 #include "InflectionPoint.h"
 #include "PlayerControlledFPSCharacter.h"
-#include <Recording/InputRecorder.h>
-#include <Characters/ReplayControlledFPSCharacter.h>
-#include "Recording/PositionRecorder.h"
-#include "Recording/PositionCorrector.h"
+#include "Gameplay/Recording/InputRecorder.h"
+#include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
+#include "Gameplay/Recording/PositionRecorder.h"
+#include "Gameplay/Replaying/PositionCorrector.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -17,22 +17,22 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AInflectionPointCharacter::OnFire);
-	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &AInflectionPointCharacter::OnDebugFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::OnFire);
+	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &ABaseCharacter::OnDebugFire);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &AInflectionPointCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &AInflectionPointCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
 
 
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn", this, &AInflectionPointCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::TurnAtRate);
 	//PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	//PlayerInputComponent->BindAxis("TurnRate", this, &AInflectionPointCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &AInflectionPointCharacter::LookUpAtRate);
+	//PlayerInputComponent->BindAxis("TurnRate", this, &ABaseCharacter::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::LookUpAtRate);
 	//PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	//PlayerInputComponent->BindAxis("LookUpRate", this, &AInflectionPointCharacter::LookUpAtRate);
+	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
 
 	// DEBUG Bindings
 	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_SpawnReplay);

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "InflectionPointCharacter.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 #include "InputRecorder.generated.h"
 
 
@@ -52,7 +52,7 @@ public:
 	TArray<float> MovementsForward;
 	TArray<float> MovementsRight;
 
-	AInflectionPointCharacter * owner;
+	ABaseCharacter * owner;
 
 private:
 	float passedTime = 0.f;

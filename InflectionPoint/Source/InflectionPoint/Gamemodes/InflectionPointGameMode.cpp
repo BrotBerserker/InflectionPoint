@@ -2,8 +2,8 @@
 
 #include "InflectionPoint.h"
 #include "InflectionPointGameMode.h"
-#include "InflectionPointHUD.h"
-#include "InflectionPointCharacter.h"
+#include "UI/HUD/InflectionPointHUD.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 
 AInflectionPointGameMode::AInflectionPointGameMode()
 	: Super()
