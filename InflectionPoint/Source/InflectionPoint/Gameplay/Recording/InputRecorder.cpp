@@ -42,15 +42,6 @@ void UInputRecorder::BeginPlay() {
 
 void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction) {
 	passedTime += DeltaTime;
-
-	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
-	Yaws.Add(passedTime);
-	Yaws.Add(rotCapsule.Yaw);
-
-	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
-	Pitches.Add(passedTime);
-	Pitches.Add(rotCamera.Pitch);
-	//UE_LOG(LogTemp, Warning, TEXT("%i Einträge in der Tick Liste!"), Pitches.Num());
 }
 
 void UInputRecorder::RecordKeyPressed(Key key) {

@@ -23,7 +23,7 @@ public:
 
 	virtual void BeginPlay() override;
 
-	void StartReplay(TArray<float> inputs, TArray<float> yaws, TArray<float> pitches, TArray<float> moveForwards, TArray<float> moveRights);
+	void StartReplay(TArray<float> inputs, TArray<float> moveForwards, TArray<float> moveRights);
 
 	UFUNCTION()
 		void PressKey(float key, float yaw, float pitch);

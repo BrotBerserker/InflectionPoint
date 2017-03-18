@@ -47,8 +47,7 @@ public:
 	void RecordKeyPressed(Key key);
 
 	TArray<float> Inputs;
-	TArray<float> Yaws;
-	TArray<float> Pitches;
+
 	TArray<float> MovementsForward;
 	TArray<float> MovementsRight;
 
