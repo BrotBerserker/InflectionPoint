@@ -15,21 +15,15 @@ class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public ABaseCharacter 
 
 public:
 
-	enum Key {
-		LMB,
-		RMB,
-		SPACE
-	};
-
 	virtual void BeginPlay() override;
 
-	void StartReplay(TArray<float> inputs, TArray<float> moveForwards, TArray<float> moveRights);
+	void StartReplay(TArray<TPair<FKey, TTuple<float, float, float>>> inputs, TArray<float> moveForwards, TArray<float> moveRights);
 
 	template <typename... VarTypes>
 	void StartTimer(FString function, float wait, VarTypes... vars);
 
 	UFUNCTION()
-		void PressKey(float yaw, float pitch, float key);
+		void PressKey(float yaw, float pitch, FKey key);
 
 	UFUNCTION()
 		void ApplyYaw(float value);
@@ -42,10 +36,5 @@ public:
 
 	UFUNCTION()
 		void ReplayMoveRight(float value);
-
-private:
-	TArray<float> recordedInput;
-	bool playing = false;
-	float remainingTime = 0;
 
 };
