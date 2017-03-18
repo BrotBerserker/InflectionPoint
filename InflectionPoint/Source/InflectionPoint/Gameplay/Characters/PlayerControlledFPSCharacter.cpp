@@ -46,7 +46,9 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
 	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
 
 	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, loc, rot);
-	AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__);
+	if(!AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__, "Could not spawn replay character!")) {
+		return;
+	}
 
 	// Replay inputs
 	UInputRecorder* inputRecorder = FindComponentByClass<UInputRecorder>();

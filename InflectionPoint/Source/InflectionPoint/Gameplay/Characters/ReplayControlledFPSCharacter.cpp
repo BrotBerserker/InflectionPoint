@@ -9,16 +9,12 @@ void AReplayControlledFPSCharacter::BeginPlay() {
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AReplayControlledFPSCharacter::StartReplay(TArray<float> inputs, TArray<float> moveForwards, TArray<float> moveRights) {
-	//TArray<TPair<FKey, TTuple<float, float, float>>> asd;
+void AReplayControlledFPSCharacter::StartReplay(TArray<TPair<FKey, TTuple<float, float, float>>> inputs, TArray<float> moveForwards, TArray<float> moveRights) {
 	while(inputs.Num() > 0) {
-		float key = inputs.Last();
-		inputs.RemoveAt(inputs.Num() - 1);
-		float pitch = inputs.Last();
-		inputs.RemoveAt(inputs.Num() - 1);
-		float yaw = inputs.Last();
-		inputs.RemoveAt(inputs.Num() - 1);
-		float wait = inputs.Last();
+		FKey key = inputs.Last().Key;
+		float wait = inputs.Last().Value.Get<0>();
+		float yaw = inputs.Last().Value.Get<1>();
+		float pitch = inputs.Last().Value.Get<2>();
 		inputs.RemoveAt(inputs.Num() - 1);
 
 		StartTimer("PressKey", wait, yaw, pitch, key);
@@ -51,17 +47,17 @@ void AReplayControlledFPSCharacter::StartTimer(FString function, float wait, Var
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 }
 
-void AReplayControlledFPSCharacter::PressKey(float yaw, float pitch, float key) {
+void AReplayControlledFPSCharacter::PressKey(float yaw, float pitch, FKey key) {
 	// set rotation
 	ApplyYaw(yaw);
 	ApplyPitch(pitch);
 
 	// press key
-	if(key == Key::SPACE) {
+	if(key == EKeys::SpaceBar) {
 		Jump();
-	} else if(key == Key::LMB) {
+	} else if(key == EKeys::LeftMouseButton) {
 		OnFire();
-	} else if(key == Key::RMB) {
+	} else if(key == EKeys::RightMouseButton) {
 		OnDebugFire();
 	}
 }

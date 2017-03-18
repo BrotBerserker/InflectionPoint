@@ -31,15 +31,15 @@ void URotationRecorder::BeginPlay() {
 void URotationRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	passedTime += DeltaTime;
+
 	if(!isRecording) {
 		return;
 	}
 
-	float currentTimeSeconds = GetWorld()->GetTimeSeconds();
-
-	if(currentTimeSeconds - lastRecordTimeSeconds > RecordInterval) {
+	if(passedTime - lastRecordTimeSeconds > RecordInterval) {
 		// needs to perform record
-		float t = currentTimeSeconds - startRecordTimeSeconds;
+		float t = passedTime - startRecordTimeSeconds;
 
 		FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
 		Yaws.Add(t);
@@ -49,7 +49,7 @@ void URotationRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 		Pitches.Add(t);
 		Pitches.Add(rotCamera.Pitch);
 
-		lastRecordTimeSeconds = currentTimeSeconds;
+		lastRecordTimeSeconds = passedTime;
 	}
 }
 

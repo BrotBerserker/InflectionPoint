@@ -29,18 +29,18 @@ void UPositionRecorder::BeginPlay() {
 void UPositionRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	passedTime += DeltaTime;
+
 	if(!isRecording) {
 		return;
 	}
 
-	float currentTimeSeconds = GetWorld()->GetTimeSeconds();
-
-	if(currentTimeSeconds - lastRecordTimeSeconds > RecordInterval) {
+	if(passedTime - lastRecordTimeSeconds > RecordInterval) {
 		// needs to perform record
 		FVector pos = GetOwner()->GetTransform().GetLocation();
-		float t = currentTimeSeconds - startRecordTimeSeconds;
+		float t = passedTime - startRecordTimeSeconds;
 		RecordArray.Add(TPair<float, FVector>(TPairInitializer<float, FVector>(t, pos)));
-		lastRecordTimeSeconds = currentTimeSeconds;
+		lastRecordTimeSeconds = passedTime;
 
 		if(CreateDebugPoints) {
 			DrawDebugPoint(GetWorld(), pos, 20, DebugColor, true);
@@ -59,7 +59,7 @@ void UPositionRecorder::StopRecording() {
 void UPositionRecorder::StartRecording() {
 	//UE_LOG(LogTemp, Warning, TEXT("start recording"));
 	isRecording = true;
-	startRecordTimeSeconds = GetWorld()->GetTimeSeconds();
+	startRecordTimeSeconds = passedTime;
 	lastRecordTimeSeconds = -RecordInterval;
 	/*FTimeStamp stamp;
 	stamp.TimeSeconds = startRecordTimeSeconds;

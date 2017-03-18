@@ -14,12 +14,6 @@ class INFLECTIONPOINT_API UInputRecorder : public UActorComponent {
 
 public:
 
-	enum Key {
-		LMB,
-		RMB,
-		SPACE
-	};
-
 	// Sets default values for this component's properties
 	UInputRecorder();
 
@@ -28,34 +22,27 @@ public:
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction) override;
 
-	void StartJump();
+	void RecordStartJump();
 
-	void StopJump();
+	void RecordStopJump();
 
-	void OnFire();
+	void RecordOnFire();
 
-	void OnDebugFire();
+	void RecordOnDebugFire();
 
-	void MoveForward(float Val);
+	void RecordMoveForward(float val);
 
-	void MoveRight(float Val);
+	void RecordMoveRight(float val);
 
-	void RecordYaw(float Rate);
+	void RecordKeyPressed(FKey key);
 
-	void RecordPitch(float Rate);
-
-	void RecordKeyPressed(Key key);
-
-	TArray<float> Inputs;
-
+	TArray<TPair<FKey, TTuple<float, float, float>>> Inputs;
 	TArray<float> MovementsForward;
 	TArray<float> MovementsRight;
 
-	ABaseCharacter * owner;
 
 private:
+	ABaseCharacter * owner;
 	float passedTime = 0.f;
-
-
 
 };
