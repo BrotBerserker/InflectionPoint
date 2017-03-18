@@ -9,8 +9,6 @@ URotationRecorder::URotationRecorder() {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -54,23 +52,13 @@ void URotationRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 }
 
 void URotationRecorder::StopRecording() {
-	//UE_LOG(LogTemp, Warning, TEXT("stop recording"));
-
 	isRecording = false;
-	//lastRecordTimeSeconds = GetWorld()->GetTimeSeconds();
-
 }
 
 void URotationRecorder::StartRecording() {
-	//UE_LOG(LogTemp, Warning, TEXT("start recording"));
 	isRecording = true;
 	startRecordTimeSeconds = GetWorld()->GetTimeSeconds();
 	lastRecordTimeSeconds = -RecordInterval;
-	/*FTimeStamp stamp;
-	stamp.TimeSeconds = startRecordTimeSeconds;
-	stamp.Location = GetOwner()->GetTransform().GetLocation();
-	stamp.Rotation = GetOwner()->GetTransform().GetRotation();
-	recordArray.Add(stamp);*/
 }
 
 bool URotationRecorder::IsRecording() {

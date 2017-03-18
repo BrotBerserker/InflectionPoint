@@ -41,9 +41,8 @@ public:
 	TArray<TPair<float, FVector>> RecordArray;
 
 private:
-
+	float passedTime = 0.f;
 	bool isRecording = false;
 	float startRecordTimeSeconds;
 	float lastRecordTimeSeconds;
-	float passedTime = 0.f;
 };

@@ -36,12 +36,13 @@ public:
 
 	TArray<float> Yaws;
 	TArray<float> Pitches;
-
-	ABaseCharacter * owner;
+	
 
 private:
+	ABaseCharacter * owner;
+
+	float passedTime = 0.f;
 	bool isRecording = false;
 	float startRecordTimeSeconds;
 	float lastRecordTimeSeconds;
-	float passedTime = 0.f;
 };
