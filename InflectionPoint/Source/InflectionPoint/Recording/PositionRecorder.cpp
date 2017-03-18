@@ -22,7 +22,6 @@ void UPositionRecorder::BeginPlay() {
 	if(BeginRecordOnBeginPlay) {
 		StartRecording();
 	}
-
 }
 
 
