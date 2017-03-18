@@ -44,5 +44,4 @@ public:
 private:
 	ABaseCharacter * owner;
 	float passedTime = 0.f;
-
 };
