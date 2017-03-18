@@ -34,11 +34,7 @@ void URotationReplayer::StartReplay(TArray<float> yaws, TArray<float> pitches) {
 		float wait = pitches.Last();
 		pitches.RemoveAt(pitches.Num() - 1);
 
-		FTimerHandle TimerHandle;
-		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("ApplyPitch"), pitch);
-
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
+		StartTimer(this, GetWorld(), "ApplyPitch", wait, pitch);
 	}
 }
 
