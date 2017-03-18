@@ -4,15 +4,15 @@
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "RotationReplayer.h"
 #include "Utils/CheckFunctions.h"
+#include "Utils/TimerFunctions.h"
 
 // Sets default values for this component's properties
-URotationReplayer::URotationReplayer() {
-}
+URotationReplayer::URotationReplayer() {}
 
 
 // Called when the game starts
 void URotationReplayer::BeginPlay() {
-	Super::BeginPlay(); 
+	Super::BeginPlay();
 
 	AssertTrue(GetOwner()->IsA(ABaseCharacter::StaticClass()), GetWorld(), __FILE__, __LINE__);
 	owner = (ABaseCharacter*)GetOwner();
@@ -25,13 +25,13 @@ void URotationReplayer::StartReplay(TArray<float> yaws, TArray<float> pitches) {
 		float wait = yaws.Last();
 		yaws.RemoveAt(yaws.Num() - 1);
 
-		//UE_LOG(LogTemp, Warning, TEXT("Waiting %f and then applying yaw: %f!"), wait, yaw);
 
-		FTimerHandle TimerHandle;
-		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("ApplyYaw"), yaw);
+		TimerFunctions::StartTimer(this, GetWorld(), "ApplyYaw", wait, yaw);
+		//FTimerHandle TimerHandle;
+		//FTimerDelegate TimerDel;
+		//TimerDel.BindUFunction(this, FName("ApplyYaw"), yaw);
 
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
+		//GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 	}
 
 	while(pitches.Num() > 0) {
@@ -39,8 +39,6 @@ void URotationReplayer::StartReplay(TArray<float> yaws, TArray<float> pitches) {
 		pitches.RemoveAt(pitches.Num() - 1);
 		float wait = pitches.Last();
 		pitches.RemoveAt(pitches.Num() - 1);
-
-		//UE_LOG(LogTemp, Warning, TEXT("Waiting %f and then applying pitch: %f!"), wait, pitch);
 
 		FTimerHandle TimerHandle;
 		FTimerDelegate TimerDel;

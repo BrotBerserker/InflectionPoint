@@ -2,31 +2,26 @@
 
 #include "InflectionPoint.h"
 #include "TransformRecorder.h"
-
+#include "Utils/TimerFunctions.h"
 
 // Sets default values for this component's properties
-UTransformRecorder::UTransformRecorder()
-{
+UTransformRecorder::UTransformRecorder() {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
 // Called when the game starts
-void UTransformRecorder::BeginPlay()
-{
+void UTransformRecorder::BeginPlay() {
 	Super::BeginPlay();
 
-	if (BeginRecordOnBeginPlay) {
+	if(BeginRecordOnBeginPlay) {
 		StartRecording();
-	}	
+	}
 }
 
 TArray<FTimeStamp> UTransformRecorder::StopRecording() {
-	//UE_LOG(LogTemp, Warning, TEXT("stop recording"));
 	auto temp = TArray<FTimeStamp>(recordArray);
 	recordArray.Reset();
 	isRecording = false;
@@ -35,7 +30,6 @@ TArray<FTimeStamp> UTransformRecorder::StopRecording() {
 }
 
 void UTransformRecorder::StartRecording() {
-	//UE_LOG(LogTemp, Warning, TEXT("start recording"));
 	isRecording = true;
 	startRecordTimeSeconds = GetWorld()->GetTimeSeconds();
 	lastRecordTimeSeconds = GetWorld()->GetTimeSeconds();
@@ -52,27 +46,26 @@ bool UTransformRecorder::IsRecording() {
 
 
 // Called every frame
-void UTransformRecorder::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
-{
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+void UTransformRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (isRecording) {
+	if(isRecording) {
 		float currendTimeSeconds = GetWorld()->GetTimeSeconds();
 
-		if (currendTimeSeconds - lastRecordTimeSeconds > RecordInterval) {
+		if(currendTimeSeconds - lastRecordTimeSeconds > RecordInterval) {
 			// needs to perform record
 			FTimeStamp stamp;
 			stamp.Location = GetOwner()->GetTransform().GetLocation();
 			stamp.Rotation = GetOwner()->GetTransform().GetRotation();
-			
+
 
 			bool locChanged = (recordArray.Last().Location - stamp.Location).Size() > MinLocationDistance;
 			bool rotChanged = recordArray.Last().Rotation.AngularDistance(stamp.Rotation) > MinRotationDistance;
-			if (locChanged || rotChanged) {
+			if(locChanged || rotChanged) {
 				stamp.TimeSeconds = currendTimeSeconds - startRecordTimeSeconds;
 				recordArray.Add(stamp);
 			}
 			lastRecordTimeSeconds = currendTimeSeconds;
 		}
-	}	
+	}
 }

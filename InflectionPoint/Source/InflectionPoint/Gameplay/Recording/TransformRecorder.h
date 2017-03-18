@@ -56,9 +56,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = General)
 		float MinRotationDistance = 0.1f;
 
-
-	UPROPERTY(VisibleAnywhere, Category = General)
-		TArray<FTimeStamp> recordArray;
+	//UPROPERTY(VisibleAnywhere, Category = General)
+	TArray<FTimeStamp> recordArray;
 private:
 
 	bool isRecording = false;

@@ -4,6 +4,7 @@
 #include "TransformReplayer.h"
 #include "Runtime/Engine/Classes/Components/TimelineComponent.h"
 #include "Utils/CheckFunctions.h"
+#include "Utils/TimerFunctions.h"
 
 // Sets default values for this component's properties
 UTransformReplayer::UTransformReplayer() {
@@ -15,9 +16,8 @@ void UTransformReplayer::BeginPlay() {
 	Super::BeginPlay();
 	InputComponent = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->InputComponent;
 
-	if(!PositionRecorder) {
+	if(!PositionRecorder)
 		PositionRecorder = GetOwner()->FindComponentByClass<UTransformRecorder>(); 
-	}
 	AssertNotNull(PositionRecorder , GetWorld(), __FILE__, __LINE__);
 
 	if(!InputComponent)
@@ -40,10 +40,11 @@ void UTransformReplayer::PLayReplay() {
 		FTimeStamp& bStamp = record[i]; // second
 
 		// create timer
-		FTimerHandle TimerHandle;
-		FTimerDelegate TimerDel;
-		TimerDel.BindUFunction(this, FName("PerformMovingStep"), aStamp, bStamp);
-		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, aStamp.TimeSeconds, false, aStamp.TimeSeconds);
+		TimerFunctions::StartTimer(this, GetWorld(), "PerformMovingStep", aStamp.TimeSeconds, aStamp, bStamp);
+		//FTimerHandle TimerHandle;
+		//FTimerDelegate TimerDel;
+		//TimerDel.BindUFunction(this, FName("PerformMovingStep"), aStamp, bStamp);
+		//GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, aStamp.TimeSeconds, false, aStamp.TimeSeconds);
 	}
 }
 

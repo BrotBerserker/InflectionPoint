@@ -8,6 +8,17 @@ bool AssertNotNull(void* pointer, UWorld* world, FString file, int line, FString
 
 bool AssertTrue(bool check, UWorld* world, FString file, int line, FString description = "No description provided");
 
+//template<typename T>
+//bool AssertCanCast(void* type, UWorld* world, FString file, int line, FString description = "No description provided") {
+//	if(typeid(*type) == typeid(T))
+//		return true;
+//	UE_LOG(LogTemp, Error, TEXT("Failed cast in file: %s at line: %d [%s]"), *file, line, *description);
+//	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("ALARM! Cast fail spotted!!"));
+//	UGameplayStatics::SetGamePaused(world, true);
+//	return false;
+//}
+
+
 /**
  *
  */
