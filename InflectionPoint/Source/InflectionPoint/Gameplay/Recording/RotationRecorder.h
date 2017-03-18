@@ -43,5 +43,5 @@ private:
 	bool isRecording = false;
 	float startRecordTimeSeconds;
 	float lastRecordTimeSeconds;
-
+	float passedTime = 0.f;
 };
