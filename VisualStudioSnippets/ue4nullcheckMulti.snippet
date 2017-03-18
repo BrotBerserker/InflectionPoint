@@ -5,13 +5,13 @@
       <SnippetTypes>
         <SnippetType>Expansion</SnippetType>
       </SnippetTypes>
-      <Title>ue4nullcheck</Title>
+      <Title>ue4nullcheckMulti</Title>
       <Author>Sigi</Author>
       <Description>
       </Description>
       <HelpUrl>
       </HelpUrl>
-      <Shortcut>ue4nullcheck</Shortcut>
+      <Shortcut>ue4nullcheckMulti</Shortcut>
     </Header>
     <Snippet>
 		<Imports>
@@ -21,15 +21,15 @@
 		</Imports>
       <Declarations>
         <Object Editable="true">
-          <ID>pointer</ID>
-          <ToolTip>Pointer to be checked</ToolTip>
+          <ID>pointers</ID>
+          <ToolTip>Pointers to be checked</ToolTip>
           <Default>nullptr</Default>
           <Function>
           </Function>
           <Type>void*</Type>
         </Object>
       </Declarations>
-      <Code Language="cpp" Delimiter="$"><![CDATA[AssertNotNull($pointer$, GetWorld(), __FILE__, __LINE__);]]></Code>
+      <Code Language="cpp" Delimiter="$"><![CDATA[AssertNotNull({ $pointers$ }, GetWorld(), __FILE__, __LINE__);]]></Code>
     </Snippet>
   </CodeSnippet>
 </CodeSnippets>
