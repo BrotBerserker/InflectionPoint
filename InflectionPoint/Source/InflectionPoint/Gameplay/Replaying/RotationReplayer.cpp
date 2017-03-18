@@ -25,13 +25,7 @@ void URotationReplayer::StartReplay(TArray<float> yaws, TArray<float> pitches) {
 		float wait = yaws.Last();
 		yaws.RemoveAt(yaws.Num() - 1);
 
-
-		TimerFunctions::StartTimer(this, GetWorld(), "ApplyYaw", wait, yaw);
-		//FTimerHandle TimerHandle;
-		//FTimerDelegate TimerDel;
-		//TimerDel.BindUFunction(this, FName("ApplyYaw"), yaw);
-
-		//GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
+		StartTimer(this, GetWorld(), "ApplyYaw", wait, yaw);
 	}
 
 	while(pitches.Num() > 0) {

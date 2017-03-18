@@ -2,6 +2,7 @@
 
 #include "InflectionPoint.h"
 #include "ReplayControlledFPSCharacter.h"
+#include "Utils/TimerFunctions.h"
 
 
 void AReplayControlledFPSCharacter::BeginPlay() {
@@ -17,7 +18,7 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<TPair<FKey, TTuple<float,
 		float pitch = inputs.Last().Value.Get<2>();
 		inputs.RemoveAt(inputs.Num() - 1);
 
-		StartTimer("PressKey", wait, yaw, pitch, key);
+		StartTimer(this, GetWorld(), "PressKey", wait, yaw, pitch, key);
 	}
 
 	while(moveForwards.Num() > 0) {
@@ -26,7 +27,7 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<TPair<FKey, TTuple<float,
 		float wait = moveForwards.Last();
 		moveForwards.RemoveAt(moveForwards.Num() - 1);
 
-		StartTimer("ReplayMoveForward", wait, forward);
+		StartTimer(this, GetWorld(), "ReplayMoveForward", wait, forward);
 	}
 
 	while(moveRights.Num() > 0) {
@@ -35,16 +36,8 @@ void AReplayControlledFPSCharacter::StartReplay(TArray<TPair<FKey, TTuple<float,
 		float wait = moveRights.Last();
 		moveRights.RemoveAt(moveRights.Num() - 1);
 
-		StartTimer("ReplayMoveRight", wait, right);
+		StartTimer(this, GetWorld(), "ReplayMoveRight", wait, right);
 	}
-}
-
-template <typename... VarTypes>
-void AReplayControlledFPSCharacter::StartTimer(FString function, float wait, VarTypes... vars) {
-	FTimerHandle TimerHandle;
-	FTimerDelegate TimerDel;
-	TimerDel.BindUFunction(this, FName(*function), std::forward<VarTypes>(vars)...);
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, wait, false, wait);
 }
 
 void AReplayControlledFPSCharacter::PressKey(float yaw, float pitch, FKey key) {

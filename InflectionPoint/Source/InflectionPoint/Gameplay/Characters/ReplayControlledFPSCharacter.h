@@ -19,8 +19,6 @@ public:
 
 	void StartReplay(TArray<TPair<FKey, TTuple<float, float, float>>> inputs, TArray<float> moveForwards, TArray<float> moveRights);
 
-	template <typename... VarTypes>
-	void StartTimer(FString function, float wait, VarTypes... vars);
 
 	UFUNCTION()
 		void PressKey(float yaw, float pitch, FKey key);

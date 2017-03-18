@@ -40,11 +40,7 @@ void UTransformReplayer::PLayReplay() {
 		FTimeStamp& bStamp = record[i]; // second
 
 		// create timer
-		TimerFunctions::StartTimer(this, GetWorld(), "PerformMovingStep", aStamp.TimeSeconds, aStamp, bStamp);
-		//FTimerHandle TimerHandle;
-		//FTimerDelegate TimerDel;
-		//TimerDel.BindUFunction(this, FName("PerformMovingStep"), aStamp, bStamp);
-		//GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, aStamp.TimeSeconds, false, aStamp.TimeSeconds);
+		StartTimer(this, GetWorld(), "PerformMovingStep", aStamp.TimeSeconds, aStamp, bStamp);
 	}
 }
 

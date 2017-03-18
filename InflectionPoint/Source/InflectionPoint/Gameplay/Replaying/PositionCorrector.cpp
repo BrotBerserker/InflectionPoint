@@ -19,13 +19,7 @@ void UPositionCorrector::StartCorrecting(TArray<TPair<float, FVector>> positions
 		TPair<float, FVector> pair = positions.Last();
 		positions.RemoveAt(positions.Num() - 1);
 
-		TimerFunctions::StartTimer(this, GetWorld(), "CorrectPosition", pair.Key, pair.Value);
-
-		//FTimerHandle TimerHandle;
-		//FTimerDelegate TimerDel;
-		//TimerDel.BindUFunction(this, FName("CorrectPosition"), pair.Value);
-
-		//GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, pair.Key, false, pair.Key);
+		StartTimer(this, GetWorld(), "CorrectPosition", pair.Key, pair.Value);
 	}
 }
 
