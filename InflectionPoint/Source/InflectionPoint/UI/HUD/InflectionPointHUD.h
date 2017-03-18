@@ -4,8 +4,7 @@
 #include "InflectionPointHUD.generated.h"
 
 UCLASS()
-class AInflectionPointHUD : public AHUD
-{
+class AInflectionPointHUD : public AHUD {
 	GENERATED_BODY()
 
 public:

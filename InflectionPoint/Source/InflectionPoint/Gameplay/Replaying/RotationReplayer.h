@@ -17,9 +17,6 @@ public:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	void StartReplay(TArray<float> yaws, TArray<float> pitches);
 
 	UFUNCTION()
@@ -28,6 +25,7 @@ public:
 	UFUNCTION()
 		void ApplyPitch(float value);
 
+private:
 	ABaseCharacter * owner;
 
 };

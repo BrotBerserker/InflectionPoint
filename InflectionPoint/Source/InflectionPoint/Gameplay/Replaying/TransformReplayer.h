@@ -7,21 +7,16 @@
 #include "TransformReplayer.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class INFLECTIONPOINT_API UTransformReplayer : public UActorComponent
-{
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class INFLECTIONPOINT_API UTransformReplayer : public UActorComponent {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UTransformReplayer();
 
 	// Called when the game starts
 	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
-
 
 	void PLayReplay();
 
@@ -33,5 +28,5 @@ public:
 		UTransformRecorder* PositionRecorder;
 
 	UFUNCTION()
-		void PerformMovingStep(FTimeStamp current, FTimeStamp next);	
+		void PerformMovingStep(FTimeStamp current, FTimeStamp next);
 };

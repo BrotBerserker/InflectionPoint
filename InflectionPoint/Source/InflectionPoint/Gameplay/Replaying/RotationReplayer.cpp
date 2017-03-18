@@ -3,28 +3,19 @@
 #include "InflectionPoint.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "RotationReplayer.h"
-
+#include "Utils/CheckFunctions.h"
 
 // Sets default values for this component's properties
 URotationReplayer::URotationReplayer() {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
 }
 
 
 // Called when the game starts
 void URotationReplayer::BeginPlay() {
-	Super::BeginPlay();
+	Super::BeginPlay(); 
 
+	AssertTrue(GetOwner()->IsA(ABaseCharacter::StaticClass()), GetWorld(), __FILE__, __LINE__);
 	owner = (ABaseCharacter*)GetOwner();
-}
-
-
-// Called every frame
-void URotationReplayer::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
 void URotationReplayer::StartReplay(TArray<float> yaws, TArray<float> pitches) {
@@ -60,8 +51,6 @@ void URotationReplayer::StartReplay(TArray<float> yaws, TArray<float> pitches) {
 }
 
 void URotationReplayer::ApplyYaw(float value) {
-	//UE_LOG(LogTemp, Warning, TEXT("Applying yaw: %f!"), value);
-	//AddControllerYawInput(value);
 	FRotator rot = owner->GetCapsuleComponent()->GetComponentRotation();
 	rot.Yaw = value;
 	rot.Roll = 0;
@@ -74,11 +63,8 @@ void URotationReplayer::ApplyYaw(float value) {
 }
 
 void URotationReplayer::ApplyPitch(float value) {
-	//AddControllerPitchInput(value);
-	//AddActorLocalRotation(FQuat(0, 0, value, 0));
 	FRotator rot = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
 	rot.Pitch = value;
 	rot.Roll = 0;
-	//rot.Yaw = 0;
 	owner->GetFirstPersonCameraComponent()->SetWorldRotation(rot);
 }
