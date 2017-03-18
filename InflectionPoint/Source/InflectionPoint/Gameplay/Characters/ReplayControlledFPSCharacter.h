@@ -25,8 +25,11 @@ public:
 
 	void StartReplay(TArray<float> inputs, TArray<float> moveForwards, TArray<float> moveRights);
 
+	template <typename... VarTypes>
+	void StartTimer(FString function, float wait, VarTypes... vars);
+
 	UFUNCTION()
-		void PressKey(float key, float yaw, float pitch);
+		void PressKey(float yaw, float pitch, float key);
 
 	UFUNCTION()
 		void ApplyYaw(float value);
@@ -44,6 +47,5 @@ private:
 	TArray<float> recordedInput;
 	bool playing = false;
 	float remainingTime = 0;
-
 
 };

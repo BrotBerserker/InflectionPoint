@@ -14,9 +14,14 @@ class INFLECTIONPOINT_API APlayerControlledFPSCharacter : public ABaseCharacter
 	GENERATED_BODY()
 	
 protected:
-	// APawn interface
+
+	/** Override from ACharacter */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-	// End of APawn interface
+
+	/** Only for Debug purposes, should be configured inside the GameMode */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		class UClass* ReplayCharacter;
 	
+	/** Spawns a ReplayPlayer for Debug purposes, the real spawning should happen in the GameMode */
 	void DEBUG_SpawnReplay();
 };

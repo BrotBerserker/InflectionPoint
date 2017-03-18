@@ -4,8 +4,7 @@
 #include "InflectionPointGameMode.generated.h"
 
 UCLASS(minimalapi)
-class AInflectionPointGameMode : public AGameModeBase
-{
+class AInflectionPointGameMode : public AGameModeBase {
 	GENERATED_BODY()
 
 public:

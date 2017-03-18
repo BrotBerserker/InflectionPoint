@@ -8,9 +8,9 @@ class UInputComponent;
 UCLASS(config = Game)
 class ABaseCharacter : public ACharacter {
 	GENERATED_BODY()
-
-		/** Pawn mesh: 1st person view (arms; seen only by self) */
-		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		
+	/** Pawn mesh: 1st person view (arms; seen only by self) */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh1P;
 
 	/** Gun mesh: 1st person view (seen only by self) */
@@ -30,9 +30,6 @@ public:
 	ABaseCharacter();
 
 	virtual void BeginPlay();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		class UClass* ReplayCharacter;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
@@ -69,26 +66,27 @@ public:
 
 	/** Fires a debug projectile. */
 	void OnDebugFire();
-
+	
+	/** Fires the given projectile */
 	void FireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClass);
 
 	/** Handles moving forward/backward */
-	void MoveForward(float Val);
+	void MoveForward(float val);
 
 	/** Handles stafing movement, left and right */
-	void MoveRight(float Val);
+	void MoveRight(float val);
 
 	/**
 	 * Called via input to turn at a given rate.
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
-	void TurnAtRate(float Rate);
+	void TurnAtRate(float rate);
 
 	/**
 	 * Called via input to turn look up/down at a given rate.
 	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	 */
-	void LookUpAtRate(float Rate);
+	void LookUpAtRate(float rate);
 
 public:
 	/** Returns Mesh1P subobject **/

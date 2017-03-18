@@ -11,7 +11,7 @@ bool AssertNotNull(std::initializer_list<void*> pointers, UWorld* world, FString
 			return false;
 		}
 		current++;
-	} 
+	}
 	return true;
 }
 
@@ -25,10 +25,8 @@ bool AssertNotNull(void* pointer, UWorld* world, FString file, int line, FString
 	return true;
 }
 
-CheckFunctions::CheckFunctions()
-{
+CheckFunctions::CheckFunctions() {
 }
 
-CheckFunctions::~CheckFunctions()
-{
+CheckFunctions::~CheckFunctions() {
 }

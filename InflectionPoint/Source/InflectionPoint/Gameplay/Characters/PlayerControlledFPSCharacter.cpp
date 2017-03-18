@@ -8,6 +8,7 @@
 #include "Gameplay/Recording/RotationRecorder.h"
 #include "Gameplay/Replaying/PositionCorrector.h"
 #include "Gameplay/Replaying/RotationReplayer.h"
+#include "Utils/CheckFunctions.h"
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -25,43 +26,41 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
 
-
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
-	// "turn" handles devices that provide an absolute delta, such as a mouse.
-	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
-	PlayerInputComponent->BindAxis("Turn", this, &ABaseCharacter::TurnAtRate);
-	//PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
-	//PlayerInputComponent->BindAxis("TurnRate", this, &ABaseCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &ABaseCharacter::LookUpAtRate);
-	//PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
-	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 
 	// DEBUG Bindings
 	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_SpawnReplay);
+
+	// Controller bindings
+	//PlayerInputComponent->BindAxis("TurnRate", this, &ABaseCharacter::TurnAtRate);
+	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
 }
 
 void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
 
 	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetWorld()->GetFirstPlayerController());
+	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
 	FVector loc = playerStart->GetTransform().GetLocation();
 	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
 
 	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, loc, rot);
-	if(newPlayer == nullptr) {
-		return;
-	}
+	AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__);
 
 	// Replay inputs
 	UInputRecorder* inputRecorder = FindComponentByClass<UInputRecorder>();
+	AssertNotNull(inputRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->StartReplay(inputRecorder->Inputs, inputRecorder->MovementsForward, inputRecorder->MovementsRight);
 
 	// Correct positions
 	UPositionRecorder* posRecorder = FindComponentByClass<UPositionRecorder>();
+	AssertNotNull(posRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->FindComponentByClass<UPositionCorrector>()->StartCorrecting(posRecorder->RecordArray);
 
 	// Replay rotations
 	URotationRecorder* rotRecorder = FindComponentByClass<URotationRecorder>();
+	AssertNotNull(rotRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->FindComponentByClass<URotationReplayer>()->StartReplay(rotRecorder->Yaws, rotRecorder->Pitches);
 }
 

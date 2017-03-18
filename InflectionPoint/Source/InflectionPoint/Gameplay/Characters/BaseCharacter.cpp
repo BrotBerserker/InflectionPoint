@@ -51,7 +51,6 @@ ABaseCharacter::ABaseCharacter() {
 
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
 	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
-
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -71,8 +70,6 @@ void ABaseCharacter::OnFire() {
 }
 
 void ABaseCharacter::OnDebugFire() {
-	FRotator rot = GetFirstPersonCameraComponent()->GetComponentRotation();
-
 	FireProjectile(DebugProjectileClass);
 }
 
@@ -83,6 +80,7 @@ void ABaseCharacter::FireProjectile(TSubclassOf<class AInflectionPointProjectile
 		if(World != NULL) {
 			//const FRotator SpawnRotation = GetControlRotation();
 			const FRotator SpawnRotation = FirstPersonCameraComponent->GetComponentRotation();
+
 			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
 			const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
 
@@ -110,30 +108,24 @@ void ABaseCharacter::FireProjectile(TSubclassOf<class AInflectionPointProjectile
 	}
 }
 
-void ABaseCharacter::MoveForward(float Value) {
-	if(Value != 0.0f) {
-		// add movement in that direction
-		AddMovementInput(GetActorForwardVector(), Value);
+void ABaseCharacter::MoveForward(float value) {
+	if(value != 0.0f) {
+		AddMovementInput(GetActorForwardVector(), value);
 	}
 }
 
-void ABaseCharacter::MoveRight(float Value) {
-	if(Value != 0.0f) {
-		// add movement in that direction
-		AddMovementInput(GetActorRightVector(), Value);
+void ABaseCharacter::MoveRight(float value) {
+	if(value != 0.0f) {
+		AddMovementInput(GetActorRightVector(), value);
 	}
 }
 
-void ABaseCharacter::TurnAtRate(float Rate) {
+void ABaseCharacter::TurnAtRate(float rate) {
 	// calculate delta for this frame from the rate information
-	//AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
-	AddControllerYawInput(Rate);
-
-	//UE_LOG(LogTemp, Warning, TEXT("Turn at rate!!1 %f"), Rate);
+	AddControllerYawInput(rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void ABaseCharacter::LookUpAtRate(float Rate) {
+void ABaseCharacter::LookUpAtRate(float rate) {
 	// calculate delta for this frame from the rate information
-	//AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
-	AddControllerPitchInput(Rate);
+	AddControllerPitchInput(rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
