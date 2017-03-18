@@ -32,13 +32,14 @@ void UInputRecorder::BeginPlay() {
 
 void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	passedTime += DeltaTime;
 }
 
 void UInputRecorder::RecordKeyPressed(FKey key) {
 	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
 	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
 
-	TTuple<float, float, float> tt(GetWorld()->GetTimeSeconds(), rotCapsule.Yaw, rotCamera.Pitch);
+	TTuple<float, float, float> tt(passedTime, rotCapsule.Yaw, rotCamera.Pitch);
 	Inputs.Add(TPair<FKey,TTuple<float,float,float>>(TPairInitializer<FKey, TTuple<float, float, float>>(key, tt)));
 }
 
@@ -60,14 +61,14 @@ void UInputRecorder::RecordOnDebugFire() {
 
 void UInputRecorder::RecordMoveForward(float Value) {
 	if(Value != 0) {
-		MovementsForward.Add(GetWorld()->GetTimeSeconds());
+		MovementsForward.Add(passedTime);
 		MovementsForward.Add(Value);
 	}
 }
 
 void UInputRecorder::RecordMoveRight(float Value) {
 	if(Value != 0) {
-		MovementsRight.Add(GetWorld()->GetTimeSeconds());
+		MovementsRight.Add(passedTime);
 		MovementsRight.Add(Value);
 	}
 }
