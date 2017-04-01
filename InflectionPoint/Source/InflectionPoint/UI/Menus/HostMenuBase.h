@@ -3,13 +3,13 @@
 #pragma once
 
 #include "Blueprint/UserWidget.h"
-#include "HostMenu.generated.h"
+#include "HostMenuBase.generated.h"
 
 /**
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API UHostMenu : public UUserWidget {
+class INFLECTIONPOINT_API UHostMenuBase : public UUserWidget {
 	GENERATED_BODY()
 
 public:
