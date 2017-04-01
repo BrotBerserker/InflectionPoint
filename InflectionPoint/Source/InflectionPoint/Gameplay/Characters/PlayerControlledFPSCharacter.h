@@ -3,7 +3,9 @@
 #pragma once
 
 #include "BaseCharacter.h"
+#include "Gameplay/Recording/InputRecorder.h"
 #include "PlayerControlledFPSCharacter.generated.h"
+
 
 /**
  * 
@@ -24,4 +26,6 @@ protected:
 	
 	/** Spawns a ReplayPlayer for Debug purposes, the real spawning should happen in the GameMode */
 	void DEBUG_SpawnReplay();
+
+	UInputRecorder* InputRecorder;
 };

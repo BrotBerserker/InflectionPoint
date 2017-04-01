@@ -4,11 +4,11 @@
 #include "PlayerControlledFPSCharacter.h"
 #include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
 #include "Gameplay/Recording/PositionRecorder.h"
-#include "Gameplay/Recording/InputRecorder.h"
 #include "Gameplay/Recording/RotationRecorder.h"
 #include "Gameplay/Replaying/PositionCorrector.h"
 #include "Gameplay/Replaying/RotationReplayer.h"
 #include "Utils/CheckFunctions.h"
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -32,6 +32,10 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	// DEBUG Bindings
 	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_SpawnReplay);
 
+	InputRecorder = FindComponentByClass<UInputRecorder>();
+	AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
+	InputRecorder->InitializeBindings(PlayerInputComponent);
+
 	// Controller bindings
 	//PlayerInputComponent->BindAxis("TurnRate", this, &ABaseCharacter::TurnAtRate);
 	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
@@ -51,9 +55,8 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
 	}
 
 	// Replay inputs
-	UInputRecorder* inputRecorder = FindComponentByClass<UInputRecorder>();
-	AssertNotNull(inputRecorder, GetWorld(), __FILE__, __LINE__);
-	newPlayer->StartReplay(inputRecorder->Inputs, inputRecorder->MovementsForward, inputRecorder->MovementsRight);
+	AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
+	newPlayer->StartReplay(InputRecorder->Inputs, InputRecorder->MovementsForward, InputRecorder->MovementsRight);
 
 	// Correct positions
 	UPositionRecorder* posRecorder = FindComponentByClass<UPositionRecorder>();

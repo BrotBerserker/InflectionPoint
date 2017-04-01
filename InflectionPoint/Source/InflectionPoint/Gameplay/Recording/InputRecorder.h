@@ -22,6 +22,14 @@ public:
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction) override;
 
+	void InitializeBindings(UInputComponent * inputComponent);
+
+	TArray<TPair<FKey, TTuple<float, float, float>>> Inputs;
+	TArray<float> MovementsForward;
+	TArray<float> MovementsRight;
+
+
+private:
 	void RecordStartJump();
 
 	void RecordStopJump();
@@ -36,12 +44,7 @@ public:
 
 	void RecordKeyPressed(FKey key);
 
-	TArray<TPair<FKey, TTuple<float, float, float>>> Inputs;
-	TArray<float> MovementsForward;
-	TArray<float> MovementsRight;
-
-
-private:
 	ABaseCharacter * owner;
 	float passedTime = 0.f;
+
 };

@@ -2,7 +2,7 @@
 
 #include "InflectionPoint.h"
 #include "InputRecorder.h"
-
+#include "Utils/CheckFunctions.h"
 
 // Sets default values for this component's properties
 UInputRecorder::UInputRecorder() {
@@ -17,8 +17,9 @@ void UInputRecorder::BeginPlay() {
 	Super::BeginPlay();
 
 	owner = (ABaseCharacter*)GetOwner();
+}
 
-	UInputComponent* inputComponent = GetOwner()->InputComponent;
+void UInputRecorder::InitializeBindings(UInputComponent * inputComponent) {
 	inputComponent->BindAction("Jump", IE_Pressed, this, &UInputRecorder::RecordStartJump);
 	inputComponent->BindAction("Jump", IE_Released, this, &UInputRecorder::RecordStopJump);
 
@@ -27,7 +28,6 @@ void UInputRecorder::BeginPlay() {
 
 	inputComponent->BindAxis("MoveForward", this, &UInputRecorder::RecordMoveForward);
 	inputComponent->BindAxis("MoveRight", this, &UInputRecorder::RecordMoveRight);
-
 }
 
 void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction * ThisTickFunction) {
@@ -40,7 +40,7 @@ void UInputRecorder::RecordKeyPressed(FKey key) {
 	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
 
 	TTuple<float, float, float> tt(passedTime, rotCapsule.Yaw, rotCamera.Pitch);
-	Inputs.Add(TPair<FKey,TTuple<float,float,float>>(TPairInitializer<FKey, TTuple<float, float, float>>(key, tt)));
+	Inputs.Add(TPair<FKey, TTuple<float, float, float>>(TPairInitializer<FKey, TTuple<float, float, float>>(key, tt)));
 }
 
 void UInputRecorder::RecordStartJump() {
