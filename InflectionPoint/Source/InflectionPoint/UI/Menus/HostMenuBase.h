@@ -14,7 +14,7 @@ class INFLECTIONPOINT_API UHostMenuBase : public UUserWidget {
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
-		void DiesDasAnanas();
+		void HostServer(int playerAmount, bool lan, FString serverName);
 
 
 };

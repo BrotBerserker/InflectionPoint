@@ -3,7 +3,7 @@
 #include "InflectionPoint.h"
 #include "HostMenuBase.h"
 
-void UHostMenuBase::DiesDasAnanas() {
-	UE_LOG(LogTemp, Warning, TEXT("Dies das ananasen"));
-
+void UHostMenuBase::HostServer(int playerAmount, bool lan, FString serverName) {
+	UE_LOG(LogTemp, Warning, TEXT("Servername: %s"), *serverName);
+	
 }
