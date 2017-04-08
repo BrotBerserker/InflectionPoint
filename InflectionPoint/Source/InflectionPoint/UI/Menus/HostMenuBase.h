@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "SubMenuTemplate.h"
 #include "Blueprint/UserWidget.h"
 #include "HostMenuBase.generated.h"
 
@@ -9,7 +10,7 @@
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API UHostMenuBase : public UUserWidget {
+class INFLECTIONPOINT_API UHostMenuBase : public USubMenuTemplate {
 	GENERATED_BODY()
 
 public:
