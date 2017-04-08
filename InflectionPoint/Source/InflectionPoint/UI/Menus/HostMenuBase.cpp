@@ -4,6 +4,5 @@
 #include "HostMenuBase.h"
 
 void UHostMenuBase::HostServer(int playerAmount, bool lan, FString serverName) {
-	UE_LOG(LogTemp, Warning, TEXT("Servername: %s"), *serverName);
-	
+	UE_LOG(LogTemp, Warning, TEXT("Servername: %s"), *serverName);	
 }

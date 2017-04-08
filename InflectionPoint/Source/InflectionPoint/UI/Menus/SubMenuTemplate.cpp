@@ -2,7 +2,6 @@
 
 #include "InflectionPoint.h"
 #include "SubMenuTemplate.h"
-#include "Utils/CheckFunctions.h"
 
 void USubMenuTemplate::NavigateBackToParentWidgetMenu() {
 	if(!AssertNotNull(ParentWidgetMenu, GetWorld(), __FILE__, __LINE__))

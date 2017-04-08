@@ -16,6 +16,4 @@ class INFLECTIONPOINT_API UHostMenuBase : public USubMenuTemplate {
 public:
 	UFUNCTION(BlueprintCallable, Category = "Game")
 		void HostServer(int playerAmount, bool lan, FString serverName);
-
-
 };
