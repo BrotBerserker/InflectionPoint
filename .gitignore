@@ -64,7 +64,7 @@
 */Content/StarterContent/
 
 *.VC.db
-*/Config/DefaultEngine.ini
+#*/Config/DefaultEngine.ini
 #*/BuildingEscape.sln
 
 */ipch/*
