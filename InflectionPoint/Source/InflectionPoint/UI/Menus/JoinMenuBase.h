@@ -21,7 +21,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Network")
 		void FindOnlineGames(bool isLan);
 
-
 	UFUNCTION(BlueprintCallable, Category = "Network")
 		void JoinOnlineGame();
 

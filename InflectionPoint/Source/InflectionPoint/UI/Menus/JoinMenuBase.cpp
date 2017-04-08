@@ -4,7 +4,7 @@
 #include "JoinMenuBase.h"
 
 
-UJoinMenuBase::UJoinMenuBase() {
+UJoinMenuBase::UJoinMenuBase() /*: Super()*/ {
 	/** Bind function for FINDING a Session */
 	OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UJoinMenuBase::OnFindSessionsComplete);
 
@@ -34,7 +34,7 @@ void UJoinMenuBase::JoinOnlineGame() {
 				// Once we found sounce a Session that is not ours, just join it. Instead of using a for loop, you could
 				// use a widget where you click on and have a reference for the GameSession it represents which you can use
 				// here
-				JoinSession(Player->GetPreferredUniqueNetId(), GameSessionName, SearchResult);
+				JoinSession(Player->GetPreferredUniqueNetId(), GameSessionName/*SessionSearch->SearchResults[i].Session.OwningUserName)*/, SearchResult);
 				break;
 			}
 		}
@@ -79,7 +79,7 @@ void UJoinMenuBase::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName Se
 }
 
 void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("OFindSessionsComplete bSuccess: %d"), bWasSuccessful));
+	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OFindSessionsComplete bSuccess: %d"), bWasSuccessful));
 	OnSessionSearchComplete();
 
 	// Get OnlineSubsystem we want to work with
@@ -92,7 +92,7 @@ void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
 			Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
 
 			// Just debugging the Number of Search results. Can be displayed in UMG or something later on
-			GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Num Search Results: %d"), SessionSearch->SearchResults.Num()));
+			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Num Search Results: %d"), SessionSearch->SearchResults.Num()));
 			
 			// If we have found at least 1 session, we just going to debug them. You could add them to a list of UMG Widgets, like it is done in the BP version!
 			if(SessionSearch->SearchResults.Num() > 0) {
@@ -102,7 +102,7 @@ void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
 				for(int32 SearchIdx = 0; SearchIdx < SessionSearch->SearchResults.Num(); SearchIdx++) {
 					// OwningUserName is just the SessionName for now. I guess you can create your own Host Settings class and GameSession Class and add a proper GameServer Name here.
 					// This is something you can't do in Blueprint for example!
-					GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("Session Number: %d | Sessionname: %s "), SearchIdx + 1, *(SessionSearch->SearchResults[SearchIdx].Session.OwningUserName)));
+					GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Session Number: %d | Sessionname: %s "), SearchIdx + 1, *(SessionSearch->SearchResults[SearchIdx].Session.OwningUserName)));
 				}
 			}
 		}
@@ -135,7 +135,7 @@ bool UJoinMenuBase::JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName Ses
 }
 
 void UJoinMenuBase::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result) {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("OnJoinSessionComplete %s, %d"), *SessionName.ToString(), static_cast<int32>(Result)));
+	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnJoinSessionComplete %s, %d"), *SessionName.ToString(), static_cast<int32>(Result)));
 
 	// Get the OnlineSubsystem we want to work with
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
