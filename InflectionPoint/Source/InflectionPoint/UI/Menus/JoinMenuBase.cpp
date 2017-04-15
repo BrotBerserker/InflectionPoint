@@ -5,13 +5,13 @@
 #include "JoinMenuBase.h"
 
 
-UJoinMenuBase::UJoinMenuBase() /*: Super()*/ {
+UJoinMenuBase::UJoinMenuBase() : Super() {
 	OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UJoinMenuBase::OnFindSessionsComplete);
 	OnJoinSessionCompleteDelegate = FOnJoinSessionCompleteDelegate::CreateUObject(this, &UJoinMenuBase::OnJoinSessionComplete);
 }
 
 void UJoinMenuBase::FindOnlineGames(bool isLan) {
-	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();// GetFirstGamePlayer();
+	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
 	FindSessions(Player->GetPreferredUniqueNetId(), GameSessionName, isLan, true);
 }
 
