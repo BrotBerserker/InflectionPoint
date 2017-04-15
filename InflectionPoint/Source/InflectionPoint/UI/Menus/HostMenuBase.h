@@ -18,16 +18,20 @@ public:
 
 	UHostMenuBase();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game")
-		FString NameOfLevelToOpen;
-
+	FString LevelToOpen;
 
 	UFUNCTION(BlueprintCallable, Category = "Game")
-		void HostServer(int playerAmount, bool lan, FString serverName);
+		void HostServer(int playerAmount, bool lan, FString serverName, FString levelToOpen);
+
+	IOnlineSessionPtr GetSessionInterface();
 
 	bool HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
+
+	void SetupSessionSettings(bool bIsLAN, bool bIsPresence, const int32 &MaxNumPlayers, FName &SessionName);
+
 	/* Delegate called when session created */
 	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
+
 	/* Delegate called when session started */
 	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
 
