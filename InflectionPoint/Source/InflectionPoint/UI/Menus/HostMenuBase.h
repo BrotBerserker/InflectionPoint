@@ -20,7 +20,7 @@ public:
 
 	FString LevelToOpen;
 
-	UFUNCTION(BlueprintCallable, Category = "Game")
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
 		void HostServer(int playerAmount, bool lan, FString serverName, FString levelToOpen);
 
 	IOnlineSessionPtr GetSessionInterface();
