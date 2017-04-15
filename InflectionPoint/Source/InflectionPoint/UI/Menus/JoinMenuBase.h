@@ -47,6 +47,8 @@ public:
 
 	void OnFindSessionsComplete(bool bWasSuccessful);
 
+	
+
 	bool JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult);
 
 	/** Delegate for joining a session */
@@ -56,4 +58,7 @@ public:
 	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
 
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+
+private:
+	IOnlineSessionPtr GetSessionInterface();
 };
