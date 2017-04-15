@@ -62,9 +62,12 @@
 */DerivedDataCache/*
 
 */Content/StarterContent/
+*/Content/AnimStarterPack/
 
 *.VC.db
 #*/Config/DefaultEngine.ini
 #*/BuildingEscape.sln
 
 */ipch/*
+
+
