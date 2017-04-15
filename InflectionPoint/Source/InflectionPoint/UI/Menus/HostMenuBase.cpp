@@ -8,7 +8,7 @@ void UHostMenuBase::HostServer(int playerAmount, bool isLan, FString serverName)
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();// GetFirstGamePlayer();
 
 	// Call our custom HostSession function. GameSessionName is a GameInstance variable
-	HostSession(Player->GetPreferredUniqueNetId(), GameSessionName/*FName(*serverName)*/, isLan, true, playerAmount);
+	HostSession(Player->GetPreferredUniqueNetId(), /*GameSessionName*/FName(*serverName), isLan, true, playerAmount);
 }
 
 UHostMenuBase::UHostMenuBase()
@@ -46,6 +46,7 @@ bool UHostMenuBase::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName Ses
 			SessionSettings->bAllowJoinViaPresenceFriendsOnly = false;
 
 			SessionSettings->Set(SETTING_MAPNAME, NameOfLevelToOpen/*FString("NewMap")*/, EOnlineDataAdvertisementType::ViaOnlineService);
+			SessionSettings->Set(FName("SessionName"), SessionName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 
 			// Set the delegate to the Handle of the SessionInterface
 			OnCreateSessionCompleteDelegateHandle = Sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
