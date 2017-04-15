@@ -18,42 +18,36 @@ class INFLECTIONPOINT_API UJoinMenuBase : public USubMenuTemplate {
 public:
 	UJoinMenuBase();
 
-	UFUNCTION(BlueprintCallable, Category = "Network")
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
 		void FindOnlineGames(bool isLan);
 
-	UFUNCTION(BlueprintCallable, Category = "Network")
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
 		void JoinOnlineGame();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Network")
+	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnSessionFound();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Network")
+	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnSessionSearchComplete();
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "Network")
+	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnJoinComplete();
 
-
-
-	void FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence);
-
-	/** Delegate for searching for sessions */
+private:
+	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
-
-	/** Handle to registered delegate for searching a session */
 	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
 
-	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
+	FOnJoinSessionCompleteDelegate OnJoinSessionCompleteDelegate;
+	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
+
+	void FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence);
 
 	void OnFindSessionsComplete(bool bWasSuccessful);
 
 	bool JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult);
 
-	/** Delegate for joining a session */
-	FOnJoinSessionCompleteDelegate OnJoinSessionCompleteDelegate;
-
-	/** Handle to registered delegate for joining a session */
-	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
-
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
+
+	IOnlineSessionPtr GetSessionInterface();
 };
