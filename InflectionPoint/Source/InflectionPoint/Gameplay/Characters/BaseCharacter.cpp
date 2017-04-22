@@ -18,13 +18,13 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 ABaseCharacter::ABaseCharacter() {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
-	
+
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->RelativeLocation = FVector(-39.56f, 1.75f, 64.f); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
-	
+
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Mesh1P->SetOnlyOwnerSee(true);
@@ -44,7 +44,8 @@ ABaseCharacter::ABaseCharacter() {
 
 	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	FP_MuzzleLocation->SetupAttachment(FP_Gun);
-	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));
+	/*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
+	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 74.f, 11.f));
 
 	// Default offset from the character location for projectiles to spawn
 	GunOffset = FVector(100.0f, 0.0f, 10.0f);
@@ -66,30 +67,37 @@ void ABaseCharacter::BeginPlay() {
 }
 
 void ABaseCharacter::OnFire() {
-	FireProjectile(ProjectileClass);
+	ServerFireProjectile(ProjectileClass);
 }
 
 void ABaseCharacter::OnDebugFire() {
-	FireProjectile(DebugProjectileClass);
+	ServerFireProjectile(DebugProjectileClass);
 }
 
-void ABaseCharacter::FireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClass) {
+bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
+	return true;
+}
+
+void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
 	// try and fire a projectile
-	if(projectileClass != NULL) {
+	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();
 		if(World != NULL) {
 			//const FRotator SpawnRotation = GetControlRotation();
 			const FRotator SpawnRotation = FirstPersonCameraComponent->GetComponentRotation();
 
 			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation()) + SpawnRotation.RotateVector(GunOffset);
+			const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());// +SpawnRotation.RotateVector(GunOffset);
 
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			ActorSpawnParams.Instigator = Instigator;
+			ActorSpawnParams.Owner = this;
 
 			// spawn the projectile at the muzzle
-			World->SpawnActor<AInflectionPointProjectile>(projectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			projectile->GetCollisionComp()->IgnoreActorWhenMoving(this, true);
 		}
 	}
 

@@ -68,7 +68,8 @@ public:
 	void OnDebugFire();
 	
 	/** Fires the given projectile */
-	void FireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClass);
+	UFUNCTION(Reliable, Server, WithValidation)
+	void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn);
 
 	/** Handles moving forward/backward */
 	void MoveForward(float val);
