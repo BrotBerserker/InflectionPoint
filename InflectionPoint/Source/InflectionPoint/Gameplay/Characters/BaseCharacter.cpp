@@ -97,7 +97,6 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 
 			// spawn the projectile at the muzzle
 			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, SpawnLocation, SpawnRotation, ActorSpawnParams);
-			projectile->GetCollisionComp()->IgnoreActorWhenMoving(this, true);
 
 			MulticastProjectileFired();
 		}
@@ -108,7 +107,7 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 void ABaseCharacter::MulticastProjectileFired_Implementation() {
 	// try and play the sound if specified
 	if(FireSound != NULL) {
-		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation(), .4f);
+		UGameplayStatics::SpawnSoundAttached(FireSound, GetCapsuleComponent());
 	}
 
 	// try and play a firing animation if specified
