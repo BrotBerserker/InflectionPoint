@@ -8,6 +8,7 @@
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
 #include "Gameplay/Recording/InputRecorder.h"
+#include "Gameplay/Damage/MortalityProvider.h"
 #include "Utils/CheckFunctions.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
@@ -52,6 +53,9 @@ ABaseCharacter::ABaseCharacter() {
 
 	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
 	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
+
+	// Mortality Provider
+	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -64,6 +68,12 @@ void ABaseCharacter::BeginPlay() {
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
 
+}
+
+float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	MortalityProvider->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+	return ActualDamage;
 }
 
 void ABaseCharacter::OnFire() {
@@ -79,6 +89,8 @@ bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflection
 }
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
+	TakeDamage(25, FPointDamageEvent(), NULL, NULL);
+
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();

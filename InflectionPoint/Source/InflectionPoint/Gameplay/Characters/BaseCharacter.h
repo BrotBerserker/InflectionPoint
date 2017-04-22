@@ -25,11 +25,16 @@ class ABaseCharacter : public ACharacter {
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FirstPersonCameraComponent;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		class UMortalityProvider* MortalityProvider;
+
 
 public:
 	ABaseCharacter();
 
 	virtual void BeginPlay();
+
+	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
@@ -58,6 +63,7 @@ public:
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		class UAnimMontage* FireAnimation;
+
 
 public:
 	/** Fires a projectile. */
