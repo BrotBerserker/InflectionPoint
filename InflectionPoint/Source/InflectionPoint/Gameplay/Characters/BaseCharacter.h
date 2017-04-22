@@ -8,9 +8,9 @@ class UInputComponent;
 UCLASS(config = Game)
 class ABaseCharacter : public ACharacter {
 	GENERATED_BODY()
-		
-	/** Pawn mesh: 1st person view (arms; seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+
+		/** Pawn mesh: 1st person view (arms; seen only by self) */
+		UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh1P;
 
 	/** Gun mesh: 1st person view (seen only by self) */
@@ -60,16 +60,11 @@ public:
 		class UAnimMontage* FireAnimation;
 
 public:
-
 	/** Fires a projectile. */
 	void OnFire();
 
 	/** Fires a debug projectile. */
 	void OnDebugFire();
-	
-	/** Fires the given projectile */
-	UFUNCTION(Reliable, Server, WithValidation)
-	void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn);
 
 	/** Handles moving forward/backward */
 	void MoveForward(float val);
@@ -78,16 +73,26 @@ public:
 	void MoveRight(float val);
 
 	/**
-	 * Called via input to turn at a given rate.
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
+	* Called via input to turn at a given rate.
+	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+	*/
 	void TurnAtRate(float rate);
 
 	/**
-	 * Called via input to turn look up/down at a given rate.
-	 * @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	 */
+	* Called via input to turn look up/down at a given rate.
+	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+	*/
 	void LookUpAtRate(float rate);
+
+public:
+
+	/** Fires the given projectile */
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn);
+
+	/** Notifies Clients about projectile fired */
+	UFUNCTION(Unreliable, NetMulticast)
+		void MulticastProjectileFired();
 
 public:
 	/** Returns Mesh1P subobject **/
