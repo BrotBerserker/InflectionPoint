@@ -6,7 +6,7 @@
 
 UMortalityProvider::UMortalityProvider() {
 
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = true; // ^^
 
 }
 
