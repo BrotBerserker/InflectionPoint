@@ -18,6 +18,8 @@ public:
 
 	virtual void BeginPlay() override;
 
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
 	/* The health to start with */
 	UPROPERTY(EditAnywhere, meta = (ClampMin = 0))
 		int StartHealth = 100;
@@ -42,6 +44,7 @@ public:
 	void Die();
 
 private:
+	UPROPERTY(Replicated)
 	int CurrentHealth;
 
 public:

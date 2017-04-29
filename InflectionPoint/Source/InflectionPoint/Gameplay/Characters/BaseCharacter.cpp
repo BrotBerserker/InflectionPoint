@@ -56,6 +56,7 @@ ABaseCharacter::ABaseCharacter() {
 
 	// Mortality Provider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
+	MortalityProvider->SetIsReplicated(true);
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -89,7 +90,7 @@ bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflection
 }
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
-	TakeDamage(25, FPointDamageEvent(), NULL, NULL);
+	//TakeDamage(25, FPointDamageEvent(), NULL, NULL);
 
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
