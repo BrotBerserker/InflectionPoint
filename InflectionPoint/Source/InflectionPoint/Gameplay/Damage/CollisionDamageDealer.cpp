@@ -18,8 +18,6 @@ UCollisionDamageDealer::UCollisionDamageDealer() {
 void UCollisionDamageDealer::BeginPlay() {
 	Super::BeginPlay();
 
-	//ProjectileMovement = GetOwner()->FindComponentByClass<UProjectileMovementComponent>();
-	//ProjectileMovement->OnProjectileBounce.AddDynamic(this, &UCollisionDamageDealer::OnBounce);
 	if(!CollisionShapeComponent) {
 		CollisionShapeComponent = GetOwner()->FindComponentByClass<UShapeComponent>();
 	}
@@ -29,48 +27,30 @@ void UCollisionDamageDealer::BeginPlay() {
 	CollisionShapeComponent->OnComponentHit.AddDynamic(this, &UCollisionDamageDealer::OnHit);
 }
 
-
-
-// Called every frame
-void UCollisionDamageDealer::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	// ...
-}
-
 void UCollisionDamageDealer::OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
 	bool damageDealed = false;
 	if(OtherActor && (!DealDamageOnlyOnCharacters || OtherActor->IsA(ACharacter::StaticClass()))) {
-		damageDealed = InflictDamage(OtherActor);
+		float damage = InflictDamage(OtherActor);
+		damageDealed = damage>0;
+		if(damageDealed)
+			OnDamageHit.Broadcast(damage, NormalImpulse, Hit);
+	} else {
+		OnHarmlessHit.Broadcast( NormalImpulse, Hit);
 	}
-	PerformHitConsequences(damageDealed, Hit);
+	PerformHitConsequences(damageDealed);
 }
 
-bool UCollisionDamageDealer::InflictDamage(AActor* DamagedActor) {
-	//AssertTrue(DamageType != NULL, GetWorld(), __FILE__, __LINE__, "No DamageType selected");
-	//AssertNotNull(DamageEventInstigator, GetWorld(), __FILE__, __LINE__,"No DamageEventInstigator set");
-	float dealedDamage = UGameplayStatics::ApplyDamage(DamagedActor,Damage, DamageEventInstigator,GetOwner(), DamageType);
-	// maybe do something here later on
-	return dealedDamage > 0;
+float UCollisionDamageDealer::InflictDamage(AActor* DamagedActor) {
+	AController* instigator = GetOwner()->Instigator ? GetOwner()->Instigator->GetController() : nullptr;
+	return UGameplayStatics::ApplyDamage(DamagedActor,Damage, instigator, GetOwner(), DamageType);
 }
 
-void UCollisionDamageDealer::PerformHitConsequences(bool damageDealed, const FHitResult & Hit) {
+void UCollisionDamageDealer::PerformHitConsequences(bool damageDealed) {
 	bool needsToBeDestroyed =
 		damageDealed && DestroyOnDamageDealed
 		|| !damageDealed && DestroyOnHitOnly;
-	auto ClassesToSpawn = damageDealed ? ClassesToSpawnOnDamageDealed : ClassesToSpawnOnHitOnly;
-
-	for(auto* item : ClassesToSpawn) {
-		SpawnFromClassOnHit(Hit, item);
-	}
 	if(needsToBeDestroyed)
 		DestroyOwner();
-}
-
-void UCollisionDamageDealer::SpawnFromClassOnHit(const FHitResult & Hit, UClass * &item) {
-	FRotator Rotation(0.0f, 0.0f, 0.0f);
-	FVector Location(Hit.ImpactPoint);
-	FActorSpawnParameters SpawnInfo;
-	GetWorld()->SpawnActor(item, &Location, &Rotation, SpawnInfo);
 }
 
 void UCollisionDamageDealer::DestroyOwner() {
