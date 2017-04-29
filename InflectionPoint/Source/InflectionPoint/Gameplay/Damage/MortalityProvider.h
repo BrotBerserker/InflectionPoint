@@ -11,7 +11,7 @@ class INFLECTIONPOINT_API UMortalityProvider : public UActorComponent {
 	GENERATED_BODY()
 
 		DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedDelegate, int, oldHealth, int, newHealth);
-		DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathDelegate);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathDelegate);
 
 public:
 	UMortalityProvider();
@@ -21,7 +21,7 @@ public:
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	/* The health to start with */
-	UPROPERTY(EditAnywhere, meta = (ClampMin = 0))
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0))
 		int StartHealth = 100;
 
 	/* When health reaches 0, this is the time the MortalityProvider will wait before destroying its owner. */
@@ -45,9 +45,10 @@ public:
 
 private:
 	UPROPERTY(Replicated)
-	int CurrentHealth;
+		int CurrentHealth;
 
 public:
-	FORCEINLINE int GetCurrentHealth() { return CurrentHealth; }
+	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
+		FORCEINLINE int GetCurrentHealth() { return CurrentHealth; }
 
 };

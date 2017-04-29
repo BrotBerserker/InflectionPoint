@@ -22,9 +22,6 @@ void UMortalityProvider::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 }
 
 void UMortalityProvider::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
-	UE_LOG(LogTemp, Warning, TEXT("The value of 'CurrentHealth' is: %i"), CurrentHealth);
-
-
 	if(CurrentHealth <= 0) {
 		return;
 	}
