@@ -59,5 +59,13 @@ void UCollisionDamageDealer::PerformHitConsequences(bool damageDealt) {
 
 void UCollisionDamageDealer::DestroyOwner() {
 	GetOwner()->SetActorHiddenInGame(true);
+
+	if(DestroyDelay == 0) {
+		CollisionShapeComponent->OnComponentHit.RemoveDynamic(this, &UCollisionDamageDealer::OnHit); // avoid unwanted hits
+		GetOwner()->Destroy();
+		return;
+	}
+
 	GetOwner()->SetLifeSpan(DestroyDelay + 0.0000001); // 0 dose not destroy o0
+	
 }
