@@ -29,9 +29,10 @@ public:
 		float SecondsToLiveBeforeDestruction = 0.f;
 
 public:
+
 	/* Inflicts damage by reducing the health value */
 	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
-		void TakeDamage(float DamageAmount, struct FDamageEvent const & DamageEvent, class AController * EventInstigator, AActor * DamageCauser);
+		void TakeDamage(float DamageAmount);
 
 	/* Fired when the current health value changes */
 	UPROPERTY(BlueprintAssignable)

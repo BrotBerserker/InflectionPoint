@@ -73,7 +73,8 @@ void ABaseCharacter::BeginPlay() {
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	MortalityProvider->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+	//MortalityProvider->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
+	MortalityProvider->TakeDamage(ActualDamage);
 	return ActualDamage;
 }
 

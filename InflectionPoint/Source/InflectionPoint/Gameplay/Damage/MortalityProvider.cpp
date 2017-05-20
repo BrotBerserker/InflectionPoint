@@ -21,7 +21,7 @@ void UMortalityProvider::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(UMortalityProvider, CurrentHealth);
 }
 
-void UMortalityProvider::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
+void UMortalityProvider::TakeDamage(float DamageAmount) {
 	if(CurrentHealth <= 0) {
 		return;
 	}
