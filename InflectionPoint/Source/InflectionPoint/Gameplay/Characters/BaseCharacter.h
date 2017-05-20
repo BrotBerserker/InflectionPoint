@@ -94,12 +94,29 @@ public:
 
 	/** Fires the given projectile */
 	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn);
+		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation);
 
 	/** Notifies Clients about projectile fired */
 	UFUNCTION(Unreliable, NetMulticast)
 		void MulticastProjectileFired();
 
+	/** Fires the given projectile */
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerLookUpAtRate(FRotator rot);
+
+	/** Notifies Clients about projectile fired */
+	UFUNCTION(Unreliable, NetMulticast)
+		void MulticastLookUpAtRate(FRotator rot);
+
+	FRotator GetProjectileSpawnRotation();
+	FVector GetProjectileSpawnLocation();
+
+	/* Used in Multiplayer to validate Location Offsets (0< will ignore the offset) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		float LocationOffsetTolerance = 5.;
+	/* Used in Multiplayer to validate Rotation Offsets (0< will ignore the offset) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		float RotationOffsetTolerance = -1;
 public:
 	/** Returns Mesh1P subobject **/
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }

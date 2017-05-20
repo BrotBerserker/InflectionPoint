@@ -78,30 +78,29 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 }
 
 void ABaseCharacter::OnFire() {
-	ServerFireProjectile(ProjectileClass);
+	ServerFireProjectile(ProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation());
 }
 
 void ABaseCharacter::OnDebugFire() {
-	ServerFireProjectile(DebugProjectileClass);
+	ServerFireProjectile(DebugProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation());
 }
 
-bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
-	return true;
+bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
+	bool check = true;
+	float locationOffset = (spawnLocation - GetProjectileSpawnLocation()).Size();
+	if(LocationOffsetTolerance >= 0)
+		check = check && locationOffset < LocationOffsetTolerance;
+	float rotationOffset = (spawnRotation.Vector() - GetProjectileSpawnRotation().Vector()).Size();
+	if(RotationOffsetTolerance >= 0)
+		check = check && rotationOffset < RotationOffsetTolerance;
+	return check;
 }
 
-void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
-	//TakeDamage(25, FPointDamageEvent(), NULL, NULL);
-
+void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();
 		if(AssertNotNull(World, GetWorld(), __FILE__, __LINE__)) {
-			//const FRotator SpawnRotation = GetControlRotation();
-			const FRotator SpawnRotation = FirstPersonCameraComponent->GetComponentRotation();
-
-			// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-			const FVector SpawnLocation = ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());// +SpawnRotation.RotateVector(GunOffset);
-
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
@@ -109,12 +108,11 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 			ActorSpawnParams.Owner = this;
 
 			// spawn the projectile at the muzzle
-			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, SpawnLocation, SpawnRotation, ActorSpawnParams);
+			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, spawnLocation, spawnRotation, ActorSpawnParams);
 
 			MulticastProjectileFired();
 		}
 	}
-
 }
 
 void ABaseCharacter::MulticastProjectileFired_Implementation() {
@@ -153,4 +151,30 @@ void ABaseCharacter::TurnAtRate(float rate) {
 void ABaseCharacter::LookUpAtRate(float rate) {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	ServerLookUpAtRate(FirstPersonCameraComponent->GetComponentRotation());
+}
+
+FRotator ABaseCharacter::GetProjectileSpawnRotation() {
+	return FirstPersonCameraComponent->GetComponentRotation();
+}
+
+FVector ABaseCharacter::GetProjectileSpawnLocation() {
+	// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
+	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());// +SpawnRotation.RotateVector(GunOffset);
+}
+
+bool ABaseCharacter::ServerLookUpAtRate_Validate(FRotator rot) {
+	return true;
+}
+
+void ABaseCharacter::ServerLookUpAtRate_Implementation(FRotator rot) {
+	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
+	currentRot.Pitch = rot.Pitch;
+	FirstPersonCameraComponent->SetWorldRotation(currentRot);
+}
+
+void ABaseCharacter::MulticastLookUpAtRate_Implementation(FRotator rot) {
+	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
+	currentRot.Pitch = rot.Pitch;
+	FirstPersonCameraComponent->SetWorldRotation(currentRot);
 }
