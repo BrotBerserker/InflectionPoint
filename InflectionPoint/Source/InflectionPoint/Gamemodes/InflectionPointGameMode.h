@@ -9,6 +9,10 @@ class AInflectionPointGameMode : public AGameModeBase {
 
 public:
 	AInflectionPointGameMode();
+
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
+		void PlayerDied(APlayerController* playerController);
+
 };
 
 

@@ -21,7 +21,7 @@ void UMortalityProvider::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(UMortalityProvider, CurrentHealth);
 }
 
-void UMortalityProvider::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
+void UMortalityProvider::TakeDamage(float DamageAmount) {
 	if(CurrentHealth <= 0) {
 		return;
 	}
@@ -36,6 +36,6 @@ void UMortalityProvider::TakeDamage(float DamageAmount, FDamageEvent const & Dam
 }
 
 void UMortalityProvider::Die() {
-	GetOwner()->SetLifeSpan(SecondsToLiveBeforeDestruction + 0.0000001); // 0 dose not destroy o0
+	GetOwner()->SetLifeSpan(SecondsToLiveBeforeDestruction + 0.0000001); // 0 does not destroy o0
 	OnDeath.Broadcast();
 }
