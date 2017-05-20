@@ -38,11 +38,14 @@ private:
 
 	void RecordOnDebugFire();
 
-	void RecordMoveForward(float val);
+	UFUNCTION(Reliable, Server, WithValidation)
+		void RecordMoveForward(float val);
 
-	void RecordMoveRight(float val);
+	UFUNCTION(Reliable, Server, WithValidation)
+		void RecordMoveRight(float val);
 
-	void RecordKeyPressed(FKey key);
+	UFUNCTION(Reliable, Server, WithValidation)
+		void RecordKeyPressed(FKey key);
 
 	ABaseCharacter * owner;
 	float passedTime = 0.f;

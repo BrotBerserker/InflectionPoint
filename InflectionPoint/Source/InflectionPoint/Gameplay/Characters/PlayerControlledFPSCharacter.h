@@ -8,13 +8,12 @@
 
 
 /**
- * 
+ *
  */
 UCLASS()
-class INFLECTIONPOINT_API APlayerControlledFPSCharacter : public ABaseCharacter
-{
+class INFLECTIONPOINT_API APlayerControlledFPSCharacter : public ABaseCharacter {
 	GENERATED_BODY()
-	
+
 protected:
 
 	/** Override from ACharacter */
@@ -23,9 +22,10 @@ protected:
 	/** Only for Debug purposes, should be configured inside the GameMode */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		class UClass* ReplayCharacter;
-	
+
 	/** Spawns a ReplayPlayer for Debug purposes, the real spawning should happen in the GameMode */
-	void DEBUG_SpawnReplay();
+	UFUNCTION(Reliable, Server, WithValidation)
+		void DEBUG_SpawnReplay();
 
 	UInputRecorder* InputRecorder;
 };

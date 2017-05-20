@@ -35,7 +35,11 @@ void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	passedTime += DeltaTime;
 }
 
-void UInputRecorder::RecordKeyPressed(FKey key) {
+bool UInputRecorder::RecordKeyPressed_Validate(FKey key) {
+	return true;
+}
+
+void UInputRecorder::RecordKeyPressed_Implementation(FKey key) {
 	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
 	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
 
@@ -59,14 +63,22 @@ void UInputRecorder::RecordOnDebugFire() {
 	RecordKeyPressed(EKeys::RightMouseButton);
 }
 
-void UInputRecorder::RecordMoveForward(float Value) {
+bool UInputRecorder::RecordMoveForward_Validate(float value) {
+	return true;
+}
+
+void UInputRecorder::RecordMoveForward_Implementation(float Value) {
 	if(Value != 0) {
 		MovementsForward.Add(passedTime);
 		MovementsForward.Add(Value);
 	}
 }
 
-void UInputRecorder::RecordMoveRight(float Value) {
+bool UInputRecorder::RecordMoveRight_Validate(float value) {
+	return true;
+}
+
+void UInputRecorder::RecordMoveRight_Implementation(float Value) {
 	if(Value != 0) {
 		MovementsRight.Add(passedTime);
 		MovementsRight.Add(Value);

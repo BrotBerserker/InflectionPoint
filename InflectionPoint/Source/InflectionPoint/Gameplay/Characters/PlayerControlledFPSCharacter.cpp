@@ -41,9 +41,15 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
 }
 
-void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
+bool APlayerControlledFPSCharacter::DEBUG_SpawnReplay_Validate() {
+	return true;
+}
 
-	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetWorld()->GetFirstPlayerController());
+void APlayerControlledFPSCharacter::DEBUG_SpawnReplay_Implementation() {
+
+	//AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetWorld()->GetFirstPlayerController());
+	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetController());
+	
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
 	FVector loc = playerStart->GetTransform().GetLocation();
@@ -55,6 +61,7 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay() {
 	}
 
 	// Replay inputs
+	InputRecorder = FindComponentByClass<UInputRecorder>();
 	AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->StartReplay(InputRecorder->Inputs, InputRecorder->MovementsForward, InputRecorder->MovementsRight);
 
