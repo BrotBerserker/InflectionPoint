@@ -26,7 +26,7 @@ public:
 
 	/* When health reaches 0, this is the time the MortalityProvider will wait before destroying its owner. */
 	UPROPERTY(EditAnywhere)
-		float SecondsToLiveBeforeDestruction = 0.001f;
+		float SecondsToLiveBeforeDestruction = 0.f;
 
 public:
 	/* Inflicts damage by reducing the health value */

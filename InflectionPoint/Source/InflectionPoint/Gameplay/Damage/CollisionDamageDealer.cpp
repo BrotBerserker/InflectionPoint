@@ -24,37 +24,40 @@ void UCollisionDamageDealer::BeginPlay() {
 
 	if(!AssertNotNull(CollisionShapeComponent, GetWorld(), __FILE__, __LINE__, "No UShapeComponent for DamageCollision detection found!"))
 		return;
+
+	if(!AssertNotNull(DamageType, GetWorld(), __FILE__, __LINE__))
+		return;
+
 	CollisionShapeComponent->OnComponentHit.AddDynamic(this, &UCollisionDamageDealer::OnHit);
 }
 
 void UCollisionDamageDealer::OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
-	bool damageDealed = false;
+	bool damageDealt = false;
 	if(OtherActor && (!DealDamageOnlyOnCharacters || OtherActor->IsA(ACharacter::StaticClass()))) {
 		float damage = InflictDamage(OtherActor);
-		damageDealed = damage>0;
-		if(damageDealed)
+		damageDealt = damage >= 0;
+		if(damageDealt)
 			OnDamageHit.Broadcast(damage, NormalImpulse, Hit);
 	} else {
-		OnHarmlessHit.Broadcast( NormalImpulse, Hit);
+		OnHarmlessHit.Broadcast(NormalImpulse, Hit);
 	}
-	PerformHitConsequences(damageDealed);
+	PerformHitConsequences(damageDealt);
 }
 
 float UCollisionDamageDealer::InflictDamage(AActor* DamagedActor) {
 	AController* instigator = GetOwner()->Instigator ? GetOwner()->Instigator->GetController() : nullptr;
-	return UGameplayStatics::ApplyDamage(DamagedActor,Damage, instigator, GetOwner(), DamageType);
+	return UGameplayStatics::ApplyDamage(DamagedActor, Damage, instigator, GetOwner(), DamageType);
 }
 
-void UCollisionDamageDealer::PerformHitConsequences(bool damageDealed) {
+void UCollisionDamageDealer::PerformHitConsequences(bool damageDealt) {
 	bool needsToBeDestroyed =
-		damageDealed && DestroyOnDamageDealed
-		|| !damageDealed && DestroyOnHitOnly;
+		(damageDealt && DestroyOnDamageDealt)
+		|| (!damageDealt && DestroyOnHarmlessHit);
 	if(needsToBeDestroyed)
 		DestroyOwner();
 }
 
 void UCollisionDamageDealer::DestroyOwner() {
-	// TODO: destroy over network
-	UE_LOG(LogTemp, Warning, TEXT("Destroy"));
+	GetOwner()->SetActorHiddenInGame(true);
 	GetOwner()->SetLifeSpan(DestroyDelay + 0.0000001); // 0 dose not destroy o0
 }

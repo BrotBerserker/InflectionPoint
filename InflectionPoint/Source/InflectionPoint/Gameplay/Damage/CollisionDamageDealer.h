@@ -6,27 +6,28 @@
 #include "CollisionDamageDealer.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class INFLECTIONPOINT_API UCollisionDamageDealer : public UActorComponent
-{
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class INFLECTIONPOINT_API UCollisionDamageDealer : public UActorComponent {
 	GENERATED_BODY()
 		DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDamageHitDelegate, float, damage, FVector, NormalImpulse, const FHitResult&, Hit);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHarmlessHitDelegate, FVector, NormalImpulse, const FHitResult&, Hit);
-public:	
+public:
 	// Sets default values for this component's properties
 	UCollisionDamageDealer();
 
-public:	
+public:
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
 		bool DealDamageOnlyOnCharacters = true;
+	/* Destroys the projectile when it collides with an actor that shouldn't be damaged by this projectile */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
-		bool DestroyOnHitOnly = false;
+		bool DestroyOnHarmlessHit = false;
+	/* Destroys the projectile when it collides with an actor that should be damaged by this projectile (even if the damage is 0) */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
-		bool DestroyOnDamageDealed = false;
-	/* Lifetime after Hit when DestroyOnHit or DestroyOnActorHit enabled*/
+		bool DestroyOnDamageDealt = false;
+	/* Lifetime after Hit when DestroyOnHit or DestroyOnActorHit enabled */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
 		float DestroyDelay = 0.;
-	/* Dont forget to set this*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
 		TSubclassOf<UDamageType> DamageType;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
