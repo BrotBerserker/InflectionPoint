@@ -66,6 +66,6 @@ void UCollisionDamageDealer::DestroyOwner() {
 		return;
 	}
 
-	GetOwner()->SetLifeSpan(DestroyDelay + 0.0000001); // 0 dose not destroy o0
+	GetOwner()->SetLifeSpan(DestroyDelay + 0.0000001); // 0 does not destroy o0
 	
 }
