@@ -36,6 +36,14 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
 	InputRecorder->InitializeBindings(PlayerInputComponent);
 
+	UPositionRecorder* PositionRecorder = FindComponentByClass<UPositionRecorder>();
+	AssertNotNull(PositionRecorder, GetWorld(), __FILE__, __LINE__);
+	PositionRecorder->StartRecording();
+
+	URotationRecorder* RotationRecorder = FindComponentByClass<URotationRecorder>();
+	AssertNotNull(RotationRecorder, GetWorld(), __FILE__, __LINE__);
+	RotationRecorder->StartRecording();
+
 	// Controller bindings
 	//PlayerInputComponent->BindAxis("TurnRate", this, &ABaseCharacter::TurnAtRate);
 	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
@@ -49,7 +57,7 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay_Implementation() {
 
 	//AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetWorld()->GetFirstPlayerController());
 	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetController());
-	
+
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
 	FVector loc = playerStart->GetTransform().GetLocation();

@@ -22,6 +22,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION(Server, Unreliable, WithValidation)
+		void ServerRecordRotation(float time, float capsuleYaw, float cameraPitch);
+
 	void StartRecording();
 
 	void StopRecording();
@@ -36,7 +39,7 @@ public:
 
 	TArray<float> Yaws;
 	TArray<float> Pitches;
-	
+
 
 private:
 	ABaseCharacter * owner;

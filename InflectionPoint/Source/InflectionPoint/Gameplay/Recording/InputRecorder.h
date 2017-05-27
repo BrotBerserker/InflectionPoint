@@ -38,14 +38,20 @@ private:
 
 	void RecordOnDebugFire();
 
-	UFUNCTION(Reliable, Server, WithValidation)
-		void RecordMoveForward(float val);
+	void RecordMoveForward(float val);
+
+	void RecordMoveRight(float val);
+
+	void RecordKeyPressed(FKey key);
 
 	UFUNCTION(Reliable, Server, WithValidation)
-		void RecordMoveRight(float val);
+		void ServerRecordMoveForward(float val, float time);
 
 	UFUNCTION(Reliable, Server, WithValidation)
-		void RecordKeyPressed(FKey key);
+		void ServerRecordMoveRight(float val, float time);
+
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerRecordKeyPressed(FKey key, float time, float capsuleYaw, float cameraPitch);
 
 	ABaseCharacter * owner;
 	float passedTime = 0.f;

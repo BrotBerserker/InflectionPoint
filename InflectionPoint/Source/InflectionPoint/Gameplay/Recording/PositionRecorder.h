@@ -20,6 +20,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION(Server, Unreliable, WithValidation)
+		void ServerRecordPosition(float time, FVector pos);
+
 	void StartRecording();
 
 	void StopRecording();
