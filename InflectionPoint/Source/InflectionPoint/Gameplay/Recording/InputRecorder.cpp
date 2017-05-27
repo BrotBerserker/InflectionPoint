@@ -23,8 +23,11 @@ void UInputRecorder::InitializeBindings(UInputComponent * inputComponent) {
 	inputComponent->BindAction("Jump", IE_Pressed, this, &UInputRecorder::RecordStartJump);
 	inputComponent->BindAction("Jump", IE_Released, this, &UInputRecorder::RecordStopJump);
 
-	inputComponent->BindAction("Fire", IE_Pressed, this, &UInputRecorder::RecordOnFire);
-	inputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &UInputRecorder::RecordOnDebugFire);
+	inputComponent->BindAction("Fire", IE_Pressed, this, &UInputRecorder::RecordStartFire);
+	inputComponent->BindAction("Fire", IE_Released, this, &UInputRecorder::RecordStopFire);
+
+	inputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &UInputRecorder::RecordStartDebugFire);
+	inputComponent->BindAction("DEBUG_Fire", IE_Released, this, &UInputRecorder::RecordStopDebugFire);
 
 	inputComponent->BindAxis("MoveForward", this, &UInputRecorder::RecordMoveForward);
 	inputComponent->BindAxis("MoveRight", this, &UInputRecorder::RecordMoveRight);
@@ -35,67 +38,96 @@ void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	passedTime += DeltaTime;
 }
 
-void UInputRecorder::RecordKeyPressed(FKey key) {
+void UInputRecorder::RecordKeyPressed(FString key) {
+	UE_LOG(LogTemp, Warning, TEXT("Key pressed: %s"), *key);
+
 	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
 	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
 	ServerRecordKeyPressed(key, passedTime, rotCapsule.Yaw, rotCamera.Pitch);
 }
 
-bool UInputRecorder::ServerRecordKeyPressed_Validate(FKey key, float time, float capsuleYaw, float cameraPitch) {
+bool UInputRecorder::ServerRecordKeyPressed_Validate(const FString& key, float time, float capsuleYaw, float cameraPitch) {
 	return true;
 }
 
-void UInputRecorder::ServerRecordKeyPressed_Implementation(FKey key, float time, float capsuleYaw, float cameraPitch) {
+void UInputRecorder::ServerRecordKeyPressed_Implementation(const FString& key, float time, float capsuleYaw, float cameraPitch) {
 	TTuple<float, float, float> tt(time, capsuleYaw, cameraPitch);
-	Inputs.Add(TPair<FKey, TTuple<float, float, float>>(TPairInitializer<FKey, TTuple<float, float, float>>(key, tt)));
+	if(!KeysPressed.Contains(key)) {
+		KeysPressed.Add(key, TArray<TTuple<float, float, float>>());
+	}
+	KeysPressed[key].Add(tt);
+}
+
+void UInputRecorder::RecordKeyReleased(FString key) {
+	UE_LOG(LogTemp, Warning, TEXT("Key released: %s"), *key);
+
+	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
+	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
+	ServerRecordKeyReleased(key, passedTime, rotCapsule.Yaw, rotCamera.Pitch);
+}
+
+bool UInputRecorder::ServerRecordKeyReleased_Validate(const FString& key, float time, float capsuleYaw, float cameraPitch) {
+	return true;
+}
+
+void UInputRecorder::ServerRecordKeyReleased_Implementation(const FString& key, float time, float capsuleYaw, float cameraPitch) {
+	TTuple<float, float, float> tt(time, capsuleYaw, cameraPitch);
+	if(!KeysReleased.Contains(key)) {
+		KeysReleased.Add(key, TArray<TTuple<float, float, float>>());
+	}
+	KeysReleased[key].Add(tt);
 }
 
 void UInputRecorder::RecordMoveForward(float val) {
-	if(val != 0) {
-		ServerRecordMoveForward(val, passedTime);
+	if(movingForward == val) {
+		return;
 	}
-}
 
-bool UInputRecorder::ServerRecordMoveForward_Validate(float value, float time) {
-	return true;
-}
-
-void UInputRecorder::ServerRecordMoveForward_Implementation(float Value, float time) {
-	if(Value != 0) {
-		MovementsForward.Add(time);
-		MovementsForward.Add(Value);
+	if(val > 0) {
+		RecordKeyPressed("MoveForward");
+	} else if(val < 0) {
+		RecordKeyPressed("MoveBackward");
+	} else {
+		RecordKeyReleased(movingForward > 0 ? "MoveForward" : "MoveBackward");
 	}
+	movingForward = val;
 }
 
 void UInputRecorder::RecordMoveRight(float val) {
-	if(val != 0) {
-		ServerRecordMoveRight(val, passedTime);
+	if(movingRight == val) {
+		return;
 	}
-}
 
-bool UInputRecorder::ServerRecordMoveRight_Validate(float value, float time) {
-	return true;
-}
-
-void UInputRecorder::ServerRecordMoveRight_Implementation(float Value, float time) {
-	if(Value != 0) {
-		MovementsRight.Add(time);
-		MovementsRight.Add(Value);
+	if(val > 0) {
+		RecordKeyPressed("MoveRight");
+	} else if(val < 0) {
+		RecordKeyPressed("MoveLeft");
+	} else {
+		RecordKeyReleased(movingRight > 0 ? "MoveRight" : "MoveLeft");
 	}
+	movingRight = val;
 }
 
 void UInputRecorder::RecordStartJump() {
-	RecordKeyPressed(EKeys::SpaceBar);
+	RecordKeyPressed("Jump");
 }
 
 void UInputRecorder::RecordStopJump() {
-
+	RecordKeyReleased("Jump");
 }
 
-void UInputRecorder::RecordOnFire() {
-	RecordKeyPressed(EKeys::LeftMouseButton);
+void UInputRecorder::RecordStartFire() {
+	RecordKeyPressed("Fire");
 }
 
-void UInputRecorder::RecordOnDebugFire() {
-	RecordKeyPressed(EKeys::RightMouseButton);
+void UInputRecorder::RecordStopFire() {
+	RecordKeyReleased("Fire");
+}
+
+void UInputRecorder::RecordStartDebugFire() {
+	RecordKeyPressed("DEBUG_Fire");
+}
+
+void UInputRecorder::RecordStopDebugFire() {
+	RecordKeyReleased("DEBUG_Fire");
 }

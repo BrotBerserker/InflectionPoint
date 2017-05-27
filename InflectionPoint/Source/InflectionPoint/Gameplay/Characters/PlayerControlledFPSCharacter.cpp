@@ -69,9 +69,9 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay_Implementation() {
 	}
 
 	// Replay inputs
-	InputRecorder = FindComponentByClass<UInputRecorder>();
-	AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
-	newPlayer->StartReplay(InputRecorder->Inputs, InputRecorder->MovementsForward, InputRecorder->MovementsRight);
+	//InputRecorder = FindComponentByClass<UInputRecorder>();
+	//AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
+	//newPlayer->StartReplay(InputRecorder->Inputs, InputRecorder->MovementsForward, InputRecorder->MovementsRight);
 
 	// Correct positions
 	UPositionRecorder* posRecorder = FindComponentByClass<UPositionRecorder>();

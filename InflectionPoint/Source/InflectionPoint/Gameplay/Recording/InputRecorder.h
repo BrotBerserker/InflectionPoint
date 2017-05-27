@@ -24,34 +24,40 @@ public:
 
 	void InitializeBindings(UInputComponent * inputComponent);
 
-	TArray<TPair<FKey, TTuple<float, float, float>>> Inputs;
-	TArray<float> MovementsForward;
-	TArray<float> MovementsRight;
+	TMap<FString, TArray<TTuple<float, float, float>>> KeysPressed;
+	TMap<FString, TArray<TTuple<float, float, float>>> KeysReleased;
 
 
 private:
+	int movingForward = 0;
+
+	int movingRight = 0;
+
 	void RecordStartJump();
 
 	void RecordStopJump();
 
-	void RecordOnFire();
+	void RecordStartFire();
 
-	void RecordOnDebugFire();
+	void RecordStopFire();
+
+	void RecordStartDebugFire();
+
+	void RecordStopDebugFire();
 
 	void RecordMoveForward(float val);
 
 	void RecordMoveRight(float val);
 
-	void RecordKeyPressed(FKey key);
+	void RecordKeyPressed(FString key);
 
-	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerRecordMoveForward(float val, float time);
+	UFUNCTION(Unreliable, Server, WithValidation)
+		void ServerRecordKeyPressed(const FString& key, float time, float capsuleYaw, float cameraPitch);
 
-	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerRecordMoveRight(float val, float time);
+	void RecordKeyReleased(FString key);
 
-	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerRecordKeyPressed(FKey key, float time, float capsuleYaw, float cameraPitch);
+	UFUNCTION(Unreliable, Server, WithValidation)
+		void ServerRecordKeyReleased(const FString& key, float time, float capsuleYaw, float cameraPitch);
 
 	ABaseCharacter * owner;
 	float passedTime = 0.f;
