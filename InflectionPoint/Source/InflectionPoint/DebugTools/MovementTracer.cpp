@@ -26,6 +26,7 @@ void UMovementTracer::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	if(Enabled) {
 		DrawDebugPoint(GetWorld(), GetOwner()->GetTransform().GetLocation(), 10, LineColor, true);
+		DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetTransform().GetLocation(), GetOwner()->GetTransform().GetLocation() + GetOwner()->GetActorForwardVector() * 15, 15, LineColor, true, -1, 0, 0.5f);
 	}
 }
 

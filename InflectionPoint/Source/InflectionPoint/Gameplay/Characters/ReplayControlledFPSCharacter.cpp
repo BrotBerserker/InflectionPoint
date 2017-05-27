@@ -70,7 +70,7 @@ void AReplayControlledFPSCharacter::StartReplay(TMap<FString, TArray<TTuple<floa
 void AReplayControlledFPSCharacter::StartTimerForKeyChanged(TPair<FString, TArray<TTuple<float, float, float>>> & element, FString timerFunction) {
 	while(element.Value.Num() > 0) {
 		StartTimer(this, GetWorld(), timerFunction,
-			element.Value.Last().Get<0>(), // time
+			element.Value.Last().Get<0>() + 0.0333333f, // time
 			element.Value.Last().Get<1>(), // yaw
 			element.Value.Last().Get<2>(), // pitch
 			element.Key); // Key

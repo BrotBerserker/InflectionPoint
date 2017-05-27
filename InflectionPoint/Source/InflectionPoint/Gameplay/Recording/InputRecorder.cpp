@@ -118,9 +118,9 @@ void UInputRecorder::RecordStopJump() {
 
 void UInputRecorder::RecordStartFire() {
 	// WTF? TODO
-	UE_LOG(LogTemp, Warning, TEXT("Shot recorded: %f"), passedTime);
+	/*UE_LOG(LogTemp, Warning, TEXT("Shot recorded: %f"), passedTime);
 	UE_LOG(LogTemp, Warning, TEXT("Shot recorded: %f"), (FDateTime::UtcNow() - start).GetMilliseconds());
-	UE_LOG(LogTemp, Warning, TEXT("Shot recorded: %s"), *(FDateTime::UtcNow() - start).ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Shot recorded: %s"), *(FDateTime::UtcNow() - start).ToString());*/
 	RecordKeyPressed("Fire");
 }
 

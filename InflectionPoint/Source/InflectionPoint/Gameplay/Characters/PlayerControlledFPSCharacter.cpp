@@ -74,14 +74,15 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay_Implementation() {
 	//newPlayer->StartReplay(InputRecorder->Inputs, InputRecorder->MovementsForward, InputRecorder->MovementsRight);
 	newPlayer->StartReplay(InputRecorder->KeysPressed, InputRecorder->KeysReleased);
 
+	// Replay rotations
+	URotationRecorder* rotRecorder = FindComponentByClass<URotationRecorder>();
+	AssertNotNull(rotRecorder, GetWorld(), __FILE__, __LINE__);
+	newPlayer->FindComponentByClass<URotationReplayer>()->StartReplay(rotRecorder->Yaws, rotRecorder->Pitches);
+
 	// Correct positions
 	UPositionRecorder* posRecorder = FindComponentByClass<UPositionRecorder>();
 	AssertNotNull(posRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->FindComponentByClass<UPositionCorrector>()->StartCorrecting(posRecorder->RecordArray);
 
-	// Replay rotations
-	URotationRecorder* rotRecorder = FindComponentByClass<URotationRecorder>();
-	AssertNotNull(rotRecorder, GetWorld(), __FILE__, __LINE__);
-	newPlayer->FindComponentByClass<URotationReplayer>()->StartReplay(rotRecorder->Yaws, rotRecorder->Pitches);
 
 }
