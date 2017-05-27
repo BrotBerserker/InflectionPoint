@@ -69,9 +69,10 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay_Implementation() {
 	}
 
 	// Replay inputs
-	//InputRecorder = FindComponentByClass<UInputRecorder>();
-	//AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
+	InputRecorder = FindComponentByClass<UInputRecorder>();
+	AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
 	//newPlayer->StartReplay(InputRecorder->Inputs, InputRecorder->MovementsForward, InputRecorder->MovementsRight);
+	newPlayer->StartReplay(InputRecorder->KeysPressed, InputRecorder->KeysReleased);
 
 	// Correct positions
 	UPositionRecorder* posRecorder = FindComponentByClass<UPositionRecorder>();
@@ -82,4 +83,5 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay_Implementation() {
 	URotationRecorder* rotRecorder = FindComponentByClass<URotationRecorder>();
 	AssertNotNull(rotRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->FindComponentByClass<URotationReplayer>()->StartReplay(rotRecorder->Yaws, rotRecorder->Pitches);
+
 }

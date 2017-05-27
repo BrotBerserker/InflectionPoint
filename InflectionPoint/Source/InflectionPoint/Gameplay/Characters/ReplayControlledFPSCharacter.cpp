@@ -80,8 +80,8 @@ void AReplayControlledFPSCharacter::StartTimerForKeyChanged(TPair<FString, TArra
 
 void AReplayControlledFPSCharacter::PressKey(float yaw, float pitch, FString key) {
 	// set rotation
-	ApplyYaw(yaw);
-	ApplyPitch(pitch);
+	//ApplyYaw(yaw);
+	//ApplyPitch(pitch);
 
 	// press key
 	if(key == "Jump") {
@@ -92,19 +92,23 @@ void AReplayControlledFPSCharacter::PressKey(float yaw, float pitch, FString key
 		OnDebugFire();
 	} else if(key == "MoveForward") {
 		isForwardPressed = true;
+		ReplayMoveForward(1);
 	} else if(key == "MoveBackward") {
 		isBackwordPressed = true;
+		ReplayMoveForward(-1);
 	} else if(key == "MoveLeft") {
 		isLeftPressed = true;
+		ReplayMoveRight(-1);
 	} else if(key == "MoveRight") {
 		isRightPressed = true;
+		ReplayMoveRight(1);
 	}
 }
 
 void AReplayControlledFPSCharacter::ReleaseKey(float yaw, float pitch, FString key) {
 	// set rotation
-	ApplyYaw(yaw);
-	ApplyPitch(pitch);
+	//ApplyYaw(yaw);
+	//ApplyPitch(pitch);
 
 	// release key
 	if(key == "MoveForward") {

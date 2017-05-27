@@ -16,6 +16,10 @@ UInputRecorder::UInputRecorder() {
 void UInputRecorder::BeginPlay() {
 	Super::BeginPlay();
 
+
+	start = FDateTime::UtcNow();
+
+
 	owner = (ABaseCharacter*)GetOwner();
 }
 
@@ -39,8 +43,6 @@ void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 }
 
 void UInputRecorder::RecordKeyPressed(FString key) {
-	UE_LOG(LogTemp, Warning, TEXT("Key pressed: %s"), *key);
-
 	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
 	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
 	ServerRecordKeyPressed(key, passedTime, rotCapsule.Yaw, rotCamera.Pitch);
@@ -59,8 +61,6 @@ void UInputRecorder::ServerRecordKeyPressed_Implementation(const FString& key, f
 }
 
 void UInputRecorder::RecordKeyReleased(FString key) {
-	UE_LOG(LogTemp, Warning, TEXT("Key released: %s"), *key);
-
 	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
 	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
 	ServerRecordKeyReleased(key, passedTime, rotCapsule.Yaw, rotCamera.Pitch);
@@ -117,6 +117,10 @@ void UInputRecorder::RecordStopJump() {
 }
 
 void UInputRecorder::RecordStartFire() {
+	// WTF? TODO
+	UE_LOG(LogTemp, Warning, TEXT("Shot recorded: %f"), passedTime);
+	UE_LOG(LogTemp, Warning, TEXT("Shot recorded: %f"), (FDateTime::UtcNow() - start).GetMilliseconds());
+	UE_LOG(LogTemp, Warning, TEXT("Shot recorded: %s"), *(FDateTime::UtcNow() - start).ToString());
 	RecordKeyPressed("Fire");
 }
 

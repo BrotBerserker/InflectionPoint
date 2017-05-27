@@ -14,6 +14,8 @@ class INFLECTIONPOINT_API UInputRecorder : public UActorComponent {
 
 public:
 
+	FDateTime start;
+
 	// Sets default values for this component's properties
 	UInputRecorder();
 

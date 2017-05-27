@@ -63,11 +63,15 @@ void ABaseCharacter::BeginPlay() {
 	// Call the base class  
 	Super::BeginPlay();
 
+
+	start = FDateTime::UtcNow();
+
+
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
 	FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 
 	// Detaches MuzzleLocation from weapon to prevent the weapon animation from moving the MuzzleLocation
-	FP_MuzzleLocation->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	FP_MuzzleLocation->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
@@ -101,6 +105,8 @@ bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflection
 }
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
+	UE_LOG(LogTemp, Warning, TEXT("Shot fired: %s"), *(FDateTime::UtcNow() - start).ToString());
+
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();
