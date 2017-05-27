@@ -37,18 +37,25 @@ void URotationRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	if(passedTime - lastRecordTimeSeconds > RecordInterval) {
 		// needs to perform record
-		float t = passedTime - startRecordTimeSeconds;
+		float time = passedTime - startRecordTimeSeconds;
 
 		FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
-		Yaws.Add(t);
-		Yaws.Add(rotCapsule.Yaw);
-
 		FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
-		Pitches.Add(t);
-		Pitches.Add(rotCamera.Pitch);
+		ServerRecordRotation(time, rotCapsule.Yaw, rotCamera.Pitch);
 
 		lastRecordTimeSeconds = passedTime;
 	}
+}
+
+bool URotationRecorder::ServerRecordRotation_Validate(float time, float capsuleYaw, float cameraPitch) {
+	return true;
+}
+
+void URotationRecorder::ServerRecordRotation_Implementation(float time, float capsuleYaw, float cameraPitch) {
+	Yaws.Add(time);
+	Yaws.Add(capsuleYaw);
+	Pitches.Add(time);
+	Pitches.Add(cameraPitch);
 }
 
 void URotationRecorder::StopRecording() {

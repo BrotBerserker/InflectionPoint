@@ -38,9 +38,50 @@ void UInputRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 void UInputRecorder::RecordKeyPressed(FKey key) {
 	FRotator rotCapsule = owner->GetCapsuleComponent()->GetComponentRotation();
 	FRotator rotCamera = owner->GetFirstPersonCameraComponent()->GetComponentRotation();
+	ServerRecordKeyPressed(key, passedTime, rotCapsule.Yaw, rotCamera.Pitch);
+}
 
-	TTuple<float, float, float> tt(passedTime, rotCapsule.Yaw, rotCamera.Pitch);
+bool UInputRecorder::ServerRecordKeyPressed_Validate(FKey key, float time, float capsuleYaw, float cameraPitch) {
+	return true;
+}
+
+void UInputRecorder::ServerRecordKeyPressed_Implementation(FKey key, float time, float capsuleYaw, float cameraPitch) {
+	TTuple<float, float, float> tt(time, capsuleYaw, cameraPitch);
 	Inputs.Add(TPair<FKey, TTuple<float, float, float>>(TPairInitializer<FKey, TTuple<float, float, float>>(key, tt)));
+}
+
+void UInputRecorder::RecordMoveForward(float val) {
+	if(val != 0) {
+		ServerRecordMoveForward(val, passedTime);
+	}
+}
+
+bool UInputRecorder::ServerRecordMoveForward_Validate(float value, float time) {
+	return true;
+}
+
+void UInputRecorder::ServerRecordMoveForward_Implementation(float Value, float time) {
+	if(Value != 0) {
+		MovementsForward.Add(time);
+		MovementsForward.Add(Value);
+	}
+}
+
+void UInputRecorder::RecordMoveRight(float val) {
+	if(val != 0) {
+		ServerRecordMoveRight(val, passedTime);
+	}
+}
+
+bool UInputRecorder::ServerRecordMoveRight_Validate(float value, float time) {
+	return true;
+}
+
+void UInputRecorder::ServerRecordMoveRight_Implementation(float Value, float time) {
+	if(Value != 0) {
+		MovementsRight.Add(time);
+		MovementsRight.Add(Value);
+	}
 }
 
 void UInputRecorder::RecordStartJump() {
@@ -57,18 +98,4 @@ void UInputRecorder::RecordOnFire() {
 
 void UInputRecorder::RecordOnDebugFire() {
 	RecordKeyPressed(EKeys::RightMouseButton);
-}
-
-void UInputRecorder::RecordMoveForward(float Value) {
-	if(Value != 0) {
-		MovementsForward.Add(passedTime);
-		MovementsForward.Add(Value);
-	}
-}
-
-void UInputRecorder::RecordMoveRight(float Value) {
-	if(Value != 0) {
-		MovementsRight.Add(passedTime);
-		MovementsRight.Add(Value);
-	}
 }

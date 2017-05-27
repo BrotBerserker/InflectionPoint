@@ -44,6 +44,15 @@ private:
 
 	void RecordKeyPressed(FKey key);
 
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerRecordMoveForward(float val, float time);
+
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerRecordMoveRight(float val, float time);
+
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerRecordKeyPressed(FKey key, float time, float capsuleYaw, float cameraPitch);
+
 	ABaseCharacter * owner;
 	float passedTime = 0.f;
 

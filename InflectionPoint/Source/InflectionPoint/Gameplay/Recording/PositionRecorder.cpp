@@ -36,13 +36,21 @@ void UPositionRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	if(passedTime - lastRecordTimeSeconds > RecordInterval) {
 		// needs to perform record
 		FVector pos = GetOwner()->GetTransform().GetLocation();
-		float t = passedTime - startRecordTimeSeconds;
-		RecordArray.Add(TPair<float, FVector>(TPairInitializer<float, FVector>(t, pos)));
+		float time = passedTime - startRecordTimeSeconds;
+		ServerRecordPosition(time, pos);
 		lastRecordTimeSeconds = passedTime;
+	}
+}
 
-		if(CreateDebugPoints) {
-			DrawDebugPoint(GetWorld(), pos, 20, DebugColor, true);
-		}
+bool UPositionRecorder::ServerRecordPosition_Validate(float time, FVector pos) {
+	return true;
+}
+
+void UPositionRecorder::ServerRecordPosition_Implementation(float time, FVector pos) {
+	RecordArray.Add(TPair<float, FVector>(TPairInitializer<float, FVector>(time, pos)));
+
+	if(CreateDebugPoints) {
+		DrawDebugPoint(GetWorld(), pos, 20, DebugColor, true);
 	}
 }
 
