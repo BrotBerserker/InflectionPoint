@@ -51,7 +51,7 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	float yaw = owner->GetCapsuleComponent()->GetComponentRotation().Yaw;
 	float pitch = owner->GetFirstPersonCameraComponent()->GetComponentRotation().Pitch;
 
-	RecordedPlayerStates.Add(FRecordedPlayerState(passedTime, pos, yaw, pitch, buttonsPressed));
+	RecordedPlayerStates.Add(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
 }
 
 void UPlayerStateRecorder::StartRecording() {
@@ -68,7 +68,7 @@ bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString& key) {
 }
 
 void UPlayerStateRecorder::ServerRecordKeyPressed_Implementation(const FString& key) {
-	buttonsPressed.Add(key);
+	pressedKeys.Add(key);
 }
 
 void UPlayerStateRecorder::RecordKeyReleased(FString key) {
@@ -81,7 +81,7 @@ bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString& key) 
 }
 
 void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString& key) {
-	buttonsPressed.Remove(key);
+	pressedKeys.Remove(key);
 }
 
 void UPlayerStateRecorder::RecordMoveForward(float val) {

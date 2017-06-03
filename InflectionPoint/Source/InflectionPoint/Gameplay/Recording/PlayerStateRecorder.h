@@ -23,28 +23,28 @@ struct FRecordedPlayerState {
 		float CameraPitch;
 
 	UPROPERTY()
-		TArray<FString> ButtonsPressed;
+		TArray<FString> PressedKeys;
 
 	FRecordedPlayerState() {
-		ButtonsPressed = TArray<FString>();
+		PressedKeys = TArray<FString>();
 	}
 
-	FRecordedPlayerState(float timestamp, FVector position, float capsuleYaw, float cameraPitch, TArray<FString> buttonsPressed) {
+	FRecordedPlayerState(float timestamp, FVector position, float capsuleYaw, float cameraPitch, TArray<FString> pressedKeys) {
 		Timestamp = timestamp;
 		Position = position;
 		CapsuleYaw = capsuleYaw;
 		CameraPitch = cameraPitch;
-		ButtonsPressed = buttonsPressed;
+		PressedKeys = pressedKeys;
 	}
 
 	FString ToString() {
-		FString buttons = "[";
-		for(auto button : ButtonsPressed) {
-			buttons += ", ";
-			buttons += button;
+		FString keys = "[";
+		for(auto key : PressedKeys) {
+			keys += ", ";
+			keys += key;
 		}
-		buttons += "]";
-		const FString stateString = FString::Printf(TEXT("PlayerState [Timestamp: %f, Position: %s, CapsuleYaw: %f, CameraPitch: %f, ButtonsPressed: %s]"), Timestamp, *Position.ToString(), CapsuleYaw, CameraPitch, *buttons);
+		keys += "]";
+		const FString stateString = FString::Printf(TEXT("PlayerState [Timestamp: %f, Position: %s, CapsuleYaw: %f, CameraPitch: %f, PressedKeys: %s]"), Timestamp, *Position.ToString(), CapsuleYaw, CameraPitch, *keys);
 		return stateString;
 	}
 
@@ -77,7 +77,7 @@ private:
 	bool recording = true;
 	float passedTime;
 	ABaseCharacter* owner;
-	TArray<FString> buttonsPressed;
+	TArray<FString> pressedKeys;
 
 	int movingForward = 0;
 

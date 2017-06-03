@@ -65,7 +65,7 @@ void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 }
 
 void AReplayControlledFPSCharacter::UpdatePressedKeys(FRecordedPlayerState &recordDataStep) {
-	for(auto &item : recordDataStep.ButtonsPressed) {
+	for(auto &item : recordDataStep.PressedKeys) {
 		if(!PressedKeys.Contains(item)) {
 			PressKey(item);
 			PressedKeys.Add(item);
@@ -76,7 +76,7 @@ void AReplayControlledFPSCharacter::UpdatePressedKeys(FRecordedPlayerState &reco
 void AReplayControlledFPSCharacter::UpdateReleasedKeys(FRecordedPlayerState &recordDataStep) {
 	for(int i = 0; i < PressedKeys.Num(); i++) {
 		auto item = PressedKeys[i];
-		if(!recordDataStep.ButtonsPressed.Contains(item)) {
+		if(!recordDataStep.PressedKeys.Contains(item)) {
 			ReleaseKey(item);
 			PressedKeys.Remove(item);
 			i--;
