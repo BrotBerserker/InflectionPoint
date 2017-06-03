@@ -3,12 +3,13 @@
 #pragma once
 
 #include "BaseCharacter.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "ReplayControlledFPSCharacter.generated.h"
 
 
 /**
- *
- */
+*
+*/
 UCLASS()
 class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public ABaseCharacter {
 	GENERATED_BODY()
@@ -22,7 +23,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void StartReplay(TMap<FString, TArray<TTuple<float, float, float>>> keysPressed, TMap<FString, TArray<TTuple<float, float, float>>> keysReleased);
+	void StartReplay(TArray<FRecordedPlayerState> recordData);
 
 
 	UFUNCTION()
@@ -43,13 +44,18 @@ public:
 		void ReplayMoveRight(float value);
 
 
-	TMap<FKey, TArray<TTuple<float, float, float>>> KeysPressed;
-	TMap<FKey, TArray<TTuple<float, float, float>>> KeysReleased;
+	TArray<FRecordedPlayerState> RecordData;
 
+	bool IsReplaying = false;
+
+	float passedTime = 0.f;
+	int replayIndex = 0;
+	TArray<FString> pressedButtons;
 	bool isForwardPressed = false;
 	bool isBackwordPressed = false;
 	bool isRightPressed = false;
 	bool isLeftPressed = false;
 private:
 	void StartTimerForKeyChanged(TPair<FString, TArray<TTuple<float, float, float>>> & element, FString timerFunction);
+
 };

@@ -72,7 +72,7 @@ void APlayerControlledFPSCharacter::DEBUG_SpawnReplay_Implementation() {
 	InputRecorder = FindComponentByClass<UInputRecorder>();
 	AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
 	//newPlayer->StartReplay(InputRecorder->Inputs, InputRecorder->MovementsForward, InputRecorder->MovementsRight);
-	newPlayer->StartReplay(InputRecorder->KeysPressed, InputRecorder->KeysReleased);
+	//newPlayer->StartReplay(InputRecorder->KeysPressed, InputRecorder->KeysReleased);
 
 	// Replay rotations
 	URotationRecorder* rotRecorder = FindComponentByClass<URotationRecorder>();
