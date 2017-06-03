@@ -74,7 +74,7 @@ public:
 	TArray<FRecordedPlayerState> RecordedPlayerStates;
 
 private:
-	bool recording = false;
+	bool recording = true;
 	float passedTime;
 	ABaseCharacter* owner;
 	TArray<FString> buttonsPressed;
@@ -101,6 +101,12 @@ private:
 
 	void RecordKeyPressed(FString key);
 
+	UFUNCTION(Unreliable, Server, WithValidation)
+		void ServerRecordKeyPressed(const FString& key);
+
 	void RecordKeyReleased(FString key);
+
+	UFUNCTION(Unreliable, Server, WithValidation)
+		void ServerRecordKeyReleased(const FString& key);
 
 };

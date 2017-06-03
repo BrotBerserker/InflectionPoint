@@ -60,11 +60,27 @@ void UPlayerStateRecorder::StartRecording() {
 
 void UPlayerStateRecorder::RecordKeyPressed(FString key) {
 	//UE_LOG(LogTemp, Warning, TEXT("[%s] pressed"), *(key));
+	ServerRecordKeyPressed(key);
+}
+
+bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString& key) {
+	return true;
+}
+
+void UPlayerStateRecorder::ServerRecordKeyPressed_Implementation(const FString& key) {
 	buttonsPressed.Add(key);
 }
 
 void UPlayerStateRecorder::RecordKeyReleased(FString key) {
 	//UE_LOG(LogTemp, Warning, TEXT("[%s] released"), *(key));
+	ServerRecordKeyReleased(key);
+}
+
+bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString& key) {
+	return true;
+}
+
+void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString& key) {
 	buttonsPressed.Remove(key);
 }
 
