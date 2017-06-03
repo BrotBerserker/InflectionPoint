@@ -21,10 +21,13 @@ public:
 	virtual void BeginPlay() override;
 
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float deltaTime) override;
 
-	void StartReplay(TArray<FRecordedPlayerState> recordData);
-	void StopReplay();
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
+		void StartReplay(TArray<FRecordedPlayerState> recordData);
+
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
+		void StopReplay();
 
 	UFUNCTION()
 		void PressKey(FString key);
@@ -45,17 +48,38 @@ public:
 	UFUNCTION()
 		void ReplayMoveRight(float value);
 	
+public:
+
+	UPROPERTY(EditAnywhere, Category = General)
+		float CorrectionRadius = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = General)
+		float PositionCorrectionInterval = 0.1f;
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+		bool CreateDebugCorrectionSpheres = true;
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+		FColor DebugHitColor = FColorList::Yellow;
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+		FColor DebugMissColor = FColorList::LightSteelBlue;
+
 private:
 	TArray<FRecordedPlayerState> RecordData;
-
 	bool IsReplaying = false;
 	float PassedTime = 0.f;
+	float PassedTimeSinceLastCorrection = 0.f;
 	int ReplayIndex = 0;
-	TArray<FString> PressedButtons;
+	TArray<FString> PressedKeys;
 
-	void UpdatePressedButtons();
+	void UpdatePressedKeys();
 
-	void UpdatePressedButtonsPressedKeys(FRecordedPlayerState &recordDataStep);
+	void UpdatePressedKeys(FRecordedPlayerState &recordDataStep);
 
-	void UpdatePressedButtonsReleasedKeys(FRecordedPlayerState &recordDataStep);
+	void UpdateReleasedKeys(FRecordedPlayerState &recordDataStep);
+
+	bool TryCorrectPosition(FVector correctPosition);
+
+	bool IsAtProperPosition(FVector correctPosition);
 };

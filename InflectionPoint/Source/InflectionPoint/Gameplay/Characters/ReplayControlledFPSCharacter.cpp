@@ -29,15 +29,20 @@ void AReplayControlledFPSCharacter::StopReplay() {
 }
 
 // Called every frame
-void AReplayControlledFPSCharacter::Tick(float DeltaTime) {
+void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 	if(!IsReplaying)
 		return;
-	PassedTime += DeltaTime;	
+	PassedTime += deltaTime;
+	PassedTimeSinceLastCorrection += deltaTime;
 
-	UpdatePressedButtons();
+	// Correct position 
+	if(PassedTimeSinceLastCorrection > PositionCorrectionInterval)
+		TryCorrectPosition(RecordData[ReplayIndex].Position);
+
+	UpdatePressedKeys();
 
 	// Call Hold for all currently pressed buttons
-	for(auto &key : PressedButtons) {
+	for(auto &key : PressedKeys) {
 		HoldKey(key);
 	}
 
@@ -46,7 +51,7 @@ void AReplayControlledFPSCharacter::Tick(float DeltaTime) {
 		StopReplay();
 }
 
-void AReplayControlledFPSCharacter::UpdatePressedButtons() {
+void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 	// iterate through all record data since last tick until now
 	for(; ReplayIndex < RecordData.Num() && RecordData[ReplayIndex].Timestamp <= PassedTime; ReplayIndex++) {
 		auto recordDataStep = RecordData[ReplayIndex];
@@ -54,26 +59,26 @@ void AReplayControlledFPSCharacter::UpdatePressedButtons() {
 			ApplyYaw(RecordData[ReplayIndex - 1].CapsuleYaw);
 			ApplyPitch(RecordData[ReplayIndex - 1].CameraPitch);
 		}
-		UpdatePressedButtonsPressedKeys(recordDataStep);
-		UpdatePressedButtonsReleasedKeys(recordDataStep);
+		UpdatePressedKeys(recordDataStep);
+		UpdateReleasedKeys(recordDataStep);
 	}
 }
 
-void AReplayControlledFPSCharacter::UpdatePressedButtonsPressedKeys(FRecordedPlayerState &recordDataStep) {
+void AReplayControlledFPSCharacter::UpdatePressedKeys(FRecordedPlayerState &recordDataStep) {
 	for(auto &item : recordDataStep.ButtonsPressed) {
-		if(!PressedButtons.Contains(item)) {
+		if(!PressedKeys.Contains(item)) {
 			PressKey(item);
-			PressedButtons.Add(item);
+			PressedKeys.Add(item);
 		}
 	}
 }
 
-void AReplayControlledFPSCharacter::UpdatePressedButtonsReleasedKeys(FRecordedPlayerState &recordDataStep) {
-	for(int i = 0; i < PressedButtons.Num(); i++) {
-		auto item = PressedButtons[i];
+void AReplayControlledFPSCharacter::UpdateReleasedKeys(FRecordedPlayerState &recordDataStep) {
+	for(int i = 0; i < PressedKeys.Num(); i++) {
+		auto item = PressedKeys[i];
 		if(!recordDataStep.ButtonsPressed.Contains(item)) {
 			ReleaseKey(item);
-			PressedButtons.Remove(item);
+			PressedKeys.Remove(item);
 			i--;
 		}
 	}
@@ -86,14 +91,6 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 		OnFire();
 	} else if(key == "DEBUG_Fire") {
 		OnDebugFire();
-	} else if(key == "MoveForward") {
-		ReplayMoveForward(1);
-	} else if(key == "MoveBackward") {
-		ReplayMoveForward(-1);
-	} else if(key == "MoveLeft") {
-		ReplayMoveRight(-1);
-	} else if(key == "MoveRight") {
-		ReplayMoveRight(1);
 	}
 }
 
@@ -130,6 +127,26 @@ void AReplayControlledFPSCharacter::ApplyPitch(float value) {
 	rot.Pitch = value;
 	rot.Roll = 0;
 	GetFirstPersonCameraComponent()->SetWorldRotation(rot);
+}
+
+bool AReplayControlledFPSCharacter::IsAtProperPosition(FVector correctPosition) {
+	FVector actualPosition = GetTransform().GetLocation();
+	return CorrectionRadius < 0 || FVector::Dist(actualPosition, correctPosition) <= CorrectionRadius;
+}
+
+bool AReplayControlledFPSCharacter::TryCorrectPosition(FVector correctPosition) {
+	if(IsAtProperPosition(correctPosition)) {
+		SetActorLocation(correctPosition);
+		PassedTimeSinceLastCorrection = 0;
+		if(CreateDebugCorrectionSpheres) {
+			DrawDebugSphere(GetWorld(), GetTransform().GetLocation(), CorrectionRadius, 8, DebugHitColor, true);
+		}
+		return true;
+	}
+	if(CreateDebugCorrectionSpheres) {
+		DrawDebugSphere(GetWorld(), GetTransform().GetLocation(), CorrectionRadius, 8, DebugMissColor, true);
+	}
+	return false;
 }
 
 void AReplayControlledFPSCharacter::ReplayMoveForward(float value) {
