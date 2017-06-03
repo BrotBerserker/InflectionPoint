@@ -44,8 +44,8 @@ struct FRecordedPlayerState {
 			buttons += button;
 		}
 		buttons += "]";
-		const FString asd = FString::Printf(TEXT("PlayerState [Timestamp: %f, Position: %s, CapsuleYaw: %f, CameraPitch: %f, ButtonsPressed: %s]"), Timestamp, *Position.ToString(), CapsuleYaw, CameraPitch, *buttons);
-		return asd;
+		const FString stateString = FString::Printf(TEXT("PlayerState [Timestamp: %f, Position: %s, CapsuleYaw: %f, CameraPitch: %f, ButtonsPressed: %s]"), Timestamp, *Position.ToString(), CapsuleYaw, CameraPitch, *buttons);
+		return stateString;
 	}
 
 };
@@ -68,10 +68,13 @@ public:
 
 	void InitializeBindings(UInputComponent * inputComponent);
 
+	void StartRecording();
+
 public:
 	TArray<FRecordedPlayerState> RecordedPlayerStates;
 
 private:
+	bool recording = false;
 	float passedTime;
 	ABaseCharacter* owner;
 	TArray<FString> buttonsPressed;
