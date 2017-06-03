@@ -36,8 +36,8 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 	PassedTimeSinceLastCorrection += deltaTime;
 
 	// Correct position 
-	if(PassedTimeSinceLastCorrection > PositionCorrectionInterval)
-		TryCorrectPosition(RecordData[ReplayIndex].Position);
+	if(ReplayIndex != 0 && PositionCorrectionInterval >= 0 && PassedTimeSinceLastCorrection > PositionCorrectionInterval)
+		TryCorrectPosition(RecordData[ReplayIndex-1].Position);
 
 	UpdatePressedKeys();
 
@@ -54,11 +54,11 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 	// iterate through all record data since last tick until now
 	for(; ReplayIndex < RecordData.Num() && RecordData[ReplayIndex].Timestamp <= PassedTime; ReplayIndex++) {
-		auto recordDataStep = RecordData[ReplayIndex];
 		if(ReplayIndex != 0) { // Update Rotation (-1 because unreal ^^)
 			ApplyYaw(RecordData[ReplayIndex - 1].CapsuleYaw);
 			ApplyPitch(RecordData[ReplayIndex - 1].CameraPitch);
 		}
+		auto recordDataStep = RecordData[ReplayIndex];
 		UpdatePressedKeys(recordDataStep);
 		UpdateReleasedKeys(recordDataStep);
 	}
