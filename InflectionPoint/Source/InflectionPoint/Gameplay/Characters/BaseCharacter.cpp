@@ -105,7 +105,7 @@ bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflection
 }
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
-	UE_LOG(LogTemp, Warning, TEXT("Shot fired: %s"), *(FDateTime::UtcNow() - start).ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Shot fired: %s"), *(FDateTime::UtcNow() - start).ToString());
 
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {

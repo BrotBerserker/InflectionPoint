@@ -25,21 +25,36 @@ void AReplayControlledFPSCharacter::Tick(float DeltaTime) {
 	passedTime += DeltaTime;
 
 
-	for(; RecordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
+	for(; replayIndex < RecordData.Num() && RecordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
+		if(replayIndex != 0) {
+			ApplyYaw(RecordData[replayIndex - 1].CapsuleYaw);
+			ApplyPitch(RecordData[replayIndex - 1].CameraPitch);
+		}
+
 		auto recordDataStep = RecordData[replayIndex];
+
 		for(auto &item : recordDataStep.ButtonsPressed) {
 			if(!pressedButtons.Contains(item)) {
-				PressKey(recordDataStep.CapsuleYaw, recordDataStep.CameraPitch, item);
+				//PressKey(item);
 				pressedButtons.Add(item);
 			}
 		}
-		for(auto &item : pressedButtons) {
+		for(int i = 0; i < pressedButtons.Num(); i++) {
+			auto item = pressedButtons[i];
 			if(!recordDataStep.ButtonsPressed.Contains(item)) {
-				ReleaseKey(recordDataStep.CapsuleYaw, recordDataStep.CameraPitch, item);
+				ReleaseKey(item);
 				pressedButtons.Remove(item);
+				i--;
 			}
 		}
 	}
+
+	lastReplayIndex = replayIndex;
+
+	for(auto &key : pressedButtons) {
+		PressKey(key);
+	}
+
 }
 
 void AReplayControlledFPSCharacter::StartReplay(TArray<FRecordedPlayerState> recordData) {
@@ -60,10 +75,14 @@ void AReplayControlledFPSCharacter::StartTimerForKeyChanged(TPair<FString, TArra
 	}
 }
 
-void AReplayControlledFPSCharacter::PressKey(float yaw, float pitch, FString key) {
+void AReplayControlledFPSCharacter::PressKey(FString key) {
+
+	UE_LOG(LogTemp, Warning, TEXT("Key pressed: %s"), *key);
+
+
 	// set rotation
-	ApplyYaw(yaw);
-	ApplyPitch(pitch);
+	//ApplyYaw(yaw);
+	//ApplyPitch(pitch);
 
 	// press key
 	if(key == "Jump") {
@@ -87,10 +106,10 @@ void AReplayControlledFPSCharacter::PressKey(float yaw, float pitch, FString key
 	}
 }
 
-void AReplayControlledFPSCharacter::ReleaseKey(float yaw, float pitch, FString key) {
+void AReplayControlledFPSCharacter::ReleaseKey(FString key) {
 	// set rotation
-	ApplyYaw(yaw);
-	ApplyPitch(pitch);
+	//ApplyYaw(yaw);
+	//ApplyPitch(pitch);
 
 	// release key
 	if(key == "MoveForward") {

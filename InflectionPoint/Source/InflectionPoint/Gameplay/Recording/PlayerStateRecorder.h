@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 #include "PlayerStateRecorder.generated.h"
 
 USTRUCT()
@@ -36,6 +37,17 @@ struct FRecordedPlayerState {
 		ButtonsPressed = buttonsPressed;
 	}
 
+	FString ToString() {
+		FString buttons = "[";
+		for(auto button : ButtonsPressed) {
+			buttons += ", ";
+			buttons += button;
+		}
+		buttons += "]";
+		const FString asd = FString::Printf(TEXT("PlayerState [Timestamp: %f, Position: %s, CapsuleYaw: %f, CameraPitch: %f, ButtonsPressed: %s]"), Timestamp, *Position.ToString(), CapsuleYaw, CameraPitch, *buttons);
+		return asd;
+	}
+
 };
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -54,6 +66,38 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	void InitializeBindings(UInputComponent * inputComponent);
 
+public:
+	TArray<FRecordedPlayerState> RecordedPlayerStates;
+
+private:
+	float passedTime;
+	ABaseCharacter* owner;
+	TArray<FString> buttonsPressed;
+
+	int movingForward = 0;
+
+	int movingRight = 0;
+
+	void RecordStartJump();
+
+	void RecordStopJump();
+
+	void RecordStartFire();
+
+	void RecordStopFire();
+
+	void RecordStartDebugFire();
+
+	void RecordStopDebugFire();
+
+	void RecordMoveForward(float val);
+
+	void RecordMoveRight(float val);
+
+	void RecordKeyPressed(FString key);
+
+	void RecordKeyReleased(FString key);
 
 };

@@ -4,6 +4,7 @@
 
 #include "BaseCharacter.h"
 #include "Gameplay/Recording/InputRecorder.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "PlayerControlledFPSCharacter.generated.h"
 
 
@@ -27,5 +28,6 @@ protected:
 	UFUNCTION(Reliable, Server, WithValidation)
 		void DEBUG_SpawnReplay();
 
-	UInputRecorder* InputRecorder;
+	//UInputRecorder* InputRecorder;
+	UPlayerStateRecorder* PlayerStateRecorder;
 };

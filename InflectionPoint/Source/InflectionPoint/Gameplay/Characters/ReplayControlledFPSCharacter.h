@@ -27,9 +27,9 @@ public:
 
 
 	UFUNCTION()
-		void PressKey(float yaw, float pitch, FString key);
+		void PressKey(FString key);
 	UFUNCTION()
-		void ReleaseKey(float yaw, float pitch, FString key);
+		void ReleaseKey(FString key);
 
 	UFUNCTION()
 		void ApplyYaw(float value);
@@ -50,6 +50,7 @@ public:
 
 	float passedTime = 0.f;
 	int replayIndex = 0;
+	int lastReplayIndex = 0;
 	TArray<FString> pressedButtons;
 	bool isForwardPressed = false;
 	bool isBackwordPressed = false;
