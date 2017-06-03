@@ -73,11 +73,15 @@ public:
 public:
 	TArray<FRecordedPlayerState> RecordedPlayerStates;
 
+	//int MaxQueueEntries = 7;
+
 private:
-	bool recording = true;
+	bool recording = false;
 	float passedTime;
 	ABaseCharacter* owner;
 	TArray<FString> pressedKeys;
+
+	//TArray<FRecordedPlayerState> recordedPlayerStateQueue;
 
 	int movingForward = 0;
 
@@ -101,12 +105,9 @@ private:
 
 	void RecordKeyPressed(FString key);
 
-	UFUNCTION(Unreliable, Server, WithValidation)
-		void ServerRecordKeyPressed(const FString& key);
-
 	void RecordKeyReleased(FString key);
 
 	UFUNCTION(Unreliable, Server, WithValidation)
-		void ServerRecordKeyReleased(const FString& key);
+		void ServerRecordPlayerState(FRecordedPlayerState state);
 
 };

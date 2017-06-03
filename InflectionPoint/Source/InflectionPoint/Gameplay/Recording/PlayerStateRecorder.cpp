@@ -51,7 +51,15 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	float yaw = owner->GetCapsuleComponent()->GetComponentRotation().Yaw;
 	float pitch = owner->GetFirstPersonCameraComponent()->GetComponentRotation().Pitch;
 
-	RecordedPlayerStates.Add(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
+	ServerRecordPlayerState(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
+}
+
+bool UPlayerStateRecorder::ServerRecordPlayerState_Validate(FRecordedPlayerState state) {
+	return true;
+}
+
+void UPlayerStateRecorder::ServerRecordPlayerState_Implementation(FRecordedPlayerState state) {
+	RecordedPlayerStates.Add(state);
 }
 
 void UPlayerStateRecorder::StartRecording() {
@@ -59,28 +67,10 @@ void UPlayerStateRecorder::StartRecording() {
 }
 
 void UPlayerStateRecorder::RecordKeyPressed(FString key) {
-	//UE_LOG(LogTemp, Warning, TEXT("[%s] pressed"), *(key));
-	ServerRecordKeyPressed(key);
-}
-
-bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString& key) {
-	return true;
-}
-
-void UPlayerStateRecorder::ServerRecordKeyPressed_Implementation(const FString& key) {
 	pressedKeys.Add(key);
 }
 
 void UPlayerStateRecorder::RecordKeyReleased(FString key) {
-	//UE_LOG(LogTemp, Warning, TEXT("[%s] released"), *(key));
-	ServerRecordKeyReleased(key);
-}
-
-bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString& key) {
-	return true;
-}
-
-void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString& key) {
 	pressedKeys.Remove(key);
 }
 
@@ -93,7 +83,7 @@ void UPlayerStateRecorder::RecordMoveForward(float val) {
 		RecordKeyPressed("MoveForward");
 	} else if(val < 0) {
 		RecordKeyPressed("MoveBackward");
-	} 
+	}
 
 	if(movingForward > 0) {
 		RecordKeyReleased("MoveForward");
