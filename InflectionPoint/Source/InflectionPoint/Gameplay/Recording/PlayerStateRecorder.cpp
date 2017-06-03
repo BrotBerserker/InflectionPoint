@@ -41,6 +41,10 @@ void UPlayerStateRecorder::BeginPlay() {
 void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if(!recording) {
+		return;
+	}
+
 	passedTime += DeltaTime;
 
 	FVector pos = owner->GetTransform().GetLocation();
@@ -50,13 +54,17 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	RecordedPlayerStates.Add(FRecordedPlayerState(passedTime, pos, yaw, pitch, buttonsPressed));
 }
 
+void UPlayerStateRecorder::StartRecording() {
+	recording = true;
+}
+
 void UPlayerStateRecorder::RecordKeyPressed(FString key) {
-	UE_LOG(LogTemp, Warning, TEXT("[%s] pressed"), *(key));
+	//UE_LOG(LogTemp, Warning, TEXT("[%s] pressed"), *(key));
 	buttonsPressed.Add(key);
 }
 
 void UPlayerStateRecorder::RecordKeyReleased(FString key) {
-	UE_LOG(LogTemp, Warning, TEXT("[%s] released"), *(key));
+	//UE_LOG(LogTemp, Warning, TEXT("[%s] released"), *(key));
 	buttonsPressed.Remove(key);
 }
 
@@ -69,9 +77,14 @@ void UPlayerStateRecorder::RecordMoveForward(float val) {
 		RecordKeyPressed("MoveForward");
 	} else if(val < 0) {
 		RecordKeyPressed("MoveBackward");
-	} else {
-		RecordKeyReleased(movingForward > 0 ? "MoveForward" : "MoveBackward");
+	} 
+
+	if(movingForward > 0) {
+		RecordKeyReleased("MoveForward");
+	} else if(movingForward < 0) {
+		RecordKeyReleased("MoveBackward");
 	}
+
 	movingForward = val;
 }
 
@@ -84,9 +97,14 @@ void UPlayerStateRecorder::RecordMoveRight(float val) {
 		RecordKeyPressed("MoveRight");
 	} else if(val < 0) {
 		RecordKeyPressed("MoveLeft");
-	} else {
-		RecordKeyReleased(movingRight > 0 ? "MoveRight" : "MoveLeft");
 	}
+
+	if(movingRight > 0) {
+		RecordKeyReleased("MoveRight");
+	} else if(movingRight < 0) {
+		RecordKeyReleased("MoveLeft");
+	}
+
 	movingRight = val;
 }
 
