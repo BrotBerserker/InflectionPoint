@@ -17,74 +17,69 @@ void AReplayControlledFPSCharacter::BeginPlay() {
 	//PrimaryActorTick.bCanEverTick = true;
 }
 
+void AReplayControlledFPSCharacter::StartReplay(TArray<FRecordedPlayerState> recordData) {
+	RecordData = recordData;
+	IsReplaying = true;
+	ReplayIndex = 0;
+}
+
+void AReplayControlledFPSCharacter::StopReplay() {
+	IsReplaying = false;
+	ReplayIndex = 0;
+}
+
 // Called every frame
 void AReplayControlledFPSCharacter::Tick(float DeltaTime) {
 	if(!IsReplaying)
 		return;
+	PassedTime += DeltaTime;	
 
-	passedTime += DeltaTime;
+	UpdatePressedButtons();
 
-
-	for(; replayIndex < RecordData.Num() && RecordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
-		if(replayIndex != 0) {
-			ApplyYaw(RecordData[replayIndex - 1].CapsuleYaw);
-			ApplyPitch(RecordData[replayIndex - 1].CameraPitch);
-		}
-
-		auto recordDataStep = RecordData[replayIndex];
-
-		for(auto &item : recordDataStep.ButtonsPressed) {
-			if(!pressedButtons.Contains(item)) {
-				//PressKey(item);
-				pressedButtons.Add(item);
-			}
-		}
-		for(int i = 0; i < pressedButtons.Num(); i++) {
-			auto item = pressedButtons[i];
-			if(!recordDataStep.ButtonsPressed.Contains(item)) {
-				ReleaseKey(item);
-				pressedButtons.Remove(item);
-				i--;
-			}
-		}
+	// Call Hold for all currently pressed buttons
+	for(auto &key : PressedButtons) {
+		HoldKey(key);
 	}
 
-	lastReplayIndex = replayIndex;
+	// stop replay when end of RecordData reached
+	if(ReplayIndex >= RecordData.Num())
+		StopReplay();
+}
 
-	for(auto &key : pressedButtons) {
-		PressKey(key);
+void AReplayControlledFPSCharacter::UpdatePressedButtons() {
+	// iterate through all record data since last tick until now
+	for(; ReplayIndex < RecordData.Num() && RecordData[ReplayIndex].Timestamp <= PassedTime; ReplayIndex++) {
+		auto recordDataStep = RecordData[ReplayIndex];
+		if(ReplayIndex != 0) { // Update Rotation (-1 because unreal ^^)
+			ApplyYaw(RecordData[ReplayIndex - 1].CapsuleYaw);
+			ApplyPitch(RecordData[ReplayIndex - 1].CameraPitch);
+		}
+		UpdatePressedButtonsPressedKeys(recordDataStep);
+		UpdatePressedButtonsReleasedKeys(recordDataStep);
 	}
-
 }
 
-void AReplayControlledFPSCharacter::StartReplay(TArray<FRecordedPlayerState> recordData) {
-	RecordData = recordData;
-	IsReplaying = true;
-	replayIndex = 0;
+void AReplayControlledFPSCharacter::UpdatePressedButtonsPressedKeys(FRecordedPlayerState &recordDataStep) {
+	for(auto &item : recordDataStep.ButtonsPressed) {
+		if(!PressedButtons.Contains(item)) {
+			PressKey(item);
+			PressedButtons.Add(item);
+		}
+	}
 }
 
-// Helper Method 
-void AReplayControlledFPSCharacter::StartTimerForKeyChanged(TPair<FString, TArray<TTuple<float, float, float>>> & element, FString timerFunction) {
-	while(element.Value.Num() > 0) {
-		StartTimer(this, GetWorld(), timerFunction,
-			element.Value.Last().Get<0>() + 0.0333333f, // time
-			element.Value.Last().Get<1>(), // yaw
-			element.Value.Last().Get<2>(), // pitch
-			element.Key); // Key
-		element.Value.RemoveAt(element.Value.Num() - 1);
+void AReplayControlledFPSCharacter::UpdatePressedButtonsReleasedKeys(FRecordedPlayerState &recordDataStep) {
+	for(int i = 0; i < PressedButtons.Num(); i++) {
+		auto item = PressedButtons[i];
+		if(!recordDataStep.ButtonsPressed.Contains(item)) {
+			ReleaseKey(item);
+			PressedButtons.Remove(item);
+			i--;
+		}
 	}
 }
 
 void AReplayControlledFPSCharacter::PressKey(FString key) {
-
-	UE_LOG(LogTemp, Warning, TEXT("Key pressed: %s"), *key);
-
-
-	// set rotation
-	//ApplyYaw(yaw);
-	//ApplyPitch(pitch);
-
-	// press key
 	if(key == "Jump") {
 		Jump();
 	} else if(key == "Fire") {
@@ -92,35 +87,30 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 	} else if(key == "DEBUG_Fire") {
 		OnDebugFire();
 	} else if(key == "MoveForward") {
-		isForwardPressed = true;
 		ReplayMoveForward(1);
 	} else if(key == "MoveBackward") {
-		isBackwordPressed = true;
 		ReplayMoveForward(-1);
 	} else if(key == "MoveLeft") {
-		isLeftPressed = true;
 		ReplayMoveRight(-1);
 	} else if(key == "MoveRight") {
-		isRightPressed = true;
+		ReplayMoveRight(1);
+	}
+}
+
+void AReplayControlledFPSCharacter::HoldKey(FString key) {
+	if(key == "MoveForward") {
+		ReplayMoveForward(1);
+	} else if(key == "MoveBackward") {
+		ReplayMoveForward(-1);
+	} else if(key == "MoveLeft") {
+		ReplayMoveRight(-1);
+	} else if(key == "MoveRight") {
 		ReplayMoveRight(1);
 	}
 }
 
 void AReplayControlledFPSCharacter::ReleaseKey(FString key) {
-	// set rotation
-	//ApplyYaw(yaw);
-	//ApplyPitch(pitch);
-
-	// release key
-	if(key == "MoveForward") {
-		isForwardPressed = false;
-	} else if(key == "MoveBackward") {
-		isBackwordPressed = false;
-	} else if(key == "MoveLeft") {
-		isLeftPressed = false;
-	} else if(key == "MoveRight") {
-		isRightPressed = false;
-	}
+	// ...
 }
 
 void AReplayControlledFPSCharacter::ApplyYaw(float value) {
@@ -149,5 +139,3 @@ void AReplayControlledFPSCharacter::ReplayMoveForward(float value) {
 void AReplayControlledFPSCharacter::ReplayMoveRight(float value) {
 	MoveRight(value);
 }
-
-

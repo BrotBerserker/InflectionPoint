@@ -24,12 +24,14 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void StartReplay(TArray<FRecordedPlayerState> recordData);
-
+	void StopReplay();
 
 	UFUNCTION()
 		void PressKey(FString key);
 	UFUNCTION()
 		void ReleaseKey(FString key);
+	UFUNCTION()
+		void HoldKey(FString key);
 
 	UFUNCTION()
 		void ApplyYaw(float value);
@@ -42,21 +44,18 @@ public:
 
 	UFUNCTION()
 		void ReplayMoveRight(float value);
-
-
+	
+private:
 	TArray<FRecordedPlayerState> RecordData;
 
 	bool IsReplaying = false;
+	float PassedTime = 0.f;
+	int ReplayIndex = 0;
+	TArray<FString> PressedButtons;
 
-	float passedTime = 0.f;
-	int replayIndex = 0;
-	int lastReplayIndex = 0;
-	TArray<FString> pressedButtons;
-	bool isForwardPressed = false;
-	bool isBackwordPressed = false;
-	bool isRightPressed = false;
-	bool isLeftPressed = false;
-private:
-	void StartTimerForKeyChanged(TPair<FString, TArray<TTuple<float, float, float>>> & element, FString timerFunction);
+	void UpdatePressedButtons();
 
+	void UpdatePressedButtonsPressedKeys(FRecordedPlayerState &recordDataStep);
+
+	void UpdatePressedButtonsReleasedKeys(FRecordedPlayerState &recordDataStep);
 };
