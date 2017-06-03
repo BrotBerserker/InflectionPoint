@@ -4,6 +4,7 @@
 
 #include "BaseCharacter.h"
 #include "Gameplay/Recording/InputRecorder.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "PlayerControlledFPSCharacter.generated.h"
 
 
@@ -25,7 +26,8 @@ protected:
 
 	/** Spawns a ReplayPlayer for Debug purposes, the real spawning should happen in the GameMode */
 	UFUNCTION(Reliable, Server, WithValidation)
-		void DEBUG_SpawnReplay();
+		void DEBUG_ServerSpawnReplay();
 
-	UInputRecorder* InputRecorder;
+	//UInputRecorder* InputRecorder;
+	UPlayerStateRecorder* PlayerStateRecorder;
 };

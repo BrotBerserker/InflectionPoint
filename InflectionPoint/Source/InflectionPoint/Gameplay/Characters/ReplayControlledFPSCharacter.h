@@ -3,12 +3,13 @@
 #pragma once
 
 #include "BaseCharacter.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "ReplayControlledFPSCharacter.generated.h"
 
 
 /**
- *
- */
+*
+*/
 UCLASS()
 class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public ABaseCharacter {
 	GENERATED_BODY()
@@ -20,15 +21,20 @@ public:
 	virtual void BeginPlay() override;
 
 	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float deltaTime) override;
 
-	void StartReplay(TMap<FString, TArray<TTuple<float, float, float>>> keysPressed, TMap<FString, TArray<TTuple<float, float, float>>> keysReleased);
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
+		void StartReplay(TArray<FRecordedPlayerState> recordData);
 
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
+		void StopReplay();
 
 	UFUNCTION()
-		void PressKey(float yaw, float pitch, FString key);
+		void PressKey(FString key);
 	UFUNCTION()
-		void ReleaseKey(float yaw, float pitch, FString key);
+		void ReleaseKey(FString key);
+	UFUNCTION()
+		void HoldKey(FString key);
 
 	UFUNCTION()
 		void ApplyYaw(float value);
@@ -41,15 +47,39 @@ public:
 
 	UFUNCTION()
 		void ReplayMoveRight(float value);
+	
+public:
 
+	UPROPERTY(EditAnywhere, Category = General)
+		float CorrectionRadius = 10.f;
 
-	TMap<FKey, TArray<TTuple<float, float, float>>> KeysPressed;
-	TMap<FKey, TArray<TTuple<float, float, float>>> KeysReleased;
+	UPROPERTY(EditAnywhere, Category = General)
+		float PositionCorrectionInterval = 0.1f;
 
-	bool isForwardPressed = false;
-	bool isBackwordPressed = false;
-	bool isRightPressed = false;
-	bool isLeftPressed = false;
+	UPROPERTY(EditAnywhere, Category = Debug)
+		bool CreateDebugCorrectionSpheres = true;
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+		FColor DebugHitColor = FColorList::Yellow;
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+		FColor DebugMissColor = FColorList::LightSteelBlue;
+
 private:
-	void StartTimerForKeyChanged(TPair<FString, TArray<TTuple<float, float, float>>> & element, FString timerFunction);
+	TArray<FRecordedPlayerState> RecordData;
+	bool IsReplaying = false;
+	float PassedTime = 0.f;
+	float PassedTimeSinceLastCorrection = 0.f;
+	int ReplayIndex = 0;
+	TArray<FString> PressedKeys;
+
+	void UpdatePressedKeys();
+
+	void UpdatePressedKeys(FRecordedPlayerState &recordDataStep);
+
+	void UpdateReleasedKeys(FRecordedPlayerState &recordDataStep);
+
+	bool TryCorrectPosition(FVector correctPosition);
+
+	bool IsAtProperPosition(FVector correctPosition);
 };
