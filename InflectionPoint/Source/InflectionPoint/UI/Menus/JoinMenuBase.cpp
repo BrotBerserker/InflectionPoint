@@ -2,7 +2,6 @@
 // Tutorial link: https://wiki.unrealengine.com/How_To_Use_Sessions_In_C%2B%2B
 
 #include "InflectionPoint.h"
-//#include "Slate.h"
 #include "Runtime/UMG/Public/UMG.h"
 #include "Runtime/UMG/Public/Blueprint/WidgetBlueprintLibrary.h"
 #include "JoinMenuBase.h"
@@ -10,36 +9,15 @@
 
 UJoinMenuBase::UJoinMenuBase() : Super() {
 	OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UJoinMenuBase::OnFindSessionsComplete);
-	OnJoinSessionCompleteDelegate = FOnJoinSessionCompleteDelegate::CreateUObject(this, &UJoinMenuBase::OnJoinSessionComplete);
 	static ConstructorHelpers::FObjectFinder<UClass> SessionSearchResult(TEXT("Class'/Game/InflectionPoint/UI/Menus/SessionSearchResult.SessionSearchResult_C'"));
 	if(SessionSearchResult.Object != NULL) {
 		SessionSearchResultType = SessionSearchResult.Object;
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("done"));	
 }
 
 void UJoinMenuBase::FindOnlineGames(bool isLan) {
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
 	FindSessions(Player->GetPreferredUniqueNetId(), GameSessionName, isLan, true);
-}
-
-
-void UJoinMenuBase::JoinOnlineGame(int index) {
-	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
-	FOnlineSessionSearchResult SearchResult;
-	if(index >= SessionSearch->SearchResults.Num() || index < 0)
-		return; // not in range
-				//for(int32 i = 0; i < SessionSearch->SearchResults.Num(); i++) {
-	if(SessionSearch->SearchResults[index].Session.OwningUserId != Player->GetPreferredUniqueNetId()) {
-		SearchResult = SessionSearch->SearchResults[index];
-
-		// Once we found sounce a Session that is not ours, just join it. Instead of using a for loop, you could
-		// use a widget where you click on and have a reference for the GameSession it represents which you can use
-		// here
-		JoinSession(Player->GetPreferredUniqueNetId(), GameSessionName/*SessionSearch->SearchResults[i].Session.OwningUserName)*/, SearchResult);
-		//break;
-	}
-	//}
 }
 
 void UJoinMenuBase::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence) {
@@ -61,7 +39,7 @@ void UJoinMenuBase::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName Se
 }
 
 void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
-	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OFindSessionsComplete bSuccess: %d"), bWasSuccessful));
+	//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OFindSessionsComplete bSuccess: %d"), bWasSuccessful));
 	OnSessionSearchComplete();
 
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
@@ -71,7 +49,7 @@ void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
 		// Clear the Delegate handle
 		Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
 
-		GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Num Search Results: %d (%d without self)"), SessionSearch->SearchResults.Num(), SessionSearch->SearchResults.Num() - 1));
+		//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Num Search Results: %d (%d without self)"), SessionSearch->SearchResults.Num(), SessionSearch->SearchResults.Num() - 1));
 
 		auto results = TArray<USessionSearchResultBase*>();
 		// If we have found at least 1 session, we just going to debug them. You could add them to a list of UMG Widgets, like it is done in the BP version!			
@@ -84,18 +62,17 @@ void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
 				USessionSearchResultBase* SessionSearchResult = (USessionSearchResultBase*)CreateWidget<USessionSearchResultBase>(GetWorld(), SessionSearchResultType);
 				SessionSearchResult->OnlineSessionSearchResult = SessionSearch->SearchResults[SearchIdx];
 				results.Add(SessionSearchResult);
-				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Done")));
-				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Session Number: %d | Sessionname: %s "), SearchIdx + 1, *sessionName));
+				//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Session Number: %d | Sessionname: %s "), SearchIdx + 1, *sessionName));
 			} else {
 				FString sessionName;
 				SessionSearch->SearchResults[SearchIdx].Session.SessionSettings.Get(FName("SessionName"), sessionName);
-				GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Self: Session Number: %d | Sessionname: %s "), SearchIdx + 1, *sessionName));
+				//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("Self: Session Number: %d | Sessionname: %s "), SearchIdx + 1, *sessionName));
 			}
 		}
 		if(sessionFound) {
 			SessionSearchResults = results;
 			OnSessionFound();
-			GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnSessionFound called")));
+			//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnSessionFound called")));
 		}
 	}
 }
@@ -108,38 +85,3 @@ IOnlineSessionPtr UJoinMenuBase::GetSessionInterface() {
 	return OnlineSub->GetSessionInterface();
 }
 
-
-bool UJoinMenuBase::JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult) {
-	bool bSuccessful = false;
-	IOnlineSessionPtr Sessions = GetSessionInterface();
-
-	if(Sessions.IsValid() && UserId.IsValid()) {
-		OnJoinSessionCompleteDelegateHandle = Sessions->AddOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegate);
-
-		// Call the "JoinSession" Function with the passed "SearchResult". The "SessionSearch->SearchResults" can be used to get such a
-		// "FOnlineSessionSearchResult" and pass it.
-		bSuccessful = Sessions->JoinSession(*UserId, SessionName, SearchResult);
-	}
-	return bSuccessful;
-}
-
-void UJoinMenuBase::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result) {
-	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnJoinSessionComplete %s, %d"), *SessionName.ToString(), static_cast<int32>(Result)));
-
-	IOnlineSessionPtr Sessions = GetSessionInterface();
-	if(Sessions.IsValid()) {
-		Sessions->ClearOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);
-
-		APlayerController * const PlayerController = GetWorld()->GetFirstPlayerController();
-
-		// We need a FString to use ClientTravel and we can let the SessionInterface contruct such a
-		// String for us by giving him the SessionName and an empty String. We want to do this, because
-		// Every OnlineSubsystem uses different TravelURLs
-		FString TravelURL;
-
-		if(PlayerController && Sessions->GetResolvedConnectString(SessionName, TravelURL)) {
-			PlayerController->ClientTravel(TravelURL, ETravelType::TRAVEL_Absolute);
-		}
-		OnJoinComplete();
-	}
-}

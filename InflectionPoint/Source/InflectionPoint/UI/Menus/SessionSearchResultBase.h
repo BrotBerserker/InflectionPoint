@@ -20,10 +20,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
 		void JoinOnlineGame();
 
-
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
 		FString GetOnlineSessionName();
-
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnJoinComplete();

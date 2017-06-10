@@ -19,9 +19,6 @@ void USessionSearchResultBase::JoinOnlineGame() {
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
 
 	if(OnlineSessionSearchResult.Session.OwningUserId != Player->GetPreferredUniqueNetId()) {
-		// Once we found sounce a Session that is not ours, just join it. Instead of using a for loop, you could
-		// use a widget where you click on and have a reference for the GameSession it represents which you can use
-		// here
 		JoinSession(Player->GetPreferredUniqueNetId(), GameSessionName/*SessionSearch->SearchResults[i].Session.OwningUserName)*/, OnlineSessionSearchResult);
 	}
 }
@@ -32,9 +29,6 @@ bool USessionSearchResultBase::JoinSession(TSharedPtr<const FUniqueNetId> UserId
 
 	if(Sessions.IsValid() && UserId.IsValid()) {
 		OnJoinSessionCompleteDelegateHandle = Sessions->AddOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegate);
-
-		// Call the "JoinSession" Function with the passed "SearchResult". The "SessionSearch->SearchResults" can be used to get such a
-		// "FOnlineSessionSearchResult" and pass it.
 		bSuccessful = Sessions->JoinSession(*UserId, SessionName, SearchResult);
 	}
 	return bSuccessful;
@@ -48,10 +42,6 @@ void USessionSearchResultBase::OnJoinSessionComplete(FName SessionName, EOnJoinS
 		Sessions->ClearOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);
 
 		APlayerController * const PlayerController = GetWorld()->GetFirstPlayerController();
-
-		// We need a FString to use ClientTravel and we can let the SessionInterface contruct such a
-		// String for us by giving him the SessionName and an empty String. We want to do this, because
-		// Every OnlineSubsystem uses different TravelURLs
 		FString TravelURL;
 
 		if(PlayerController && Sessions->GetResolvedConnectString(SessionName, TravelURL)) {
