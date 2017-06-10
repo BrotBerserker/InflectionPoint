@@ -5,6 +5,7 @@
 #include "SubMenuTemplate.h"
 #include "OnlineSubsystemUtils.h"
 #include "Blueprint/UserWidget.h"
+#include "SessionSearchResultBase.h"
 #include "JoinMenuBase.generated.h"
 
 
@@ -22,7 +23,7 @@ public:
 		void FindOnlineGames(bool isLan);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
-		void JoinOnlineGame();
+		void JoinOnlineGame(int index = 0);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnSessionFound();
@@ -32,6 +33,15 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnJoinComplete();
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InflectionPoint|Networking")
+		TArray<USessionSearchResultBase*> SessionSearchResults;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		TSubclassOf<USessionSearchResultBase> SessionSearchResultType;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InflectionPoint|Networking")
+	//	SearchResultsWrapper wrapper;
 
 private:
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
