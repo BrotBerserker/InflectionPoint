@@ -55,7 +55,7 @@ ABaseCharacter::ABaseCharacter() {
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh3P"));
 	Mesh3P->SetupAttachment(GetCapsuleComponent());
 	Mesh3P->SetOwnerNoSee(true);
-	Mesh3P->RelativeLocation = FVector(0.f, 0.f, -95.f);
+	Mesh3P->RelativeLocation = FVector(0.f, 0.f, -97.f);
 	Mesh3P->RelativeRotation = FRotator(0.f, -90.f, 0.f);
 
 	TP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TP_Gun"));
