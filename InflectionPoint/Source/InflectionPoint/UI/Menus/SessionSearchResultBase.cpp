@@ -35,7 +35,7 @@ bool USessionSearchResultBase::JoinSession(TSharedPtr<const FUniqueNetId> UserId
 }
 
 void USessionSearchResultBase::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result) {
-	GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnJoinSessionComplete %s, %d"), *SessionName.ToString(), static_cast<int32>(Result)));
+	//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnJoinSessionComplete %s, %d"), *SessionName.ToString(), static_cast<int32>(Result)));
 
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 	if(Sessions.IsValid()) {
