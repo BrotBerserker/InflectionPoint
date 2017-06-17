@@ -108,6 +108,6 @@ private:
 	void RecordKeyReleased(FString key);
 
 	UFUNCTION(Unreliable, Server, WithValidation)
-		void ServerRecordPlayerState(FRecordedPlayerState state);
+		void ServerRecordPlayerState(float timestamp, FVector position, float capsuleYaw, float cameraPitch, const TArray<FString>& pressedKeys);
 
 };
