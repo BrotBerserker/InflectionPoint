@@ -55,8 +55,8 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	if(recordedPlayerStateQueue.Num() > MaxQueueEntries) {
 		for(int i = 0; i < recordedPlayerStateQueue.Num(); i++) {
-			ServerRecordPlayerState(recordedPlayerStateQueue[i]);
-	ServerRecordPlayerState(passedTime, pos, yaw, pitch, pressedKeys);
+			auto item = recordedPlayerStateQueue[i];
+			ServerRecordPlayerState(item.Timestamp, item.Position, item.CapsuleYaw, item.CameraPitch, item.PressedKeys);
 		}
 		recordedPlayerStateQueue.Reset();
 	}
