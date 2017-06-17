@@ -4,6 +4,7 @@
 #include "InflectionPointGameMode.h"
 #include "UI/HUD/InflectionPointHUD.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Controllers/InflectionPointPlayerController.h"
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
 
 AInflectionPointGameMode::AInflectionPointGameMode()
@@ -14,6 +15,7 @@ AInflectionPointGameMode::AInflectionPointGameMode()
 	
 	// use our custom HUD class
 	HUDClass = AInflectionPointHUD::StaticClass();
+	PlayerControllerClass = AInflectionPointPlayerController::StaticClass();
 }
 
 void AInflectionPointGameMode::PlayerDied(APlayerController * playerController) {

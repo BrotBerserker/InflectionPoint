@@ -12,7 +12,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void PlayerDied(APlayerController* playerController);
-
 };
 
 
