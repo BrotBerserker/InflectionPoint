@@ -73,7 +73,7 @@ public:
 public:
 	TArray<FRecordedPlayerState> RecordedPlayerStates;
 
-	//int MaxQueueEntries = 7;
+	int MaxQueueEntries = 7;
 
 private:
 	bool recording = false;
@@ -81,7 +81,7 @@ private:
 	ABaseCharacter* owner;
 	TArray<FString> pressedKeys;
 
-	//TArray<FRecordedPlayerState> recordedPlayerStateQueue;
+	TArray<FRecordedPlayerState> recordedPlayerStateQueue;
 
 	int movingForward = 0;
 

@@ -51,7 +51,15 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	float yaw = owner->GetCapsuleComponent()->GetComponentRotation().Yaw;
 	float pitch = owner->GetFirstPersonCameraComponent()->GetComponentRotation().Pitch;
 
+	recordedPlayerStateQueue.Push(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
+
+	if(recordedPlayerStateQueue.Num() > MaxQueueEntries) {
+		for(int i = 0; i < recordedPlayerStateQueue.Num(); i++) {
+			ServerRecordPlayerState(recordedPlayerStateQueue[i]);
 	ServerRecordPlayerState(passedTime, pos, yaw, pitch, pressedKeys);
+		}
+		recordedPlayerStateQueue.Reset();
+	}
 }
 
 bool UPlayerStateRecorder::ServerRecordPlayerState_Validate(float timestamp, FVector position, float capsuleYaw, float cameraPitch, const TArray<FString>& pressedKeys) {
