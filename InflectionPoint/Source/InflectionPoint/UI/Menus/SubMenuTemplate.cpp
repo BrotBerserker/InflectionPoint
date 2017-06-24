@@ -6,6 +6,6 @@
 void USubMenuTemplate::NavigateBackToParentWidgetMenu() {
 	if(!AssertNotNull(ParentWidgetMenu, GetWorld(), __FILE__, __LINE__))
 		return;
-	this->RemoveFromViewport();
-	ParentWidgetMenu->AddToViewport();
+	this->SetVisibility(ESlateVisibility::Hidden);
+	ParentWidgetMenu->SetVisibility(ESlateVisibility::Visible);
 }
