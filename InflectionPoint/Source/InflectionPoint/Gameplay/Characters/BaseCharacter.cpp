@@ -50,7 +50,7 @@ ABaseCharacter::ABaseCharacter() {
 	FP_MuzzleLocation->SetupAttachment(FP_Gun);
 	/*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
 	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
-	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 129.f, 11.f));
+	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
 
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh3P"));
 	Mesh3P->SetupAttachment(GetCapsuleComponent());
@@ -127,7 +127,7 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 		if(AssertNotNull(World, GetWorld(), __FILE__, __LINE__)) {
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 			ActorSpawnParams.Instigator = Instigator;
 			ActorSpawnParams.Owner = this;
 

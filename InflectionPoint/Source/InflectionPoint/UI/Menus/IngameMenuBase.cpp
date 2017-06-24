@@ -10,7 +10,7 @@ UIngameMenuBase::UIngameMenuBase(const FObjectInitializer& ObjectInitializer)
 
 
 void UIngameMenuBase::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful) {
-	GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("OnDestroySessionComplete %s, %d"), *SessionName.ToString(), bWasSuccessful));
+	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("OnDestroySessionComplete %s, %d"), *SessionName.ToString(), bWasSuccessful));
 
 	// Get the OnlineSubsystem we want to work with
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
