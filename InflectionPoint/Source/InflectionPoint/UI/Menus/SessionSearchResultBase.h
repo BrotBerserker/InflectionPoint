@@ -24,7 +24,7 @@ public:
 		FString GetOnlineSessionName();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
-		void OnJoinComplete();
+		void OnJoinComplete(FName SessioName);
 
 private:
 	FOnJoinSessionCompleteDelegate OnJoinSessionCompleteDelegate;

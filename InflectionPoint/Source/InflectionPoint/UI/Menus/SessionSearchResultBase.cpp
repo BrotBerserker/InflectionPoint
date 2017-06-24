@@ -47,7 +47,7 @@ void USessionSearchResultBase::OnJoinSessionComplete(FName SessionName, EOnJoinS
 		if(PlayerController && Sessions->GetResolvedConnectString(SessionName, TravelURL)) {
 			PlayerController->ClientTravel(TravelURL, ETravelType::TRAVEL_Absolute);
 		}
-		OnJoinComplete();
+		OnJoinComplete(SessionName);
 	}
 }
 
