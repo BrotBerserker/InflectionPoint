@@ -25,6 +25,7 @@ ABaseCharacter::ABaseCharacter() {
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	//FirstPersonCameraComponent->RelativeLocation = FVector(-39.56f, 1.75f, 64.f); 
 	FirstPersonCameraComponent->RelativeLocation = FVector(-20.5f, 1.75f, 41.f); // Position the camera
+	FirstPersonCameraComponent->RelativeScale3D = FVector(0.4, 0.4, 0.4); // Scale of the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
@@ -43,14 +44,12 @@ ABaseCharacter::ABaseCharacter() {
 	FP_Gun->CastShadow = false;
 	// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
 	FP_Gun->SetupAttachment(GetCapsuleComponent());
+	FP_Gun->RelativeScale3D = FVector(.4, .4, .4);
 
 	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	FP_MuzzleLocation->SetupAttachment(FP_Gun);
 	/*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
-	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 74.f, 11.f));
-
-	// Default offset from the character location for projectiles to spawn
-	GunOffset = FVector(100.0f, 0.0f, 10.0f);
+	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
 
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh3P"));
 	Mesh3P->SetupAttachment(GetCapsuleComponent());
@@ -183,8 +182,7 @@ FRotator ABaseCharacter::GetProjectileSpawnRotation() {
 }
 
 FVector ABaseCharacter::GetProjectileSpawnLocation() {
-	// MuzzleOffset is in camera space, so transform it to world space before offsetting from the character location to find the final muzzle position
-	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());// +SpawnRotation.RotateVector(GunOffset);
+	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
 }
 
 bool ABaseCharacter::ServerLookUpAtRate_Validate(FRotator rot) {

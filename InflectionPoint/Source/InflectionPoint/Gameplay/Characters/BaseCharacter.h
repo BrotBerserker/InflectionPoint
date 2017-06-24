@@ -9,9 +9,7 @@ UCLASS(config = Game)
 class ABaseCharacter : public ACharacter {
 	GENERATED_BODY()
 
-
 		FDateTime start;
-
 
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
@@ -55,10 +53,6 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 		float BaseLookUpRate = 45.f;
-
-	/** Gun muzzle's offset from the characters location */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		FVector GunOffset;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
