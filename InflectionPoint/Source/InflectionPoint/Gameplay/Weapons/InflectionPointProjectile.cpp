@@ -33,7 +33,6 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 void AInflectionPointProjectile::BeginPlay() {
 	Super::BeginPlay();
 	APawn* instigator = GetInstigator();
-	UE_LOG(LogTemp, Warning, TEXT("Log message %s"), *instigator->GetName());
 	CollisionComp->IgnoreActorWhenMoving(instigator, true);
 }
 
