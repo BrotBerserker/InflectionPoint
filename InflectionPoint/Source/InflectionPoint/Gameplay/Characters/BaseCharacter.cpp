@@ -34,7 +34,7 @@ ABaseCharacter::ABaseCharacter() {
 	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
-	Mesh1P->RelativeLocation = FVector(-0.5f, -4.4f, -155.7f);
+	Mesh1P->RelativeLocation = FVector(3.09f, 0.61f, -160.7f);
 	Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
 
 	// Create a gun mesh component
