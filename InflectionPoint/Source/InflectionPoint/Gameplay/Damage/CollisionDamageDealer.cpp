@@ -34,8 +34,9 @@ void UCollisionDamageDealer::BeginPlay() {
 void UCollisionDamageDealer::OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
 	bool damageDealt = false;
 	if(OtherActor && (!DealDamageOnlyOnCharacters || OtherActor->IsA(ACharacter::StaticClass()))) {
+		// projectile doesn't deal damage on client side, so damage will be 0 for clients
 		float damage = InflictDamage(OtherActor);
-		damageDealt = damage >= 0;
+		damageDealt = damage > 0; 
 		if(damageDealt)
 			OnDamageHit.Broadcast(damage, NormalImpulse, Hit);
 	} else {
