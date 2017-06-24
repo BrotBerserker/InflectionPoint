@@ -33,7 +33,7 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 void AInflectionPointProjectile::BeginPlay() {
 	Super::BeginPlay();
 	APawn* instigator = GetInstigator();
-	AssertNotNull(instigator, GetWorld(), __FILE__, __LINE__);
+	//AssertNotNull(instigator, GetWorld(), __FILE__, __LINE__);
 	CollisionComp->IgnoreActorWhenMoving(instigator, true);
 }
 
