@@ -30,10 +30,20 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 	InitialLifeSpan = 3.0f;
 }
 
+void AInflectionPointProjectile::BeginPlay() {
+	Super::BeginPlay();
+	APawn* instigator = GetInstigator();
+	UE_LOG(LogTemp, Warning, TEXT("Log message %s"), *instigator->GetName());
+	CollisionComp->IgnoreActorWhenMoving(instigator, true);
+}
+
 void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
-	// Only add impulse and destroy projectile if we hit a physics
-	if((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics()) {
-		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
-		Destroy();
-	}
+	//UE_LOG(LogTemp, Warning, TEXT("hit mit folgendem shit: %s"), *OtherActor->GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("hit mit folgendem componentshit: %s"), *OtherComp->GetName());
+
+	//// Only add impulse and destroy projectile if we hit a physics
+	//if((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics()) {
+	//	OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+	//	Destroy();
+	//}
 }

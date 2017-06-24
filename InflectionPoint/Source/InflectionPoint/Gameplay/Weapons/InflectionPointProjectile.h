@@ -16,6 +16,8 @@ class AInflectionPointProjectile : public AActor {
 		class UProjectileMovementComponent* ProjectileMovement;
 
 public:
+	virtual void BeginPlay() override;
+
 	AInflectionPointProjectile();
 
 	/** called when projectile hits something */
