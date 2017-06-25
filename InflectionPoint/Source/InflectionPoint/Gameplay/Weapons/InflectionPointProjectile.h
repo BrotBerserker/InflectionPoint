@@ -16,16 +16,20 @@ class AInflectionPointProjectile : public AActor {
 		class UProjectileMovementComponent* ProjectileMovement;
 
 public:
-	virtual void BeginPlay() override;
-
+	/** Constructor, sets up collision and movement */
 	AInflectionPointProjectile();
+
+	/** BeginPlay, adds instigator to the collisionComp's ignored actors */
+	virtual void BeginPlay() override;
 
 	/** called when projectile hits something */
 	UFUNCTION()
 		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+public:
 	/** Returns CollisionComp subobject **/
 	FORCEINLINE class USphereComponent* GetCollisionComp() const { return CollisionComp; }
+
 	/** Returns ProjectileMovement subobject **/
 	FORCEINLINE class UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 };

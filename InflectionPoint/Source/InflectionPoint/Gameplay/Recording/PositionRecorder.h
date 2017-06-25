@@ -5,6 +5,9 @@
 #include "Components/ActorComponent.h"
 #include "PositionRecorder.generated.h"
 
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UPositionRecorder : public UActorComponent {

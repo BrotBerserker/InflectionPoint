@@ -5,6 +5,10 @@
 #include "Components/ActorComponent.h"
 #include "TransformRecorder.generated.h"
 
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
+
 USTRUCT()
 struct FTimeStamp {
 

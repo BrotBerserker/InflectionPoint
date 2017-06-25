@@ -17,48 +17,47 @@ void AReplayControlledFPSCharacter::BeginPlay() {
 	//PrimaryActorTick.bCanEverTick = true;
 }
 
-void AReplayControlledFPSCharacter::StartReplay(TArray<FRecordedPlayerState> recordData) {
-	RecordData = recordData;
-	IsReplaying = true;
-	ReplayIndex = 0;
+void AReplayControlledFPSCharacter::StartReplay(TArray<FRecordedPlayerState> RecordData) {
+	recordData = RecordData;
+	isReplaying = true;
+	replayIndex = 0;
 }
 
 void AReplayControlledFPSCharacter::StopReplay() {
-	IsReplaying = false;
-	ReplayIndex = 0;
+	isReplaying = false;
+	replayIndex = 0;
 }
 
-// Called every frame
 void AReplayControlledFPSCharacter::Tick(float deltaTime) {
-	if(!IsReplaying)
+	if(!isReplaying)
 		return;
-	PassedTime += deltaTime;
-	PassedTimeSinceLastCorrection += deltaTime;
+	passedTime += deltaTime;
+	passedTimeSinceLastCorrection += deltaTime;
 
 	// Correct position 
-	if(ReplayIndex != 0 && PositionCorrectionInterval >= 0 && PassedTimeSinceLastCorrection > PositionCorrectionInterval)
-		TryCorrectPosition(RecordData[ReplayIndex - 1].Position);
+	if(replayIndex != 0 && PositionCorrectionInterval >= 0 && passedTimeSinceLastCorrection > PositionCorrectionInterval)
+		TryCorrectPosition(recordData[replayIndex - 1].Position);
 
 	UpdatePressedKeys();
 
 	// Call Hold for all currently pressed buttons
-	for(auto &key : PressedKeys) {
+	for(auto &key : pressedKeys) {
 		HoldKey(key);
 	}
 
-	// stop replay when end of RecordData reached
-	if(ReplayIndex >= RecordData.Num())
+	// stop replay when end of recordData reached
+	if(replayIndex >= recordData.Num())
 		StopReplay();
 }
 
 void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 	// iterate through all record data since last tick until now
-	for(; ReplayIndex < RecordData.Num() && RecordData[ReplayIndex].Timestamp <= PassedTime; ReplayIndex++) {
-		if(ReplayIndex != 0) { // Update Rotation (-1 because unreal ^^)
-			ApplyYaw(RecordData[ReplayIndex - 1].CapsuleYaw);
-			ApplyPitch(RecordData[ReplayIndex].CameraPitch);
+	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
+		if(replayIndex != 0) { // Update Rotation (-1 because unreal ^^)
+			ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
+			ApplyPitch(recordData[replayIndex].CameraPitch);
 		}
-		auto recordDataStep = RecordData[ReplayIndex];
+		auto recordDataStep = recordData[replayIndex];
 		UpdatePressedKeys(recordDataStep);
 		UpdateReleasedKeys(recordDataStep);
 	}
@@ -66,19 +65,19 @@ void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 
 void AReplayControlledFPSCharacter::UpdatePressedKeys(FRecordedPlayerState &recordDataStep) {
 	for(auto &item : recordDataStep.PressedKeys) {
-		if(!PressedKeys.Contains(item)) {
+		if(!pressedKeys.Contains(item)) {
 			PressKey(item);
-			PressedKeys.Add(item);
+			pressedKeys.Add(item);
 		}
 	}
 }
 
 void AReplayControlledFPSCharacter::UpdateReleasedKeys(FRecordedPlayerState &recordDataStep) {
-	for(int i = 0; i < PressedKeys.Num(); i++) {
-		auto item = PressedKeys[i];
+	for(int i = 0; i < pressedKeys.Num(); i++) {
+		auto item = pressedKeys[i];
 		if(!recordDataStep.PressedKeys.Contains(item)) {
 			ReleaseKey(item);
-			PressedKeys.Remove(item);
+			pressedKeys.Remove(item);
 			i--;
 		}
 	}
@@ -96,13 +95,13 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 
 void AReplayControlledFPSCharacter::HoldKey(FString key) {
 	if(key == "MoveForward") {
-		ReplayMoveForward(1);
+		MoveForward(1);
 	} else if(key == "MoveBackward") {
-		ReplayMoveForward(-1);
+		MoveForward(-1);
 	} else if(key == "MoveLeft") {
-		ReplayMoveRight(-1);
+		MoveRight(-1);
 	} else if(key == "MoveRight") {
-		ReplayMoveRight(1);
+		MoveRight(1);
 	}
 }
 
@@ -137,7 +136,7 @@ bool AReplayControlledFPSCharacter::IsAtProperPosition(FVector correctPosition) 
 bool AReplayControlledFPSCharacter::TryCorrectPosition(FVector correctPosition) {
 	if(IsAtProperPosition(correctPosition)) {
 		SetActorLocation(correctPosition);
-		PassedTimeSinceLastCorrection = 0;
+		passedTimeSinceLastCorrection = 0;
 		if(CreateDebugCorrectionSpheres) {
 			DrawDebugSphere(GetWorld(), GetTransform().GetLocation(), CorrectionRadius, 8, DebugHitColor, true);
 		}
@@ -147,12 +146,4 @@ bool AReplayControlledFPSCharacter::TryCorrectPosition(FVector correctPosition) 
 		DrawDebugSphere(GetWorld(), GetTransform().GetLocation(), CorrectionRadius, 8, DebugMissColor, true);
 	}
 	return false;
-}
-
-void AReplayControlledFPSCharacter::ReplayMoveForward(float value) {
-	MoveForward(value);
-}
-
-void AReplayControlledFPSCharacter::ReplayMoveRight(float value) {
-	MoveRight(value);
 }

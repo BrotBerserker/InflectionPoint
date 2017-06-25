@@ -32,18 +32,7 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	// DEBUG Bindings
 	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay);
 
-	//InputRecorder = FindComponentByClass<UInputRecorder>();
-	//AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
-	//InputRecorder->InitializeBindings(PlayerInputComponent);
-
-	//UPositionRecorder* PositionRecorder = FindComponentByClass<UPositionRecorder>();
-	//AssertNotNull(PositionRecorder, GetWorld(), __FILE__, __LINE__);
-	//PositionRecorder->StartRecording();
-
-	//URotationRecorder* RotationRecorder = FindComponentByClass<URotationRecorder>();
-	//AssertNotNull(RotationRecorder, GetWorld(), __FILE__, __LINE__);
-	//RotationRecorder->StartRecording();
-
+	// Initialize and start PlayerStateRecorder
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	PlayerStateRecorder->InitializeBindings(PlayerInputComponent);
@@ -59,8 +48,7 @@ bool APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Validate() {
 }
 
 void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
-
-	//AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetWorld()->GetFirstPlayerController());
+	// Setup location, rotation and spawn parameters
 	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetController());
 
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
@@ -71,35 +59,15 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	
+	// Spawn ReplayCharacter
 	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, loc, rot, spawnParams);
 	if(!AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__, "Could not spawn replay character!")) {
 		return;
 	}
 	
+	// Start Replay on spawned ReplayCharacter
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->StartReplay(PlayerStateRecorder->RecordedPlayerStates);
-
-	//TArray<FRecordedPlayerState> states = PlayerStateRecorder->RecordedPlayerStates;
-	//for (auto state : states) {
-	//	UE_LOG(LogTemp, Warning, TEXT("Was ist da los: %s"), *state.ToString());
-	//}
-	
-	//// Replay inputs
-	//InputRecorder = FindComponentByClass<UInputRecorder>();
-	//AssertNotNull(InputRecorder, GetWorld(), __FILE__, __LINE__);
-	////newPlayer->StartReplay(InputRecorder->Inputs, InputRecorder->MovementsForward, InputRecorder->MovementsRight);
-	//newPlayer->StartReplay(InputRecorder->KeysPressed, InputRecorder->KeysReleased);
-
-	//// Replay rotations
-	//URotationRecorder* rotRecorder = FindComponentByClass<URotationRecorder>();
-	//AssertNotNull(rotRecorder, GetWorld(), __FILE__, __LINE__);
-	//newPlayer->FindComponentByClass<URotationReplayer>()->StartReplay(rotRecorder->Yaws, rotRecorder->Pitches);
-
-	//// Correct positions
-	//UPositionRecorder* posRecorder = FindComponentByClass<UPositionRecorder>();
-	//AssertNotNull(posRecorder, GetWorld(), __FILE__, __LINE__);
-	//newPlayer->FindComponentByClass<UPositionCorrector>()->StartCorrecting(posRecorder->RecordArray);
-
 
 }

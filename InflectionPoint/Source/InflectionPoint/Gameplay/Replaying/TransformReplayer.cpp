@@ -6,6 +6,10 @@
 #include "Utils/CheckFunctions.h"
 #include "Utils/TimerFunctions.h"
 
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
+
 // Sets default values for this component's properties
 UTransformReplayer::UTransformReplayer() {
 }

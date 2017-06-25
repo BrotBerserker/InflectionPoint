@@ -6,7 +6,9 @@
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "RotationRecorder.generated.h"
 
-
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API URotationRecorder : public UActorComponent {

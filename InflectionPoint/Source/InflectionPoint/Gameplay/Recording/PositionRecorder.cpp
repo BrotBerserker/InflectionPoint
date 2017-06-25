@@ -4,6 +4,9 @@
 #include "PositionRecorder.h"
 #include "DrawDebugHelpers.h"
 
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
 
 // Sets default values for this component's properties
 UPositionRecorder::UPositionRecorder() {

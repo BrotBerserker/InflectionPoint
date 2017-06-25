@@ -18,17 +18,17 @@ UCollisionDamageDealer::UCollisionDamageDealer() {
 void UCollisionDamageDealer::BeginPlay() {
 	Super::BeginPlay();
 
-	if(!CollisionShapeComponent) {
-		CollisionShapeComponent = GetOwner()->FindComponentByClass<UShapeComponent>();
+	if(!collisionShapeComponent) {
+		collisionShapeComponent = GetOwner()->FindComponentByClass<UShapeComponent>();
 	}
 
-	if(!AssertNotNull(CollisionShapeComponent, GetWorld(), __FILE__, __LINE__, "No UShapeComponent for DamageCollision detection found!"))
+	if(!AssertNotNull(collisionShapeComponent, GetWorld(), __FILE__, __LINE__, "No UShapeComponent for DamageCollision detection found!"))
 		return;
 
 	if(!AssertNotNull(DamageType, GetWorld(), __FILE__, __LINE__))
 		return;
 
-	CollisionShapeComponent->OnComponentHit.AddDynamic(this, &UCollisionDamageDealer::OnHit);
+	collisionShapeComponent->OnComponentHit.AddDynamic(this, &UCollisionDamageDealer::OnHit);
 }
 
 void UCollisionDamageDealer::OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
@@ -62,7 +62,7 @@ void UCollisionDamageDealer::DestroyOwner() {
 	GetOwner()->SetActorHiddenInGame(true);
 
 	if(DestroyDelay == 0) {
-		CollisionShapeComponent->OnComponentHit.RemoveDynamic(this, &UCollisionDamageDealer::OnHit); // avoid unwanted hits
+		collisionShapeComponent->OnComponentHit.RemoveDynamic(this, &UCollisionDamageDealer::OnHit); // avoid unwanted hits
 		GetOwner()->Destroy();
 		return;
 	}

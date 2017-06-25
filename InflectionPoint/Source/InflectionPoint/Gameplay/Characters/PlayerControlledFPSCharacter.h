@@ -24,10 +24,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		class UClass* ReplayCharacter;
 
-	/** Spawns a ReplayPlayer for Debug purposes, the real spawning should happen in the GameMode */
+	/** Spawns a ReplayCharacter for Debug purposes, the real spawning should happen in the GameMode */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void DEBUG_ServerSpawnReplay();
 
-	//UInputRecorder* InputRecorder;
 	UPlayerStateRecorder* PlayerStateRecorder;
 };

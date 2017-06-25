@@ -9,7 +9,10 @@ UCLASS(config = Game)
 class ABaseCharacter : public ACharacter {
 	GENERATED_BODY()
 
-		FDateTime start;
+public:
+	/* -------------- */
+	/*   Components   */
+	/* -------------- */
 
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
@@ -23,11 +26,11 @@ class ABaseCharacter : public ACharacter {
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* FP_MuzzleLocation;
 
-	/** Pawn mesh: 1st person view (arms; seen only by self) */
+	/** Pawn mesh: 3rd person view (completed body; seen only by others) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh3P;
 
-	/** Gun mesh: 1st person view (seen only by self) */
+	/** Gun mesh: 3rd person view (seen only by others) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* TP_Gun;
 
@@ -35,16 +38,15 @@ class ABaseCharacter : public ACharacter {
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FirstPersonCameraComponent;
 
+	/** MortalityProvider which holds our HP */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class UMortalityProvider* MortalityProvider;
 
 
 public:
-	ABaseCharacter();
-
-	virtual void BeginPlay();
-
-	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+	/* ---------------------- */
+	/*   Blueprint Settings   */
+	/* ---------------------- */
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
@@ -70,8 +72,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		class UAnimMontage* FireAnimation;
 
+	/* Used in Multiplayer to validate Location Offsets (0< will ignore the offset) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		float LocationOffsetTolerance = 5.;
+
+	/* Used in Multiplayer to validate Rotation Offsets (0< will ignore the offset) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+		float RotationOffsetTolerance = -1;
+
 
 public:
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
+	/** Constructor, initializes Components */
+	ABaseCharacter();
+
+	/** Setup component attachments */
+	virtual void BeginPlay();
+
+	/** Takes damage using the MortalityProvider */
+	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+
 	/** Fires a projectile. */
 	void OnFire();
 
@@ -96,9 +119,18 @@ public:
 	*/
 	void LookUpAtRate(float rate);
 
-public:
+	/** Returns the location at which a projectile should spawn */
+	FVector GetProjectileSpawnLocation();
 
-	/** Fires the given projectile */
+	/** Returns the rotation with which a projectile should spawn */
+	FRotator GetProjectileSpawnRotation();
+
+public:
+	/* --------------- */
+	/*  RPC Functions  */
+	/* --------------- */
+
+	/** Fires the given projectile on the Server*/
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation);
 
@@ -114,21 +146,18 @@ public:
 	UFUNCTION(Unreliable, NetMulticast)
 		void MulticastLookUpAtRate(FRotator rot);
 
-	FRotator GetProjectileSpawnRotation();
-	FVector GetProjectileSpawnLocation();
-
-	/* Used in Multiplayer to validate Location Offsets (0< will ignore the offset) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		float LocationOffsetTolerance = 5.;
-	/* Used in Multiplayer to validate Rotation Offsets (0< will ignore the offset) */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
-		float RotationOffsetTolerance = -1;
 public:
+	/* ------------------ */
+	/*  Getter Functions  */
+	/* ------------------ */
+
 	/** Returns Mesh1P subobject **/
 	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+
 	/** Returns FirstPersonCameraComponent subobject **/
 	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+	/** Returns Mesh3P subobject **/
 	FORCEINLINE class USkeletalMeshComponent* GetMesh3P() const { return Mesh3P; }
 
 };

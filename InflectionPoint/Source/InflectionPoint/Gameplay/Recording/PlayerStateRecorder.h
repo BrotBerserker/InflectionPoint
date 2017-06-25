@@ -6,11 +6,12 @@
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "PlayerStateRecorder.generated.h"
 
+/** Represents a player's state (location, rotation, pressed keys) at a certain point of time */
 USTRUCT()
 struct FRecordedPlayerState {
 	GENERATED_BODY()
 
-		UPROPERTY()
+	UPROPERTY()
 		float Timestamp;
 
 	UPROPERTY()
@@ -55,24 +56,30 @@ class INFLECTIONPOINT_API UPlayerStateRecorder : public UActorComponent {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
+	/** Constructor */
 	UPlayerStateRecorder();
 
-protected:
-	// Called when the game starts
+	/** BeginPlay, initializes variables */
 	virtual void BeginPlay() override;
 
-public:
-	// Called every frame
+	/** Tick, responsible for recording */
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	/** Binds recording functions to key events */
 	void InitializeBindings(UInputComponent * inputComponent);
 
+	/** Starts recording */
 	void StartRecording();
+	
+	/** Creates a RecordedPlayerState from the given parameters and adds it to the list of recorded player states */
+	UFUNCTION(Unreliable, Server, WithValidation)
+		void ServerRecordPlayerState(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys);
 
 public:
+	/** List of recorded player states */
 	TArray<FRecordedPlayerState> RecordedPlayerStates;
 
+	/** Number of entries that have to be in the queue before they will be sent to the server */
 	int MaxQueueEntries = 7;
 
 private:
@@ -106,8 +113,5 @@ private:
 	void RecordKeyPressed(FString key);
 
 	void RecordKeyReleased(FString key);
-
-	UFUNCTION(Unreliable, Server, WithValidation)
-		void ServerRecordPlayerState(float timestamp, FVector position, float capsuleYaw, float cameraPitch, const TArray<FString>& pressedKeys);
 
 };

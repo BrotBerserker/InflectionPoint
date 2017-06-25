@@ -47,12 +47,15 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 	passedTime += DeltaTime;
 
+	// Get data to be recorded
 	FVector pos = owner->GetTransform().GetLocation();
 	float yaw = owner->GetCapsuleComponent()->GetComponentRotation().Yaw;
 	float pitch = owner->GetFirstPersonCameraComponent()->GetComponentRotation().Pitch;
 
+	// Push recorded data into queue
 	recordedPlayerStateQueue.Push(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
 
+	// If queue size has reached its limit, send items in the queue to the server and flush the queue
 	if(recordedPlayerStateQueue.Num() > MaxQueueEntries) {
 		for(int i = 0; i < recordedPlayerStateQueue.Num(); i++) {
 			auto item = recordedPlayerStateQueue[i];
@@ -62,12 +65,12 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	}
 }
 
-bool UPlayerStateRecorder::ServerRecordPlayerState_Validate(float timestamp, FVector position, float capsuleYaw, float cameraPitch, const TArray<FString>& pressedKeys) {
+bool UPlayerStateRecorder::ServerRecordPlayerState_Validate(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys) {
 	return true;
 }
 
-void UPlayerStateRecorder::ServerRecordPlayerState_Implementation(float timestamp, FVector position, float capsuleYaw, float cameraPitch, const TArray<FString>& pressedKeys) {
-	RecordedPlayerStates.Add(FRecordedPlayerState(timestamp, position, capsuleYaw, cameraPitch, pressedKeys));
+void UPlayerStateRecorder::ServerRecordPlayerState_Implementation(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys) {
+	RecordedPlayerStates.Add(FRecordedPlayerState(Timestamp, Position, CapsuleYaw, CameraPitch, PressedKeys));
 }
 
 void UPlayerStateRecorder::StartRecording() {

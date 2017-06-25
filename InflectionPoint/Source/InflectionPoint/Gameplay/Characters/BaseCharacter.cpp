@@ -46,27 +46,27 @@ ABaseCharacter::ABaseCharacter() {
 	FP_Gun->SetupAttachment(GetCapsuleComponent());
 	FP_Gun->RelativeScale3D = FVector(.4, .4, .4);
 
+	// MuzzleLocation, where shots will be spawned
 	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
 	FP_MuzzleLocation->SetupAttachment(FP_Gun);
 	/*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
 	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
 
+	// Create the '3rd person' body mesh
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh3P"));
 	Mesh3P->SetupAttachment(GetCapsuleComponent());
 	Mesh3P->SetOwnerNoSee(true);
 	Mesh3P->RelativeLocation = FVector(0.f, 0.f, -97.f);
 	Mesh3P->RelativeRotation = FRotator(0.f, -90.f, 0.f);
 
+	// Create the '3rd person' gun mesh
 	TP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TP_Gun"));
 	TP_Gun->SetOwnerNoSee(true);
 	//TP_Gun->SetupAttachment(Mesh3P, TEXT("GripPoint"));
 	TP_Gun->SetupAttachment(GetCapsuleComponent());
 
-	// Note: The ProjectileClass and the skeletal mesh/anim blueprints for Mesh1P, FP_Gun, and VR_Gun 
-	// are set in the derived blueprint asset named MyCharacter to avoid direct content references in C++.
-
-	// Mortality Provider
+	// Initialize MortalityProvider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
 	MortalityProvider->SetIsReplicated(true);
 }
@@ -74,10 +74,6 @@ ABaseCharacter::ABaseCharacter() {
 void ABaseCharacter::BeginPlay() {
 	// Call the base class  
 	Super::BeginPlay();
-
-
-	start = FDateTime::UtcNow();
-
 
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
 	FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
@@ -119,8 +115,6 @@ bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflection
 }
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
-	//UE_LOG(LogTemp, Warning, TEXT("Shot fired: %s"), *(FDateTime::UtcNow() - start).ToString());
-
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();

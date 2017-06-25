@@ -5,6 +5,9 @@
 #include "Components/ActorComponent.h"
 #include "RotationReplayer.generated.h"
 
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API URotationReplayer : public UActorComponent {

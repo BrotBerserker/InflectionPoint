@@ -7,6 +7,9 @@
 #include "InputRecorder.generated.h"
 
 
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UInputRecorder : public UActorComponent {

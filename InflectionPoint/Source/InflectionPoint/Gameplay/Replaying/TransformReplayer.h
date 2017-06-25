@@ -6,6 +6,9 @@
 #include "Gameplay/Recording/TransformRecorder.h"
 #include "TransformReplayer.generated.h"
 
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UTransformReplayer : public UActorComponent {

@@ -15,63 +15,80 @@ class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public ABaseCharacter 
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
+	/** Construcotr, sets default values for this component's properties */
 	AReplayControlledFPSCharacter();
 
+	/** BeginPlay, empty */
 	virtual void BeginPlay() override;
 
-	// Called every frame
+	/** Tick, responsible for replaying */
 	virtual void Tick(float deltaTime) override;
 
+	/** Starts the replay */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
-		void StartReplay(TArray<FRecordedPlayerState> recordData);
+		void StartReplay(TArray<FRecordedPlayerState> RecordData);
 
+	/** Stops the replay */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
 		void StopReplay();
 
+	/** Act as if the player would have pressed the given key */
 	UFUNCTION()
 		void PressKey(FString key);
+
+	/** Act as if the player would have released the given key */
 	UFUNCTION()
 		void ReleaseKey(FString key);
+
+	/** Act as if the player was holding down the given key */
 	UFUNCTION()
 		void HoldKey(FString key);
 
+	/** Updates the capsule's and the camera's yaw */
 	UFUNCTION()
 		void ApplyYaw(float value);
 
+	/** Updates the camera's pitch */
 	UFUNCTION()
 		void ApplyPitch(float value);
 
-	UFUNCTION()
-		void ReplayMoveForward(float value);
 
-	UFUNCTION()
-		void ReplayMoveRight(float value);
-	
 public:
+	/* ------------------ */
+	/* Blueprint Settings */
+	/* ------------------ */
 
+	/** Max distance between the replay and the original position. If this distance is exceeded, the replay's position will not be corrected anymore. */
 	UPROPERTY(EditAnywhere, Category = General)
 		float CorrectionRadius = 10.f;
 
+	/** Time to wait before two position corrections */
 	UPROPERTY(EditAnywhere, Category = General)
 		float PositionCorrectionInterval = 0.1f;
 
+	/** If true, debug spheres will be created to show the CorrectionRadius and if the position has been corrected or not */
 	UPROPERTY(EditAnywhere, Category = Debug)
 		bool CreateDebugCorrectionSpheres = true;
 
+	/** Sphere color if the position has been corrected */
 	UPROPERTY(EditAnywhere, Category = Debug)
 		FColor DebugHitColor = FColorList::Yellow;
 
+	/** Sphere color if the position has not been corrected */
 	UPROPERTY(EditAnywhere, Category = Debug)
 		FColor DebugMissColor = FColorList::LightSteelBlue;
 
 private:
-	TArray<FRecordedPlayerState> RecordData;
-	bool IsReplaying = false;
-	float PassedTime = 0.f;
-	float PassedTimeSinceLastCorrection = 0.f;
-	int ReplayIndex = 0;
-	TArray<FString> PressedKeys;
+	TArray<FRecordedPlayerState> recordData;
+	bool isReplaying = false;
+	float passedTime = 0.f;
+	float passedTimeSinceLastCorrection = 0.f;
+	int replayIndex = 0;
+	TArray<FString> pressedKeys;
 
 	void UpdatePressedKeys();
 

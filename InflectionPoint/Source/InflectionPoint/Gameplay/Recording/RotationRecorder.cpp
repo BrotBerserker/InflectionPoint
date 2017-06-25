@@ -3,6 +3,9 @@
 #include "InflectionPoint.h"
 #include "RotationRecorder.h"
 
+// ----------------------
+// | (!) NOT USED!  (!) |
+// ----------------------
 
 // Sets default values for this component's properties
 URotationRecorder::URotationRecorder() {
