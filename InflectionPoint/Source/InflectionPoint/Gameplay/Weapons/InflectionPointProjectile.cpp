@@ -2,6 +2,7 @@
 
 #include "InflectionPoint.h"
 #include "InflectionPointProjectile.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AInflectionPointProjectile::AInflectionPointProjectile() {
@@ -33,7 +34,13 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 void AInflectionPointProjectile::BeginPlay() {
 	Super::BeginPlay();
 	APawn* instigator = GetInstigator();
-	//AssertNotNull(instigator, GetWorld(), __FILE__, __LINE__);
+	// instigator is null if the character has already died when the shot is spawned
+	if(instigator == nullptr) {
+		return;
+	}
+
+	((ABaseCharacter*)instigator)->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
+
 	CollisionComp->IgnoreActorWhenMoving(instigator, true);
 }
 

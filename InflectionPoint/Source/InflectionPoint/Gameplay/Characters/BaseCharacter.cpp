@@ -134,7 +134,7 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 			// spawn the projectile at the muzzle
 			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, spawnLocation, spawnRotation, ActorSpawnParams);
 
-			GetCapsuleComponent()->IgnoreActorWhenMoving(projectile, true);
+			//GetCapsuleComponent()->IgnoreActorWhenMoving(projectile, true);
 
 			MulticastProjectileFired();
 		}
