@@ -27,12 +27,14 @@ public:
 	FDelegateHandle OnStartSessionCompleteDelegateHandle;
 
 public:
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
 
 	/** Functions registered as delegates */
 	virtual void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
 	void OnStartOnlineGameComplete(FName SessionName, bool bWasSuccessful);
-
-public:
+	
 	/** Constructor, sets up delegates */
 	UHostMenuBase();
 

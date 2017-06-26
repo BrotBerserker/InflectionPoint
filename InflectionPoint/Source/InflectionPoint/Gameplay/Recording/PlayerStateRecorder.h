@@ -56,6 +56,10 @@ class INFLECTIONPOINT_API UPlayerStateRecorder : public UActorComponent {
 	GENERATED_BODY()
 
 public:
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
 	/** Constructor */
 	UPlayerStateRecorder();
 

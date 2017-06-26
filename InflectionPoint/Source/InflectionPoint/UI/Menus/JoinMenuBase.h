@@ -17,6 +17,21 @@ class INFLECTIONPOINT_API UJoinMenuBase : public USubMenuTemplate {
 	GENERATED_BODY()
 
 public:
+	/* ---------------------- */
+	/*   Blueprint Settings   */
+	/* ---------------------- */
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InflectionPoint|Networking")
+		TArray<USessionSearchResultBase*> SessionSearchResults;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+		TSubclassOf<USessionSearchResultBase> SessionSearchResultType;
+
+public:
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
 	UJoinMenuBase();
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
@@ -27,12 +42,6 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnSessionSearchComplete();
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InflectionPoint|Networking")
-		TArray<USessionSearchResultBase*> SessionSearchResults;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		TSubclassOf<USessionSearchResultBase> SessionSearchResultType;
 
 private:
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;

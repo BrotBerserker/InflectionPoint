@@ -11,10 +11,19 @@
 UCLASS(abstract)
 class INFLECTIONPOINT_API USubMenuTemplate : public UUserWidget {
 	GENERATED_BODY()
+
 public:
+	/* ---------------------- */
+	/*   Blueprint Settings   */
+	/* ---------------------- */
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")
 		UUserWidget* ParentWidgetMenu;
+
+public:
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
 
 	UFUNCTION(BlueprintCallable, Category = "Menu")
 		void NavigateBackToParentWidgetMenu();

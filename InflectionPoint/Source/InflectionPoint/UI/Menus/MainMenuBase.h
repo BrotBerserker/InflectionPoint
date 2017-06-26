@@ -11,9 +11,5 @@
 UCLASS()
 class INFLECTIONPOINT_API UMainMenuBase : public UUserWidget
 {
-	GENERATED_BODY()
-	
-	
-	
-	
+	GENERATED_BODY()	
 };

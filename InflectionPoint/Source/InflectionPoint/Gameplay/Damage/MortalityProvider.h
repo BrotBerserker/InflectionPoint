@@ -55,12 +55,15 @@ public:
 	/* Sets lifespan to destroy the owning actor, fires OnDeath */
 	void Die();
 
-private:
-	UPROPERTY(Replicated)
-		int CurrentHealth;
-
 public:
+	/* ----------------- */
+	/*   Getter-Setter   */
+	/* ----------------- */
+
 	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
 		FORCEINLINE int GetCurrentHealth() { return CurrentHealth; }
 
+private:
+	UPROPERTY(Replicated)
+		int CurrentHealth;
 };

@@ -15,6 +15,31 @@ class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public ABaseCharacter 
 	GENERATED_BODY()
 
 public:
+	/* ------------------ */
+	/* Blueprint Settings */
+	/* ------------------ */
+
+	/** Max distance between the replay and the original position. If this distance is exceeded, the replay's position will not be corrected anymore. */
+	UPROPERTY(EditAnywhere, Category = General)
+		float CorrectionRadius = 10.f;
+
+	/** Time to wait before two position corrections */
+	UPROPERTY(EditAnywhere, Category = General)
+		float PositionCorrectionInterval = 0.1f;
+
+	/** If true, debug spheres will be created to show the CorrectionRadius and if the position has been corrected or not */
+	UPROPERTY(EditAnywhere, Category = Debug)
+		bool CreateDebugCorrectionSpheres = true;
+
+	/** Sphere color if the position has been corrected */
+	UPROPERTY(EditAnywhere, Category = Debug)
+		FColor DebugHitColor = FColorList::Yellow;
+
+	/** Sphere color if the position has not been corrected */
+	UPROPERTY(EditAnywhere, Category = Debug)
+		FColor DebugMissColor = FColorList::LightSteelBlue;
+
+public:
 	/* ------------- */
 	/*   Functions   */
 	/* ------------- */
@@ -55,32 +80,6 @@ public:
 	/** Updates the camera's pitch */
 	UFUNCTION()
 		void ApplyPitch(float value);
-
-
-public:
-	/* ------------------ */
-	/* Blueprint Settings */
-	/* ------------------ */
-
-	/** Max distance between the replay and the original position. If this distance is exceeded, the replay's position will not be corrected anymore. */
-	UPROPERTY(EditAnywhere, Category = General)
-		float CorrectionRadius = 10.f;
-
-	/** Time to wait before two position corrections */
-	UPROPERTY(EditAnywhere, Category = General)
-		float PositionCorrectionInterval = 0.1f;
-
-	/** If true, debug spheres will be created to show the CorrectionRadius and if the position has been corrected or not */
-	UPROPERTY(EditAnywhere, Category = Debug)
-		bool CreateDebugCorrectionSpheres = true;
-
-	/** Sphere color if the position has been corrected */
-	UPROPERTY(EditAnywhere, Category = Debug)
-		FColor DebugHitColor = FColorList::Yellow;
-
-	/** Sphere color if the position has not been corrected */
-	UPROPERTY(EditAnywhere, Category = Debug)
-		FColor DebugMissColor = FColorList::LightSteelBlue;
 
 private:
 	TArray<FRecordedPlayerState> recordData;

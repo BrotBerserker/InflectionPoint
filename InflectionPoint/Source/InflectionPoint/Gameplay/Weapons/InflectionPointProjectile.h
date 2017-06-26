@@ -7,6 +7,7 @@ UCLASS(config = Game)
 class AInflectionPointProjectile : public AActor {
 	GENERATED_BODY()
 
+public:
 	/** Sphere collision component */
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 		class USphereComponent* CollisionComp;
@@ -16,6 +17,10 @@ class AInflectionPointProjectile : public AActor {
 		class UProjectileMovementComponent* ProjectileMovement;
 
 public:
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
 	/** Constructor, sets up collision and movement */
 	AInflectionPointProjectile();
 
@@ -27,6 +32,9 @@ public:
 		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 public:
+	/* ----------------- */
+	/*   Getter-Setter   */
+	/* ----------------- */
 	/** Returns CollisionComp subobject **/
 	FORCEINLINE class USphereComponent* GetCollisionComp() const { return CollisionComp; }
 

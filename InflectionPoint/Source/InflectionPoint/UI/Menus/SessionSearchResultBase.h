@@ -12,10 +12,13 @@
 UCLASS()
 class INFLECTIONPOINT_API USessionSearchResultBase : public UUserWidget {
 	GENERATED_BODY()
-public:
-	USessionSearchResultBase(const FObjectInitializer& ObjectInitializer);
 
-	FOnlineSessionSearchResult OnlineSessionSearchResult;
+public:
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
+	USessionSearchResultBase(const FObjectInitializer& ObjectInitializer);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
 		void JoinOnlineGame();
@@ -25,6 +28,10 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnJoinComplete(FName SessioName);
+
+public:
+
+	FOnlineSessionSearchResult OnlineSessionSearchResult;
 
 private:
 	FOnJoinSessionCompleteDelegate OnJoinSessionCompleteDelegate;

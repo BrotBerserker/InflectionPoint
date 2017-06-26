@@ -6,13 +6,18 @@
 #include "BluprintNetworkLibary.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class INFLECTIONPOINT_API UBluprintNetworkLibary : public UBlueprint {
 	GENERATED_BODY()
+
 public:
-		UBluprintNetworkLibary();
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
+	UBluprintNetworkLibary();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnSessionDestroyed();

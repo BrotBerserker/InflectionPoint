@@ -8,6 +8,10 @@ class AInflectionPointHUD : public AHUD {
 	GENERATED_BODY()
 
 public:
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
 	AInflectionPointHUD();
 
 	/** Primary draw call for the HUD */
