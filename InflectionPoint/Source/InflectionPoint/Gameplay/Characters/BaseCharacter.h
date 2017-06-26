@@ -138,13 +138,9 @@ public:
 	UFUNCTION(Unreliable, NetMulticast)
 		void MulticastProjectileFired();
 
-	/** Fires the given projectile */
+	/** Updates the Camera pitch rotation on Server */
 	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerLookUpAtRate(FRotator rot);
-
-	/** Notifies Clients about projectile fired */
-	UFUNCTION(Unreliable, NetMulticast)
-		void MulticastLookUpAtRate(FRotator rot);
+		void ServerUpdateCameraPitch(float pitch);
 
 public:
 	/* ------------------ */

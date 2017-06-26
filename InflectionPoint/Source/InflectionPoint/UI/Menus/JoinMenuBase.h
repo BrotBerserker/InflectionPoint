@@ -43,5 +43,7 @@ private:
 
 	void OnFindSessionsComplete(bool bWasSuccessful);
 
+	TArray<USessionSearchResultBase*> CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId);
+
 	IOnlineSessionPtr GetSessionInterface();
 };
