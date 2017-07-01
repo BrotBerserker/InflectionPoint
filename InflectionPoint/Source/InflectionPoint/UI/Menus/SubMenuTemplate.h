@@ -14,7 +14,7 @@ class INFLECTIONPOINT_API USubMenuTemplate : public UUserWidget {
 
 public:
 	/* ---------------------- */
-	/*   Blueprint Settings   */
+	/*   Editor Settings   */
 	/* ---------------------- */
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu")

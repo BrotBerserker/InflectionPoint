@@ -36,11 +36,14 @@ public:
 	IOnlineSessionPtr GetSessionInterface();
 
 public:
+	/* -------------- */
+	/*   Properties   */
+	/* -------------- */
+
 	/** Name of the level that will be opened after creating a session */
 	FString LevelToOpen;
 
 	TSharedPtr<class FOnlineSessionSettings> SessionSettings;
-
 
 private:
 	/** Delegate called when session created */

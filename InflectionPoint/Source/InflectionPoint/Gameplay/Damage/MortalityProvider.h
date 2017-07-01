@@ -15,7 +15,7 @@ class INFLECTIONPOINT_API UMortalityProvider : public UActorComponent {
 
 public:
 	/* ---------------------- */
-	/*   Blueprint Settings   */
+	/*   Editor Settings      */
 	/* ---------------------- */
 
 	/* The health to start with */
@@ -25,6 +25,14 @@ public:
 	/* When health reaches 0, this is the time the MortalityProvider will wait before destroying its owner. */
 	UPROPERTY(EditAnywhere)
 		float SecondsToLiveBeforeDestruction = 0.f;
+
+public:
+	/* ---------------------- */
+	/*		Properties		  */
+	/* ---------------------- */
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		int CurrentHealth;
 
 public:
 	/* ------------- */
@@ -54,19 +62,4 @@ public:
 
 	/* Sets lifespan to destroy the owning actor, fires OnDeath */
 	void Die();
-
-
-	UPROPERTY(Replicated, BlueprintReadWrite)
-		int CurrentHealth;
-
-public:
-	/* ----------------- */
-	/*   Getter-Setter   */
-	/* ----------------- */
-
-	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
-		FORCEINLINE int GetCurrentHealth() { return CurrentHealth; }
-
-private:
-	
 };

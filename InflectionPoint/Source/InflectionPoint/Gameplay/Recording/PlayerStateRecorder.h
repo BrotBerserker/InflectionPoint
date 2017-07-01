@@ -80,11 +80,12 @@ public:
 		void ServerRecordPlayerState(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys);
 
 public:
+	/* -------------- */
+	/*   Properties   */
+	/* -------------- */
+
 	/** List of recorded player states */
 	TArray<FRecordedPlayerState> RecordedPlayerStates;
-
-	/** Number of entries that have to be in the queue before they will be sent to the server */
-	int MaxQueueEntries = 7;
 
 private:
 	bool recording = false;
@@ -93,6 +94,9 @@ private:
 	TArray<FString> pressedKeys;
 
 	TArray<FRecordedPlayerState> recordedPlayerStateQueue;
+
+	/** Number of entries that have to be in the queue before they will be sent to the server */
+	int MaxQueueEntries = 7;
 
 	int movingForward = 0;
 

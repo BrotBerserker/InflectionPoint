@@ -15,7 +15,7 @@ class INFLECTIONPOINT_API UCollisionDamageDealer : public UActorComponent {
 
 public:
 	/* ---------------------- */
-	/*   Blueprint Settings   */
+	/*  Editor Settings   */
 	/* ---------------------- */
 
 	/** Only deals damage when hitting subclasses of ACharacter */
@@ -41,7 +41,6 @@ public:
 	/** The amount of damage */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
 		float Damage = 0.;
-
 
 public:
 	/* ------------- */

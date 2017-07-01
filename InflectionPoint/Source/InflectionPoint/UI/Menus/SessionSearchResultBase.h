@@ -28,8 +28,11 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnJoinComplete(FName SessioName);
-
+	
 public:
+	/* -------------- */
+	/*   Properties   */
+	/* -------------- */
 
 	FOnlineSessionSearchResult OnlineSessionSearchResult;
 

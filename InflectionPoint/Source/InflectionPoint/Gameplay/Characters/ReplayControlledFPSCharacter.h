@@ -16,7 +16,7 @@ class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public ABaseCharacter 
 
 public:
 	/* ------------------ */
-	/* Blueprint Settings */
+	/* Editor Settings */
 	/* ------------------ */
 
 	/** Max distance between the replay and the original position. If this distance is exceeded, the replay's position will not be corrected anymore. A negative value behaves like an "infinite" radius */

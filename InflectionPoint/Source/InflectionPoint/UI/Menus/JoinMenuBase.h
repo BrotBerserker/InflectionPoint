@@ -18,7 +18,7 @@ class INFLECTIONPOINT_API UJoinMenuBase : public USubMenuTemplate {
 
 public:
 	/* ---------------------- */
-	/*  Blueprint properties  */
+	/*  Blueprint Properties  */
 	/* ---------------------- */
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InflectionPoint|Networking")
