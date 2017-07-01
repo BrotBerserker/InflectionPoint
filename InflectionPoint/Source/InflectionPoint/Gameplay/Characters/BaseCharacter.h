@@ -50,11 +50,11 @@ public:
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-		float BaseTurnRate = 65.f;
+		float BaseTurnRate = 75.f;
 
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-		float BaseLookUpRate = 65.f;
+		float BaseLookUpRate = 75.f;
 
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
