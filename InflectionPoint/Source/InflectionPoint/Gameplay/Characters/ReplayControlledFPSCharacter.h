@@ -19,11 +19,11 @@ public:
 	/* Blueprint Settings */
 	/* ------------------ */
 
-	/** Max distance between the replay and the original position. If this distance is exceeded, the replay's position will not be corrected anymore. */
+	/** Max distance between the replay and the original position. If this distance is exceeded, the replay's position will not be corrected anymore. A negative value behaves like an "infinite" radius */
 	UPROPERTY(EditAnywhere, Category = General)
 		float CorrectionRadius = 10.f;
 
-	/** Time to wait before two position corrections */
+	/** Time to wait before two position corrections, a negative value will disable position correction */
 	UPROPERTY(EditAnywhere, Category = General)
 		float PositionCorrectionInterval = 0.1f;
 
@@ -95,7 +95,9 @@ private:
 
 	void UpdateReleasedKeys(FRecordedPlayerState &recordDataStep);
 
-	bool TryCorrectPosition(FVector correctPosition);
+	void CorrectPosition(FVector correctPosition);
 
-	bool IsAtProperPosition(FVector correctPosition);
+	bool CurrentPositionShouldBeCorrected();
+
+	void DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected);
 };

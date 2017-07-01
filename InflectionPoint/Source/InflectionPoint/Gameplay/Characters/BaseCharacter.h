@@ -65,18 +65,18 @@ public:
 		TSubclassOf<class AInflectionPointProjectile> DebugProjectileClass;
 
 	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class USoundBase* FireSound;
 
 	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class UAnimMontage* FireAnimation;
 
-	/* Used in Multiplayer to validate Location Offsets (0< will ignore the offset) */
+	/* Max distance between client side and server side locations during RPC validation*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		float LocationOffsetTolerance = 5.;
 
-	/* Used in Multiplayer to validate Rotation Offsets (0< will ignore the offset) */
+	/* Max differnce between client side and server side rotations during RPC validation*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		float RotationOffsetTolerance = -1;
 

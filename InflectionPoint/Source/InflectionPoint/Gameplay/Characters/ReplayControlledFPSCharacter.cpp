@@ -35,8 +35,13 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 	passedTimeSinceLastCorrection += deltaTime;
 
 	// Correct position 
-	if(replayIndex != 0 && PositionCorrectionInterval >= 0 && passedTimeSinceLastCorrection > PositionCorrectionInterval)
-		TryCorrectPosition(recordData[replayIndex - 1].Position);
+	bool correctPosition = CurrentPositionShouldBeCorrected();
+	if(correctPosition)
+		CorrectPosition(recordData[replayIndex - 1].Position);
+
+	// Draw debug sphere
+	if(CreateDebugCorrectionSpheres) 
+		DrawDebugSphereAtCurrentPosition(correctPosition);
 
 	UpdatePressedKeys();
 
@@ -128,22 +133,31 @@ void AReplayControlledFPSCharacter::ApplyPitch(float value) {
 	FirstPersonCameraComponent->SetWorldRotation(rot);
 }
 
-bool AReplayControlledFPSCharacter::IsAtProperPosition(FVector correctPosition) {
+bool AReplayControlledFPSCharacter::CurrentPositionShouldBeCorrected() {
+	if(replayIndex == 0)
+		return false;
+
+	if(PositionCorrectionInterval < 0)
+		return false;
+
+	if(passedTimeSinceLastCorrection <= PositionCorrectionInterval)
+		return false;
+
+	if(CorrectionRadius < 0)
+		return true;
+
 	FVector actualPosition = GetTransform().GetLocation();
-	return CorrectionRadius < 0 || FVector::Dist(actualPosition, correctPosition) <= CorrectionRadius;
+	FVector correctPosition = recordData[replayIndex - 1].Position;
+
+	return FVector::Dist(actualPosition, correctPosition) <= CorrectionRadius;
 }
 
-bool AReplayControlledFPSCharacter::TryCorrectPosition(FVector correctPosition) {
-	if(IsAtProperPosition(correctPosition)) {
-		SetActorLocation(correctPosition);
-		passedTimeSinceLastCorrection = 0;
-		if(CreateDebugCorrectionSpheres) {
-			DrawDebugSphere(GetWorld(), GetTransform().GetLocation(), CorrectionRadius, 8, DebugHitColor, true);
-		}
-		return true;
-	}
-	if(CreateDebugCorrectionSpheres) {
-		DrawDebugSphere(GetWorld(), GetTransform().GetLocation(), CorrectionRadius, 8, DebugMissColor, true);
-	}
-	return false;
+void AReplayControlledFPSCharacter::DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected) {
+	FColor sphereColor = positionHasBeenCorrected ? DebugHitColor : DebugMissColor;
+	DrawDebugSphere(GetWorld(), GetTransform().GetLocation(), CorrectionRadius, 8, sphereColor, true);
+}
+
+void AReplayControlledFPSCharacter::CorrectPosition(FVector correctPosition) {
+	SetActorLocation(correctPosition);
+	passedTimeSinceLastCorrection = 0;
 }
