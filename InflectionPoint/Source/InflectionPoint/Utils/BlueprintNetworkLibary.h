@@ -3,13 +3,13 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "BluprintNetworkLibary.generated.h"
+#include "BlueprintNetworkLibary.generated.h"
 
 /**
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API UBluprintNetworkLibary : public UBlueprintCore {
+class INFLECTIONPOINT_API UBlueprintNetworkLibary : public UBlueprintCore {
 	GENERATED_BODY()
 
 public:
@@ -17,7 +17,7 @@ public:
 	/*   Functions   */
 	/* ------------- */ 
 
-	UBluprintNetworkLibary();
+	UBlueprintNetworkLibary();
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnSessionDestroyed();
