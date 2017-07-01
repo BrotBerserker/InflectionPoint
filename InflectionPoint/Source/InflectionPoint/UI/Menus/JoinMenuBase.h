@@ -18,11 +18,11 @@ class INFLECTIONPOINT_API UJoinMenuBase : public USubMenuTemplate {
 
 public:
 	/* ---------------------- */
-	/*   Blueprint Settings   */
+	/*  Blueprint properties  */
 	/* ---------------------- */
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "InflectionPoint|Networking")
-		TArray<USessionSearchResultBase*> SessionSearchResults;
+		TArray<USessionSearchResultBase*> SessionSearchResultWidgets;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 		TSubclassOf<USessionSearchResultBase> SessionSearchResultType;
@@ -45,14 +45,20 @@ public:
 
 private:
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
+
+	void FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence);
+	
+	void CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId);
+
+	USessionSearchResultBase* CreateSessionSearchResultWidget(FOnlineSessionSearchResult session);
+
+	IOnlineSessionPtr GetSessionInterface();
+
+private:
+	/** Handle and Delegate to join a session */
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
 
-	void FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence);
-
+	/** Function registered as delegates */
 	void OnFindSessionsComplete(bool bWasSuccessful);
-
-	TArray<USessionSearchResultBase*> CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId);
-
-	IOnlineSessionPtr GetSessionInterface();
 };

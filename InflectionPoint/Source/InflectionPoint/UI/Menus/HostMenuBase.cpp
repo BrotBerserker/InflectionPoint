@@ -56,8 +56,6 @@ void UHostMenuBase::SetupSessionSettings(bool bIsLAN, bool bIsPresence, const in
 }
 
 void UHostMenuBase::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful) {
-	//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnCreateSessionComplete %s, %d"), *SessionName.ToString(), bWasSuccessful));
-
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
 	if(Sessions.IsValid()) {
@@ -72,8 +70,6 @@ void UHostMenuBase::OnCreateSessionComplete(FName SessionName, bool bWasSuccessf
 }
 
 void UHostMenuBase::OnStartOnlineGameComplete(FName SessionName, bool bWasSuccessful) {
-	//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnStartSessionComplete %s, %d"), *SessionName.ToString(), bWasSuccessful));
-
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 	if(Sessions.IsValid()) {
 		Sessions->ClearOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegateHandle);

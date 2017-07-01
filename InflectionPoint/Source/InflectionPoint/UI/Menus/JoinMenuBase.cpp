@@ -48,29 +48,32 @@ void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
 		// Clear the Delegate handle
 		Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
 		// Create Widgets for the Server-List
-		SessionSearchResults = CreateSessionSearchResultWidgets(Player->GetPreferredUniqueNetId());
+		CreateSessionSearchResultWidgets(Player->GetPreferredUniqueNetId());
 
-		if(SessionSearchResults.Num() > 0) {
-			//SessionSearchResults = results;
+		if(SessionSearchResultWidgets.Num() > 0) {
 			OnSessionFound();
 		}
 	}
 }
 
-TArray<USessionSearchResultBase*> UJoinMenuBase::CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId) {
-	auto results = TArray<USessionSearchResultBase*>();
-	// Iterate over all results
-	for(int32 SearchIdx = 0; SearchIdx < SessionSearch->SearchResults.Num(); SearchIdx++) {
-		if(SessionSearch->SearchResults[SearchIdx].Session.OwningUserId != currentUniqueNetId) {
-			FString sessionName;
-			SessionSearch->SearchResults[SearchIdx].Session.SessionSettings.Get(FName("SessionName"), sessionName);
-			// Create the Widget for the Server-List and set the session search result
-			USessionSearchResultBase* SessionSearchResult = (USessionSearchResultBase*)CreateWidget<USessionSearchResultBase>(GetWorld(), SessionSearchResultType);
-			SessionSearchResult->OnlineSessionSearchResult = SessionSearch->SearchResults[SearchIdx];
-			results.Add(SessionSearchResult);
-		}
+void UJoinMenuBase::CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId) {
+	SessionSearchResultWidgets = TArray<USessionSearchResultBase*>();
+	for(auto searchResult : SessionSearch->SearchResults) {
+		if(searchResult.Session.OwningUserId != currentUniqueNetId)
+			continue;
+
+		SessionSearchResultWidgets.Add(CreateSessionSearchResultWidget(searchResult));
 	}
-	return results;
+}
+
+USessionSearchResultBase * UJoinMenuBase::CreateSessionSearchResultWidget(FOnlineSessionSearchResult searchResult) {
+	FString sessionName;
+	searchResult.Session.SessionSettings.Get(FName("SessionName"), sessionName);
+
+	// Create the Widget for the Server-List and set the session search result
+	USessionSearchResultBase* SessionSearchResultWidget = (USessionSearchResultBase*)CreateWidget<USessionSearchResultBase>(GetWorld(), SessionSearchResultType);
+	SessionSearchResultWidget->OnlineSessionSearchResult = searchResult;
+	return SessionSearchResultWidget;
 }
 
 IOnlineSessionPtr UJoinMenuBase::GetSessionInterface() {

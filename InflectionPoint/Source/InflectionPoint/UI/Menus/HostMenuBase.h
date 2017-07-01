@@ -15,26 +15,10 @@ class INFLECTIONPOINT_API UHostMenuBase : public USubMenuTemplate {
 	GENERATED_BODY()
 
 public:
-
-	/** Delegate called when session created */
-	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
-
-	/** Delegate called when session started */
-	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
-
-	/** Handles to registered delegates for creating/starting a session */
-	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
-	FDelegateHandle OnStartSessionCompleteDelegateHandle;
-
-public:
 	/* ------------- */
 	/*   Functions   */
 	/* ------------- */
 
-	/** Functions registered as delegates */
-	virtual void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
-	void OnStartOnlineGameComplete(FName SessionName, bool bWasSuccessful);
-	
 	/** Constructor, sets up delegates */
 	UHostMenuBase();
 
@@ -56,4 +40,20 @@ public:
 	FString LevelToOpen;
 
 	TSharedPtr<class FOnlineSessionSettings> SessionSettings;
+
+
+private:
+	/** Delegate called when session created */
+	FOnCreateSessionCompleteDelegate OnCreateSessionCompleteDelegate;
+
+	/** Delegate called when session started */
+	FOnStartSessionCompleteDelegate OnStartSessionCompleteDelegate;
+
+	/** Handles to registered delegates for creating/starting a session */
+	FDelegateHandle OnCreateSessionCompleteDelegateHandle;
+	FDelegateHandle OnStartSessionCompleteDelegateHandle;
+
+	/** Functions registered as delegates */
+	virtual void OnCreateSessionComplete(FName SessionName, bool bWasSuccessful);
+	void OnStartOnlineGameComplete(FName SessionName, bool bWasSuccessful);
 };
