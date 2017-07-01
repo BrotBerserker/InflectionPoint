@@ -19,7 +19,7 @@ AInflectionPointGameMode::AInflectionPointGameMode()
 }
 
 void AInflectionPointGameMode::PlayerDied(APlayerController * playerController) {
-	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(playerController);
+	AActor* playerStart = FindPlayerStart(playerController);
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
 	FVector loc = playerStart->GetTransform().GetLocation();
