@@ -58,8 +58,8 @@ void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
 
 void UJoinMenuBase::CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId) {
 	SessionSearchResultWidgets = TArray<USessionSearchResultBase*>();
-	for(auto searchResult : SessionSearch->SearchResults) {
-		if(searchResult.Session.OwningUserId != currentUniqueNetId)
+	for(auto &searchResult : SessionSearch->SearchResults) {
+		if(searchResult.Session.OwningUserId == currentUniqueNetId)
 			continue;
 
 		SessionSearchResultWidgets.Add(CreateSessionSearchResultWidget(searchResult));
