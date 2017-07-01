@@ -55,6 +55,10 @@ public:
 	/* Sets lifespan to destroy the owning actor, fires OnDeath */
 	void Die();
 
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		int CurrentHealth;
+
 public:
 	/* ----------------- */
 	/*   Getter-Setter   */
@@ -64,6 +68,5 @@ public:
 		FORCEINLINE int GetCurrentHealth() { return CurrentHealth; }
 
 private:
-	UPROPERTY(Replicated)
-		int CurrentHealth;
+	
 };

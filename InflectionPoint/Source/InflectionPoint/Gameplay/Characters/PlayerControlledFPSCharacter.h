@@ -3,7 +3,6 @@
 #pragma once
 
 #include "BaseCharacter.h"
-#include "Gameplay/Recording/InputRecorder.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "PlayerControlledFPSCharacter.generated.h"
 

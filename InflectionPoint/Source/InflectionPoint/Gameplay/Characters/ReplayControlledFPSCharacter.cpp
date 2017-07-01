@@ -116,16 +116,16 @@ void AReplayControlledFPSCharacter::ApplyYaw(float value) {
 	rot.Pitch = 0;
 	GetCapsuleComponent()->SetWorldRotation(rot);
 
-	FRotator rot2 = GetFirstPersonCameraComponent()->GetComponentRotation();
+	FRotator rot2 = FirstPersonCameraComponent->GetComponentRotation();
 	rot2.Yaw = value;
-	GetFirstPersonCameraComponent()->SetWorldRotation(rot2);
+	FirstPersonCameraComponent->SetWorldRotation(rot2);
 }
 
 void AReplayControlledFPSCharacter::ApplyPitch(float value) {
-	FRotator rot = GetFirstPersonCameraComponent()->GetComponentRotation();
+	FRotator rot = FirstPersonCameraComponent->GetComponentRotation();
 	rot.Pitch = value;
 	rot.Roll = 0;
-	GetFirstPersonCameraComponent()->SetWorldRotation(rot);
+	FirstPersonCameraComponent->SetWorldRotation(rot);
 }
 
 bool AReplayControlledFPSCharacter::IsAtProperPosition(FVector correctPosition) {

@@ -50,7 +50,7 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// Get data to be recorded
 	FVector pos = owner->GetTransform().GetLocation();
 	float yaw = owner->GetCapsuleComponent()->GetComponentRotation().Yaw;
-	float pitch = owner->GetFirstPersonCameraComponent()->GetComponentRotation().Pitch;
+	float pitch = owner->FirstPersonCameraComponent->GetComponentRotation().Pitch;
 
 	// Push recorded data into queue
 	recordedPlayerStateQueue.Push(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));

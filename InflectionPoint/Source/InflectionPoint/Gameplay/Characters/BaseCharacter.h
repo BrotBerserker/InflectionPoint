@@ -142,19 +142,5 @@ public:
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerUpdateCameraPitch(float pitch);
 
-public:
-	/* ------------------ */
-	/*  Getter Functions  */
-	/* ------------------ */
-
-	/** Returns Mesh1P subobject **/
-	FORCEINLINE class USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
-
-	/** Returns FirstPersonCameraComponent subobject **/
-	FORCEINLINE class UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
-
-	/** Returns Mesh3P subobject **/
-	FORCEINLINE class USkeletalMeshComponent* GetMesh3P() const { return Mesh3P; }
-
 };
 
