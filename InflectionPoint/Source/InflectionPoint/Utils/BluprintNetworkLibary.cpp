@@ -3,14 +3,11 @@
 #include "InflectionPoint.h"
 #include "BluprintNetworkLibary.h"
 
-
 UBluprintNetworkLibary::UBluprintNetworkLibary() {
 	OnDestroySessionCompleteDelegate = FOnDestroySessionCompleteDelegate::CreateUObject(this, &UBluprintNetworkLibary::OnDestroySessionComplete);
 }
 
 void UBluprintNetworkLibary::OnDestroySessionComplete(FName SessionName, bool bWasSuccessful) {
-	//GEngine->AddOnScreenDebugMessage(-1, 10.f, FColor::Red, FString::Printf(TEXT("OnDestroySessionComplete %s, %d"), *SessionName.ToString(), bWasSuccessful));
-
 	// Get the OnlineSubsystem we want to work with
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if(OnlineSub) {
@@ -28,7 +25,7 @@ void UBluprintNetworkLibary::OnDestroySessionComplete(FName SessionName, bool bW
 	}
 }
 
-void UBluprintNetworkLibary::LeaveMultiplayerGame(FName SessionName) {
+void UBluprintNetworkLibary::LeaveMultiplayerGame(FName SessionName) { //test
 	IOnlineSubsystem* OnlineSub = IOnlineSubsystem::Get();
 	if(OnlineSub) {
 		IOnlineSessionPtr Sessions = OnlineSub->GetSessionInterface();

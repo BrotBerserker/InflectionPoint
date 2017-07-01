@@ -9,13 +9,13 @@
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API UBluprintNetworkLibary : public UBlueprint {
+class INFLECTIONPOINT_API UBluprintNetworkLibary : public UBlueprintCore {
 	GENERATED_BODY()
 
 public:
 	/* ------------- */
 	/*   Functions   */
-	/* ------------- */
+	/* ------------- */ 
 
 	UBluprintNetworkLibary();
 
