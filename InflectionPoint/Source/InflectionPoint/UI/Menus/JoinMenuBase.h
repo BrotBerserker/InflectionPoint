@@ -55,7 +55,7 @@ private:
 	IOnlineSessionPtr GetSessionInterface();
 
 private:
-	/** Handle and Delegate to join a session */
+	/** Handle and Delegate to search for sessions */
 	FOnFindSessionsCompleteDelegate OnFindSessionsCompleteDelegate;
 	FDelegateHandle OnFindSessionsCompleteDelegateHandle;
 

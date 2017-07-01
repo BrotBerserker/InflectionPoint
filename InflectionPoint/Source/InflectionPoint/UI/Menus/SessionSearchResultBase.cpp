@@ -19,24 +19,22 @@ void USessionSearchResultBase::JoinOnlineGame() {
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
 
 	if(OnlineSessionSearchResult.Session.OwningUserId != Player->GetPreferredUniqueNetId()) {
-		JoinSession(Player->GetPreferredUniqueNetId(), GameSessionName/*SessionSearch->SearchResults[i].Session.OwningUserName)*/, OnlineSessionSearchResult);
+		JoinSession(Player->GetPreferredUniqueNetId(), GameSessionName, OnlineSessionSearchResult);
 	}
 }
 
 bool USessionSearchResultBase::JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult) {
-	bool bSuccessful = false;
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
 	if(Sessions.IsValid() && UserId.IsValid()) {
 		OnJoinSessionCompleteDelegateHandle = Sessions->AddOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegate);
-		bSuccessful = Sessions->JoinSession(*UserId, SessionName, SearchResult);
+		Sessions->JoinSession(*UserId, SessionName, SearchResult);
+		return true;
 	}
-	return bSuccessful;
+	return false;
 }
 
 void USessionSearchResultBase::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result) {
-	//GEngine->AddOnScreenDebugMessage(-1, 100.f, FColor::Red, FString::Printf(TEXT("OnJoinSessionComplete %s, %d"), *SessionName.ToString(), static_cast<int32>(Result)));
-
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 	if(Sessions.IsValid()) {
 		Sessions->ClearOnJoinSessionCompleteDelegate_Handle(OnJoinSessionCompleteDelegateHandle);

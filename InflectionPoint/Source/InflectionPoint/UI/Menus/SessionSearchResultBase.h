@@ -34,12 +34,15 @@ public:
 	FOnlineSessionSearchResult OnlineSessionSearchResult;
 
 private:
+	bool JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult);
+	IOnlineSessionPtr GetSessionInterface();
+
+private:
+	/** Handle and Delegate to join a session */
 	FOnJoinSessionCompleteDelegate OnJoinSessionCompleteDelegate;
 	FDelegateHandle OnJoinSessionCompleteDelegateHandle;
 
-	bool JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult);
-
+	/** Function registered as delegates */
 	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 
-	IOnlineSessionPtr GetSessionInterface();
 };
