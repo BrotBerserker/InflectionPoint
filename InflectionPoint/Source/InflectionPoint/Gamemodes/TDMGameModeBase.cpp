@@ -1,13 +1,13 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "InflectionPoint.h"
-#include "InflectionPointGameMode.h"
+#include "TDMGameModeBase.h"
 #include "UI/HUD/InflectionPointHUD.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Controllers/InflectionPointPlayerController.h"
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
 
-AInflectionPointGameMode::AInflectionPointGameMode()
+ATDMGameModeBase::ATDMGameModeBase()
 	: Super() {
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Characters/PlayerCharacter"));
@@ -18,7 +18,7 @@ AInflectionPointGameMode::AInflectionPointGameMode()
 	PlayerControllerClass = AInflectionPointPlayerController::StaticClass();
 }
 
-void AInflectionPointGameMode::PlayerDied(APlayerController * playerController) {
+void ATDMGameModeBase::PlayerDied(APlayerController * playerController) {
 	AActor* playerStart = FindPlayerStart(playerController);
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
@@ -31,4 +31,10 @@ void AInflectionPointGameMode::PlayerDied(APlayerController * playerController) 
 	APlayerControlledFPSCharacter* newCharacter = GetWorld()->SpawnActor<APlayerControlledFPSCharacter>(DefaultPawnClass.Get(), loc, rot, ActorSpawnParams);
 	
 	playerController->Possess(newCharacter);
+}
+
+void ATDMGameModeBase::StartMatch() {
+}
+
+void ATDMGameModeBase::StartNextRound() {
 }

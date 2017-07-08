@@ -13,4 +13,9 @@ class INFLECTIONPOINT_API AInflectionPointPlayerController : public APlayerContr
 	GENERATED_BODY()
 public:
 	AInflectionPointPlayerController(const FObjectInitializer& ObjectInitializer);
+
+
+public:
+	int Team;
+	char PlayerStartGroup;
 };
