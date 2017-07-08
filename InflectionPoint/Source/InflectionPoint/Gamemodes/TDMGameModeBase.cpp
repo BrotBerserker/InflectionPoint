@@ -13,7 +13,7 @@ ATDMGameModeBase::ATDMGameModeBase()
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Characters/PlayerCharacter"));
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
-	
+
 	// use our custom HUD class
 	HUDClass = AInflectionPointHUD::StaticClass();
 	PlayerControllerClass = AInflectionPointPlayerController::StaticClass();
@@ -35,6 +35,8 @@ bool ATDMGameModeBase::IsRoundFinished() {
 }
 
 void ATDMGameModeBase::StartMatch() {
+	AssignTeamsAndPlayerStartGroups();
+	StartNextRound();
 }
 
 void ATDMGameModeBase::StartNextRound() {
@@ -50,6 +52,11 @@ void ATDMGameModeBase::SpawnPlayer(APlayerController * playerController) {
 	AActor* playerStart = FindSpawnForPlayer(playerController);
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
+	APawn* pawn = playerController->GetPawn();
+	if(pawn) {
+		pawn->SetLifeSpan(.0001);
+	}
+
 	FVector loc = playerStart->GetTransform().GetLocation();
 	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
 
@@ -57,7 +64,7 @@ void ATDMGameModeBase::SpawnPlayer(APlayerController * playerController) {
 	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	APlayerControlledFPSCharacter* newCharacter = GetWorld()->SpawnActor<APlayerControlledFPSCharacter>(DefaultPawnClass.Get(), loc, rot, ActorSpawnParams);
-	
+
 	playerController->Possess(newCharacter);
 }
 
@@ -75,3 +82,25 @@ FString ATDMGameModeBase::GetSpawnTag(AInflectionPointPlayerController*  playerC
 	FString spawnTag(spawnTagCString.c_str());
 	return spawnTag;
 }
+
+void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
+	UWorld* world = GetWorld();
+
+	for(auto iterator = world->GetPlayerControllerIterator(); iterator; ++iterator) {
+		AInflectionPointPlayerController* controller = (AInflectionPointPlayerController*)UGameplayStatics::GetPlayerController(world, iterator.GetIndex());
+		controller->Team = iterator.GetIndex() % 2 + 1;
+		controller->PlayerStartGroup = 'A';
+	}
+}
+
+void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
+	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
+	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessioName);
+	if(sessionSettings) {
+		MaxPlayers = sessionSettings->NumPublicConnections;
+	} else {
+		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, setting MaxPlayers to 2."));
+		MaxPlayers = 2;
+	}
+}
+

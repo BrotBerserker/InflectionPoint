@@ -54,16 +54,26 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
-	
+
 	// Spawn ReplayCharacter
 	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, loc, rot, spawnParams);
 	if(!AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__, "Could not spawn replay character!")) {
 		return;
 	}
-	
+
 	// Start Replay on spawned ReplayCharacter
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->StartReplay(PlayerStateRecorder->RecordedPlayerStates);
 
+}
+
+void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ignore) {
+	APlayerController* controller = (APlayerController*)GetController();
+	AssertNotNull(controller, GetWorld(), __FILE__, __LINE__);
+	if(ignore) {
+		DisableInput(controller);
+	} else {
+		EnableInput(controller);
+	}
 }

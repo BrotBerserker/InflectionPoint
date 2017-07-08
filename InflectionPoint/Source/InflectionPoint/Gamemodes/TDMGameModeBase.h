@@ -23,19 +23,27 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void SpawnPlayer(APlayerController* playerController);
 
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
+		void UpdateMaxPlayers(FName SessioName);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		AActor* FindSpawnForPlayer(APlayerController* playerController);
-
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")
 		void OnRoundFinished(int round);
 
 public:
-	int MaxPlayers;
-	int CurrentRound = 0;
+	UPROPERTY(BlueprintReadWrite)
+		int MaxPlayers;
+
+	UPROPERTY(BlueprintReadWrite)
+		int NumPlayers = 0;
+
+	UPROPERTY(BlueprintReadWrite)
+		int CurrentRound = 0;
 
 private:
+	void AssignTeamsAndPlayerStartGroups();
 	bool IsRoundFinished();
 	FString GetSpawnTag(AInflectionPointPlayerController*  playerController);
 

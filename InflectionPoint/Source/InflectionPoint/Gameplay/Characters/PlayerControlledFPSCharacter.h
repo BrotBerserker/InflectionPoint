@@ -14,7 +14,7 @@ UCLASS()
 class INFLECTIONPOINT_API APlayerControlledFPSCharacter : public ABaseCharacter {
 	GENERATED_BODY()
 
-protected:
+public:
 
 	/** Override from ACharacter */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -28,4 +28,7 @@ protected:
 		void DEBUG_ServerSpawnReplay();
 
 	UPlayerStateRecorder* PlayerStateRecorder;
+
+	UFUNCTION(Client, Reliable)
+		void ClientSetIgnoreInput(bool ignore);
 };
