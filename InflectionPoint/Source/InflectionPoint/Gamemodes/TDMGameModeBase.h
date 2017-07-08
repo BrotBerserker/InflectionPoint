@@ -43,6 +43,7 @@ public:
 		int CurrentRound = 0;
 
 private:
+	TArray<int> GetTeamsAlive();
 	void AssignTeamsAndPlayerStartGroups();
 	bool IsRoundFinished();
 	FString GetSpawnTag(AInflectionPointPlayerController*  playerController);

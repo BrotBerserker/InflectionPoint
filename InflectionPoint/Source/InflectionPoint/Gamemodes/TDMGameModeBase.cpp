@@ -2,9 +2,10 @@
 
 #include "InflectionPoint.h"
 #include "TDMGameModeBase.h"
+#include <string>
 #include "UI/HUD/InflectionPointHUD.h"
 #include "Gameplay/Characters/BaseCharacter.h"
-#include <string>
+#include "Gameplay/Damage/MortalityProvider.h"
 #include "Gameplay/Controllers/InflectionPointPlayerController.h"
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
 
@@ -55,8 +56,24 @@ void ATDMGameModeBase::PlayerDied(APlayerController * playerController) {
 }
 
 bool ATDMGameModeBase::IsRoundFinished() {
-	// TODO: Check if round ended
-	return true;
+	return GetTeamsAlive().Num() <= 1;
+}
+
+TArray<int> ATDMGameModeBase::GetTeamsAlive() {
+	TArray<int> teamsAlive;
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		auto ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
+		if(teamsAlive.Contains(ipPlayerController->Team))
+			continue;
+		auto pawn = ipPlayerController->GetPawn();
+		if(pawn) {
+			auto mortalityProvider = pawn->FindComponentByClass<UMortalityProvider>();
+			if(mortalityProvider && mortalityProvider->CurrentHealth > 0)
+				teamsAlive.Add(ipPlayerController->Team);
+		}
+	}
+	return teamsAlive;
 }
 
 void ATDMGameModeBase::SpawnPlayer(APlayerController * playerController) {
