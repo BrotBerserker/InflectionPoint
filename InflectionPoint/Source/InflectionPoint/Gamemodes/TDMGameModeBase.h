@@ -12,7 +12,7 @@ public:
 	ATDMGameModeBase();
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void PlayerDied(APlayerController* playerController);
+		void UpdateMaxPlayers(FName SessioName);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void StartMatch();
@@ -21,10 +21,10 @@ public:
 		void StartNextRound();
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void SpawnPlayer(APlayerController* playerController);
+		void PlayerDied(APlayerController* playerController);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void UpdateMaxPlayers(FName SessioName);
+		void SpawnPlayer(APlayerController* playerController);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		AActor* FindSpawnForPlayer(APlayerController* playerController);

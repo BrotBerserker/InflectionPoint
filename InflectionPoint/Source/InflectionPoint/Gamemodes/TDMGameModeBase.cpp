@@ -19,19 +19,15 @@ ATDMGameModeBase::ATDMGameModeBase()
 	PlayerControllerClass = AInflectionPointPlayerController::StaticClass();
 }
 
-void ATDMGameModeBase::PlayerDied(APlayerController * playerController) {
-	if(CurrentRound == 0) {
-		SpawnPlayer(playerController);
-	} else if(IsRoundFinished()) {
-		StartNextRound();
+void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
+	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
+	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessioName);
+	if(sessionSettings) {
+		MaxPlayers = sessionSettings->NumPublicConnections;
 	} else {
-		// TODO: Set Player as spectator
+		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, setting MaxPlayers to 2."));
+		MaxPlayers = 2;
 	}
-}
-
-bool ATDMGameModeBase::IsRoundFinished() {
-	// TODO: Check if round ended
-	return true;
 }
 
 void ATDMGameModeBase::StartMatch() {
@@ -46,6 +42,21 @@ void ATDMGameModeBase::StartNextRound() {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		SpawnPlayer(playerController);
 	}
+}
+
+void ATDMGameModeBase::PlayerDied(APlayerController * playerController) {
+	if(CurrentRound == 0) {
+		SpawnPlayer(playerController);
+	} else if(IsRoundFinished()) {
+		StartNextRound();
+	} else {
+		// TODO: Set Player as spectator
+	}
+}
+
+bool ATDMGameModeBase::IsRoundFinished() {
+	// TODO: Check if round ended
+	return true;
 }
 
 void ATDMGameModeBase::SpawnPlayer(APlayerController * playerController) {
@@ -92,15 +103,3 @@ void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
 		controller->PlayerStartGroup = 'A';
 	}
 }
-
-void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
-	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
-	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessioName);
-	if(sessionSettings) {
-		MaxPlayers = sessionSettings->NumPublicConnections;
-	} else {
-		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, setting MaxPlayers to 2."));
-		MaxPlayers = 2;
-	}
-}
-
