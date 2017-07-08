@@ -65,7 +65,6 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->StartReplay(PlayerStateRecorder->RecordedPlayerStates);
-
 }
 
 void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ignore) {

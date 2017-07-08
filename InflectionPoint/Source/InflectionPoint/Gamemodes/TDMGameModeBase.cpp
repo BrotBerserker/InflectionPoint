@@ -8,6 +8,7 @@
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "Gameplay/Controllers/InflectionPointPlayerController.h"
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
+#include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
 
 ATDMGameModeBase::ATDMGameModeBase()
 	: Super() {
@@ -37,15 +38,19 @@ void ATDMGameModeBase::StartMatch() {
 }
 
 void ATDMGameModeBase::StartNextRound() {
-	OnRoundFinished(CurrentRound);
+	// Save replays from players that are stil alive
+	SaveRecordingsFromRemainingPlayers();
 	CurrentRound++;
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		SpawnPlayer(playerController);
-	}
+	SpawnPlayersAndReplays();
 }
 
-void ATDMGameModeBase::PlayerDied(APlayerController * playerController) {
+void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerController) {
+	SavePlayerRecordings(playerController);
+
+	// Destroy PLayer
+	if(AssertNotNull(playerController->GetPawn(), GetWorld(), __FILE__, __LINE__))
+		playerController->GetPawn()->SetLifeSpan(.00001);
+
 	if(CurrentRound == 0) {
 		SpawnPlayer(playerController);
 	} else if(IsRoundFinished()) {
@@ -56,6 +61,7 @@ void ATDMGameModeBase::PlayerDied(APlayerController * playerController) {
 }
 
 bool ATDMGameModeBase::IsRoundFinished() {
+	return true;
 	return GetTeamsAlive().Num() <= 1;
 }
 
@@ -66,18 +72,25 @@ TArray<int> ATDMGameModeBase::GetTeamsAlive() {
 		auto ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
 		if(teamsAlive.Contains(ipPlayerController->Team))
 			continue;
-		auto pawn = ipPlayerController->GetPawn();
-		if(pawn) {
-			auto mortalityProvider = pawn->FindComponentByClass<UMortalityProvider>();
-			if(mortalityProvider && mortalityProvider->CurrentHealth > 0)
-				teamsAlive.Add(ipPlayerController->Team);
-		}
+		if(IsPlayerAlive(ipPlayerController))
+			teamsAlive.Add(ipPlayerController->Team);
 	}
 	return teamsAlive;
 }
 
-void ATDMGameModeBase::SpawnPlayer(APlayerController * playerController) {
-	AActor* playerStart = FindSpawnForPlayer(playerController);
+
+bool ATDMGameModeBase::IsPlayerAlive(AInflectionPointPlayerController* playerController) {
+	auto pawn = playerController->GetPawn();
+	if(pawn) {
+		auto mortalityProvider = pawn->FindComponentByClass<UMortalityProvider>();
+		if(mortalityProvider && mortalityProvider->CurrentHealth > 0)
+			return true;
+	}
+	return false;
+}
+
+void ATDMGameModeBase::SpawnPlayer(AInflectionPointPlayerController * playerController) {
+	AActor* playerStart = FindSpawnForPlayer(playerController, CurrentRound);
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
 	APawn* pawn = playerController->GetPawn();
@@ -96,17 +109,17 @@ void ATDMGameModeBase::SpawnPlayer(APlayerController * playerController) {
 	playerController->Possess(newCharacter);
 }
 
-AActor* ATDMGameModeBase::FindSpawnForPlayer(APlayerController * playerController) {
-	if(CurrentRound == 0)
+// TODO: rename
+AActor* ATDMGameModeBase::FindSpawnForPlayer(AInflectionPointPlayerController * playerController, int round) {
+	if(round == 0)
 		return FindPlayerStart(playerController);
-	AInflectionPointPlayerController* ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
-	return FindPlayerStart(ipPlayerController, GetSpawnTag(ipPlayerController));
+	return FindPlayerStart(playerController, GetSpawnTag(playerController, round));
 }
 
-FString ATDMGameModeBase::GetSpawnTag(AInflectionPointPlayerController*  playerController) {
+FString ATDMGameModeBase::GetSpawnTag(AInflectionPointPlayerController*  playerController, int round) {
 	std::string spawnTagCString = std::to_string(playerController->Team) +
 		playerController->PlayerStartGroup +
-		std::to_string(CurrentRound);
+		std::to_string(round);
 	FString spawnTag(spawnTagCString.c_str());
 	return spawnTag;
 }
@@ -119,4 +132,60 @@ void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
 		controller->Team = iterator.GetIndex() % 2 + 1;
 		controller->PlayerStartGroup = 'A';
 	}
+}
+
+void ATDMGameModeBase::SaveRecordingsFromRemainingPlayers() {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		auto ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
+		if(IsPlayerAlive(ipPlayerController))
+			SavePlayerRecordings(ipPlayerController);
+	}
+}
+
+
+void ATDMGameModeBase::SpawnPlayersAndReplays() {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		auto ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
+		SpawnPlayer(ipPlayerController);
+		for(int i = 1; i < CurrentRound; i++)
+			SpawnReplay(ipPlayerController, i);
+	}
+}
+
+void ATDMGameModeBase::SavePlayerRecordings(AInflectionPointPlayerController * playerController) {
+	auto pawn = playerController->GetPawn();
+	if(AssertNotNull(pawn, GetWorld(), __FILE__, __LINE__)) {
+		auto playerStateRecorder = pawn->FindComponentByClass<UPlayerStateRecorder>();
+		AssertNotNull(playerStateRecorder, GetWorld(), __FILE__, __LINE__);
+		if(!PlayerRecordings.Contains(playerController)) {
+			TMap<int, TArray<FRecordedPlayerState>> map;
+			PlayerRecordings.Add(playerController, map);
+		}
+		PlayerRecordings[playerController].Add(CurrentRound, playerStateRecorder->RecordedPlayerStates);
+	}
+}
+
+void ATDMGameModeBase::SpawnReplay(AInflectionPointPlayerController* controller, int round) {
+	AssertTrue(PlayerRecordings.Contains(controller), GetWorld(), __FILE__, __LINE__, "Could not find replay");
+	auto spawn = FindSpawnForPlayer(controller, round);
+	AssertNotNull(spawn, GetWorld(), __FILE__, __LINE__, "No spawn found");
+	FVector loc = spawn->GetTransform().GetLocation();
+	FRotator rot = FRotator(spawn->GetTransform().GetRotation());
+
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	// Spawn ReplayCharacter
+	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, loc, rot, spawnParams);
+	if(!AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__, "Could not spawn replay character!")) {
+		return;
+	}
+
+	AssertTrue(PlayerRecordings[controller].Contains(round), GetWorld(), __FILE__, __LINE__, "Could not find replay");
+
+	// Start Replay on spawned ReplayCharacter
+	if(PlayerRecordings[controller].Contains(round))
+		newPlayer->StartReplay(PlayerRecordings[controller][round]);
 }

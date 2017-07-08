@@ -36,6 +36,7 @@ void UMortalityProvider::TakeDamage(float DamageAmount) {
 }
 
 void UMortalityProvider::Die() {
-	GetOwner()->SetLifeSpan(SecondsToLiveBeforeDestruction + 0.0000001); // 0 does not destroy o0
+	// done in GameMode
+	//GetOwner()->SetLifeSpan(SecondsToLiveBeforeDestruction + 0.0000001); // 0 does not destroy o0
 	OnDeath.Broadcast();
 }

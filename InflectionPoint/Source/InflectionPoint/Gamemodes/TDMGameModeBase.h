@@ -1,6 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/GameModeBase.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/Controllers/InflectionPointPlayerController.h" 
 #include "TDMGameModeBase.generated.h"
 
@@ -21,16 +22,10 @@ public:
 		void StartNextRound();
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void PlayerDied(APlayerController* playerController);
+		void PlayerDied(AInflectionPointPlayerController* playerController);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void SpawnPlayer(APlayerController* playerController);
-
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		AActor* FindSpawnForPlayer(APlayerController* playerController);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")
-		void OnRoundFinished(int round);
+		void SpawnPlayer(AInflectionPointPlayerController* playerController);
 
 public:
 	UPROPERTY(BlueprintReadWrite)
@@ -40,13 +35,24 @@ public:
 		int NumPlayers = 0;
 
 	UPROPERTY(BlueprintReadWrite)
-		int CurrentRound = 0;
+		int CurrentRound = 0;	
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		class UClass* ReplayCharacter;
 
+private:
+	TMap<APlayerController*, TMap<int,TArray<FRecordedPlayerState>>> PlayerRecordings;
 private:
 	TArray<int> GetTeamsAlive();
 	void AssignTeamsAndPlayerStartGroups();
 	bool IsRoundFinished();
-	FString GetSpawnTag(AInflectionPointPlayerController*  playerController);
+	AActor* FindSpawnForPlayer(AInflectionPointPlayerController* playerController, int round);
+	FString GetSpawnTag(AInflectionPointPlayerController*  playerController, int round);
+	void SaveRecordingsFromRemainingPlayers();
+	void SpawnPlayersAndReplays();
+	void SavePlayerRecordings(AInflectionPointPlayerController * playerController);
+	void SpawnReplay(AInflectionPointPlayerController* controller, int round);
+	bool IsPlayerAlive(AInflectionPointPlayerController* playerController); 
 
 };
 
