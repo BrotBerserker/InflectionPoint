@@ -31,4 +31,10 @@ public:
 
 	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);
+
+	UFUNCTION(Client, Reliable)
+		void ClientShowCountdownNumber(int number);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnCountdownUpdate(int number);
 };

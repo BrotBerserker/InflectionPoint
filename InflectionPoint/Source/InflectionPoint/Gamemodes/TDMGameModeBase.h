@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void SpawnPlayer(AInflectionPointPlayerController* playerController);
 
+	UFUNCTION()
+		void ShowCountdownNumber(APlayerControlledFPSCharacter* character, int number);
+
 public:
 	UPROPERTY(BlueprintReadWrite)
 		int MaxPlayers;

@@ -3,7 +3,8 @@
 using UnrealBuildTool;
 
 public class InflectionPoint : ModuleRules {
-    public InflectionPoint(TargetInfo Target) {
+    //public InflectionPoint(TargetInfo Target) {
+    public InflectionPoint(ReadOnlyTargetRules Target) : base(Target) {
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "UMG", "OnlineSubsystem", "OnlineSubsystemUtils" });
         PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");

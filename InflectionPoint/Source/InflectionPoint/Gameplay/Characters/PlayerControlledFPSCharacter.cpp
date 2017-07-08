@@ -76,3 +76,7 @@ void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ign
 		EnableInput(controller);
 	}
 }
+
+void APlayerControlledFPSCharacter::ClientShowCountdownNumber_Implementation(int number) {
+	OnCountdownUpdate(number);
+}

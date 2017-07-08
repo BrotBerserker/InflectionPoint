@@ -16,6 +16,9 @@ public:
 
 
 public:
-	int Team;
+	UPROPERTY(BlueprintReadWrite, Category = "InflectionPoint|Gameplay")
+		int Team;
+
+public:
 	char PlayerStartGroup;
 };

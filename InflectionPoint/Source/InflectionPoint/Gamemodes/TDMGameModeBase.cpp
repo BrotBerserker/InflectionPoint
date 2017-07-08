@@ -107,6 +107,19 @@ void ATDMGameModeBase::SpawnPlayer(AInflectionPointPlayerController * playerCont
 	APlayerControlledFPSCharacter* newCharacter = GetWorld()->SpawnActor<APlayerControlledFPSCharacter>(DefaultPawnClass.Get(), loc, rot, ActorSpawnParams);
 
 	playerController->Possess(newCharacter);
+
+	newCharacter->ClientSetIgnoreInput(true);
+
+	for(int i = 3; i >= 0; i--) {
+		StartTimer(this, GetWorld(), "ShowCountdownNumber", 3 - i + 1, false, newCharacter, i);
+	}
+}
+
+void ATDMGameModeBase::ShowCountdownNumber(APlayerControlledFPSCharacter* character, int number) {
+	character->ClientShowCountdownNumber(number);
+	if(number == 0) {
+		character->ClientSetIgnoreInput(false);
+	}
 }
 
 // TODO: rename
