@@ -4,6 +4,7 @@
 #include "TDMGameModeBase.h"
 #include "UI/HUD/InflectionPointHUD.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include <string>
 #include "Gameplay/Controllers/InflectionPointPlayerController.h"
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
 
@@ -19,7 +20,34 @@ ATDMGameModeBase::ATDMGameModeBase()
 }
 
 void ATDMGameModeBase::PlayerDied(APlayerController * playerController) {
-	AActor* playerStart = FindPlayerStart(playerController);
+	if(CurrentRound == 0) {
+		SpawnPlayer(playerController);
+	} else if(IsRoundFinished()) {
+		StartNextRound();
+	} else {
+		// TODO: Set Player as spectator
+	}
+}
+
+bool ATDMGameModeBase::IsRoundFinished() {
+	// TODO: Check if round ended
+	return true;
+}
+
+void ATDMGameModeBase::StartMatch() {
+}
+
+void ATDMGameModeBase::StartNextRound() {
+	OnRoundFinished(CurrentRound);
+	CurrentRound++;
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		SpawnPlayer(playerController);
+	}
+}
+
+void ATDMGameModeBase::SpawnPlayer(APlayerController * playerController) {
+	AActor* playerStart = FindSpawnForPlayer(playerController);
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
 	FVector loc = playerStart->GetTransform().GetLocation();
@@ -33,8 +61,17 @@ void ATDMGameModeBase::PlayerDied(APlayerController * playerController) {
 	playerController->Possess(newCharacter);
 }
 
-void ATDMGameModeBase::StartMatch() {
+AActor* ATDMGameModeBase::FindSpawnForPlayer(APlayerController * playerController) {
+	if(CurrentRound == 0)
+		return FindPlayerStart(playerController);
+	AInflectionPointPlayerController* ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
+	return FindPlayerStart(ipPlayerController, GetSpawnTag(ipPlayerController));
 }
 
-void ATDMGameModeBase::StartNextRound() {
+FString ATDMGameModeBase::GetSpawnTag(AInflectionPointPlayerController*  playerController) {
+	std::string spawnTagCString = std::to_string(playerController->Team) +
+		playerController->PlayerStartGroup +
+		std::to_string(CurrentRound);
+	FString spawnTag(spawnTagCString.c_str());
+	return spawnTag;
 }
