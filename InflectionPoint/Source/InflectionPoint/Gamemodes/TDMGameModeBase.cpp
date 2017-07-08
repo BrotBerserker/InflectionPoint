@@ -41,6 +41,8 @@ void ATDMGameModeBase::StartNextRound() {
 	// Save replays from players that are stil alive
 	SaveRecordingsFromRemainingPlayers();
 	CurrentRound++;
+	if(CurrentRound >= Rounds + 1)
+		CurrentRound = 1; // restart
 	SpawnPlayersAndReplays();
 }
 

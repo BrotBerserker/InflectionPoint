@@ -39,9 +39,12 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 		int CurrentRound = 0;	
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		class UClass* ReplayCharacter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		int Rounds = 3;
 
 private:
 	TMap<APlayerController*, TMap<int,TArray<FRecordedPlayerState>>> PlayerRecordings;
