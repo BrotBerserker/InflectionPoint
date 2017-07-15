@@ -72,6 +72,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class UAnimMontage* FireAnimation;
 
+	/** One of these animations will be played when the character dies */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
+		TArray<UAnimationAsset*> DeathAnimations;
+
 	/* Max distance between client side and server side locations during RPC validation*/
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		float LocationOffsetTolerance = 5.;
@@ -137,6 +141,10 @@ public:
 	/** Notifies Clients about projectile fired */
 	UFUNCTION(Unreliable, NetMulticast)
 		void MulticastProjectileFired();
+
+	/** Plays a death animation, disables input and collisions */
+	UFUNCTION(Unreliable, NetMulticast, BlueprintCallable)
+		void MulticastOnDeath();
 
 	/** Updates the Camera pitch rotation on Server */
 	UFUNCTION(Reliable, Server, WithValidation)

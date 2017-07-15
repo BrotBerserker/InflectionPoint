@@ -150,6 +150,23 @@ void ABaseCharacter::MulticastProjectileFired_Implementation() {
 	}
 }
 
+void ABaseCharacter::MulticastOnDeath_Implementation() {
+	// Play random Death Animation
+	if(DeathAnimations.Num() == 0) {
+		UE_LOG(LogTemp, Warning, TEXT("Warning: No Death Animations set for this character!"));
+	} else {
+		int index = FMath::RandRange(0, DeathAnimations.Num() - 1);
+		Mesh3P->PlayAnimation(DeathAnimations[index], false);
+	}
+
+	// Disable all input
+	DisableInput((APlayerController*)GetController());
+
+	// Disable all collisions except for WorldStatic
+	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+}
+
 void ABaseCharacter::MoveForward(float value) {
 	if(value != 0.0f) {
 		AddMovementInput(GetActorForwardVector(), value);
