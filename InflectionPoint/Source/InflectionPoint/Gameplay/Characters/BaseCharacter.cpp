@@ -167,6 +167,15 @@ void ABaseCharacter::MulticastOnDeath_Implementation() {
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 }
 
+void ABaseCharacter::ClientOnDeath_Implementation() {
+	Mesh3P->SetOwnerNoSee(false);
+	Mesh1P->SetVisibility(false, true);
+	FirstPersonCameraComponent->SetRelativeLocation(FVector(-200.f, 1.75f, 130.f));
+	AssertNotNull(GetController(), GetWorld(), __FILE__, __LINE__);
+	FRotator rot = GetController()->GetControlRotation();
+	GetController()->SetControlRotation(FRotator(-30, rot.Yaw, rot.Roll));
+}
+
 void ABaseCharacter::MoveForward(float value) {
 	if(value != 0.0f) {
 		AddMovementInput(GetActorForwardVector(), value);

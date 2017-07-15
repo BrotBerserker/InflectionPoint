@@ -146,6 +146,10 @@ public:
 	UFUNCTION(Unreliable, NetMulticast, BlueprintCallable)
 		void MulticastOnDeath();
 
+	/** Shows a death camera perspective */
+	UFUNCTION(Unreliable, Client, BlueprintCallable)
+		void ClientOnDeath();
+
 	/** Updates the Camera pitch rotation on Server */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerUpdateCameraPitch(float pitch);
