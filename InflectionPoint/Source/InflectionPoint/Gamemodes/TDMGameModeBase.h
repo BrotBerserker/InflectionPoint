@@ -27,6 +27,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void SpawnPlayer(AInflectionPointPlayerController* playerController);
 
+	void StartCountdown(APlayerControlledFPSCharacter * newCharacter);
+
 	UFUNCTION()
 		void ShowCountdownNumber(APlayerControlledFPSCharacter* character, int number);
 
@@ -45,6 +47,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		int Rounds = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		int OfflineMaxPlayers = 2;
 
 private:
 	TMap<APlayerController*, TMap<int,TArray<FRecordedPlayerState>>> PlayerRecordings;

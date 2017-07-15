@@ -27,8 +27,8 @@ void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
 	if(sessionSettings) {
 		MaxPlayers = sessionSettings->NumPublicConnections;
 	} else {
-		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, setting MaxPlayers to 2."));
-		MaxPlayers = 2;
+		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, setting MaxPlayers to %d."), OfflineMaxPlayers);
+		MaxPlayers = OfflineMaxPlayers;
 	}
 }
 
@@ -108,8 +108,16 @@ void ATDMGameModeBase::SpawnPlayer(AInflectionPointPlayerController * playerCont
 
 	APlayerControlledFPSCharacter* newCharacter = GetWorld()->SpawnActor<APlayerControlledFPSCharacter>(DefaultPawnClass.Get(), loc, rot, ActorSpawnParams);
 
+	playerController->ClientSetControlRotation(rot);
 	playerController->Possess(newCharacter);
 
+	if(CurrentRound > 0) {
+		StartCountdown(newCharacter);
+	}
+	
+}
+
+void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharacter) {
 	newCharacter->ClientSetIgnoreInput(true);
 
 	for(int i = 3; i >= 0; i--) {

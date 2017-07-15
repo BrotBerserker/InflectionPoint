@@ -9,4 +9,8 @@ AInflectionPointPlayerController::AInflectionPointPlayerController(const FObject
 	CheatClass = UInflectionPointCheatManager::StaticClass();
 }
 
+void AInflectionPointPlayerController::ClientSetControlRotation_Implementation(FRotator rotation) {
+	SetControlRotation(rotation);
+}
+
 

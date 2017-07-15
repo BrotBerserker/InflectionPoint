@@ -14,6 +14,8 @@ class INFLECTIONPOINT_API AInflectionPointPlayerController : public APlayerContr
 public:
 	AInflectionPointPlayerController(const FObjectInitializer& ObjectInitializer);
 
+	UFUNCTION(Client, Reliable)
+		void ClientSetControlRotation(FRotator rotation);
 
 public:
 	UPROPERTY(BlueprintReadWrite, Category = "InflectionPoint|Gameplay")
