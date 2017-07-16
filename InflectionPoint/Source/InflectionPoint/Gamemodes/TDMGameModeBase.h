@@ -23,10 +23,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void PlayerDied(AInflectionPointPlayerController* playerController);
-
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void SpawnPlayer(AInflectionPointPlayerController* playerController);
-
+	
 	void StartCountdown(APlayerControlledFPSCharacter * newCharacter);
 
 	UFUNCTION()
@@ -54,16 +51,24 @@ public:
 private:
 	TMap<APlayerController*, TMap<int,TArray<FRecordedPlayerState>>> PlayerRecordings;
 private:
-	TArray<int> GetTeamsAlive();
 	void AssignTeamsAndPlayerStartGroups();
+
 	bool IsRoundFinished();
-	AActor* FindSpawnForPlayer(AInflectionPointPlayerController* playerController, int round);
-	FString GetSpawnTag(AInflectionPointPlayerController*  playerController, int round);
-	void SaveRecordingsFromRemainingPlayers();
+	TArray<int> GetTeamsAlive();
+	bool IsPlayerAlive(AInflectionPointPlayerController* playerController);
+	
 	void SpawnPlayersAndReplays();
+	FString GetSpawnTag(AInflectionPointPlayerController*  playerController, int round);
+	AActor* FindSpawnForPlayer(AInflectionPointPlayerController* playerController, int round);
+	void SpawnAndStartReplay(AInflectionPointPlayerController* controller, int round);
+	void SpawnAndPossessPlayer(AInflectionPointPlayerController* playerController);
+	
+	template <typename CharacterType>
+	CharacterType* SpawnCharacter(UClass* spawnClass, AInflectionPointPlayerController * playerController, AActor* playerStart);
+	
+	void SaveRecordingsFromRemainingPlayers();
 	void SavePlayerRecordings(AInflectionPointPlayerController * playerController);
-	void SpawnReplay(AInflectionPointPlayerController* controller, int round);
-	bool IsPlayerAlive(AInflectionPointPlayerController* playerController); 
+	
 	void ClearMap();
 	void DestroyAllActors(TSubclassOf<AActor> actorClass);
 };
