@@ -6,6 +6,7 @@
 #include "UI/HUD/InflectionPointHUD.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Damage/MortalityProvider.h"
+#include "Gameplay/Weapons/InflectionPointProjectile.h"
 #include "Gameplay/Controllers/InflectionPointPlayerController.h"
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
 #include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
@@ -41,7 +42,8 @@ void ATDMGameModeBase::StartNextRound() {
 	// Save replays from players that are stil alive
 	SaveRecordingsFromRemainingPlayers();
 	CurrentRound++;
-	if(CurrentRound >= Rounds + 1)
+	ClearMap();
+	if(CurrentRound >= MaxRoundNum + 1)
 		CurrentRound = 1; // restart
 	SpawnPlayersAndReplays();
 }
@@ -95,11 +97,8 @@ void ATDMGameModeBase::SpawnPlayer(AInflectionPointPlayerController * playerCont
 	AActor* playerStart = FindSpawnForPlayer(playerController, CurrentRound);
 	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
 
-	APawn* pawn = playerController->GetPawn();
-	if(pawn) {
-		pawn->SetLifeSpan(.0001);
-	}
-
+	AssertTrue(!playerController->GetPawn(), GetWorld(), __FILE__, __LINE__, "Pawn is still exisiting");
+	
 	FVector loc = playerStart->GetTransform().GetLocation();
 	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
 
@@ -113,8 +112,7 @@ void ATDMGameModeBase::SpawnPlayer(AInflectionPointPlayerController * playerCont
 
 	if(CurrentRound > 0) {
 		StartCountdown(newCharacter);
-	}
-	
+	}	
 }
 
 void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharacter) {
@@ -211,4 +209,20 @@ void ATDMGameModeBase::SpawnReplay(AInflectionPointPlayerController* controller,
 	// Start Replay on spawned ReplayCharacter
 	if(PlayerRecordings[controller].Contains(round))
 		newPlayer->StartReplay(PlayerRecordings[controller][round]);
+}
+
+
+void ATDMGameModeBase::ClearMap() {
+	DestroyAllActors(AReplayControlledFPSCharacter::StaticClass());
+	DestroyAllActors(APlayerControlledFPSCharacter::StaticClass());
+	DestroyAllActors(AInflectionPointProjectile::StaticClass());
+}
+
+void ATDMGameModeBase::DestroyAllActors(TSubclassOf<AActor> actorClass) {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), actorClass, foundActors);
+	for(auto& item : foundActors) {
+		UE_LOG(LogTemp, Warning, TEXT("Destroying: [%s]"), *(item->GetName()));
+		item->Destroy();
+	}
 }

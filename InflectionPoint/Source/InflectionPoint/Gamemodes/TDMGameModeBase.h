@@ -46,7 +46,7 @@ public:
 		class UClass* ReplayCharacter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
-		int Rounds = 3;
+		int MaxRoundNum = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		int OfflineMaxPlayers = 2;
@@ -64,7 +64,8 @@ private:
 	void SavePlayerRecordings(AInflectionPointPlayerController * playerController);
 	void SpawnReplay(AInflectionPointPlayerController* controller, int round);
 	bool IsPlayerAlive(AInflectionPointPlayerController* playerController); 
-
+	void ClearMap();
+	void DestroyAllActors(TSubclassOf<AActor> actorClass);
 };
 
 
