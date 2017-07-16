@@ -124,7 +124,7 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(AInflectionPointPlayerController * 
 	auto character = SpawnCharacter<APlayerControlledFPSCharacter>(DefaultPawnClass.Get(), playerController, spawnPoint);
 
 
-	playerController->ClientSetControlRotation(FRotator(0,0,0));
+	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
 
 	if(CurrentRound > 0) 
