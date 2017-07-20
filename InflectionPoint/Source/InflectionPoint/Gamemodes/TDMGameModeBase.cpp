@@ -42,10 +42,9 @@ void ATDMGameModeBase::StartMatch() {
 
 void ATDMGameModeBase::StartNextRound() {
 	// Save replays from players that are stil alive
-	UE_LOG(LogTemp, Warning, TEXT("Start Next Round %i"), GetGameState()->CurrentRound);
 	SaveRecordingsFromRemainingPlayers();  
 	int round = GetGameState()->CurrentRound + 1;
-	if(round >= MaxRoundNum + 1)
+	if(round > GetGameState()->MaxRoundNum)
 		round = 1; // restart 
 	GetGameState()->CurrentRound = round;
 	ClearMap();
@@ -69,7 +68,6 @@ void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerContr
 }
 
 bool ATDMGameModeBase::IsRoundFinished() {
-	return true;
 	return GetTeamsAlive().Num() <= 1;
 }
 

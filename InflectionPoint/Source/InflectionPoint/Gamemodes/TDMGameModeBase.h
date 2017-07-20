@@ -44,9 +44,6 @@ public:
 		class UClass* ReplayCharacter;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
-		int MaxRoundNum = 3;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		int OfflineMaxPlayers = 2;
 
 public:

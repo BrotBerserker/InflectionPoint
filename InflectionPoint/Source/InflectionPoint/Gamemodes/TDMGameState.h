@@ -16,6 +16,8 @@ class INFLECTIONPOINT_API ATDMGameState : public AGameStateBase {
 public:
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
 		int CurrentRound = 0;
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
+		int MaxRoundNum = 3;
 
 public:
 	/** Needed for replication */
