@@ -20,6 +20,7 @@ ATDMGameModeBase::ATDMGameModeBase()
 	// use our custom HUD class
 	HUDClass = AInflectionPointHUD::StaticClass();
 	PlayerControllerClass = AInflectionPointPlayerController::StaticClass();
+	GameStateClass = ATDMGameState::StaticClass();
 }
 
 void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
@@ -34,17 +35,20 @@ void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
 }
 
 void ATDMGameModeBase::StartMatch() {
+	GetGameState()->CurrentRound = 0;
 	AssignTeamsAndPlayerStartGroups();
 	StartNextRound();
 }
 
 void ATDMGameModeBase::StartNextRound() {
 	// Save replays from players that are stil alive
-	SaveRecordingsFromRemainingPlayers();
-	CurrentRound++;
+	UE_LOG(LogTemp, Warning, TEXT("Start Next Round %i"), GetGameState()->CurrentRound);
+	SaveRecordingsFromRemainingPlayers();  
+	int round = GetGameState()->CurrentRound + 1;
+	if(round >= MaxRoundNum + 1)
+		round = 1; // restart 
+	GetGameState()->CurrentRound = round;
 	ClearMap();
-	if(CurrentRound >= MaxRoundNum + 1)
-		CurrentRound = 1; // restart
 	SpawnPlayersAndReplays();
 }
 
@@ -55,7 +59,7 @@ void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerContr
 	if(AssertNotNull(playerController->GetPawn(), GetWorld(), __FILE__, __LINE__))
 		playerController->GetPawn()->SetLifeSpan(.00001);
 
-	if(CurrentRound == 0) {
+	if(GetGameState()->CurrentRound == 0) {
 		SpawnAndPossessPlayer(playerController);
 	} else if(IsRoundFinished()) {
 		StartNextRound();
@@ -65,7 +69,7 @@ void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerContr
 }
 
 bool ATDMGameModeBase::IsRoundFinished() {
-	//return true;
+	return true;
 	return GetTeamsAlive().Num() <= 1;
 }
 
@@ -98,7 +102,7 @@ void ATDMGameModeBase::SpawnPlayersAndReplays() {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		auto ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
 		SpawnAndPossessPlayer(ipPlayerController);
-		for(int i = 1; i < CurrentRound; i++)
+		for(int i = 1; i < GetGameState()->CurrentRound; i++)
 			SpawnAndStartReplay(ipPlayerController, i);
 	}
 }
@@ -117,7 +121,7 @@ CharacterType* ATDMGameModeBase::SpawnCharacter(UClass* spawnClass, AInflectionP
 }
 
 void ATDMGameModeBase::SpawnAndPossessPlayer(AInflectionPointPlayerController * playerController) {
-	AActor* spawnPoint = FindSpawnForPlayer(playerController, CurrentRound);
+	AActor* spawnPoint = FindSpawnForPlayer(playerController, GetGameState()->CurrentRound);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__);
 	AssertTrue(!playerController->GetPawn(), GetWorld(), __FILE__, __LINE__, "Pawn is still exisiting");
 	
@@ -127,7 +131,7 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(AInflectionPointPlayerController * 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
 
-	if(CurrentRound > 0) 
+	if(GetGameState()->CurrentRound > 0) 
 		StartCountdown(character);
 }
 
@@ -201,7 +205,7 @@ void ATDMGameModeBase::SavePlayerRecordings(AInflectionPointPlayerController * p
 			TMap<int, TArray<FRecordedPlayerState>> map;
 			PlayerRecordings.Add(playerController, map);
 		}
-		PlayerRecordings[playerController].Add(CurrentRound, playerStateRecorder->RecordedPlayerStates);
+		PlayerRecordings[playerController].Add(GetGameState()->CurrentRound, playerStateRecorder->RecordedPlayerStates);
 	}
 }
 

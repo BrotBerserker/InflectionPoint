@@ -3,6 +3,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/Controllers/InflectionPointPlayerController.h" 
+#include "Gamemodes/TDMGameState.h" 
 #include "TDMGameModeBase.generated.h"
 
 UCLASS(minimalapi)
@@ -36,8 +37,8 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		int NumPlayers = 0;
 
-	UPROPERTY(BlueprintReadWrite)
-		int CurrentRound = 0;	
+	//UPROPERTY(BlueprintReadWrite)
+	//	int CurrentRound = 0;	
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		class UClass* ReplayCharacter;
@@ -47,6 +48,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		int OfflineMaxPlayers = 2;
+
+public:
+	FORCEINLINE class ATDMGameState* GetGameState() const { return (ATDMGameState*)GameState; };
 
 private:
 	TMap<APlayerController*, TMap<int,TArray<FRecordedPlayerState>>> PlayerRecordings;
