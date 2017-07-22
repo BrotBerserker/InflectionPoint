@@ -3,7 +3,6 @@
 #include "InflectionPoint.h"
 #include "TDMGameModeBase.h"
 #include <string>
-#include "UI/HUD/InflectionPointHUD.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
