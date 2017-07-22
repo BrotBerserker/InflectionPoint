@@ -40,8 +40,8 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		int NumPlayers = 0;
 
-	//UPROPERTY(BlueprintReadWrite)
-	//	int CurrentRound = 0;	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int CountDownDuration = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		class UClass* ReplayCharacter;

@@ -84,11 +84,13 @@ TArray<int> ATDMGameModeBase::GetTeamsAlive() {
 
 bool ATDMGameModeBase::IsPlayerAlive(AInflectionPointPlayerController* playerController) {
 	auto pawn = playerController->GetPawn();
-	if(pawn) {
-		auto mortalityProvider = pawn->FindComponentByClass<UMortalityProvider>();
-		if(mortalityProvider && mortalityProvider->CurrentHealth > 0)
-			return true;
-	}
+	if(!pawn)
+		return false;
+
+	auto mortalityProvider = pawn->FindComponentByClass<UMortalityProvider>();
+	if(mortalityProvider && mortalityProvider->CurrentHealth > 0)
+		return true;
+
 	return false;
 }
 
@@ -144,11 +146,11 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* p
 void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharacter) {
 	newCharacter->ClientSetIgnoreInput(true);
 
-	for(int i = 3; i >= 0; i--) {
-		StartTimer(this, GetWorld(), "ShowCountdownNumber", (3 - i + 1), false, newCharacter, i);
+	for(int i = CountDownDuration; i >= 0; i--) {
+		StartTimer(this, GetWorld(), "ShowCountdownNumber", (CountDownDuration - i + 1), false, newCharacter, i);
 	}
 
-	StartTimer(this, GetWorld(), "StartReplays", 4, false);
+	StartTimer(this, GetWorld(), "StartReplays", CountDownDuration + 1, false);
 }
 
 void ATDMGameModeBase::ShowCountdownNumber(APlayerControlledFPSCharacter* character, int number) {
