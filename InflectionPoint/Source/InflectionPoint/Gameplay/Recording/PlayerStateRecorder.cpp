@@ -30,7 +30,7 @@ void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) 
 void UPlayerStateRecorder::BeginPlay() {
 	Super::BeginPlay();
 
-	passedTime = 0.f;
+	//passedTime = 0.f;
 
 	owner = (ABaseCharacter*)GetOwner();
 	AssertNotNull(owner, GetWorld(), __FILE__, __LINE__);
@@ -74,7 +74,18 @@ void UPlayerStateRecorder::ServerRecordPlayerState_Implementation(float Timestam
 }
 
 void UPlayerStateRecorder::StartRecording() {
+	ServerResetRecordedPlayerStates();
+	recordedPlayerStateQueue.Empty();
+	passedTime = 0.f;
 	recording = true;
+}
+
+bool UPlayerStateRecorder::ServerResetRecordedPlayerStates_Validate() {
+	return true;
+}
+
+void UPlayerStateRecorder::ServerResetRecordedPlayerStates_Implementation() {
+	RecordedPlayerStates.Empty();
 }
 
 void UPlayerStateRecorder::RecordKeyPressed(FString key) {

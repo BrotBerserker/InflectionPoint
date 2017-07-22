@@ -27,6 +27,7 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 
 	// DEBUG Bindings
 	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay);
+	PlayerInputComponent->BindAction("DEBUG_StartRecording", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_StartRecording);
 
 	// Initialize and start PlayerStateRecorder
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
@@ -43,19 +44,11 @@ bool APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Validate() {
 }
 
 void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
-	// Setup location, rotation and spawn parameters
-	AActor* playerStart = GetWorld()->GetAuthGameMode()->FindPlayerStart(GetController());
-
-	AssertNotNull(playerStart, GetWorld(), __FILE__, __LINE__);
-
-	FVector loc = playerStart->GetTransform().GetLocation();
-	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
-
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	// Spawn ReplayCharacter
-	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, loc, rot, spawnParams);
+	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, DEBUG_position, DEBUG_rotation, spawnParams);
 	if(!AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__, "Could not spawn replay character!")) {
 		return;
 	}
@@ -65,6 +58,20 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->SetReplayData(PlayerStateRecorder->RecordedPlayerStates);
 	newPlayer->StartReplay();
+}
+
+void APlayerControlledFPSCharacter::DEBUG_StartRecording() {
+	DEBUG_ServerSavePosition();
+	PlayerStateRecorder->StartRecording();
+}
+
+bool APlayerControlledFPSCharacter::DEBUG_ServerSavePosition_Validate() {
+	return true;
+}
+
+void APlayerControlledFPSCharacter::DEBUG_ServerSavePosition_Implementation() {
+	DEBUG_position = GetActorLocation();
+	DEBUG_rotation = GetActorRotation();
 }
 
 void APlayerControlledFPSCharacter::ClientStartRecording_Implementation() {

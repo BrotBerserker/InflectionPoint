@@ -75,6 +75,10 @@ public:
 	/** Starts recording */
 	void StartRecording();
 
+	/** Resets the list of recorded PlayerStates */
+	UFUNCTION(Unreliable, Server, WithValidation)
+		void ServerResetRecordedPlayerStates();
+
 	/** Creates a RecordedPlayerState from the given parameters and adds it to the list of recorded player states */
 	UFUNCTION(Unreliable, Server, WithValidation)
 		void ServerRecordPlayerState(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys);

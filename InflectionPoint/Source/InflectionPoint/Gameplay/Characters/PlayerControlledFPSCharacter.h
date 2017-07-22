@@ -23,9 +23,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		class UClass* ReplayCharacter;
 
-	/** Spawns a ReplayCharacter for Debug purposes, the real spawning should happen in the GameMode */
+	/** Deletes current recordings and starts new recording for debug purposes */
+	UFUNCTION()
+		void DEBUG_StartRecording();
+
+	/** Saves the current location and rotation for debug purposes */
+	UFUNCTION(Reliable, Server, WithValidation)
+		void DEBUG_ServerSavePosition();
+
+	/** Spawns a ReplayCharacter for debug purposes */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void DEBUG_ServerSpawnReplay();
+
+	FVector DEBUG_position;
+
+	FRotator DEBUG_rotation;
 
 	UPlayerStateRecorder* PlayerStateRecorder;
 
