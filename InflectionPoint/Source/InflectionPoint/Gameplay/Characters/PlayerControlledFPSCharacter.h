@@ -30,6 +30,9 @@ public:
 	UPlayerStateRecorder* PlayerStateRecorder;
 
 	UFUNCTION(Client, Reliable)
+		void ClientStartRecording();
+
+	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);
 
 	UFUNCTION(Client, Reliable)

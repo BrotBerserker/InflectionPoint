@@ -42,7 +42,7 @@ void ATDMGameModeBase::StartMatch() {
 
 void ATDMGameModeBase::StartNextRound() {
 	// Save replays from players that are stil alive
-	SaveRecordingsFromRemainingPlayers();  
+	SaveRecordingsFromRemainingPlayers();
 	int round = GetGameState()->CurrentRound + 1;
 	if(round > GetGameState()->MaxRoundNum)
 		round = 1; // restart 
@@ -52,11 +52,8 @@ void ATDMGameModeBase::StartNextRound() {
 }
 
 void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerController) {
-	SavePlayerRecordings(playerController);
-
-	// Destroy PLayer
-	if(AssertNotNull(playerController->GetPawn(), GetWorld(), __FILE__, __LINE__))
-		playerController->GetPawn()->SetLifeSpan(.00001);
+	if(GetGameState()->CurrentRound > 0)
+		SavePlayerRecordings(playerController);
 
 	if(GetGameState()->CurrentRound == 0) {
 		SpawnAndPossessPlayer(playerController);
@@ -101,7 +98,7 @@ void ATDMGameModeBase::SpawnPlayersAndReplays() {
 		auto ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
 		SpawnAndPossessPlayer(ipPlayerController);
 		for(int i = 1; i < GetGameState()->CurrentRound; i++)
-			SpawnAndStartReplay(ipPlayerController, i);
+			SpawnAndPrepareReplay(ipPlayerController, i);
 	}
 }
 
@@ -121,19 +118,17 @@ CharacterType* ATDMGameModeBase::SpawnCharacter(UClass* spawnClass, AInflectionP
 void ATDMGameModeBase::SpawnAndPossessPlayer(AInflectionPointPlayerController * playerController) {
 	AActor* spawnPoint = FindSpawnForPlayer(playerController, GetGameState()->CurrentRound);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__);
-	AssertTrue(!playerController->GetPawn(), GetWorld(), __FILE__, __LINE__, "Pawn is still exisiting");
-	
-	auto character = SpawnCharacter<APlayerControlledFPSCharacter>(DefaultPawnClass.Get(), playerController, spawnPoint);
 
+	auto character = SpawnCharacter<APlayerControlledFPSCharacter>(DefaultPawnClass.Get(), playerController, spawnPoint);
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
 
-	if(GetGameState()->CurrentRound > 0) 
+	if(GetGameState()->CurrentRound > 0)
 		StartCountdown(character);
 }
 
-void ATDMGameModeBase::SpawnAndStartReplay(AInflectionPointPlayerController* playerController, int round) {
+void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* playerController, int round) {
 	AssertTrue(PlayerRecordings.Contains(playerController), GetWorld(), __FILE__, __LINE__, "Could not find replay");
 	auto spawnPoint = FindSpawnForPlayer(playerController, round);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
@@ -143,7 +138,7 @@ void ATDMGameModeBase::SpawnAndStartReplay(AInflectionPointPlayerController* pla
 
 	// Start Replay on spawned ReplayCharacter
 	if(PlayerRecordings[playerController].Contains(round))
-		character->StartReplay(PlayerRecordings[playerController][round]);
+		character->SetReplayData(PlayerRecordings[playerController][round]);
 }
 
 void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharacter) {
@@ -152,13 +147,23 @@ void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharact
 	for(int i = 3; i >= 0; i--) {
 		StartTimer(this, GetWorld(), "ShowCountdownNumber", (3 - i + 1), false, newCharacter, i);
 	}
+
+	StartTimer(this, GetWorld(), "StartReplays", 4, false);
 }
 
 void ATDMGameModeBase::ShowCountdownNumber(APlayerControlledFPSCharacter* character, int number) {
 	character->ClientShowCountdownNumber(number);
 	if(number == 0) {
 		character->ClientSetIgnoreInput(false);
+		character->ClientStartRecording();
 	}
+}
+
+void ATDMGameModeBase::StartReplays() {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AReplayControlledFPSCharacter::StaticClass(), foundActors);
+	for(auto& item : foundActors)
+		Cast<AReplayControlledFPSCharacter>(item)->StartReplay();
 }
 
 AActor* ATDMGameModeBase::FindSpawnForPlayer(AInflectionPointPlayerController * playerController, int round) {
@@ -216,6 +221,6 @@ void ATDMGameModeBase::ClearMap() {
 void ATDMGameModeBase::DestroyAllActors(TSubclassOf<AActor> actorClass) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), actorClass, foundActors);
-	for(auto& item : foundActors) 
-		item->Destroy();	
+	for(auto& item : foundActors)
+		item->Destroy();
 }

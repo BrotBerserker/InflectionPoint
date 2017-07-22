@@ -32,7 +32,6 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	PlayerStateRecorder->InitializeBindings(PlayerInputComponent);
-	PlayerStateRecorder->StartRecording();
 
 	// Controller bindings
 	//PlayerInputComponent->BindAxis("TurnRate", this, &ABaseCharacter::TurnAtRate);
@@ -64,7 +63,12 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	// Start Replay on spawned ReplayCharacter
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
-	newPlayer->StartReplay(PlayerStateRecorder->RecordedPlayerStates);
+	newPlayer->SetReplayData(PlayerStateRecorder->RecordedPlayerStates);
+	newPlayer->StartReplay();
+}
+
+void APlayerControlledFPSCharacter::ClientStartRecording_Implementation() {
+	PlayerStateRecorder->StartRecording();
 }
 
 void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ignore) {

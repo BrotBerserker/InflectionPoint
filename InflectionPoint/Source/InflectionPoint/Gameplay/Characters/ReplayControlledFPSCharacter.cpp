@@ -17,10 +17,13 @@ void AReplayControlledFPSCharacter::BeginPlay() {
 	//PrimaryActorTick.bCanEverTick = true;
 }
 
-void AReplayControlledFPSCharacter::StartReplay(TArray<FRecordedPlayerState> RecordData) {
-	recordData = RecordData;
-	isReplaying = true;
+void AReplayControlledFPSCharacter::StartReplay() {
 	replayIndex = 0;
+	isReplaying = true;
+}
+
+void AReplayControlledFPSCharacter::SetReplayData(TArray<FRecordedPlayerState> RecordData) {
+	recordData = RecordData;
 }
 
 void AReplayControlledFPSCharacter::StopReplay() {

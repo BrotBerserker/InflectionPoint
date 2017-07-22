@@ -55,7 +55,11 @@ public:
 
 	/** Starts the replay */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
-		void StartReplay(TArray<FRecordedPlayerState> RecordData);
+		void StartReplay();
+
+	/** Starts the replay */
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
+		void SetReplayData(TArray<FRecordedPlayerState> RecordData);
 
 	/** Stops the replay */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")

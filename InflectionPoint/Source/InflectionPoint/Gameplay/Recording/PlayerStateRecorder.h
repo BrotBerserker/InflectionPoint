@@ -11,7 +11,7 @@ USTRUCT()
 struct FRecordedPlayerState {
 	GENERATED_BODY()
 
-	UPROPERTY()
+		UPROPERTY()
 		float Timestamp;
 
 	UPROPERTY()
@@ -74,7 +74,7 @@ public:
 
 	/** Starts recording */
 	void StartRecording();
-	
+
 	/** Creates a RecordedPlayerState from the given parameters and adds it to the list of recorded player states */
 	UFUNCTION(Unreliable, Server, WithValidation)
 		void ServerRecordPlayerState(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys);
