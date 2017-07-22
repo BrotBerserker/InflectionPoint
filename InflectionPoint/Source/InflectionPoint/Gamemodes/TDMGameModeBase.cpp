@@ -17,8 +17,7 @@ ATDMGameModeBase::ATDMGameModeBase()
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Characters/PlayerCharacter"));
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
 
-	// use our custom HUD class
-	HUDClass = AInflectionPointHUD::StaticClass();
+	// configure default classes
 	PlayerControllerClass = AInflectionPointPlayerController::StaticClass();
 	GameStateClass = ATDMGameState::StaticClass();
 }
