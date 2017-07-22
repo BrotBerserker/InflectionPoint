@@ -197,6 +197,7 @@ void ABaseCharacter::LookUpAtRate(float rate) {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 	ServerUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
+	MulticastUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
 }
 
 FRotator ABaseCharacter::GetProjectileSpawnRotation() {
@@ -212,6 +213,12 @@ bool ABaseCharacter::ServerUpdateCameraPitch_Validate(float pitch) {
 }
 
 void ABaseCharacter::ServerUpdateCameraPitch_Implementation(float pitch) {
+	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
+	currentRot.Pitch = pitch;
+	FirstPersonCameraComponent->SetWorldRotation(currentRot);
+}
+
+void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {
 	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
 	currentRot.Pitch = pitch;
 	FirstPersonCameraComponent->SetWorldRotation(currentRot);
