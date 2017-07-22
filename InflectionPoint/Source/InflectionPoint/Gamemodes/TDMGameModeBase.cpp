@@ -147,17 +147,17 @@ void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharact
 	newCharacter->ClientSetIgnoreInput(true);
 
 	for(int i = CountDownDuration; i >= 0; i--) {
-		StartTimer(this, GetWorld(), "ShowCountdownNumber", (CountDownDuration - i + 1), false, newCharacter, i);
+		StartTimer(this, GetWorld(), "UpdateCountdown", (CountDownDuration - i + 1), false, newCharacter, i);
 	}
 
 	StartTimer(this, GetWorld(), "StartReplays", CountDownDuration + 1, false);
 }
 
-void ATDMGameModeBase::ShowCountdownNumber(APlayerControlledFPSCharacter* character, int number) {
+void ATDMGameModeBase::UpdateCountdown(APlayerControlledFPSCharacter* character, int number) {
 	character->ClientShowCountdownNumber(number);
 	if(number == 0) {
-		character->ClientSetIgnoreInput(false);
 		character->ClientStartRecording();
+		character->ClientSetIgnoreInput(false);
 	}
 }
 

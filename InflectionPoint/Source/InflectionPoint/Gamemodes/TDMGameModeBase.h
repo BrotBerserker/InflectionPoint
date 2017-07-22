@@ -28,7 +28,7 @@ public:
 	void StartCountdown(APlayerControlledFPSCharacter * newCharacter);
 
 	UFUNCTION()
-		void ShowCountdownNumber(APlayerControlledFPSCharacter* character, int number);
+		void UpdateCountdown(APlayerControlledFPSCharacter* character, int number);
 
 	UFUNCTION()
 		void StartReplays();
