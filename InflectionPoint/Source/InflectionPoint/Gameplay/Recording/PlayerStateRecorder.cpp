@@ -74,6 +74,16 @@ void UPlayerStateRecorder::ServerRecordPlayerState_Implementation(float Timestam
 }
 
 void UPlayerStateRecorder::StartRecording() {
+	ServerStartRecording();
+}
+
+bool UPlayerStateRecorder::ServerStartRecording_Validate() {
+	return true;
+}
+
+void UPlayerStateRecorder::ServerStartRecording_Implementation() {
+	UE_LOG(LogTemp, Warning, TEXT("server start recording"));
+
 	ServerResetRecordedPlayerStates();
 	recordedPlayerStateQueue.Empty();
 	passedTime = 0.f;
@@ -88,11 +98,19 @@ void UPlayerStateRecorder::ServerResetRecordedPlayerStates_Implementation() {
 	RecordedPlayerStates.Empty();
 }
 
-void UPlayerStateRecorder::RecordKeyPressed(FString key) {
+bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString &key) {
+	return true;
+}
+
+void UPlayerStateRecorder::ServerRecordKeyPressed_Implementation(const FString &key) {
 	pressedKeys.Add(key);
 }
 
-void UPlayerStateRecorder::RecordKeyReleased(FString key) {
+bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString &key) {
+	return true;
+}
+
+void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString &key) {
 	pressedKeys.Remove(key);
 }
 
@@ -102,15 +120,15 @@ void UPlayerStateRecorder::RecordMoveForward(float val) {
 	}
 
 	if(val > 0) {
-		RecordKeyPressed("MoveForward");
+		ServerRecordKeyPressed("MoveForward");
 	} else if(val < 0) {
-		RecordKeyPressed("MoveBackward");
+		ServerRecordKeyPressed("MoveBackward");
 	}
 
 	if(movingForward > 0) {
-		RecordKeyReleased("MoveForward");
+		ServerRecordKeyReleased("MoveForward");
 	} else if(movingForward < 0) {
-		RecordKeyReleased("MoveBackward");
+		ServerRecordKeyReleased("MoveBackward");
 	}
 
 	movingForward = val;
@@ -122,41 +140,41 @@ void UPlayerStateRecorder::RecordMoveRight(float val) {
 	}
 
 	if(val > 0) {
-		RecordKeyPressed("MoveRight");
+		ServerRecordKeyPressed("MoveRight");
 	} else if(val < 0) {
-		RecordKeyPressed("MoveLeft");
+		ServerRecordKeyPressed("MoveLeft");
 	}
 
 	if(movingRight > 0) {
-		RecordKeyReleased("MoveRight");
+		ServerRecordKeyReleased("MoveRight");
 	} else if(movingRight < 0) {
-		RecordKeyReleased("MoveLeft");
+		ServerRecordKeyReleased("MoveLeft");
 	}
 
 	movingRight = val;
 }
 
 void UPlayerStateRecorder::RecordStartJump() {
-	RecordKeyPressed("Jump");
+	ServerRecordKeyPressed("Jump");
 }
 
 void UPlayerStateRecorder::RecordStopJump() {
-	RecordKeyReleased("Jump");
+	ServerRecordKeyReleased("Jump");
 }
 
 void UPlayerStateRecorder::RecordStartFire() {
-	RecordKeyPressed("Fire");
+	ServerRecordKeyPressed("Fire");
 }
 
 void UPlayerStateRecorder::RecordStopFire() {
-	RecordKeyReleased("Fire");
+	ServerRecordKeyReleased("Fire");
 }
 
 void UPlayerStateRecorder::RecordStartDebugFire() {
-	RecordKeyPressed("DEBUG_Fire");
+	ServerRecordKeyPressed("DEBUG_Fire");
 }
 
 void UPlayerStateRecorder::RecordStopDebugFire() {
-	RecordKeyReleased("DEBUG_Fire");
+	ServerRecordKeyReleased("DEBUG_Fire");
 }
 

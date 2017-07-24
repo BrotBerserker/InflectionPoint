@@ -75,6 +75,9 @@ public:
 	/** Starts recording */
 	void StartRecording();
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerStartRecording();
+
 	/** Resets the list of recorded PlayerStates */
 	UFUNCTION(Unreliable, Server, WithValidation)
 		void ServerResetRecordedPlayerStates();
@@ -122,8 +125,10 @@ private:
 
 	void RecordMoveRight(float val);
 
-	void RecordKeyPressed(FString key);
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerRecordKeyPressed(const FString &key);
 
-	void RecordKeyReleased(FString key);
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerRecordKeyReleased(const FString &key);
 
 };
