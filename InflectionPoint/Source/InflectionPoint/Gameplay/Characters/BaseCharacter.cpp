@@ -224,11 +224,15 @@ bool ABaseCharacter::ServerUpdateCameraPitch_Validate(float pitch) {
 void ABaseCharacter::ServerUpdateCameraPitch_Implementation(float pitch) {
 	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
 	currentRot.Pitch = pitch;
-	FirstPersonCameraComponent->SetWorldRotation(currentRot);
+	currentRot.Roll = 0;
+	currentRot.Yaw = 0;
+	FirstPersonCameraComponent->SetRelativeRotation(currentRot);
 }
 
 void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {
 	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
 	currentRot.Pitch = pitch;
-	FirstPersonCameraComponent->SetWorldRotation(currentRot);
+	currentRot.Roll = 0;
+	currentRot.Yaw = 0;
+	FirstPersonCameraComponent->SetRelativeRotation(currentRot);
 }
