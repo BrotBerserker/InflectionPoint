@@ -95,8 +95,14 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
 	} else if(key == "Fire") {
+		if(replayIndex > 0) {
+			CorrectPosition(recordData[replayIndex - 1].Position);
+		}
 		OnFire();
 	} else if(key == "DEBUG_Fire") {
+		if(replayIndex > 0) {
+			CorrectPosition(recordData[replayIndex - 1].Position);
+		}
 		OnDebugFire();
 	}
 }

@@ -122,6 +122,11 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 	UE_LOG(LogTemp, Warning, TEXT("SPAWN SCHUSS The value of 'pitch' is: %f"), pitch);
 	UE_LOG(LogTemp, Warning, TEXT("SPAWN SCHUSS The value of 'pos' is: %s"), *(pos.ToString()));
 
+	FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
+	FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
+
+	DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, 15, FColor::Orange, true, -1, 0, 0.5f);
+
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();
