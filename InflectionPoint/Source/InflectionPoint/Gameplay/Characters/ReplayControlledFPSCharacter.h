@@ -85,7 +85,10 @@ public:
 	UFUNCTION()
 		void ApplyPitch(float value);
 
+	APlayerController* DerPlayerController;
+
 private:
+
 	TArray<FRecordedPlayerState> recordData;
 	bool isReplaying = false;
 	float passedTime = 0.f;

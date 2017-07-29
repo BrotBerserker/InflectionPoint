@@ -63,7 +63,11 @@ void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
 		if(replayIndex != 0) { // Update Rotation (-1 because unreal ^^)
 			ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
-			ApplyPitch(recordData[replayIndex - 1].CameraPitch);
+			if(DerPlayerController->IsLocalPlayerController()) {
+				ApplyPitch(recordData[replayIndex].CameraPitch);
+			} else {
+				ApplyPitch(recordData[replayIndex - 1].CameraPitch);
+			}
 		}
 		auto recordDataStep = recordData[replayIndex];
 		UpdatePressedKeys(recordDataStep);

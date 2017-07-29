@@ -57,6 +57,7 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->SetReplayData(PlayerStateRecorder->RecordedPlayerStates);
+	newPlayer->DerPlayerController = Cast<APlayerController>(GetController());
 	newPlayer->StartReplay();
 }
 
