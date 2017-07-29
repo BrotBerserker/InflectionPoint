@@ -106,5 +106,7 @@ private:
 
 	bool CurrentPositionShouldBeCorrected();
 
+	bool CurrentPositionIsInRadius(float radius);
+
 	void DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected);
 };

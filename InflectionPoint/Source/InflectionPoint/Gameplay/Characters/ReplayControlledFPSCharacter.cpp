@@ -99,12 +99,12 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
 	} else if(key == "Fire") {
-		if(replayIndex > 0) {
+		if(replayIndex > 0 && CurrentPositionIsInRadius(5)) {
 			CorrectPosition(recordData[replayIndex - 1].Position);
 		}
 		OnFire();
 	} else if(key == "DEBUG_Fire") {
-		if(replayIndex > 0) {
+		if(replayIndex > 0 && CurrentPositionIsInRadius(5)) {
 			CorrectPosition(recordData[replayIndex - 1].Position);
 		}
 		OnDebugFire();
@@ -156,13 +156,17 @@ bool AReplayControlledFPSCharacter::CurrentPositionShouldBeCorrected() {
 	if(passedTimeSinceLastCorrection <= PositionCorrectionInterval)
 		return false;
 
-	if(CorrectionRadius < 0)
+	return CurrentPositionIsInRadius(CorrectionRadius);
+}
+
+bool AReplayControlledFPSCharacter::CurrentPositionIsInRadius(float radius) {
+	if(radius < 0)
 		return true;
 
 	FVector actualPosition = GetTransform().GetLocation();
 	FVector correctPosition = recordData[replayIndex - 1].Position;
 
-	return FVector::Dist(actualPosition, correctPosition) <= CorrectionRadius;
+	return FVector::Dist(actualPosition, correctPosition) <= radius;
 }
 
 void AReplayControlledFPSCharacter::DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected) {
