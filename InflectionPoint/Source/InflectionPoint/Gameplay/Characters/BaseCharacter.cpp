@@ -114,6 +114,14 @@ bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflection
 }
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
+	float yaw = GetCapsuleComponent()->GetComponentRotation().Yaw;
+	float pitch = FirstPersonCameraComponent->GetComponentRotation().Pitch;
+	FVector pos = GetTransform().GetLocation();
+
+	UE_LOG(LogTemp, Warning, TEXT("SPAWN SCHUSS The value of 'yaw' is: %f"), yaw);
+	UE_LOG(LogTemp, Warning, TEXT("SPAWN SCHUSS The value of 'pitch' is: %f"), pitch);
+	UE_LOG(LogTemp, Warning, TEXT("SPAWN SCHUSS The value of 'pos' is: %s"), *(pos.ToString()));
+
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();
@@ -125,7 +133,8 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 			ActorSpawnParams.Owner = this;
 
 			// spawn the projectile at the muzzle
-			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, spawnLocation, spawnRotation, ActorSpawnParams);
+			//AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, spawnLocation, spawnRotation, ActorSpawnParams);
+			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
 
 			//GetCapsuleComponent()->IgnoreActorWhenMoving(projectile, true);
 

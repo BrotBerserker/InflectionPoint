@@ -43,7 +43,7 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 		CorrectPosition(recordData[replayIndex - 1].Position);
 
 	// Draw debug sphere
-	if(CreateDebugCorrectionSpheres) 
+	if(CreateDebugCorrectionSpheres)
 		DrawDebugSphereAtCurrentPosition(correctPosition);
 
 	UpdatePressedKeys();
@@ -63,7 +63,7 @@ void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
 		if(replayIndex != 0) { // Update Rotation (-1 because unreal ^^)
 			ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
-			ApplyPitch(recordData[replayIndex].CameraPitch);
+			ApplyPitch(recordData[replayIndex - 1].CameraPitch);
 		}
 		auto recordDataStep = recordData[replayIndex];
 		UpdatePressedKeys(recordDataStep);

@@ -51,6 +51,10 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	FVector pos = owner->GetTransform().GetLocation();
 	float yaw = owner->GetCapsuleComponent()->GetComponentRotation().Yaw;
 	float pitch = owner->FirstPersonCameraComponent->GetComponentRotation().Pitch;
+	//UE_LOG(LogTemp, Warning, TEXT("The value of 'yaw' is: %f"), yaw);
+	//UE_LOG(LogTemp, Warning, TEXT("The value of 'pitch' is: %f"), pitch);
+	//UE_LOG(LogTemp, Warning, TEXT("The value of 'pos' is: %s"), *(pos.ToString()));
+
 
 	// Push recorded data into queue
 	recordedPlayerStateQueue.Push(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
