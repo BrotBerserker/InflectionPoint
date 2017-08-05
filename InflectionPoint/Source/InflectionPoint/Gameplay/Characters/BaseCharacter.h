@@ -84,6 +84,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		float RotationOffsetTolerance = -1;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		bool DrawDebugArrows = false;
 
 public:
 	/* ------------- */
@@ -136,7 +138,7 @@ public:
 
 	/** Fires the given projectile on the Server*/
 	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation);
+		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn);
 
 	/** Notifies Clients about projectile fired */
 	UFUNCTION(Unreliable, NetMulticast)

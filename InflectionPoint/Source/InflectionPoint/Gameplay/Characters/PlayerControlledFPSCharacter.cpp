@@ -57,13 +57,13 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->SetReplayData(PlayerStateRecorder->RecordedPlayerStates);
-	newPlayer->DerPlayerController = Cast<APlayerController>(GetController());
+	newPlayer->OwningPlayerController = Cast<APlayerController>(GetController());
 	newPlayer->StartReplay();
 }
 
 void APlayerControlledFPSCharacter::DEBUG_StartRecording() {
 	DEBUG_ServerSavePosition();
-	PlayerStateRecorder->StartRecording();
+	PlayerStateRecorder->ServerStartRecording();
 }
 
 bool APlayerControlledFPSCharacter::DEBUG_ServerSavePosition_Validate() {
@@ -76,7 +76,7 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSavePosition_Implementation() {
 }
 
 void APlayerControlledFPSCharacter::ClientStartRecording_Implementation() {
-	PlayerStateRecorder->StartRecording();
+	PlayerStateRecorder->ServerStartRecording();
 }
 
 void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ignore) {

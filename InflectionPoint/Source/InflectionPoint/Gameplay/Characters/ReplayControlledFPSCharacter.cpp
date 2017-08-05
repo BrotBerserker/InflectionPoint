@@ -38,13 +38,13 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 	passedTimeSinceLastCorrection += deltaTime;
 
 	// Correct position 
-	bool correctPosition = CurrentPositionShouldBeCorrected();
-	if(correctPosition)
+	bool shouldCorrectPosition = CurrentPositionShouldBeCorrected();
+	if(shouldCorrectPosition)
 		CorrectPosition(recordData[replayIndex - 1].Position);
 
 	// Draw debug sphere
 	if(CreateDebugCorrectionSpheres)
-		DrawDebugSphereAtCurrentPosition(correctPosition);
+		DrawDebugSphereAtCurrentPosition(shouldCorrectPosition);
 
 	UpdatePressedKeys();
 
@@ -61,17 +61,23 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 	// iterate through all record data since last tick until now
 	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
-		if(replayIndex != 0) { // Update Rotation (-1 because unreal ^^)
-			ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
-			if(DerPlayerController->IsLocalPlayerController()) {
-				ApplyPitch(recordData[replayIndex].CameraPitch);
-			} else {
-				ApplyPitch(recordData[replayIndex - 1].CameraPitch);
-			}
-		}
+		UpdateRotation();
 		auto recordDataStep = recordData[replayIndex];
 		UpdatePressedKeys(recordDataStep);
 		UpdateReleasedKeys(recordDataStep);
+	}
+}
+
+void AReplayControlledFPSCharacter::UpdateRotation() {
+	if(replayIndex == 0) {
+		return;
+	}
+	// Update Rotation (-1 because unreal ^^)
+	ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
+	if(OwningPlayerController->IsLocalPlayerController()) {
+		ApplyPitch(recordData[replayIndex].CameraPitch);
+	} else {
+		ApplyPitch(recordData[replayIndex - 1].CameraPitch);
 	}
 }
 
@@ -99,12 +105,12 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
 	} else if(key == "Fire") {
-		if(replayIndex > 0 && CurrentPositionIsInRadius(5)) {
+		if(replayIndex > 0 && CurrentPositionIsInCorrectionRadius(5)) {
 			CorrectPosition(recordData[replayIndex - 1].Position);
 		}
 		OnFire();
 	} else if(key == "DEBUG_Fire") {
-		if(replayIndex > 0 && CurrentPositionIsInRadius(5)) {
+		if(replayIndex > 0 && CurrentPositionIsInCorrectionRadius(5)) {
 			CorrectPosition(recordData[replayIndex - 1].Position);
 		}
 		OnDebugFire();
@@ -156,10 +162,10 @@ bool AReplayControlledFPSCharacter::CurrentPositionShouldBeCorrected() {
 	if(passedTimeSinceLastCorrection <= PositionCorrectionInterval)
 		return false;
 
-	return CurrentPositionIsInRadius(CorrectionRadius);
+	return CurrentPositionIsInCorrectionRadius(CorrectionRadius);
 }
 
-bool AReplayControlledFPSCharacter::CurrentPositionIsInRadius(float radius) {
+bool AReplayControlledFPSCharacter::CurrentPositionIsInCorrectionRadius(float radius) {
 	if(radius < 0)
 		return true;
 

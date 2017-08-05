@@ -85,7 +85,8 @@ public:
 	UFUNCTION()
 		void ApplyPitch(float value);
 
-	APlayerController* DerPlayerController;
+public:
+	APlayerController* OwningPlayerController;
 
 private:
 
@@ -98,6 +99,8 @@ private:
 
 	void UpdatePressedKeys();
 
+	void UpdateRotation();
+
 	void UpdatePressedKeys(FRecordedPlayerState &recordDataStep);
 
 	void UpdateReleasedKeys(FRecordedPlayerState &recordDataStep);
@@ -106,7 +109,7 @@ private:
 
 	bool CurrentPositionShouldBeCorrected();
 
-	bool CurrentPositionIsInRadius(float radius);
+	bool CurrentPositionIsInCorrectionRadius(float radius);
 
 	void DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected);
 };

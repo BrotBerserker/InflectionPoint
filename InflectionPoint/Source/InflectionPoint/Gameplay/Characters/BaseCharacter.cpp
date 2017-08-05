@@ -89,43 +89,29 @@ void ABaseCharacter::BeginPlay() {
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	//MortalityProvider->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 	MortalityProvider->TakeDamage(ActualDamage);
 	return ActualDamage;
 }
 
 void ABaseCharacter::OnFire() {
-	ServerFireProjectile(ProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation());
+	ServerFireProjectile(ProjectileClass);
 }
 
 void ABaseCharacter::OnDebugFire() {
-	ServerFireProjectile(DebugProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation());
+	ServerFireProjectile(DebugProjectileClass);
 }
 
-bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
-	bool check = true;
-	float locationOffset = (spawnLocation - GetProjectileSpawnLocation()).Size();
-	if(LocationOffsetTolerance >= 0)
-		check = check && locationOffset < LocationOffsetTolerance;
-	float rotationOffset = (spawnRotation.Vector() - GetProjectileSpawnRotation().Vector()).Size();
-	if(RotationOffsetTolerance >= 0)
-		check = check && rotationOffset < RotationOffsetTolerance;
-	return check;
+bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
+	return true;
 }
 
-void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
-	float yaw = GetCapsuleComponent()->GetComponentRotation().Yaw;
-	float pitch = FirstPersonCameraComponent->GetComponentRotation().Pitch;
-	FVector pos = GetTransform().GetLocation();
+void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
+	if(DrawDebugArrows) {
+		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
+		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
 
-	UE_LOG(LogTemp, Warning, TEXT("SPAWN SCHUSS The value of 'yaw' is: %f"), yaw);
-	UE_LOG(LogTemp, Warning, TEXT("SPAWN SCHUSS The value of 'pitch' is: %f"), pitch);
-	UE_LOG(LogTemp, Warning, TEXT("SPAWN SCHUSS The value of 'pos' is: %s"), *(pos.ToString()));
-
-	FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
-	FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
-
-	DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, 15, FColor::Orange, true, -1, 0, 0.5f);
+		DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, 15, FColor::Orange, true, -1, 0, 0.5f);
+	}
 
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
@@ -138,10 +124,7 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 			ActorSpawnParams.Owner = this;
 
 			// spawn the projectile at the muzzle
-			//AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, spawnLocation, spawnRotation, ActorSpawnParams);
 			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
-
-			//GetCapsuleComponent()->IgnoreActorWhenMoving(projectile, true);
 
 			MulticastProjectileFired();
 		}

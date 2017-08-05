@@ -6,9 +6,7 @@
 
 // Sets default values for this component's properties
 UPlayerStateRecorder::UPlayerStateRecorder() {
-
 	PrimaryComponentTick.bCanEverTick = true;
-
 }
 
 void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) {
@@ -51,34 +49,8 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	FVector pos = owner->GetTransform().GetLocation();
 	float yaw = owner->GetCapsuleComponent()->GetComponentRotation().Yaw;
 	float pitch = owner->FirstPersonCameraComponent->GetComponentRotation().Pitch;
-	//UE_LOG(LogTemp, Warning, TEXT("The value of 'yaw' is: %f"), yaw);
-	//UE_LOG(LogTemp, Warning, TEXT("The value of 'pitch' is: %f"), pitch);
-	//UE_LOG(LogTemp, Warning, TEXT("The value of 'pos' is: %s"), *(pos.ToString()));
 
-
-	// Push recorded data into queue
-	recordedPlayerStateQueue.Push(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
-
-	// If queue size has reached its limit, send items in the queue to the server and flush the queue
-	if(recordedPlayerStateQueue.Num() > MaxQueueEntries) {
-		for(int i = 0; i < recordedPlayerStateQueue.Num(); i++) {
-			auto item = recordedPlayerStateQueue[i];
-			ServerRecordPlayerState(item.Timestamp, item.Position, item.CapsuleYaw, item.CameraPitch, item.PressedKeys);
-		}
-		recordedPlayerStateQueue.Reset();
-	}
-}
-
-bool UPlayerStateRecorder::ServerRecordPlayerState_Validate(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys) {
-	return true;
-}
-
-void UPlayerStateRecorder::ServerRecordPlayerState_Implementation(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys) {
-	RecordedPlayerStates.Add(FRecordedPlayerState(Timestamp, Position, CapsuleYaw, CameraPitch, PressedKeys));
-}
-
-void UPlayerStateRecorder::StartRecording() {
-	ServerStartRecording();
+	RecordedPlayerStates.Add(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
 }
 
 bool UPlayerStateRecorder::ServerStartRecording_Validate() {
@@ -86,8 +58,6 @@ bool UPlayerStateRecorder::ServerStartRecording_Validate() {
 }
 
 void UPlayerStateRecorder::ServerStartRecording_Implementation() {
-	UE_LOG(LogTemp, Warning, TEXT("server start recording"));
-
 	ServerResetRecordedPlayerStates();
 	recordedPlayerStateQueue.Empty();
 	passedTime = 0.f;
