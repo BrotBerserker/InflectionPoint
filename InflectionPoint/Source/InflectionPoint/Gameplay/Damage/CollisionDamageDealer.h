@@ -10,8 +10,8 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UCollisionDamageDealer : public UActorComponent {
 	GENERATED_BODY()
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDamageHitDelegate, float, damage, FVector, NormalImpulse, const FHitResult&, Hit);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHarmlessHitDelegate, FVector, NormalImpulse, const FHitResult&, Hit);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageHitDelegate, float, damage, const FHitResult&, Hit);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHarmlessHitDelegate, const FHitResult&, Hit);
 
 public:
 	/* ---------------------- */
@@ -55,7 +55,7 @@ public:
 
 	/** Responsible for dealing damage when hitting another actor */
 	UFUNCTION()
-		void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+		void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	/** Fired when this projectile hit another actor and dealt damage to it */
 	UPROPERTY(BlueprintAssignable)
