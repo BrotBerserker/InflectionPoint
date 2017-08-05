@@ -111,7 +111,10 @@ private:
 
 	void RecordMoveRight(float val);
 
+
 public:
+	void RecordKeyPressed(const FString &key);
+	void RecordKeyReleased(const FString &key);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerRecordKeyPressed(const FString &key);

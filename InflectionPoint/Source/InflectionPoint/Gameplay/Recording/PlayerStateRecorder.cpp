@@ -71,6 +71,10 @@ bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString &key) {
 }
 
 void UPlayerStateRecorder::ServerRecordKeyPressed_Implementation(const FString &key) {
+	RecordKeyPressed(key);
+}
+
+void UPlayerStateRecorder::RecordKeyPressed(const FString &key) {
 	pressedKeys.Add(key);
 }
 
@@ -79,6 +83,10 @@ bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString &key) 
 }
 
 void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString &key) {
+	RecordKeyReleased(key);
+}
+
+void UPlayerStateRecorder::RecordKeyReleased(const FString &key) {
 	pressedKeys.Remove(key);
 }
 

@@ -102,9 +102,9 @@ void APlayerControlledFPSCharacter::FireProjectile(TSubclassOf<AInflectionPointP
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
 	if(projectileClassToSpawn == ProjectileClass) {
-		recorder->ServerRecordKeyPressed("Fire");
+		recorder->RecordKeyPressed("Fire");
 	} else if(projectileClassToSpawn == DebugProjectileClass) {
-		recorder->ServerRecordKeyPressed("DEBUG_Fire");
+		recorder->RecordKeyPressed("DEBUG_Fire");
 	}
 	Super::FireProjectile(projectileClassToSpawn);
 }
@@ -113,7 +113,7 @@ void APlayerControlledFPSCharacter::StopFire() {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	recorder->ServerRecordKeyReleased("Fire");
-	recorder->ServerRecordKeyReleased("DEBUG_Fire");
+	recorder->RecordKeyReleased("Fire");
+	recorder->RecordKeyReleased("DEBUG_Fire");
 	Super::StopFire();
 }

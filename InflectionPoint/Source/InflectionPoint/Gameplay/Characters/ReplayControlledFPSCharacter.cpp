@@ -105,12 +105,12 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
 	} else if(key == "Fire") {
-		if(replayIndex > 0 && CurrentPositionIsInCorrectionRadius(5)) {
+		if(replayIndex > 0 && CurrentPositionIsInCorrectionRadius(15)) {
 			CorrectPosition(recordData[replayIndex - 1].Position);
 		}
 		OnFire();
 	} else if(key == "DEBUG_Fire") {
-		if(replayIndex > 0 && CurrentPositionIsInCorrectionRadius(5)) {
+		if(replayIndex > 0 && CurrentPositionIsInCorrectionRadius(15)) {
 			CorrectPosition(recordData[replayIndex - 1].Position);
 		}
 		OnDebugFire();
