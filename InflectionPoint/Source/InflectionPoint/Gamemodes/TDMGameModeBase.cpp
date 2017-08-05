@@ -156,8 +156,7 @@ void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharact
 void ATDMGameModeBase::UpdateCountdown(APlayerControlledFPSCharacter* character, int number) {
 	character->ClientShowCountdownNumber(number);
 	if(number == 0) {
-		// Server->Client->Server because the server cannot access the PlayerStateRecorder directly
-		character->ClientStartRecording();
+		character->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
 		character->ClientSetIgnoreInput(false);
 	}
 }

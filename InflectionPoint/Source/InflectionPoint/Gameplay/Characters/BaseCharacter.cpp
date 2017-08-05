@@ -8,6 +8,7 @@
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
 #include "Gameplay/Damage/MortalityProvider.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Utils/CheckFunctions.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
@@ -101,18 +102,29 @@ void ABaseCharacter::OnDebugFire() {
 	ServerFireProjectile(DebugProjectileClass);
 }
 
+void ABaseCharacter::OnStopFire() {
+	ServerStopFire();
+}
+
 bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
 	return true;
 }
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
-	if(DrawDebugArrows) {
-		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
-		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
+	DrawDebugArrow();
 
-		DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, 15, FColor::Orange, true, -1, 0, 0.5f);
-	}
+	FireProjectile(projectileClassToSpawn);
+}
 
+bool ABaseCharacter::ServerStopFire_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStopFire_Implementation() {
+	StopFire();
+}
+
+void ABaseCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();
@@ -128,6 +140,20 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 
 			MulticastProjectileFired();
 		}
+	}
+}
+
+void ABaseCharacter::StopFire() {
+	// do nothing
+}
+
+void ABaseCharacter::DrawDebugArrow() {
+	if(DrawDebugArrows) {
+		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
+		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
+
+		//DebugArrowColor.B
+		DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, DebugArrowColor.B, DebugArrowColor, true, -1, 0, 0.5f);
 	}
 }
 

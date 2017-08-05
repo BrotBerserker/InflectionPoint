@@ -13,12 +13,6 @@ void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) 
 	inputComponent->BindAction("Jump", IE_Pressed, this, &UPlayerStateRecorder::RecordStartJump);
 	inputComponent->BindAction("Jump", IE_Released, this, &UPlayerStateRecorder::RecordStopJump);
 
-	inputComponent->BindAction("Fire", IE_Pressed, this, &UPlayerStateRecorder::RecordStartFire);
-	inputComponent->BindAction("Fire", IE_Released, this, &UPlayerStateRecorder::RecordStopFire);
-
-	inputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &UPlayerStateRecorder::RecordStartDebugFire);
-	inputComponent->BindAction("DEBUG_Fire", IE_Released, this, &UPlayerStateRecorder::RecordStopDebugFire);
-
 	inputComponent->BindAxis("MoveForward", this, &UPlayerStateRecorder::RecordMoveForward);
 	inputComponent->BindAxis("MoveRight", this, &UPlayerStateRecorder::RecordMoveRight);
 }
@@ -135,20 +129,3 @@ void UPlayerStateRecorder::RecordStartJump() {
 void UPlayerStateRecorder::RecordStopJump() {
 	ServerRecordKeyReleased("Jump");
 }
-
-void UPlayerStateRecorder::RecordStartFire() {
-	ServerRecordKeyPressed("Fire");
-}
-
-void UPlayerStateRecorder::RecordStopFire() {
-	ServerRecordKeyReleased("Fire");
-}
-
-void UPlayerStateRecorder::RecordStartDebugFire() {
-	ServerRecordKeyPressed("DEBUG_Fire");
-}
-
-void UPlayerStateRecorder::RecordStopDebugFire() {
-	ServerRecordKeyReleased("DEBUG_Fire");
-}
-

@@ -107,17 +107,11 @@ private:
 
 	void RecordStopJump();
 
-	void RecordStartFire();
-
-	void RecordStopFire();
-
-	void RecordStartDebugFire();
-
-	void RecordStopDebugFire();
-
 	void RecordMoveForward(float val);
 
 	void RecordMoveRight(float val);
+
+public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerRecordKeyPressed(const FString &key);
