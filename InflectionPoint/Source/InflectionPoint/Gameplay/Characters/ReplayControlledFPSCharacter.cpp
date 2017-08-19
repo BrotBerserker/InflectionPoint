@@ -105,14 +105,8 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
 	} else if(key == "Fire") {
-		if(replayIndex > 0 && CurrentPositionIsInCorrectionRadius(15)) {
-			CorrectPosition(recordData[replayIndex - 1].Position);
-		}
 		OnFire();
 	} else if(key == "DEBUG_Fire") {
-		if(replayIndex > 0 && CurrentPositionIsInCorrectionRadius(15)) {
-			CorrectPosition(recordData[replayIndex - 1].Position);
-		}
 		OnDebugFire();
 	}
 }
@@ -156,13 +150,7 @@ bool AReplayControlledFPSCharacter::CurrentPositionShouldBeCorrected() {
 	if(replayIndex == 0)
 		return false;
 
-	if(PositionCorrectionInterval < 0)
-		return false;
-
-	if(passedTimeSinceLastCorrection <= PositionCorrectionInterval)
-		return false;
-
-	return CurrentPositionIsInCorrectionRadius(CorrectionRadius);
+	return CorrectPositions;
 }
 
 bool AReplayControlledFPSCharacter::CurrentPositionIsInCorrectionRadius(float radius) {

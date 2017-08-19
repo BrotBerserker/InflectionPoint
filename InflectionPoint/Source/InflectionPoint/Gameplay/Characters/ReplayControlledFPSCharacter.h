@@ -86,6 +86,10 @@ public:
 		void ApplyPitch(float value);
 
 public:
+
+	UPROPERTY(BlueprintReadWrite)
+		bool CorrectPositions = true;
+
 	APlayerController* OwningPlayerController;
 
 private:
