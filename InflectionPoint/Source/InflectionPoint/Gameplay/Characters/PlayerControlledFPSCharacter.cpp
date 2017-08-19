@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "PlayerControlledFPSCharacter.h"
 #include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
+#include "Gameplay/Weapons/InflectionPointProjectile.h"
 #include "Utils/CheckFunctions.h"
 
 
@@ -18,6 +19,9 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::OnFire);
 	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &ABaseCharacter::OnDebugFire);
+
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::OnStopFire);
+	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Released, this, &ABaseCharacter::OnStopFire);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
@@ -57,12 +61,13 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->SetReplayData(PlayerStateRecorder->RecordedPlayerStates);
+	newPlayer->OwningPlayerController = Cast<APlayerController>(GetController());
 	newPlayer->StartReplay();
 }
 
 void APlayerControlledFPSCharacter::DEBUG_StartRecording() {
 	DEBUG_ServerSavePosition();
-	PlayerStateRecorder->StartRecording();
+	PlayerStateRecorder->ServerStartRecording();
 }
 
 bool APlayerControlledFPSCharacter::DEBUG_ServerSavePosition_Validate() {
@@ -75,7 +80,7 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSavePosition_Implementation() {
 }
 
 void APlayerControlledFPSCharacter::ClientStartRecording_Implementation() {
-	PlayerStateRecorder->StartRecording();
+	PlayerStateRecorder->ServerStartRecording();
 }
 
 void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ignore) {
@@ -90,4 +95,25 @@ void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ign
 
 void APlayerControlledFPSCharacter::ClientShowCountdownNumber_Implementation(int number) {
 	OnCountdownUpdate(number);
+}
+
+void APlayerControlledFPSCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
+	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
+	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
+
+	if(projectileClassToSpawn == ProjectileClass) {
+		recorder->RecordKeyPressed("Fire");
+	} else if(projectileClassToSpawn == DebugProjectileClass) {
+		recorder->RecordKeyPressed("DEBUG_Fire");
+	}
+	Super::FireProjectile(projectileClassToSpawn);
+}
+
+void APlayerControlledFPSCharacter::StopFire() {
+	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
+	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
+
+	recorder->RecordKeyReleased("Fire");
+	recorder->RecordKeyReleased("DEBUG_Fire");
+	Super::StopFire();
 }

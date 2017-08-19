@@ -76,14 +76,21 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 		TArray<UAnimationAsset*> DeathAnimations;
 
-	/* Max distance between client side and server side locations during RPC validation*/
+	/* Max distance between client side and server side locations during RPC validation */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		float LocationOffsetTolerance = 5.;
 
-	/* Max differnce between client side and server side rotations during RPC validation*/
+	/* Max differnce between client side and server side rotations during RPC validation */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		float RotationOffsetTolerance = -1;
 
+	/* Draw arrows when shots are fired */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		bool DrawDebugArrows = false;
+
+	/* Debug arrow color */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		FColor DebugArrowColor;
 
 public:
 	/* ------------- */
@@ -104,6 +111,9 @@ public:
 
 	/** Fires a debug projectile. */
 	void OnDebugFire();
+
+	/** Stops firing. */
+	void OnStopFire();
 
 	/** Handles moving forward/backward */
 	void MoveForward(float val);
@@ -129,14 +139,27 @@ public:
 	/** Returns the rotation with which a projectile should spawn */
 	FRotator GetProjectileSpawnRotation();
 
+	/** Draws an arrow indicating the current position and camera direction */
+	void DrawDebugArrow();
+
+	/** Fires the given projectile */
+	virtual void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn);
+
+	/** Stops firing */
+	virtual void StopFire();
+
 public:
 	/* --------------- */
 	/*  RPC Functions  */
 	/* --------------- */
 
-	/** Fires the given projectile on the Server*/
+	/** Fires the given projectile on the Server */
 	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation);
+		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn);
+
+	/** Stops firing on the Server */
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerStopFire();
 
 	/** Notifies Clients about projectile fired */
 	UFUNCTION(Unreliable, NetMulticast)

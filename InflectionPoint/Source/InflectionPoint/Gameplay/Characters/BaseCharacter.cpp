@@ -8,6 +8,7 @@
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
 #include "Gameplay/Damage/MortalityProvider.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Utils/CheckFunctions.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
@@ -89,31 +90,41 @@ void ABaseCharacter::BeginPlay() {
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
 	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	//MortalityProvider->TakeDamage(ActualDamage, DamageEvent, EventInstigator, DamageCauser);
 	MortalityProvider->TakeDamage(ActualDamage);
 	return ActualDamage;
 }
 
 void ABaseCharacter::OnFire() {
-	ServerFireProjectile(ProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation());
+	ServerFireProjectile(ProjectileClass);
 }
 
 void ABaseCharacter::OnDebugFire() {
-	ServerFireProjectile(DebugProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation());
+	ServerFireProjectile(DebugProjectileClass);
 }
 
-bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
-	bool check = true;
-	float locationOffset = (spawnLocation - GetProjectileSpawnLocation()).Size();
-	if(LocationOffsetTolerance >= 0)
-		check = check && locationOffset < LocationOffsetTolerance;
-	float rotationOffset = (spawnRotation.Vector() - GetProjectileSpawnRotation().Vector()).Size();
-	if(RotationOffsetTolerance >= 0)
-		check = check && rotationOffset < RotationOffsetTolerance;
-	return check;
+void ABaseCharacter::OnStopFire() {
+	ServerStopFire();
 }
 
-void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn, const FVector spawnLocation, const FRotator spawnRotation) {
+bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
+	return true;
+}
+
+void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
+	DrawDebugArrow();
+
+	FireProjectile(projectileClassToSpawn);
+}
+
+bool ABaseCharacter::ServerStopFire_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStopFire_Implementation() {
+	StopFire();
+}
+
+void ABaseCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
 	// try and fire a projectile
 	if(projectileClassToSpawn != NULL) {
 		UWorld* const World = GetWorld();
@@ -125,12 +136,24 @@ void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInfl
 			ActorSpawnParams.Owner = this;
 
 			// spawn the projectile at the muzzle
-			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, spawnLocation, spawnRotation, ActorSpawnParams);
-
-			//GetCapsuleComponent()->IgnoreActorWhenMoving(projectile, true);
+			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
 
 			MulticastProjectileFired();
 		}
+	}
+}
+
+void ABaseCharacter::StopFire() {
+	// do nothing
+}
+
+void ABaseCharacter::DrawDebugArrow() {
+	if(DrawDebugArrows) {
+		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
+		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
+
+		//DebugArrowColor.B
+		DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, DebugArrowColor.B, DebugArrowColor, true, -1, 0, 0.5f);
 	}
 }
 
@@ -215,11 +238,15 @@ bool ABaseCharacter::ServerUpdateCameraPitch_Validate(float pitch) {
 void ABaseCharacter::ServerUpdateCameraPitch_Implementation(float pitch) {
 	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
 	currentRot.Pitch = pitch;
-	FirstPersonCameraComponent->SetWorldRotation(currentRot);
+	currentRot.Roll = 0;
+	currentRot.Yaw = 0;
+	FirstPersonCameraComponent->SetRelativeRotation(currentRot);
 }
 
 void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {
 	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
 	currentRot.Pitch = pitch;
-	FirstPersonCameraComponent->SetWorldRotation(currentRot);
+	currentRot.Roll = 0;
+	currentRot.Yaw = 0;
+	FirstPersonCameraComponent->SetRelativeRotation(currentRot);
 }

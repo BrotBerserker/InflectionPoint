@@ -73,15 +73,12 @@ public:
 	void InitializeBindings(UInputComponent * inputComponent);
 
 	/** Starts recording */
-	void StartRecording();
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerStartRecording();
 
 	/** Resets the list of recorded PlayerStates */
 	UFUNCTION(Unreliable, Server, WithValidation)
 		void ServerResetRecordedPlayerStates();
-
-	/** Creates a RecordedPlayerState from the given parameters and adds it to the list of recorded player states */
-	UFUNCTION(Unreliable, Server, WithValidation)
-		void ServerRecordPlayerState(float Timestamp, FVector Position, float CapsuleYaw, float CameraPitch, const TArray<FString>& PressedKeys);
 
 public:
 	/* -------------- */
@@ -110,20 +107,19 @@ private:
 
 	void RecordStopJump();
 
-	void RecordStartFire();
-
-	void RecordStopFire();
-
-	void RecordStartDebugFire();
-
-	void RecordStopDebugFire();
-
 	void RecordMoveForward(float val);
 
 	void RecordMoveRight(float val);
 
-	void RecordKeyPressed(FString key);
 
-	void RecordKeyReleased(FString key);
+public:
+	void RecordKeyPressed(const FString &key);
+	void RecordKeyReleased(const FString &key);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerRecordKeyPressed(const FString &key);
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerRecordKeyReleased(const FString &key);
 
 };

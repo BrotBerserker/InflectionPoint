@@ -38,13 +38,13 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 	passedTimeSinceLastCorrection += deltaTime;
 
 	// Correct position 
-	bool correctPosition = CurrentPositionShouldBeCorrected();
-	if(correctPosition)
+	bool shouldCorrectPosition = CurrentPositionShouldBeCorrected();
+	if(shouldCorrectPosition)
 		CorrectPosition(recordData[replayIndex - 1].Position);
 
 	// Draw debug sphere
-	if(CreateDebugCorrectionSpheres) 
-		DrawDebugSphereAtCurrentPosition(correctPosition);
+	if(CreateDebugCorrectionSpheres)
+		DrawDebugSphereAtCurrentPosition(shouldCorrectPosition);
 
 	UpdatePressedKeys();
 
@@ -61,13 +61,23 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 	// iterate through all record data since last tick until now
 	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
-		if(replayIndex != 0) { // Update Rotation (-1 because unreal ^^)
-			ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
-			ApplyPitch(recordData[replayIndex].CameraPitch);
-		}
+		UpdateRotation();
 		auto recordDataStep = recordData[replayIndex];
 		UpdatePressedKeys(recordDataStep);
 		UpdateReleasedKeys(recordDataStep);
+	}
+}
+
+void AReplayControlledFPSCharacter::UpdateRotation() {
+	if(replayIndex == 0) {
+		return;
+	}
+	// Update Rotation (-1 because unreal ^^)
+	ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
+	if(OwningPlayerController->IsLocalPlayerController()) {
+		ApplyPitch(recordData[replayIndex].CameraPitch);
+	} else {
+		ApplyPitch(recordData[replayIndex - 1].CameraPitch);
 	}
 }
 
@@ -140,19 +150,17 @@ bool AReplayControlledFPSCharacter::CurrentPositionShouldBeCorrected() {
 	if(replayIndex == 0)
 		return false;
 
-	if(PositionCorrectionInterval < 0)
-		return false;
+	return CorrectPositions;
+}
 
-	if(passedTimeSinceLastCorrection <= PositionCorrectionInterval)
-		return false;
-
-	if(CorrectionRadius < 0)
+bool AReplayControlledFPSCharacter::CurrentPositionIsInCorrectionRadius(float radius) {
+	if(radius < 0)
 		return true;
 
 	FVector actualPosition = GetTransform().GetLocation();
 	FVector correctPosition = recordData[replayIndex - 1].Position;
 
-	return FVector::Dist(actualPosition, correctPosition) <= CorrectionRadius;
+	return FVector::Dist(actualPosition, correctPosition) <= radius;
 }
 
 void AReplayControlledFPSCharacter::DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected) {

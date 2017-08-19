@@ -85,7 +85,15 @@ public:
 	UFUNCTION()
 		void ApplyPitch(float value);
 
+public:
+
+	UPROPERTY(BlueprintReadWrite)
+		bool CorrectPositions = true;
+
+	APlayerController* OwningPlayerController;
+
 private:
+
 	TArray<FRecordedPlayerState> recordData;
 	bool isReplaying = false;
 	float passedTime = 0.f;
@@ -95,6 +103,8 @@ private:
 
 	void UpdatePressedKeys();
 
+	void UpdateRotation();
+
 	void UpdatePressedKeys(FRecordedPlayerState &recordDataStep);
 
 	void UpdateReleasedKeys(FRecordedPlayerState &recordDataStep);
@@ -102,6 +112,8 @@ private:
 	void CorrectPosition(FVector correctPosition);
 
 	bool CurrentPositionShouldBeCorrected();
+
+	bool CurrentPositionIsInCorrectionRadius(float radius);
 
 	void DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected);
 };

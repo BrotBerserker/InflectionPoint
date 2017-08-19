@@ -52,4 +52,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnCountdownUpdate(int number);
+
+	void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) override;
+
+	void StopFire() override;
 };

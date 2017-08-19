@@ -139,6 +139,8 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* p
 	// Start Replay on spawned ReplayCharacter
 	if(PlayerRecordings[playerController].Contains(round))
 		character->SetReplayData(PlayerRecordings[playerController][round]);
+
+	character->OwningPlayerController = playerController;
 }
 
 void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharacter) {
@@ -154,7 +156,7 @@ void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharact
 void ATDMGameModeBase::UpdateCountdown(APlayerControlledFPSCharacter* character, int number) {
 	character->ClientShowCountdownNumber(number);
 	if(number == 0) {
-		character->ClientStartRecording();
+		character->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
 		character->ClientSetIgnoreInput(false);
 	}
 }
