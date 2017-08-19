@@ -213,12 +213,12 @@ void ABaseCharacter::MoveRight(float value) {
 
 void ABaseCharacter::TurnAtRate(float rate) {
 	// calculate delta for this frame from the rate information
-	AddControllerYawInput(rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+	AddControllerYawInput(rate);
 }
 
 void ABaseCharacter::LookUpAtRate(float rate) {
 	// calculate delta for this frame from the rate information
-	AddControllerPitchInput(rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+	AddControllerPitchInput(rate);
 	ServerUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
 	MulticastUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
 }
