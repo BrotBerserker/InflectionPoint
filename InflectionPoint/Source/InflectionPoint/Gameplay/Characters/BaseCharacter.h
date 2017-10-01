@@ -85,6 +85,11 @@ public:
 		FColor DebugArrowColor;
 
 public:
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")
+		void OnDirectionalDamageReceived(FVector direction, float damage);
+
+public:
 	/* ------------- */
 	/*   Functions   */
 	/* ------------- */

@@ -55,5 +55,6 @@ public:
 
 	void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) override;
 
+
 	void StopFire() override;
 };
