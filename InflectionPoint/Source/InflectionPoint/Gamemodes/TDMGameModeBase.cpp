@@ -15,14 +15,13 @@ ATDMGameModeBase::ATDMGameModeBase()
 	: Super() {
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Characters/PlayerCharacter"));
+	static ConstructorHelpers::FClassFinder<ATDMGameStateBase> GameStateClassFinder(TEXT("/Game/InflectionPoint/Blueprints/GameModes/TDMGameState"));
+
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
+	GameStateClass = GameStateClassFinder.Class;
 
 	// configure default classes
 	PlayerControllerClass = AInflectionPointPlayerController::StaticClass();
-
-	static ConstructorHelpers::FClassFinder<AGameState> GameStateClassFinder(TEXT("/Game/InflectionPoint/Blueprints/GameModes/TDMGameState"));
-	GameStateClass = GameStateClassFinder.Class;
-
 	PlayerStateClass = ATDMPlayerStateBase::StaticClass();
 }
 
