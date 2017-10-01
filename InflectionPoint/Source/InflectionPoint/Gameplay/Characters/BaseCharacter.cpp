@@ -91,9 +91,11 @@ void ABaseCharacter::BeginPlay() {
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
 	const float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	MortalityProvider->TakeDamage(actualDamage);
-	FVector directionVector = (EventInstigator->GetCharacter()->GetActorLocation() - GetActorLocation());
-	directionVector.Normalize();
-	OnDirectionalDamageReceived(directionVector, actualDamage);
+	if(EventInstigator) {
+		FVector directionVector = (EventInstigator->GetCharacter()->GetActorLocation() - GetActorLocation());
+		directionVector.Normalize();
+		OnDirectionalDamageReceived(directionVector, actualDamage);
+	}
 	return actualDamage;
 }
 
