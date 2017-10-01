@@ -9,6 +9,7 @@
 #include "Gameplay/Controllers/InflectionPointPlayerController.h"
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
 #include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
+#include "Gamemodes/TDMPlayerStateBase.h"
 
 ATDMGameModeBase::ATDMGameModeBase()
 	: Super() {
@@ -18,7 +19,11 @@ ATDMGameModeBase::ATDMGameModeBase()
 
 	// configure default classes
 	PlayerControllerClass = AInflectionPointPlayerController::StaticClass();
-	GameStateClass = ATDMGameState::StaticClass();
+
+	static ConstructorHelpers::FClassFinder<AGameState> GameStateClassFinder(TEXT("/Game/InflectionPoint/Blueprints/GameModes/TDMGameState"));
+	GameStateClass = GameStateClassFinder.Class;
+
+	PlayerStateClass = ATDMPlayerStateBase::StaticClass();
 }
 
 void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
@@ -78,10 +83,12 @@ TArray<int> ATDMGameModeBase::GetTeamsAlive() {
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		auto ipPlayerController = Cast<AInflectionPointPlayerController>(playerController);
-		if(teamsAlive.Contains(ipPlayerController->Team))
+		auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
+
+		if(teamsAlive.Contains(playerState->Team))
 			continue;
 		if(IsPlayerAlive(ipPlayerController))
-			teamsAlive.Add(ipPlayerController->Team);
+			teamsAlive.Add(playerState->Team);
 	}
 	return teamsAlive;
 }
@@ -182,20 +189,19 @@ AActor* ATDMGameModeBase::FindSpawnForPlayer(AInflectionPointPlayerController * 
 }
 
 FString ATDMGameModeBase::GetSpawnTag(AInflectionPointPlayerController*  playerController, int round) {
-	std::string spawnTagCString = std::to_string(playerController->Team) +
-		playerController->PlayerStartGroup +
-		std::to_string(round);
-	FString spawnTag(spawnTagCString.c_str());
+	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
+	FString spawnTag = FString::FromInt(playerState->Team) + playerState->PlayerStartGroup + FString::FromInt(round);
 	return spawnTag;
 }
 
 void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
 	UWorld* world = GetWorld();
-
+	
 	for(auto iterator = world->GetPlayerControllerIterator(); iterator; ++iterator) {
 		AInflectionPointPlayerController* controller = (AInflectionPointPlayerController*)UGameplayStatics::GetPlayerController(world, iterator.GetIndex());
-		controller->Team = iterator.GetIndex() % 2 + 1;
-		controller->PlayerStartGroup = 'A';
+		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
+		playerState->Team = iterator.GetIndex() % 2 + 1;
+		playerState->PlayerStartGroup = TEXT("A");
 	}
 }
 

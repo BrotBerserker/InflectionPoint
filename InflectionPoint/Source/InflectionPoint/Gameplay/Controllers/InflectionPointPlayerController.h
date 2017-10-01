@@ -17,10 +17,4 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientSetControlRotation(FRotator rotation);
 
-public:
-	UPROPERTY(BlueprintReadWrite, Category = "InflectionPoint|Gameplay")
-		int Team;
-
-public:
-	char PlayerStartGroup;
 };

@@ -3,7 +3,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/Controllers/InflectionPointPlayerController.h" 
-#include "Gamemodes/TDMGameState.h" 
+#include "Gamemodes/TDMGameStateBase.h" 
 #include "TDMGameModeBase.generated.h"
 
 UCLASS(minimalapi)
@@ -56,7 +56,7 @@ public:
 		int OfflineMaxPlayers = 2;
 
 public:
-	FORCEINLINE class ATDMGameState* GetGameState() const { return (ATDMGameState*)GameState; };
+	FORCEINLINE class ATDMGameStateBase* GetGameState() const { return (ATDMGameStateBase*)GameState; };
 
 private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;

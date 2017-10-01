@@ -4,20 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameState.h"
-#include "TDMGameState.generated.h"
+#include "TDMGameStateBase.generated.h"
 
 /**
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API ATDMGameState : public AGameStateBase {
+class INFLECTIONPOINT_API ATDMGameStateBase : public AGameStateBase {
 	GENERATED_BODY()
 
 public:
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
 		int CurrentRound = 0;
+
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
 		int MaxRoundNum = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<FColor> TeamColors;
 
 public:
 	/** Needed for replication */

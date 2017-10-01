@@ -12,5 +12,3 @@ AInflectionPointPlayerController::AInflectionPointPlayerController(const FObject
 void AInflectionPointPlayerController::ClientSetControlRotation_Implementation(FRotator rotation) {
 	SetControlRotation(rotation);
 }
-
-
