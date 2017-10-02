@@ -1,7 +1,9 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 #include "GameFramework/Character.h"
+#include "Gamemodes/TDMPlayerStateBase.h"
 #include "BaseCharacter.generated.h"
+
 
 class UInputComponent;
 
@@ -99,6 +101,14 @@ public:
 
 	/** Setup component attachments */
 	virtual void BeginPlay();
+
+	/** Applies the team color to Mesh3P and Mesh1P */
+	UFUNCTION(BlueprintCallable)
+		void ApplyPlayerColor(ATDMPlayerStateBase* state);
+
+	/** Applies the team color to Mesh3P and Mesh1P via Multicast */
+	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
+		void MulticastApplyPlayerColor(ATDMPlayerStateBase* state);
 
 	/** Takes damage using the MortalityProvider */
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;

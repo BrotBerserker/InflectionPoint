@@ -32,6 +32,7 @@ void AReplayControlledFPSCharacter::StopReplay() {
 }
 
 void AReplayControlledFPSCharacter::Tick(float deltaTime) {
+	Super::Tick(deltaTime);
 	if(!isReplaying)
 		return;
 	passedTime += deltaTime;

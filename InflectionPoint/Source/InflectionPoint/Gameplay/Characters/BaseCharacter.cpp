@@ -10,6 +10,8 @@
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Utils/CheckFunctions.h"
+#include "Gamemodes/TDMPlayerStateBase.h"
+#include "Gamemodes/TDMGameStateBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -85,8 +87,22 @@ void ABaseCharacter::BeginPlay() {
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
-
 }
+
+void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
+	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__, TEXT("GameState is null!"));
+
+	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
+	dynamicMaterial->SetVectorParameterValue("BodyColor", gameState->TeamColors[playerState->Team]);
+	Mesh3P->SetMaterial(0, dynamicMaterial);
+	Mesh1P->SetMaterial(0, dynamicMaterial);
+}
+
+void ABaseCharacter::MulticastApplyPlayerColor_Implementation(ATDMPlayerStateBase* playerState) {
+	ApplyPlayerColor(playerState);
+}
+
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
 	const float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
