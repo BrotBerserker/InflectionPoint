@@ -19,8 +19,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void StartMatch();
 
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void PrepareAndStartNextRound();
+	UFUNCTION()
+		void EndCurrentRound();
 
 	UFUNCTION()
 		void StartNextRound();
@@ -47,7 +47,7 @@ public:
 		int CountDownDuration = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float RoundStartDelay = 2.0f;
+		float RoundEndDelay = 2.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		class UClass* ReplayCharacter;
@@ -61,12 +61,10 @@ public:
 private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
 
-	bool IsPreparingNextRound = false;
-
 private:
 	void AssignTeamsAndPlayerStartGroups();
 
-	bool IsRoundFinished();
+	bool IsWinnerFound();
 	TArray<int> GetTeamsAlive();
 	bool IsPlayerAlive(AInflectionPointPlayerController* playerController);
 

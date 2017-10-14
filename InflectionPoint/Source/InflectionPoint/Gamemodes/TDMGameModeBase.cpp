@@ -39,15 +39,12 @@ void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
 void ATDMGameModeBase::StartMatch() {
 	GetGameState()->CurrentRound = 0;
 	AssignTeamsAndPlayerStartGroups();
-	PrepareAndStartNextRound();
+	StartNextRound();
 }
 
-void ATDMGameModeBase::PrepareAndStartNextRound() {
-	IsPreparingNextRound = true;
-
+void ATDMGameModeBase::EndCurrentRound() {
 	SaveRecordingsFromRemainingPlayers();
-
-	StartTimer(this, GetWorld(), "StartNextRound", RoundStartDelay + 0.00001f, false); // 0 does not work o.O
+	StartNextRound();
 }
 
 void ATDMGameModeBase::StartNextRound() {
@@ -57,7 +54,6 @@ void ATDMGameModeBase::StartNextRound() {
 	GetGameState()->CurrentRound = round;
 	ClearMap();
 	SpawnPlayersAndReplays();
-	IsPreparingNextRound = false;
 }
 
 void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerController) {
@@ -66,15 +62,15 @@ void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerContr
 
 	if(GetGameState()->CurrentRound == 0) {
 		SpawnAndPossessPlayer(playerController);
-	} else if(IsRoundFinished() && !IsPreparingNextRound) {
-		PrepareAndStartNextRound();
+	} else if(IsWinnerFound()) {
+		StartTimer(this, GetWorld(), "EndCurrentRound", RoundEndDelay + 0.00001f, false); // 0 does not work o.O
 	} else {
 		// TODO: Set Player as spectator
 	}
 }
 
-bool ATDMGameModeBase::IsRoundFinished() {
-	return (GetTeamsAlive().Num() <= 1);
+bool ATDMGameModeBase::IsWinnerFound() {
+	return (GetTeamsAlive().Num() == 1);
 }
 
 TArray<int> ATDMGameModeBase::GetTeamsAlive() {
