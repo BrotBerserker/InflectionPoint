@@ -115,6 +115,10 @@ void ATDMGameModeBase::SpawnPlayersAndReplays() {
 void ATDMGameModeBase::StartCountdown() {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControlledFPSCharacter::StaticClass(), foundActors);
+	for(auto& character : foundActors) {
+		APlayerControlledFPSCharacter* playerCharacter = Cast<APlayerControlledFPSCharacter>(character);
+		playerCharacter->ClientSetIgnoreInput(true);
+	}
 	for(int i = CountDownDuration; i >= 0; i--) {
 		StartTimer(this, GetWorld(), "UpdateCountdown", (CountDownDuration - i + 1), false, foundActors, i);
 	}
@@ -171,8 +175,6 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* p
 
 	character->OwningPlayerController = playerController;
 }
-
-
 
 void ATDMGameModeBase::StartReplays() {
 	TArray<AActor*> foundActors;
