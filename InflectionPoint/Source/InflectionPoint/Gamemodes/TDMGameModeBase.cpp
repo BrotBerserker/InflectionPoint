@@ -109,6 +109,29 @@ void ATDMGameModeBase::SpawnPlayersAndReplays() {
 		for(int i = 1; i < GetGameState()->CurrentRound; i++)
 			SpawnAndPrepareReplay(ipPlayerController, i);
 	}
+	StartCountdown();
+}
+
+void ATDMGameModeBase::StartCountdown() {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControlledFPSCharacter::StaticClass(), foundActors);
+	for(int i = CountDownDuration; i >= 0; i--) {
+		StartTimer(this, GetWorld(), "UpdateCountdown", (CountDownDuration - i + 1), false, foundActors, i);
+	}
+}
+
+void ATDMGameModeBase::UpdateCountdown(TArray<AActor*> characters, int number) {
+	for(auto& character : characters) {
+		APlayerControlledFPSCharacter* playerCharacter = Cast<APlayerControlledFPSCharacter>(character);
+		playerCharacter->ClientShowCountdownNumber(number);
+		if(number == 0) {
+			playerCharacter->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
+			playerCharacter->ClientSetIgnoreInput(false);
+		}
+	}
+	if(number == 0) {
+		StartReplays();
+	}
 }
 
 template <typename CharacterType>
@@ -132,9 +155,6 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(AInflectionPointPlayerController * 
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
-
-	if(GetGameState()->CurrentRound > 0)
-		StartCountdown(character);
 }
 
 void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* playerController, int round) {
@@ -152,23 +172,7 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* p
 	character->OwningPlayerController = playerController;
 }
 
-void ATDMGameModeBase::StartCountdown(APlayerControlledFPSCharacter * newCharacter) {
-	newCharacter->ClientSetIgnoreInput(true);
 
-	for(int i = CountDownDuration; i >= 0; i--) {
-		StartTimer(this, GetWorld(), "UpdateCountdown", (CountDownDuration - i + 1), false, newCharacter, i);
-	}
-
-	StartTimer(this, GetWorld(), "StartReplays", CountDownDuration + 1, false);
-}
-
-void ATDMGameModeBase::UpdateCountdown(APlayerControlledFPSCharacter* character, int number) {
-	character->ClientShowCountdownNumber(number);
-	if(number == 0) {
-		character->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
-		character->ClientSetIgnoreInput(false);
-	}
-}
 
 void ATDMGameModeBase::StartReplays() {
 	TArray<AActor*> foundActors;
@@ -191,7 +195,7 @@ FString ATDMGameModeBase::GetSpawnTag(AInflectionPointPlayerController*  playerC
 
 void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
 	UWorld* world = GetWorld();
-	
+
 	for(auto iterator = world->GetPlayerControllerIterator(); iterator; ++iterator) {
 		AInflectionPointPlayerController* controller = (AInflectionPointPlayerController*)UGameplayStatics::GetPlayerController(world, iterator.GetIndex());
 		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);

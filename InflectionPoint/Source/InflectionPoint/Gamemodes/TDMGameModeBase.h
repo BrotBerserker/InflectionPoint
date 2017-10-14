@@ -28,10 +28,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void PlayerDied(AInflectionPointPlayerController* playerController);
 
-	void StartCountdown(APlayerControlledFPSCharacter * newCharacter);
+	UFUNCTION()
+		void StartCountdown();
 
 	UFUNCTION()
-		void UpdateCountdown(APlayerControlledFPSCharacter* character, int number);
+		void UpdateCountdown(TArray<AActor*> characters, int number);
 
 	UFUNCTION()
 		void StartReplays();
