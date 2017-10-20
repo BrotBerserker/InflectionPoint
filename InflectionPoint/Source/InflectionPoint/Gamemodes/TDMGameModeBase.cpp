@@ -10,6 +10,7 @@
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
 #include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
+#include "Gamemodes/TDMLevelScriptBase.h"
 
 ATDMGameModeBase::ATDMGameModeBase()
 	: Super() {
@@ -54,6 +55,10 @@ void ATDMGameModeBase::StartNextRound() {
 	GetGameState()->CurrentRound = round;
 	ClearMap();
 	SpawnPlayersAndReplays();
+	StartCountdown();
+	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
+	if(AssertNotNull(levelScript, GetWorld(), __FILE__, __LINE__))
+		levelScript->MulticastStartSpawnCinematic();
 }
 
 void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerController) {
@@ -109,7 +114,6 @@ void ATDMGameModeBase::SpawnPlayersAndReplays() {
 		for(int i = 1; i < GetGameState()->CurrentRound; i++)
 			SpawnAndPrepareReplay(ipPlayerController, i);
 	}
-	StartCountdown();
 }
 
 void ATDMGameModeBase::StartCountdown() {
