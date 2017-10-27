@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/LevelScriptActor.h"
+#include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
 #include "TDMLevelScriptBase.generated.h"
 
 /**
@@ -15,6 +16,13 @@ class INFLECTIONPOINT_API ATDMLevelScriptBase : public ALevelScriptActor {
 public:
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastStartSpawnCinematic();
+
+	/**
+	* Index is the Team number
+	*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
+		TArray<ALevelSequenceActor*> SpawnCinematicLevelSequences;
+
 private:
 	int GetTeam();
 

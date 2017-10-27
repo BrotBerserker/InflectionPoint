@@ -6,7 +6,8 @@ bool AssertNotNull(std::initializer_list<void*> pointers, UWorld* world, FString
 
 bool AssertNotNull(void* pointer, UWorld* world, FString file, int line, FString description = "No description provided");
 
-bool AssertTrue(bool check, UWorld* world, FString file, int line, FString description = "No description provided");
+bool AssertTrue(bool check, UWorld* world, FString file, int line, FString description = "No description provided"); 
+bool SoftAssertTrue(bool check, UWorld* world, FString file, int line, FString description = "No description provided");
 
 //template<typename T>
 //bool AssertCanCast(void* type, UWorld* world, FString file, int line, FString description = "No description provided") {

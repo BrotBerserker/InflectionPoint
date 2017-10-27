@@ -34,6 +34,14 @@ bool AssertTrue(bool check, UWorld* world, FString file, int line, FString descr
 	return false;
 }
 
+bool SoftAssertTrue(bool check, UWorld* world, FString file, int line, FString description) {
+	if(check)
+		return true;
+	UE_LOG(LogTemp, Error, TEXT("Failed SoftAssert in file: %s at line: %d [%s]"), *file, line, *description);
+	GEngine->AddOnScreenDebugMessage(-1, 15, FColor::Orange, FString::Printf(TEXT("SoftAssert failed! [%s]"), *description));
+	return false;
+}
+
 CheckFunctions::CheckFunctions() {}
 
 CheckFunctions::~CheckFunctions() {}

@@ -8,21 +8,14 @@
 
 
 void ATDMLevelScriptBase::MulticastStartSpawnCinematic_Implementation() {
-	auto searchTag = FString("CinematicSpawn");
-	searchTag.AppendInt(GetTeam());
-	UE_LOG(LogTemp, Warning, TEXT("Searching for team [%s]"), *(searchTag));
-	for(TActorIterator<ALevelSequenceActor> ActorItr(GetWorld()); ActorItr; ++ActorItr) {
-		// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-		ALevelSequenceActor *sequence = *ActorItr;
-		AssertNotNull(sequence, GetWorld(), __FILE__, __LINE__);
-		if(sequence->ActorHasTag(FName(*searchTag))) {
-			UE_LOG(LogTemp, Warning, TEXT("play cinematic"));
-			AssertNotNull(sequence->SequencePlayer, GetWorld(), __FILE__, __LINE__);
-			sequence->SequencePlayer->SetPlaybackPosition(0);
-			sequence->SequencePlayer->Play();
-		}
+	if(!SoftAssertTrue(SpawnCinematicLevelSequences.Num() > GetTeam(), GetWorld(), __FILE__, __LINE__, "No matching SpawnSequence found in the LevelScript")) {
+		return;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("done for team [%s]"), *(searchTag));
+	ALevelSequenceActor *sequence = SpawnCinematicLevelSequences[GetTeam()];
+	AssertNotNull(sequence, GetWorld(), __FILE__, __LINE__);
+	AssertNotNull(sequence->SequencePlayer, GetWorld(), __FILE__, __LINE__);
+	sequence->SequencePlayer->SetPlaybackPosition(0);
+	sequence->SequencePlayer->Play();
 }
 
 int ATDMLevelScriptBase::GetTeam() {
