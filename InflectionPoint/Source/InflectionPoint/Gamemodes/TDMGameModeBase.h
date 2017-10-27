@@ -32,6 +32,9 @@ public:
 		void StartCountdown();
 
 	UFUNCTION()
+		void StartSpawnCinematics();
+
+	UFUNCTION()
 		void UpdateCountdown(TArray<AActor*> characters, int number);
 
 	UFUNCTION()

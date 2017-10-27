@@ -56,9 +56,16 @@ void ATDMGameModeBase::StartNextRound() {
 	ClearMap();
 	SpawnPlayersAndReplays();
 	StartCountdown();
+	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
+}
+
+void ATDMGameModeBase::StartSpawnCinematics() {
 	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
-	if(AssertNotNull(levelScript, GetWorld(), __FILE__, __LINE__))
-		levelScript->MulticastStartSpawnCinematic();
+	if(!levelScript) {
+		UE_LOG(LogTemp, Error, TEXT("The LevelScript is not from type TDMLevelScriptBase"));
+		return;
+	} 
+	levelScript->MulticastStartSpawnCinematic();
 }
 
 void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerController) {
