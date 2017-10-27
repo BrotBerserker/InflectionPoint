@@ -11,11 +11,13 @@ void ATDMLevelScriptBase::MulticastStartSpawnCinematic_Implementation() {
 	if(!SoftAssertTrue(SpawnCinematicLevelSequences.Num() > GetTeam(), GetWorld(), __FILE__, __LINE__, "No matching SpawnSequence found in the LevelScript")) {
 		return;
 	}
+	OnPrePlaySequence();
 	ALevelSequenceActor *sequence = SpawnCinematicLevelSequences[GetTeam()];
-	AssertNotNull(sequence, GetWorld(), __FILE__, __LINE__);
-	AssertNotNull(sequence->SequencePlayer, GetWorld(), __FILE__, __LINE__);
+	if(!AssertNotNull(sequence, GetWorld(), __FILE__, __LINE__) || !AssertNotNull(sequence->SequencePlayer, GetWorld(), __FILE__, __LINE__))
+		return;
 	sequence->SequencePlayer->SetPlaybackPosition(0);
 	sequence->SequencePlayer->Play();
+	sequence->SequencePlayer->OnStop.AddDynamic(this, &ATDMLevelScriptBase::OnPostPlaySequence);
 }
 
 int ATDMLevelScriptBase::GetTeam() {
