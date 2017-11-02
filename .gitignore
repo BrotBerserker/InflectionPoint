@@ -71,4 +71,9 @@
 
 */ipch/*
 
+# Release Builds
+*/Releases/
+*/WindowsNoEditor/
 
+# Big movie files
+*/Content/Movies/
