@@ -6,7 +6,7 @@
 
 UMortalityProvider::UMortalityProvider() {
 
-	PrimaryComponentTick.bCanEverTick = false; 
+	PrimaryComponentTick.bCanEverTick = false;
 
 }
 
@@ -21,7 +21,7 @@ void UMortalityProvider::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(UMortalityProvider, CurrentHealth);
 }
 
-void UMortalityProvider::TakeDamage(float DamageAmount) {
+void UMortalityProvider::TakeDamage(float DamageAmount, AController * KillingPlayer, AActor * DamageCauser) {
 	if(CurrentHealth <= 0) {
 		return;
 	}
@@ -31,12 +31,6 @@ void UMortalityProvider::TakeDamage(float DamageAmount) {
 	OnHealthChanged.Broadcast(oldHealth, CurrentHealth);
 
 	if(CurrentHealth <= 0) {
-		Die();
+		OnDeath.Broadcast(KillingPlayer, DamageCauser);
 	}
-}
-
-void UMortalityProvider::Die() {
-	// done in GameMode
-	//GetOwner()->SetLifeSpan(SecondsToLiveBeforeDestruction + 0.0000001); // 0 does not destroy o0
-	OnDeath.Broadcast();
 }

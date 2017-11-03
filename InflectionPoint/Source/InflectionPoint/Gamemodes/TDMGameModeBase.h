@@ -26,7 +26,9 @@ public:
 		void StartNextRound();
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void PlayerDied(AInflectionPointPlayerController* playerController);
+		void PlayerDied(AInflectionPointPlayerController * KilledPlayer, AInflectionPointPlayerController* KillingPlayer, AActor* DamageCauser);
+
+	void SendKillInfoToPlayers(AInflectionPointPlayerController * KilledPlayer, AInflectionPointPlayerController* KillingPlayer, AActor* DamageCauser);
 
 	UFUNCTION()
 		void StartCountdown();

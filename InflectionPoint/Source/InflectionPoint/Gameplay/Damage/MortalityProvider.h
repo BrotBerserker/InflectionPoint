@@ -10,8 +10,8 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UMortalityProvider : public UActorComponent {
 	GENERATED_BODY()
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedDelegate, int, oldHealth, int, newHealth);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDeathDelegate);
+		DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthChangedDelegate, int, oldHealth, int, newHealth);
+		DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDeathDelegate, AController*, KillingPlayer, AActor*, DamageCauser);
 
 public:
 	/* ---------------------- */
@@ -31,7 +31,7 @@ public:
 	/*		Properties		  */
 	/* ---------------------- */
 
-	UPROPERTY(Replicated, BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadOnly)
 		int CurrentHealth;
 
 public:
@@ -50,16 +50,13 @@ public:
 
 	/* Inflicts damage by reducing the health value */
 	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
-		void TakeDamage(float DamageAmount);
+		void TakeDamage(float DamageAmount, AController * KillingPlayer, AActor * DamageCauser);
 
 	/* Fired when the current health value changes */
 	UPROPERTY(BlueprintAssignable)
 		FOnHealthChangedDelegate OnHealthChanged;
 
-	/* Fired when the current health value reaches 0. The timer to destroy the owning actor has already been started at this point. */
+	/* Fired when the current health value reaches 0. */
 	UPROPERTY(BlueprintAssignable)
 		FOnDeathDelegate OnDeath;
-
-	/* Sets lifespan to destroy the owning actor, fires OnDeath */
-	void Die();
 };

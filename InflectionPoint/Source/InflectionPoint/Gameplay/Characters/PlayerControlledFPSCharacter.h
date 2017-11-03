@@ -53,8 +53,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnCountdownUpdate(int number);
 
-	void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) override;
+	UFUNCTION(Client, Unreliable)
+		void ClientShowKillInfo(const FString& Killer, const FString& Killed, UTexture2D* WeaponImage);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnKillInfoAdded(const FString& Killer, const FString& Killed, UTexture2D* WeaponImage);
+
+	void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) override;
 
 	void StopFire() override;
 };

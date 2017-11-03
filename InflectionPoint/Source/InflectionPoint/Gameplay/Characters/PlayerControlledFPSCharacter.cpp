@@ -97,6 +97,10 @@ void APlayerControlledFPSCharacter::ClientShowCountdownNumber_Implementation(int
 	OnCountdownUpdate(number);
 }
 
+void APlayerControlledFPSCharacter::ClientShowKillInfo_Implementation(const FString& Killer, const FString& Killed, UTexture2D* WeaponImage) {
+	OnKillInfoAdded(Killer, Killed, WeaponImage);
+}
+
 void APlayerControlledFPSCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);

@@ -68,16 +68,30 @@ void ATDMGameModeBase::StartSpawnCinematics() {
 	levelScript->MulticastStartSpawnCinematic();
 }
 
-void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * playerController) {
+void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * KilledPlayer, AInflectionPointPlayerController* KillingPlayer, AActor* DamageCauser) {
+	SendKillInfoToPlayers(KilledPlayer, KillingPlayer, DamageCauser);
+
 	if(GetGameState()->CurrentRound > 0)
-		SavePlayerRecordings(playerController);
+		SavePlayerRecordings(KilledPlayer);
 
 	if(GetGameState()->CurrentRound == 0) {
-		SpawnAndPossessPlayer(playerController);
+		SpawnAndPossessPlayer(KilledPlayer);
 	} else if(IsWinnerFound()) {
 		StartTimer(this, GetWorld(), "EndCurrentRound", RoundEndDelay + 0.00001f, false); // 0 does not work o.O
 	} else {
 		// TODO: Set Player as spectator
+	}
+}
+
+void ATDMGameModeBase::SendKillInfoToPlayers(AInflectionPointPlayerController * KilledPlayer, AInflectionPointPlayerController* KillingPlayer, AActor* DamageCauser) {
+	AssertNotNull({ KillingPlayer, KilledPlayer, KillingPlayer->PlayerState, KilledPlayer->PlayerState }, GetWorld(), __FILE__, __LINE__);
+	AssertNotNull({ KillingPlayer->PlayerState, KilledPlayer->PlayerState }, GetWorld(), __FILE__, __LINE__);
+	FString killerName = KillingPlayer->PlayerState->PlayerName;
+	FString killedName = KilledPlayer->PlayerState->PlayerName;
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControlledFPSCharacter::StaticClass(), foundActors);
+	for(auto& character : foundActors) {
+		Cast<APlayerControlledFPSCharacter>(character)->ClientShowKillInfo(killerName, killedName, NULL);
 	}
 }
 
