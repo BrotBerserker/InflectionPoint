@@ -9,4 +9,5 @@
 void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	DOREPLIFETIME(ATDMPlayerStateBase, Team);
 	DOREPLIFETIME(ATDMPlayerStateBase, PlayerStartGroup);
+	DOREPLIFETIME(ATDMPlayerStateBase, PlayerName);
 }

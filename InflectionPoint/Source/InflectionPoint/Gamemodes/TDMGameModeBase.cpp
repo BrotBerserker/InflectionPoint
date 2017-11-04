@@ -7,6 +7,7 @@
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
 #include "Gameplay/Controllers/InflectionPointPlayerController.h"
+#include "Gameplay/Controllers/InflectionPointAIController.h"
 #include "Gameplay/Characters/PlayerControlledFPSCharacter.h"
 #include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
@@ -68,26 +69,27 @@ void ATDMGameModeBase::StartSpawnCinematics() {
 	levelScript->MulticastStartSpawnCinematic();
 }
 
-void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * KilledPlayer, AInflectionPointPlayerController* KillingPlayer, AActor* DamageCauser) {
+void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
 	SendKillInfoToPlayers(KilledPlayer, KillingPlayer, DamageCauser);
 
+	AInflectionPointPlayerController* playerController = Cast<AInflectionPointPlayerController>(KilledPlayer);
+	if(!playerController) {
+		return;
+	}
+	
 	if(GetGameState()->CurrentRound > 0)
-		SavePlayerRecordings(KilledPlayer);
+		SavePlayerRecordings(playerController);
 
 	if(GetGameState()->CurrentRound == 0) {
-		SpawnAndPossessPlayer(KilledPlayer);
+		SpawnAndPossessPlayer(playerController);
 	} else if(IsWinnerFound()) {
 		StartTimer(this, GetWorld(), "EndCurrentRound", RoundEndDelay + 0.00001f, false); // 0 does not work o.O
-	} else {
-		// TODO: Set Player as spectator
 	}
 }
 
-void ATDMGameModeBase::SendKillInfoToPlayers(AInflectionPointPlayerController * KilledPlayer, AInflectionPointPlayerController* KillingPlayer, AActor* DamageCauser) {
-	AssertNotNull({ KillingPlayer, KilledPlayer }, GetWorld(), __FILE__, __LINE__);
-	AssertNotNull({ KillingPlayer->PlayerState, KilledPlayer->PlayerState }, GetWorld(), __FILE__, __LINE__);
-	FString killerName = KillingPlayer->PlayerState->PlayerName;
-	FString killedName = KilledPlayer->PlayerState->PlayerName;
+void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
+	FString killerName = KillingPlayer->FindComponentByClass<UNameProvider>()->Name;
+	FString killedName = KilledPlayer->FindComponentByClass<UNameProvider>()->Name;
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControlledFPSCharacter::StaticClass(), foundActors);
 	for(auto& character : foundActors) {
@@ -191,7 +193,7 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* p
 	auto spawnPoint = FindSpawnForPlayer(playerController, round);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 	auto character = SpawnCharacter<AReplayControlledFPSCharacter>(ReplayCharacter, playerController, spawnPoint);
-
+	
 	AssertTrue(PlayerRecordings[playerController].Contains(round), GetWorld(), __FILE__, __LINE__, "Could not find replay");
 
 	// Start Replay on spawned ReplayCharacter
@@ -199,6 +201,7 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* p
 		character->SetReplayData(PlayerRecordings[playerController][round]);
 
 	character->OwningPlayerController = playerController;
+	Cast<AInflectionPointAIController>(character->GetController())->Initialize();
 }
 
 void ATDMGameModeBase::StartReplays() {

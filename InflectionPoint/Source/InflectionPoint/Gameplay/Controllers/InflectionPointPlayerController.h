@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/PlayerController.h"
+#include "Gameplay/NameProvider.h"
 #include "InflectionPointPlayerController.generated.h"
 
 /**
@@ -14,7 +15,12 @@ class INFLECTIONPOINT_API AInflectionPointPlayerController : public APlayerContr
 public:
 	AInflectionPointPlayerController(const FObjectInitializer& ObjectInitializer);
 
+	void Possess(APawn* InPawn) override;
+
 	UFUNCTION(Client, Reliable)
 		void ClientSetControlRotation(FRotator rotation);
+
+	UPROPERTY()
+		class UNameProvider* NameProvider;
 
 };
