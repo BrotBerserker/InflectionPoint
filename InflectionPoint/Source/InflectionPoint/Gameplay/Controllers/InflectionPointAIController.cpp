@@ -12,12 +12,10 @@ AInflectionPointAIController::AInflectionPointAIController(const FObjectInitiali
 	NameProvider = CreateDefaultSubobject<UNameProvider>(TEXT("NameProvider"));
 }
 
-void AInflectionPointAIController::Initialize() {
-	AssertNotNull(GetCharacter(), GetWorld(), __FILE__, __LINE__);
+void AInflectionPointAIController::Initialize(APlayerController* OwningController) {
+	OwningPlayerController = OwningController;
 
-	AReplayControlledFPSCharacter* replayCharacter = Cast<AReplayControlledFPSCharacter>(GetCharacter());
-	AssertNotNull(replayCharacter, GetWorld(), __FILE__, __LINE__);
-	AssertNotNull(replayCharacter->OwningPlayerController, GetWorld(), __FILE__, __LINE__);
-	AssertNotNull(replayCharacter->OwningPlayerController->PlayerState, GetWorld(), __FILE__, __LINE__);
-	NameProvider->Name = Cast<AReplayControlledFPSCharacter>(GetCharacter())->OwningPlayerController->PlayerState->PlayerName + " (Replay)";
+	AssertNotNull(OwningPlayerController, GetWorld(), __FILE__, __LINE__);
+	AssertNotNull(OwningPlayerController->PlayerState, GetWorld(), __FILE__, __LINE__);
+	NameProvider->Name = OwningPlayerController->PlayerState->PlayerName + " (Replay)";
 }

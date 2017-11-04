@@ -17,9 +17,11 @@ class INFLECTIONPOINT_API AInflectionPointAIController : public AAIController {
 public:
 	AInflectionPointAIController(const FObjectInitializer& ObjectInitializer);
 
-	void Initialize();
+	void Initialize(APlayerController* OwningController);
 
 	UPROPERTY()
 		class UNameProvider* NameProvider;
 
+	UPROPERTY(BlueprintReadOnly)
+		APlayerController* OwningPlayerController;
 };

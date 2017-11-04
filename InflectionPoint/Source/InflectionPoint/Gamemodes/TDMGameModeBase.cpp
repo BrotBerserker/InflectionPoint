@@ -200,8 +200,7 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* p
 	if(PlayerRecordings[playerController].Contains(round))
 		character->SetReplayData(PlayerRecordings[playerController][round]);
 
-	character->OwningPlayerController = playerController;
-	Cast<AInflectionPointAIController>(character->GetController())->Initialize();
+	Cast<AInflectionPointAIController>(character->GetController())->Initialize(playerController);
 }
 
 void ATDMGameModeBase::StartReplays() {

@@ -4,6 +4,7 @@
 #include "PlayerControlledFPSCharacter.h"
 #include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
+#include "Gameplay/Controllers/InflectionPointAIController.h"
 #include "Utils/CheckFunctions.h"
 
 
@@ -61,7 +62,8 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->SetReplayData(PlayerStateRecorder->RecordedPlayerStates);
-	newPlayer->OwningPlayerController = Cast<APlayerController>(GetController());
+	Cast<AInflectionPointAIController>(newPlayer->GetController())->Initialize(Cast<APlayerController>(GetController()));
+	
 	newPlayer->StartReplay();
 }
 

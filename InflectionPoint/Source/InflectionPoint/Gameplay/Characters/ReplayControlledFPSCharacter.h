@@ -87,12 +87,8 @@ public:
 
 public:
 
-	UPROPERTY(BlueprintReadOnly)
-		APlayerController* OwningPlayerController;
-
 	UPROPERTY(BlueprintReadWrite)
 		bool CorrectPositions = true;
-
 
 private:
 

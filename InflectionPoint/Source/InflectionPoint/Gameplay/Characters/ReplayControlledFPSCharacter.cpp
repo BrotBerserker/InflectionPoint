@@ -2,6 +2,7 @@
 
 #include "InflectionPoint.h"
 #include "ReplayControlledFPSCharacter.h"
+#include "Gameplay/Controllers/InflectionPointAIController.h"
 #include "Utils/TimerFunctions.h"
 
 
@@ -75,7 +76,7 @@ void AReplayControlledFPSCharacter::UpdateRotation() {
 	}
 	// Update Rotation (-1 because unreal ^^)
 	ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
-	if(OwningPlayerController->IsLocalPlayerController()) {
+	if(Cast<AInflectionPointAIController>(GetController())->OwningPlayerController->IsLocalPlayerController()) {
 		ApplyPitch(recordData[replayIndex].CameraPitch);
 	} else {
 		ApplyPitch(recordData[replayIndex - 1].CameraPitch);
