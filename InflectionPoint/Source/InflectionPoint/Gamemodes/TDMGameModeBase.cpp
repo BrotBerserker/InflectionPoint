@@ -84,7 +84,7 @@ void ATDMGameModeBase::PlayerDied(AInflectionPointPlayerController * KilledPlaye
 }
 
 void ATDMGameModeBase::SendKillInfoToPlayers(AInflectionPointPlayerController * KilledPlayer, AInflectionPointPlayerController* KillingPlayer, AActor* DamageCauser) {
-	AssertNotNull({ KillingPlayer, KilledPlayer, KillingPlayer->PlayerState, KilledPlayer->PlayerState }, GetWorld(), __FILE__, __LINE__);
+	AssertNotNull({ KillingPlayer, KilledPlayer }, GetWorld(), __FILE__, __LINE__);
 	AssertNotNull({ KillingPlayer->PlayerState, KilledPlayer->PlayerState }, GetWorld(), __FILE__, __LINE__);
 	FString killerName = KillingPlayer->PlayerState->PlayerName;
 	FString killedName = KilledPlayer->PlayerState->PlayerName;
