@@ -55,7 +55,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
 		float ScorePointsForDeath = 0;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
-		float ScorePointsForTeamKill = 0;
+		float ScorePointsForTeamKill = -25;
 
 
 private:
