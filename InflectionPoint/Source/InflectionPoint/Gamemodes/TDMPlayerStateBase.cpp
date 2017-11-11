@@ -42,3 +42,11 @@ int ATDMPlayerStateBase::GetReplayKills() {
 int ATDMPlayerStateBase::GetDeaths() {
 	return Deaths;
 }
+
+
+void ATDMPlayerStateBase::ResetScore() {
+	Deaths = 0;
+	PlayerKills = 0;
+	ReplayKills = 0;
+	Score = 0;
+}

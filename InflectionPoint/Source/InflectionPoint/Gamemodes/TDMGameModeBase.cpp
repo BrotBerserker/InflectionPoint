@@ -41,6 +41,7 @@ void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
 void ATDMGameModeBase::StartMatch() {
 	GetGameState()->CurrentRound = 0;
 	AssignTeamsAndPlayerStartGroups();
+	ResetPlayerScores();
 	StartNextRound();
 }
 
@@ -72,13 +73,16 @@ void ATDMGameModeBase::StartSpawnCinematics() {
 void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
 	SendKillInfoToPlayers(KilledPlayer, KillingPlayer, DamageCauser);
 
+	if(GetGameState()->CurrentRound > 0)
+		WriteKillToPlayerStates(KilledPlayer, KillingPlayer);
+
 	AInflectionPointPlayerController* playerController = Cast<AInflectionPointPlayerController>(KilledPlayer);
-	if(!playerController) {
+	if(!playerController)
 		return;
-	}
-	
+
 	if(GetGameState()->CurrentRound > 0)
 		SavePlayerRecordings(playerController);
+
 
 	if(GetGameState()->CurrentRound == 0) {
 		SpawnAndPossessPlayer(playerController);
@@ -87,8 +91,32 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 	}
 }
 
+
+void ATDMGameModeBase::ResetPlayerScores() {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		Cast<ATDMPlayerStateBase>(playerController->PlayerState)->ResetScore();
+	}
+}
+
+void ATDMGameModeBase::WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer) {
+	UCharacterInfoProvider* killerInfo = KillingPlayer->FindComponentByClass<UCharacterInfoProvider>();
+	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
+
+	if(!killedInfo->IsReplay)
+		Cast<ATDMPlayerStateBase>(KilledPlayer->PlayerState)->AddDeath();
+
+	if(!killerInfo->IsReplay) {
+		if(!killedInfo->IsReplay) {
+			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddPlayerKill();
+		} else {
+			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddReplayKill();
+		}
+	}
+}
+
 void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
-	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo():FCharacterInfo();
+	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo() : FCharacterInfo();
 	FCharacterInfo killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
@@ -193,7 +221,7 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* p
 	auto spawnPoint = FindSpawnForPlayer(playerController, round);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 	auto character = SpawnCharacter<AReplayControlledFPSCharacter>(ReplayCharacter, playerController, spawnPoint);
-	
+
 	AssertTrue(PlayerRecordings[playerController].Contains(round), GetWorld(), __FILE__, __LINE__, "Could not find replay");
 
 	// Start Replay on spawned ReplayCharacter

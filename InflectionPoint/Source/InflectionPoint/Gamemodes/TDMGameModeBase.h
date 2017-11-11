@@ -28,8 +28,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
 
-	void SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
-
 	UFUNCTION()
 		void StartCountdown();
 
@@ -88,6 +86,10 @@ private:
 
 	void ClearMap();
 	void DestroyAllActors(TSubclassOf<AActor> actorClass);
+
+	void WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer);
+	void SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
+	void ResetPlayerScores();
 };
 
 

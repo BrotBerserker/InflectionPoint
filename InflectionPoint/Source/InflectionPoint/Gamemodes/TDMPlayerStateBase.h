@@ -39,6 +39,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		int GetDeaths();
 
+
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+		void ResetScore();
+
 private:
 	UPROPERTY(Replicated)
 		int PlayerKills = 0;
