@@ -88,7 +88,7 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 }
 
 void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
-	FCharacterInfo killerInfo = KillingPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
+	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo():FCharacterInfo();
 	FCharacterInfo killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
