@@ -133,8 +133,10 @@ bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflection
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
 	DrawDebugArrow();
-
-	FireProjectile(projectileClassToSpawn);
+	if(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - LastShotTimeStamp >= DelayBetweenShots) {
+		FireProjectile(projectileClassToSpawn);
+		LastShotTimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+	}
 }
 
 bool ABaseCharacter::ServerStopFire_Validate() {

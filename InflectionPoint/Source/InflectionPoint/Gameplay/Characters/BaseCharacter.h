@@ -58,6 +58,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AInflectionPointProjectile> DebugProjectileClass;
 
+	/** Minimum a player has to wait between to shots */
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		float DelayBetweenShots = 0.2f;
+
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class USoundBase* FireSound;
@@ -187,6 +191,10 @@ public:
 	/** Updates the Camera pitch rotation on Clients */
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastUpdateCameraPitch(float pitch);
+
+
+private:
+	float LastShotTimeStamp;
 
 };
 
