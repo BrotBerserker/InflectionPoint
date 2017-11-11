@@ -88,12 +88,12 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 }
 
 void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
-	FString killerName = KillingPlayer->FindComponentByClass<UNameProvider>()->Name;
-	FString killedName = KilledPlayer->FindComponentByClass<UNameProvider>()->Name;
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControlledFPSCharacter::StaticClass(), foundActors);
-	for(auto& character : foundActors) {
-		Cast<APlayerControlledFPSCharacter>(character)->ClientShowKillInfo(killerName, killedName, NULL);
+	FCharacterInfo killerInfo = KillingPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
+	FCharacterInfo killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		APlayerControlledFPSCharacter* character = Cast<APlayerControlledFPSCharacter>(playerController->GetCharacter());
+		character->ClientShowKillInfo(killerInfo, killedInfo, NULL);
 	}
 }
 

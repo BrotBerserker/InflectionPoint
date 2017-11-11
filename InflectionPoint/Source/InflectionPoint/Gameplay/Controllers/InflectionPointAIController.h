@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "Gameplay/NameProvider.h"
+#include "Gameplay/CharacterInfoProvider.h"
 #include "InflectionPointAIController.generated.h"
 
 /**
@@ -20,7 +20,7 @@ public:
 	void Initialize(APlayerController* OwningController);
 
 	UPROPERTY()
-		class UNameProvider* NameProvider;
+		class UCharacterInfoProvider* CharacterInfoProvider;
 
 	UPROPERTY(BlueprintReadOnly)
 		APlayerController* OwningPlayerController;

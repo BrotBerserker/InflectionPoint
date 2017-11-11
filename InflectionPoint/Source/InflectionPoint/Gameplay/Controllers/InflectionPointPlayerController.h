@@ -3,7 +3,7 @@
 #pragma once
 
 #include "GameFramework/PlayerController.h"
-#include "Gameplay/NameProvider.h"
+#include "Gameplay/CharacterInfoProvider.h"
 #include "InflectionPointPlayerController.generated.h"
 
 /**
@@ -21,6 +21,6 @@ public:
 		void ClientSetControlRotation(FRotator rotation);
 
 	UPROPERTY()
-		class UNameProvider* NameProvider;
+		class UCharacterInfoProvider* CharacterInfoProvider;
 
 };

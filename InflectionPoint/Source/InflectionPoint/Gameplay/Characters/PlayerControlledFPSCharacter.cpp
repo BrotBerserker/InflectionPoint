@@ -99,8 +99,8 @@ void APlayerControlledFPSCharacter::ClientShowCountdownNumber_Implementation(int
 	OnCountdownUpdate(number);
 }
 
-void APlayerControlledFPSCharacter::ClientShowKillInfo_Implementation(const FString& Killer, const FString& Killed, UTexture2D* WeaponImage) {
-	OnKillInfoAdded(Killer, Killed, WeaponImage);
+void APlayerControlledFPSCharacter::ClientShowKillInfo_Implementation(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage) {
+	OnKillInfoAdded(KillerInfo, KilledInfo, WeaponImage);
 }
 
 void APlayerControlledFPSCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {

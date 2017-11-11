@@ -4,6 +4,7 @@
 
 #include "BaseCharacter.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
+#include "Gameplay/CharacterInfoProvider.h"
 #include "PlayerControlledFPSCharacter.generated.h"
 
 
@@ -54,10 +55,10 @@ public:
 		void OnCountdownUpdate(int number);
 
 	UFUNCTION(Client, Unreliable)
-		void ClientShowKillInfo(const FString& Killer, const FString& Killed, UTexture2D* WeaponImage);
+		void ClientShowKillInfo(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnKillInfoAdded(const FString& Killer, const FString& Killed, UTexture2D* WeaponImage);
+		void OnKillInfoAdded(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage);
 
 	void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) override;
 
