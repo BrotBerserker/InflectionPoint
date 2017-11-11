@@ -31,6 +31,8 @@ public:
 		void AddReplayKill();
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		void AddDeath();
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+		void AddTeamKill();
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		int GetPlayerKills();
@@ -38,6 +40,8 @@ public:
 		int GetReplayKills();
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		int GetDeaths();
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+		int GetTeamKills();
 
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
@@ -50,5 +54,7 @@ private:
 		int ReplayKills = 0;
 	UPROPERTY(Replicated)
 		int Deaths = 0;
+	UPROPERTY(Replicated)
+		int TeamKills = 0;
 
 };

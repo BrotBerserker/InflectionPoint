@@ -107,7 +107,10 @@ void ATDMGameModeBase::WriteKillToPlayerStates(AController * KilledPlayer, ACont
 		Cast<ATDMPlayerStateBase>(KilledPlayer->PlayerState)->AddDeath();
 
 	if(!killerInfo->IsReplay) {
-		if(!killedInfo->IsReplay) {
+		if(Cast<ATDMPlayerStateBase>(killedInfo->PlayerState)->Team == Cast<ATDMPlayerStateBase>(killerInfo->PlayerState)->Team) {
+			UE_LOG(LogTemp, Warning, TEXT("ADD TEAM KILL"));
+			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddTeamKill();
+		} else if(!killedInfo->IsReplay) {
 			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddPlayerKill();
 		} else {
 			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddReplayKill();

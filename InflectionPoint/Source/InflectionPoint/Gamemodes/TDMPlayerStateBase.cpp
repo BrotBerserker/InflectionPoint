@@ -13,6 +13,8 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ATDMPlayerStateBase, PlayerKills);
 	DOREPLIFETIME(ATDMPlayerStateBase, ReplayKills);
 	DOREPLIFETIME(ATDMPlayerStateBase, Deaths);
+	DOREPLIFETIME(ATDMPlayerStateBase, TeamKills);
+	DOREPLIFETIME(ATDMPlayerStateBase, Score);
 }
 
 void ATDMPlayerStateBase::AddPlayerKill() {
@@ -32,6 +34,11 @@ void ATDMPlayerStateBase::AddDeath() {
 		return;
 	Deaths++;
 }
+void ATDMPlayerStateBase::AddTeamKill() {
+	if(!HasAuthority())
+		return;
+	TeamKills++;
+}
 
 int ATDMPlayerStateBase::GetPlayerKills() {
 	return PlayerKills;
@@ -42,11 +49,15 @@ int ATDMPlayerStateBase::GetReplayKills() {
 int ATDMPlayerStateBase::GetDeaths() {
 	return Deaths;
 }
+int ATDMPlayerStateBase::GetTeamKills() {
+	return TeamKills;
+}
 
 
 void ATDMPlayerStateBase::ResetScore() {
 	Deaths = 0;
 	PlayerKills = 0;
 	ReplayKills = 0;
+	TeamKills = 0;
 	Score = 0;
 }
