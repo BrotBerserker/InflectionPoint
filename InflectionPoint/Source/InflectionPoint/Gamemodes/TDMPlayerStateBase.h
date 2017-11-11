@@ -47,6 +47,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		void ResetScore();
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
+		float ScorePointsForPlayerKill = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
+		float ScorePointsForReplayKill = 50;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
+		float ScorePointsForDeath = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
+		float ScorePointsForTeamKill = 0;
+
+
 private:
 	UPROPERTY(Replicated)
 		int PlayerKills = 0;

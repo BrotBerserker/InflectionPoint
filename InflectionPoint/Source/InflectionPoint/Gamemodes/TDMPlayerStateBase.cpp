@@ -20,23 +20,25 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 void ATDMPlayerStateBase::AddPlayerKill() {
 	if(!HasAuthority())
 		return;
-	Score += 100;
+	Score += ScorePointsForPlayerKill;
 	PlayerKills++;
 }
 void ATDMPlayerStateBase::AddReplayKill() {
 	if(!HasAuthority())
 		return;
-	Score += 50;
+	Score += ScorePointsForReplayKill;
 	ReplayKills++;
 }
 void ATDMPlayerStateBase::AddDeath() {
 	if(!HasAuthority())
 		return;
+	Score += ScorePointsForDeath;
 	Deaths++;
 }
 void ATDMPlayerStateBase::AddTeamKill() {
 	if(!HasAuthority())
 		return;
+	Score += ScorePointsForTeamKill;
 	TeamKills++;
 }
 
