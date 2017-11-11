@@ -102,11 +102,11 @@ void ATDMGameModeBase::ResetPlayerScores() {
 void ATDMGameModeBase::WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer) {
 	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
 	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
-
+	
 	if(!killedInfo->IsReplay)
 		Cast<ATDMPlayerStateBase>(KilledPlayer->PlayerState)->AddDeath();
 
-	if(!killerInfo->IsReplay && KillingPlayer) {
+	if(killerInfo && !killerInfo->IsReplay) {
 		if(Cast<ATDMPlayerStateBase>(killedInfo->PlayerState)->Team == Cast<ATDMPlayerStateBase>(killerInfo->PlayerState)->Team) {
 			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddTeamKill();
 		} else if(!killedInfo->IsReplay) {
