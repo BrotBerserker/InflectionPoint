@@ -7,6 +7,17 @@
 #include "Gameplay/Controllers/InflectionPointAIController.h"
 #include "Utils/CheckFunctions.h"
 
+bool APlayerControlledFPSCharacter::IsReadyForInitialization() {
+	if(!PlayerState) {
+		return false;
+	}
+	return true;
+}
+
+void APlayerControlledFPSCharacter::Initialize() {
+	ApplyPlayerColor(Cast<ATDMPlayerStateBase>(PlayerState));
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input

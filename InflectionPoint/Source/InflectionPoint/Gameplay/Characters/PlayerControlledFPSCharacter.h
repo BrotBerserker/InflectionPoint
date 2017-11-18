@@ -17,6 +17,10 @@ class INFLECTIONPOINT_API APlayerControlledFPSCharacter : public ABaseCharacter 
 
 public:
 
+	bool IsReadyForInitialization() override;
+
+	void Initialize() override;
+
 	/** Override from ACharacter */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 

@@ -106,6 +106,18 @@ public:
 	/** Setup component attachments */
 	virtual void BeginPlay();
 
+	virtual void Tick(float DeltaTime) override;
+
+	/** Returns true if Initialize() can be called (e.g. checks if the PlayerState is not null) */
+	virtual bool IsReadyForInitialization() PURE_VIRTUAL(ABaseCharacter::IsReadyForInitialization, return false;);
+
+	/** Initializes this character */
+	virtual void Initialize() PURE_VIRTUAL(ABaseCharacter::Initialize, ;);
+
+	/** Fired after Initialize() has been called */
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnInitialized();
+
 	/** Applies the team color to Mesh3P and Mesh1P */
 	UFUNCTION(BlueprintCallable)
 		void ApplyPlayerColor(ATDMPlayerStateBase* state);
@@ -194,6 +206,8 @@ public:
 
 
 private:
+	bool initialized = false;
+
 	float LastShotTimeStamp;
 
 };

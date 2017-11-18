@@ -53,6 +53,10 @@ public:
 	/** Tick, responsible for replaying */
 	virtual void Tick(float deltaTime) override;
 
+	bool IsReadyForInitialization() override;
+
+	void Initialize() override;
+
 	/** Starts the replay */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
 		void StartReplay();

@@ -18,6 +18,25 @@ void AReplayControlledFPSCharacter::BeginPlay() {
 	//PrimaryActorTick.bCanEverTick = true;
 }
 
+bool AReplayControlledFPSCharacter::IsReadyForInitialization() {
+	if(!GetController()) {
+		return false;
+	}
+	APlayerController* owningController = Cast<AInflectionPointAIController>(GetController())->OwningPlayerController;
+	if(!owningController) {
+		return false;
+	}
+	if(!owningController->PlayerState) {
+		return false;
+	}
+	return true;
+}
+
+void AReplayControlledFPSCharacter::Initialize() {
+	APlayerController* owningController = Cast<AInflectionPointAIController>(GetController())->OwningPlayerController;
+	MulticastApplyPlayerColor(Cast<ATDMPlayerStateBase>(owningController->PlayerState));
+}
+
 void AReplayControlledFPSCharacter::StartReplay() {
 	replayIndex = 0;
 	isReplaying = true;

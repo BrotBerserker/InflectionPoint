@@ -89,6 +89,16 @@ void ABaseCharacter::BeginPlay() {
 	Mesh1P->SetHiddenInGame(false, true);
 }
 
+void ABaseCharacter::Tick(float DeltaTime) {
+	Super::Tick(DeltaTime);
+
+	if(!initialized && IsReadyForInitialization()) {
+		Initialize();
+		OnInitialized();
+		initialized = true;
+	} 
+}
+
 void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
 	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__, TEXT("GameState is null!"));
@@ -102,7 +112,6 @@ void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
 void ABaseCharacter::MulticastApplyPlayerColor_Implementation(ATDMPlayerStateBase* playerState) {
 	ApplyPlayerColor(playerState);
 }
-
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
 	const float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
