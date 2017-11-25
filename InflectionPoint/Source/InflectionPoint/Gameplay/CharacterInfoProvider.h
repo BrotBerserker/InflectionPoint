@@ -17,7 +17,7 @@ struct FCharacterInfo {
 		int Team;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool IsReplay;
+		bool IsReplay = false;
 
 	FCharacterInfo() {
 	}
