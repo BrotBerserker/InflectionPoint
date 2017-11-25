@@ -30,7 +30,8 @@ ATDMGameModeBase::ATDMGameModeBase()
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
 	NumPlayers++;
-	SendRoundStartedToPlayers(GetGameState()->CurrentRound);
+	APlayerControlledFPSCharacter* character = Cast<APlayerControlledFPSCharacter>(NewPlayer->GetCharacter());
+	character->ClientRoundStarted(0);
 	if(NumPlayers == MaxPlayers)
 		StartMatch();
 }
@@ -234,6 +235,10 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(AInflectionPointPlayerController * 
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
+
+	if(GetGameState()->CurrentRound == 0) {
+		character->ClientRoundStarted(0);
+	}
 }
 
 void ATDMGameModeBase::SpawnAndPrepareReplay(AInflectionPointPlayerController* playerController, int round) {

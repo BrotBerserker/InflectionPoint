@@ -17,15 +17,15 @@ struct FCharacterInfo {
 		int Team;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FString ExtraInfo;
+		bool IsReplay;
 
 	FCharacterInfo() {
 	}
 
-	FCharacterInfo(FString playerName, int team, FString extraInfo) {
+	FCharacterInfo(FString playerName, int team, bool isReplay) {
 		PlayerName = playerName;
 		Team = team;
-		ExtraInfo = extraInfo;
+		IsReplay = isReplay;
 	}
 
 };

@@ -12,9 +12,6 @@ UCharacterInfoProvider::UCharacterInfoProvider() {
 
 FCharacterInfo UCharacterInfoProvider::GetCharacterInfo() {
 	FString extraInfo = "";
-	if(IsReplay) {
-		extraInfo = "Replay";
-	}
 	ATDMPlayerStateBase* tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerState);
-	return FCharacterInfo(tdmPlayerState->PlayerName, tdmPlayerState->Team, extraInfo);
+	return FCharacterInfo(tdmPlayerState->PlayerName, tdmPlayerState->Team, IsReplay);
 }
