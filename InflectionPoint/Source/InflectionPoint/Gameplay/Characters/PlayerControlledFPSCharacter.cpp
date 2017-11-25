@@ -114,6 +114,11 @@ void APlayerControlledFPSCharacter::ClientShowKillInfo_Implementation(FCharacter
 	OnKillInfoAdded(KillerInfo, KilledInfo, WeaponImage);
 }
 
+void APlayerControlledFPSCharacter::ClientRoundStarted_Implementation(int Round) {
+	OnRoundStarted(Round);
+}
+
+
 void APlayerControlledFPSCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);

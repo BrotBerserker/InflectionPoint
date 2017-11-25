@@ -27,6 +27,15 @@ ATDMGameModeBase::ATDMGameModeBase()
 	PlayerStateClass = ATDMPlayerStateBase::StaticClass();
 }
 
+void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
+	Super::PostLogin(NewPlayer);
+	NumPlayers++;
+	SendRoundStartedToPlayers(GetGameState()->CurrentRound);
+	if(NumPlayers == MaxPlayers)
+		StartMatch();
+}
+
+
 void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
 	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessioName);
@@ -57,6 +66,7 @@ void ATDMGameModeBase::StartNextRound() {
 	GetGameState()->CurrentRound = round;
 	ClearMap();
 	SpawnPlayersAndReplays();
+	SendRoundStartedToPlayers(round);
 	StartCountdown();
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
@@ -102,7 +112,7 @@ void ATDMGameModeBase::ResetPlayerScores() {
 void ATDMGameModeBase::WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer) {
 	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
 	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
-	
+
 	if(!killedInfo->IsReplay)
 		Cast<ATDMPlayerStateBase>(KilledPlayer->PlayerState)->AddDeath();
 
@@ -124,6 +134,14 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControlledFPSCharacter* character = Cast<APlayerControlledFPSCharacter>(playerController->GetCharacter());
 		character->ClientShowKillInfo(killerInfo, killedInfo, NULL);
+	}
+}
+
+void ATDMGameModeBase::SendRoundStartedToPlayers(int Round) {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		APlayerControlledFPSCharacter* character = Cast<APlayerControlledFPSCharacter>(playerController->GetCharacter());
+		character->ClientRoundStarted(Round);
 	}
 }
 

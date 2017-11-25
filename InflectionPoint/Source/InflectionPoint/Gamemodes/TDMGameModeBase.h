@@ -61,6 +61,8 @@ public:
 
 public:
 	FORCEINLINE class ATDMGameStateBase* GetGameState() const { return (ATDMGameStateBase*)GameState; };
+	
+	virtual void PostLogin(APlayerController * NewPlayer) override;
 
 private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
@@ -89,6 +91,7 @@ private:
 
 	void WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer);
 	void SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
+	void SendRoundStartedToPlayers(int Round);
 	void ResetPlayerScores();
 };
 
