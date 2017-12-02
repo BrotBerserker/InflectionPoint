@@ -4,16 +4,18 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Gameplay/CharacterInfoProvider.h"
-#include "InflectionPointPlayerController.generated.h"
+#include "PlayerControllerBase.generated.h"
 
 /**
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API AInflectionPointPlayerController : public APlayerController {
+class INFLECTIONPOINT_API APlayerControllerBase : public APlayerController {
 	GENERATED_BODY()
 public:
-	AInflectionPointPlayerController(const FObjectInitializer& ObjectInitializer);
+	APlayerControllerBase(const FObjectInitializer& ObjectInitializer);
+
+	void BeginPlay() override;
 
 	void Possess(APawn* InPawn) override;
 

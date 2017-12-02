@@ -2,17 +2,17 @@
 
 #include "InflectionPoint.h"
 #include "Gameplay/CharacterInfoProvider.h"
-#include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
-#include "InflectionPointAIController.h"
+#include "Gameplay/Characters/ReplayCharacterBase.h"
+#include "AIControllerBase.h"
 
 
-AInflectionPointAIController::AInflectionPointAIController(const FObjectInitializer& ObjectInitializer) :
+AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer) {
 
 	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 }
 
-void AInflectionPointAIController::Initialize(APlayerController* OwningController) {
+void AAIControllerBase::Initialize(APlayerController* OwningController) {
 	OwningPlayerController = OwningController;
 
 	AssertNotNull(OwningPlayerController, GetWorld(), __FILE__, __LINE__);

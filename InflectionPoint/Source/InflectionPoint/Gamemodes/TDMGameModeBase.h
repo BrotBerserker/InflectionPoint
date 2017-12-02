@@ -2,7 +2,7 @@
 #pragma once
 #include "GameFramework/GameModeBase.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
-#include "Gameplay/Controllers/InflectionPointPlayerController.h" 
+#include "Gameplay/Controllers/PlayerControllerBase.h" 
 #include "Gamemodes/TDMGameStateBase.h" 
 #include "TDMGameModeBase.generated.h"
 
@@ -72,19 +72,19 @@ private:
 
 	bool IsWinnerFound();
 	TArray<int> GetTeamsAlive();
-	bool IsPlayerAlive(AInflectionPointPlayerController* playerController);
+	bool IsPlayerAlive(APlayerControllerBase* playerController);
 
 	void SpawnPlayersAndReplays();
-	FString GetSpawnTag(AInflectionPointPlayerController*  playerController, int round);
-	AActor* FindSpawnForPlayer(AInflectionPointPlayerController* playerController, int round);
-	void SpawnAndPrepareReplay(AInflectionPointPlayerController* controller, int round);
-	void SpawnAndPossessPlayer(AInflectionPointPlayerController* playerController);
+	FString GetSpawnTag(APlayerControllerBase*  playerController, int round);
+	AActor* FindSpawnForPlayer(APlayerControllerBase* playerController, int round);
+	void SpawnAndPrepareReplay(APlayerControllerBase* controller, int round);
+	void SpawnAndPossessPlayer(APlayerControllerBase* playerController);
 
 	template <typename CharacterType>
-	CharacterType* SpawnCharacter(UClass* spawnClass, AInflectionPointPlayerController * playerController, AActor* playerStart);
+	CharacterType* SpawnCharacter(UClass* spawnClass, APlayerControllerBase * playerController, AActor* playerStart);
 
 	void SaveRecordingsFromRemainingPlayers();
-	void SavePlayerRecordings(AInflectionPointPlayerController * playerController);
+	void SavePlayerRecordings(APlayerControllerBase * playerController);
 
 	void ClearMap();
 	void DestroyAllActors(TSubclassOf<AActor> actorClass);

@@ -1,28 +1,28 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
-#include "ReplayControlledFPSCharacter.h"
-#include "Gameplay/Controllers/InflectionPointAIController.h"
+#include "ReplayCharacterBase.h"
+#include "Gameplay/Controllers/AIControllerBase.h"
 #include "Utils/TimerFunctions.h"
 
 
 // Sets default values for this component's properties
-AReplayControlledFPSCharacter::AReplayControlledFPSCharacter() {
+AReplayCharacterBase::AReplayCharacterBase() {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-void AReplayControlledFPSCharacter::BeginPlay() {
+void AReplayCharacterBase::BeginPlay() {
 	Super::BeginPlay();
 	//PrimaryActorTick.bCanEverTick = true;
 }
 
-bool AReplayControlledFPSCharacter::IsReadyForInitialization() {
+bool AReplayCharacterBase::IsReadyForInitialization() {
 	if(!GetController()) {
 		return false;
 	}
-	APlayerController* owningController = Cast<AInflectionPointAIController>(GetController())->OwningPlayerController;
+	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
 	if(!owningController) {
 		return false;
 	}
@@ -32,26 +32,26 @@ bool AReplayControlledFPSCharacter::IsReadyForInitialization() {
 	return true;
 }
 
-void AReplayControlledFPSCharacter::Initialize() {
-	APlayerController* owningController = Cast<AInflectionPointAIController>(GetController())->OwningPlayerController;
+void AReplayCharacterBase::Initialize() {
+	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
 	MulticastApplyPlayerColor(Cast<ATDMPlayerStateBase>(owningController->PlayerState));
 }
 
-void AReplayControlledFPSCharacter::StartReplay() {
+void AReplayCharacterBase::StartReplay() {
 	replayIndex = 0;
 	isReplaying = true;
 }
 
-void AReplayControlledFPSCharacter::SetReplayData(TArray<FRecordedPlayerState> RecordData) {
+void AReplayCharacterBase::SetReplayData(TArray<FRecordedPlayerState> RecordData) {
 	recordData = RecordData;
 }
 
-void AReplayControlledFPSCharacter::StopReplay() {
+void AReplayCharacterBase::StopReplay() {
 	isReplaying = false;
 	replayIndex = 0;
 }
 
-void AReplayControlledFPSCharacter::Tick(float deltaTime) {
+void AReplayCharacterBase::Tick(float deltaTime) {
 	Super::Tick(deltaTime);
 	if(!isReplaying)
 		return;
@@ -79,7 +79,7 @@ void AReplayControlledFPSCharacter::Tick(float deltaTime) {
 		StopReplay();
 }
 
-void AReplayControlledFPSCharacter::UpdatePressedKeys() {
+void AReplayCharacterBase::UpdatePressedKeys() {
 	// iterate through all record data since last tick until now
 	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
 		UpdateRotation();
@@ -89,20 +89,20 @@ void AReplayControlledFPSCharacter::UpdatePressedKeys() {
 	}
 }
 
-void AReplayControlledFPSCharacter::UpdateRotation() {
+void AReplayCharacterBase::UpdateRotation() {
 	if(replayIndex == 0) {
 		return;
 	}
 	// Update Rotation (-1 because unreal ^^)
 	ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
-	if(Cast<AInflectionPointAIController>(GetController())->OwningPlayerController->IsLocalPlayerController()) {
+	if(Cast<AAIControllerBase>(GetController())->OwningPlayerController->IsLocalPlayerController()) {
 		ApplyPitch(recordData[replayIndex].CameraPitch);
 	} else {
 		ApplyPitch(recordData[replayIndex - 1].CameraPitch);
 	}
 }
 
-void AReplayControlledFPSCharacter::UpdatePressedKeys(FRecordedPlayerState &recordDataStep) {
+void AReplayCharacterBase::UpdatePressedKeys(FRecordedPlayerState &recordDataStep) {
 	for(auto &item : recordDataStep.PressedKeys) {
 		if(!pressedKeys.Contains(item)) {
 			PressKey(item);
@@ -111,7 +111,7 @@ void AReplayControlledFPSCharacter::UpdatePressedKeys(FRecordedPlayerState &reco
 	}
 }
 
-void AReplayControlledFPSCharacter::UpdateReleasedKeys(FRecordedPlayerState &recordDataStep) {
+void AReplayCharacterBase::UpdateReleasedKeys(FRecordedPlayerState &recordDataStep) {
 	for(int i = 0; i < pressedKeys.Num(); i++) {
 		auto item = pressedKeys[i];
 		if(!recordDataStep.PressedKeys.Contains(item)) {
@@ -122,7 +122,7 @@ void AReplayControlledFPSCharacter::UpdateReleasedKeys(FRecordedPlayerState &rec
 	}
 }
 
-void AReplayControlledFPSCharacter::PressKey(FString key) {
+void AReplayCharacterBase::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
 	} else if(key == "Fire") {
@@ -132,7 +132,7 @@ void AReplayControlledFPSCharacter::PressKey(FString key) {
 	}
 }
 
-void AReplayControlledFPSCharacter::HoldKey(FString key) {
+void AReplayCharacterBase::HoldKey(FString key) {
 	if(key == "MoveForward") {
 		MoveForward(1);
 	} else if(key == "MoveBackward") {
@@ -144,11 +144,11 @@ void AReplayControlledFPSCharacter::HoldKey(FString key) {
 	}
 }
 
-void AReplayControlledFPSCharacter::ReleaseKey(FString key) {
+void AReplayCharacterBase::ReleaseKey(FString key) {
 	// ...
 }
 
-void AReplayControlledFPSCharacter::ApplyYaw(float value) {
+void AReplayCharacterBase::ApplyYaw(float value) {
 	FRotator rot = GetCapsuleComponent()->GetComponentRotation();
 	rot.Yaw = value;
 	rot.Roll = 0;
@@ -160,21 +160,21 @@ void AReplayControlledFPSCharacter::ApplyYaw(float value) {
 	FirstPersonCameraComponent->SetWorldRotation(rot2);
 }
 
-void AReplayControlledFPSCharacter::ApplyPitch(float value) {
+void AReplayCharacterBase::ApplyPitch(float value) {
 	FRotator rot = FirstPersonCameraComponent->GetComponentRotation();
 	rot.Pitch = value;
 	rot.Roll = 0;
 	FirstPersonCameraComponent->SetWorldRotation(rot);
 }
 
-bool AReplayControlledFPSCharacter::CurrentPositionShouldBeCorrected() {
+bool AReplayCharacterBase::CurrentPositionShouldBeCorrected() {
 	if(replayIndex == 0)
 		return false;
 
 	return CorrectPositions;
 }
 
-bool AReplayControlledFPSCharacter::CurrentPositionIsInCorrectionRadius(float radius) {
+bool AReplayCharacterBase::CurrentPositionIsInCorrectionRadius(float radius) {
 	if(radius < 0)
 		return true;
 
@@ -184,12 +184,12 @@ bool AReplayControlledFPSCharacter::CurrentPositionIsInCorrectionRadius(float ra
 	return FVector::Dist(actualPosition, correctPosition) <= radius;
 }
 
-void AReplayControlledFPSCharacter::DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected) {
+void AReplayCharacterBase::DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected) {
 	FColor sphereColor = positionHasBeenCorrected ? DebugHitColor : DebugMissColor;
 	DrawDebugSphere(GetWorld(), GetTransform().GetLocation(), CorrectionRadius, 8, sphereColor, true);
 }
 
-void AReplayControlledFPSCharacter::CorrectPosition(FVector correctPosition) {
+void AReplayCharacterBase::CorrectPosition(FVector correctPosition) {
 	SetActorLocation(correctPosition);
 	passedTimeSinceLastCorrection = 0;
 }

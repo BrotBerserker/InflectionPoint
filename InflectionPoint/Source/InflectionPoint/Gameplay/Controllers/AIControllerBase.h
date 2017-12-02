@@ -5,17 +5,17 @@
 #include "CoreMinimal.h"
 #include "AIController.h"
 #include "Gameplay/CharacterInfoProvider.h"
-#include "InflectionPointAIController.generated.h"
+#include "AIControllerBase.generated.h"
 
 /**
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API AInflectionPointAIController : public AAIController {
+class INFLECTIONPOINT_API AAIControllerBase : public AAIController {
 	GENERATED_BODY()
 
 public:
-	AInflectionPointAIController(const FObjectInitializer& ObjectInitializer);
+	AAIControllerBase(const FObjectInitializer& ObjectInitializer);
 
 	void Initialize(APlayerController* OwningController);
 

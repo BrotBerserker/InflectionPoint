@@ -1,20 +1,20 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
-#include "PlayerControlledFPSCharacter.h"
-#include "Gameplay/Characters/ReplayControlledFPSCharacter.h"
+#include "PlayerCharacterBase.h"
+#include "Gameplay/Characters/ReplayCharacterBase.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
-#include "Gameplay/Controllers/InflectionPointAIController.h"
+#include "Gameplay/Controllers/AIControllerBase.h"
 #include "Utils/CheckFunctions.h"
 
-bool APlayerControlledFPSCharacter::IsReadyForInitialization() {
+bool APlayerCharacterBase::IsReadyForInitialization() {
 	if(!PlayerState) {
 		return false;
 	}
 	return true;
 }
 
-void APlayerControlledFPSCharacter::Initialize() {
+void APlayerCharacterBase::Initialize() {
 	ApplyPlayerColor(Cast<ATDMPlayerStateBase>(PlayerState));
 }
 
@@ -22,7 +22,7 @@ void APlayerControlledFPSCharacter::Initialize() {
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {
+void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
 
@@ -38,12 +38,12 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	PlayerInputComponent->BindAxis("MoveForward", this, &ABaseCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ABaseCharacter::MoveRight);
 
-	PlayerInputComponent->BindAxis("Turn", this, &APlayerControlledFPSCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APlayerControlledFPSCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAxis("Turn", this, &APlayerCharacterBase::TurnAtRate);
+	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacterBase::LookUpAtRate);
 
 	// DEBUG Bindings
-	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay);
-	PlayerInputComponent->BindAction("DEBUG_StartRecording", IE_Pressed, this, &APlayerControlledFPSCharacter::DEBUG_StartRecording);
+	PlayerInputComponent->BindAction("DEBUG_SpawnReplay", IE_Pressed, this, &APlayerCharacterBase::DEBUG_ServerSpawnReplay);
+	PlayerInputComponent->BindAction("DEBUG_StartRecording", IE_Pressed, this, &APlayerCharacterBase::DEBUG_StartRecording);
 
 	// Initialize and start PlayerStateRecorder
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
@@ -55,16 +55,16 @@ void APlayerControlledFPSCharacter::SetupPlayerInputComponent(class UInputCompon
 	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
 }
 
-bool APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Validate() {
+bool APlayerCharacterBase::DEBUG_ServerSpawnReplay_Validate() {
 	return true;
 }
 
-void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
+void APlayerCharacterBase::DEBUG_ServerSpawnReplay_Implementation() {
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	// Spawn ReplayCharacter
-	AReplayControlledFPSCharacter* newPlayer = GetWorld()->SpawnActor<AReplayControlledFPSCharacter>(ReplayCharacter, DEBUG_position, DEBUG_rotation, spawnParams);
+	AReplayCharacterBase* newPlayer = GetWorld()->SpawnActor<AReplayCharacterBase>(ReplayCharacter, DEBUG_position, DEBUG_rotation, spawnParams);
 	if(!AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__, "Could not spawn replay character!")) {
 		return;
 	}
@@ -73,30 +73,30 @@ void APlayerControlledFPSCharacter::DEBUG_ServerSpawnReplay_Implementation() {
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->SetReplayData(PlayerStateRecorder->RecordedPlayerStates);
-	Cast<AInflectionPointAIController>(newPlayer->GetController())->Initialize(Cast<APlayerController>(GetController()));
+	Cast<AAIControllerBase>(newPlayer->GetController())->Initialize(Cast<APlayerController>(GetController()));
 	
 	newPlayer->StartReplay();
 }
 
-void APlayerControlledFPSCharacter::DEBUG_StartRecording() {
+void APlayerCharacterBase::DEBUG_StartRecording() {
 	DEBUG_ServerSavePosition();
 	PlayerStateRecorder->ServerStartRecording();
 }
 
-bool APlayerControlledFPSCharacter::DEBUG_ServerSavePosition_Validate() {
+bool APlayerCharacterBase::DEBUG_ServerSavePosition_Validate() {
 	return true;
 }
 
-void APlayerControlledFPSCharacter::DEBUG_ServerSavePosition_Implementation() {
+void APlayerCharacterBase::DEBUG_ServerSavePosition_Implementation() {
 	DEBUG_position = GetActorLocation();
 	DEBUG_rotation = GetActorRotation();
 }
 
-void APlayerControlledFPSCharacter::ClientStartRecording_Implementation() {
+void APlayerCharacterBase::ClientStartRecording_Implementation() {
 	PlayerStateRecorder->ServerStartRecording();
 }
 
-void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ignore) {
+void APlayerCharacterBase::ClientSetIgnoreInput_Implementation(bool ignore) {
 	APlayerController* controller = (APlayerController*)GetController();
 	AssertNotNull(controller, GetWorld(), __FILE__, __LINE__);
 	if(ignore) {
@@ -106,20 +106,20 @@ void APlayerControlledFPSCharacter::ClientSetIgnoreInput_Implementation(bool ign
 	}
 }
 
-void APlayerControlledFPSCharacter::ClientShowCountdownNumber_Implementation(int number) {
+void APlayerCharacterBase::ClientShowCountdownNumber_Implementation(int number) {
 	OnCountdownUpdate(number);
 }
 
-void APlayerControlledFPSCharacter::ClientShowKillInfo_Implementation(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage) {
+void APlayerCharacterBase::ClientShowKillInfo_Implementation(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage) {
 	OnKillInfoAdded(KillerInfo, KilledInfo, WeaponImage);
 }
 
-void APlayerControlledFPSCharacter::ClientRoundStarted_Implementation(int Round) {
+void APlayerCharacterBase::ClientRoundStarted_Implementation(int Round) {
 	OnRoundStarted(Round);
 }
 
 
-void APlayerControlledFPSCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
+void APlayerCharacterBase::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
@@ -131,7 +131,7 @@ void APlayerControlledFPSCharacter::FireProjectile(TSubclassOf<AInflectionPointP
 	Super::FireProjectile(projectileClassToSpawn);
 }
 
-void APlayerControlledFPSCharacter::StopFire() {
+void APlayerCharacterBase::StopFire() {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 

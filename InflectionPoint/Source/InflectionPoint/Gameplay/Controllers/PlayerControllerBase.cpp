@@ -3,22 +3,33 @@
 #include "InflectionPoint.h"
 #include "DebugTools/InflectionPointCheatManager.h"
 #include "Gameplay/CharacterInfoProvider.h"
-#include "InflectionPointPlayerController.h"
+#include "Gameplay/Damage/MortalityProvider.h"
+#include "PlayerControllerBase.h"
 
-AInflectionPointPlayerController::AInflectionPointPlayerController(const FObjectInitializer& ObjectInitializer) :
+APlayerControllerBase::APlayerControllerBase(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer) {
 	CheatClass = UInflectionPointCheatManager::StaticClass();
 
 	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 }
 
-void AInflectionPointPlayerController::Possess(APawn* InPawn) {
+void APlayerControllerBase::BeginPlay() {
+	Super::BeginPlay();
+}
+
+void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
+
+	SetInputMode(FInputModeGameOnly());
 
 	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
 	CharacterInfoProvider->PlayerState = InPawn->PlayerState;
+
+	UMortalityProvider* mortalityProvider = InPawn->FindComponentByClass<UMortalityProvider>();
+	AssertNotNull(mortalityProvider, GetWorld(), __FILE__, __LINE__);
+	
 }
 
-void AInflectionPointPlayerController::ClientSetControlRotation_Implementation(FRotator rotation) {
+void APlayerControllerBase::ClientSetControlRotation_Implementation(FRotator rotation) {
 	SetControlRotation(rotation);
 }

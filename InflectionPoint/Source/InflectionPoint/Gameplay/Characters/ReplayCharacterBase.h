@@ -4,14 +4,14 @@
 
 #include "BaseCharacter.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
-#include "ReplayControlledFPSCharacter.generated.h"
+#include "ReplayCharacterBase.generated.h"
 
 
 /**
 *
 */
 UCLASS()
-class INFLECTIONPOINT_API AReplayControlledFPSCharacter : public ABaseCharacter {
+class INFLECTIONPOINT_API AReplayCharacterBase : public ABaseCharacter {
 	GENERATED_BODY()
 
 public:
@@ -45,7 +45,7 @@ public:
 	/* ------------- */
 
 	/** Construcotr, sets default values for this component's properties */
-	AReplayControlledFPSCharacter();
+	AReplayCharacterBase();
 
 	/** BeginPlay, empty */
 	virtual void BeginPlay() override;

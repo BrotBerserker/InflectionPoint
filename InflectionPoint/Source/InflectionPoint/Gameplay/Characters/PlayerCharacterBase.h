@@ -5,14 +5,14 @@
 #include "BaseCharacter.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/CharacterInfoProvider.h"
-#include "PlayerControlledFPSCharacter.generated.h"
+#include "PlayerCharacterBase.generated.h"
 
 
 /**
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API APlayerControlledFPSCharacter : public ABaseCharacter {
+class INFLECTIONPOINT_API APlayerCharacterBase : public ABaseCharacter {
 	GENERATED_BODY()
 
 public:
