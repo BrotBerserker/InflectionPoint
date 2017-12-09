@@ -20,8 +20,6 @@ void APlayerControllerBase::BeginPlay() {
 void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
 
-	SetInputMode(FInputModeGameOnly());
-
 	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
 	CharacterInfoProvider->PlayerState = InPawn->PlayerState;
 }
