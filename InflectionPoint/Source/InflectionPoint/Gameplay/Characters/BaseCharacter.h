@@ -100,6 +100,11 @@ public:
 	/*   Functions   */
 	/* ------------- */
 
+	virtual void Restart() override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnRestart();
+
 	/** Constructor, initializes Components */
 	ABaseCharacter();
 

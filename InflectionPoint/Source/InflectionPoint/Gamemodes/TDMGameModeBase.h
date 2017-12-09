@@ -35,7 +35,7 @@ public:
 		void StartSpawnCinematics();
 
 	UFUNCTION()
-		void UpdateCountdown(TArray<AActor*> characters, int number);
+		void UpdateCountdown(TArray<AActor*> controllers, int number);
 
 	UFUNCTION()
 		void StartReplays();

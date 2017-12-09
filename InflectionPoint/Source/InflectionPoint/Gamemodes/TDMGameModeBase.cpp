@@ -17,21 +17,22 @@ ATDMGameModeBase::ATDMGameModeBase()
 	: Super() {
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Characters/PlayerCharacter"));
+	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Controllers/PlayerController"));
 	static ConstructorHelpers::FClassFinder<ATDMGameStateBase> GameStateClassFinder(TEXT("/Game/InflectionPoint/Blueprints/GameModes/TDMGameState"));
 
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
 	GameStateClass = GameStateClassFinder.Class;
 
 	// configure default classes
-	PlayerControllerClass = APlayerControllerBase::StaticClass();
+	PlayerControllerClass = PlayerControllerClassFinder.Class;
 	PlayerStateClass = ATDMPlayerStateBase::StaticClass();
 }
 
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
 	NumPlayers++;
-	APlayerCharacterBase* character = Cast<APlayerCharacterBase>(NewPlayer->GetCharacter());
-	character->ClientRoundStarted(0);
+	APlayerControllerBase* controller = Cast<APlayerControllerBase>(NewPlayer);
+	controller->ClientRoundStarted(0);
 	if(NumPlayers == MaxPlayers)
 		StartMatch();
 }
@@ -133,16 +134,16 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 	FCharacterInfo killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		APlayerCharacterBase* character = Cast<APlayerCharacterBase>(playerController->GetCharacter());
-		character->ClientShowKillInfo(killerInfo, killedInfo, NULL);
+		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
+		controller->ClientShowKillInfo(killerInfo, killedInfo, NULL);
 	}
 }
 
 void ATDMGameModeBase::SendRoundStartedToPlayers(int Round) {
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		APlayerCharacterBase* character = Cast<APlayerCharacterBase>(playerController->GetCharacter());
-		character->ClientRoundStarted(Round);
+		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
+		controller->ClientRoundStarted(Round);
 	}
 }
 
@@ -190,23 +191,23 @@ void ATDMGameModeBase::SpawnPlayersAndReplays() {
 
 void ATDMGameModeBase::StartCountdown() {
 	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerCharacterBase::StaticClass(), foundActors);
-	for(auto& character : foundActors) {
-		APlayerCharacterBase* playerCharacter = Cast<APlayerCharacterBase>(character);
-		playerCharacter->ClientSetIgnoreInput(true);
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), foundActors);
+	for(auto& controller : foundActors) {
+		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
+		//playerController->ClientSetIgnoreInput(true);
 	}
 	for(int i = CountDownDuration; i >= 0; i--) {
 		StartTimer(this, GetWorld(), "UpdateCountdown", (CountDownDuration - i + 1), false, foundActors, i);
 	}
 }
 
-void ATDMGameModeBase::UpdateCountdown(TArray<AActor*> characters, int number) {
-	for(auto& character : characters) {
-		APlayerCharacterBase* playerCharacter = Cast<APlayerCharacterBase>(character);
-		playerCharacter->ClientShowCountdownNumber(number);
+void ATDMGameModeBase::UpdateCountdown(TArray<AActor*> controllers, int number) {
+	for(auto& controller : controllers) {
+		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
+		playerController->ClientShowCountdownNumber(number);
 		if(number == 0) {
-			playerCharacter->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
-			playerCharacter->ClientSetIgnoreInput(false);
+			playerController->GetCharacter()->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
+			playerController->ClientSetIgnoreInput(false);
 		}
 	}
 	if(number == 0) {
@@ -237,7 +238,7 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(APlayerControllerBase * playerContr
 	playerController->Possess(character);
 
 	if(GetGameState()->CurrentRound == 0) {
-		character->ClientRoundStarted(0);
+		playerController->ClientRoundStarted(0);
 	}
 }
 

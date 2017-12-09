@@ -25,4 +25,26 @@ public:
 	UPROPERTY()
 		class UCharacterInfoProvider* CharacterInfoProvider;
 
+	UFUNCTION(Client, Reliable)
+		void ClientRoundStarted(int Round);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnRoundStarted(int Round);
+
+	UFUNCTION(Client, Unreliable)
+		void ClientShowKillInfo(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnKillInfoAdded(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage);
+
+	UFUNCTION(Client, Reliable)
+		void ClientShowCountdownNumber(int number);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnCountdownUpdate(int number);
+
+	UFUNCTION(Client, Reliable)
+		void ClientSetIgnoreInput(bool ignore);
+
 };
+
