@@ -194,7 +194,7 @@ void ATDMGameModeBase::StartCountdown() {
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), foundActors);
 	for(auto& controller : foundActors) {
 		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
-		//playerController->ClientSetIgnoreInput(true);
+		//playerController->ClientSetIgnoreInput(true); TODO
 	}
 	for(int i = CountDownDuration; i >= 0; i--) {
 		StartTimer(this, GetWorld(), "UpdateCountdown", (CountDownDuration - i + 1), false, foundActors, i);

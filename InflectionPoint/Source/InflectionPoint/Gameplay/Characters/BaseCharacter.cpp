@@ -18,11 +18,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 //////////////////////////////////////////////////////////////////////////
 // ABaseCharacter
 
-void ABaseCharacter::Restart() {
-	Super::Restart();
-	OnRestart();
-}
-
 ABaseCharacter::ABaseCharacter() {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -92,6 +87,11 @@ void ABaseCharacter::BeginPlay() {
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
+}
+
+void ABaseCharacter::Restart() {
+	Super::Restart();
+	OnRestart();
 }
 
 void ABaseCharacter::Tick(float DeltaTime) {
