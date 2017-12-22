@@ -75,6 +75,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int CountDownDuration = 3;
 
+	/** Seconds to wait before starting the match after enough players have joined */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MatchStartDelay = 1.0f;
+
 	/** Seconds to wait before a round is ended after the winner has been decided */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float RoundEndDelay = 2.0f;

@@ -34,7 +34,6 @@ void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
 	NumPlayers++;
 	APlayerControllerBase* controller = Cast<APlayerControllerBase>(NewPlayer);
-	controller->ClientRoundStarted(0);
 	if(NumPlayers == MaxPlayers)
 		StartMatch();
 }
@@ -55,7 +54,7 @@ void ATDMGameModeBase::StartMatch() {
 	GetGameState()->CurrentRound = 0;
 	AssignTeamsAndPlayerStartGroups();
 	ResetPlayerScores();
-	StartNextRound();
+	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned
 }
 
 void ATDMGameModeBase::EndCurrentRound() {
@@ -119,7 +118,7 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
-		controller->ClientShowKillInfo(killerInfo, ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer), 
+		controller->ClientShowKillInfo(killerInfo, ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer),
 			killedInfo, ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer), NULL);
 	}
 }
