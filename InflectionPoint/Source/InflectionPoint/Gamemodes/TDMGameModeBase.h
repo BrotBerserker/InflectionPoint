@@ -4,6 +4,7 @@
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h" 
 #include "Gamemodes/TDMGameStateBase.h" 
+#include "Gamemodes/TDMScoreHandler.h"
 #include "TDMGameModeBase.generated.h"
 
 UCLASS(minimalapi)
@@ -99,6 +100,9 @@ public:
 	/** Current number of connected players */
 	UPROPERTY(BlueprintReadWrite)
 		int NumPlayers = 0;
+	
+	UPROPERTY(BlueprintReadWrite)
+		UTDMScoreHandler* ScoreHandler;
 
 
 private:

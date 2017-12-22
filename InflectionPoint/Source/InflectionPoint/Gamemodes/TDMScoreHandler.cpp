@@ -1,0 +1,82 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#include "InflectionPoint.h"
+#include "Gameplay/CharacterInfoProvider.h"
+#include "Gamemodes/TDMGameStateBase.h" 
+#include "Gamemodes/TDMPlayerStateBase.h" 
+#include "TDMScoreHandler.h"
+
+
+// Sets default values for this component's properties
+UTDMScoreHandler::UTDMScoreHandler() {
+}
+
+float UTDMScoreHandler::GetKillerScoreChange(AController * KilledPlayer, AController* KillingPlayer) {
+	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
+	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
+
+	if(!killerInfo)
+		return 0;
+
+	if(IsTeamKill(killedInfo, killerInfo)) {
+		return ScorePointsForTeamKill;
+	} else {
+		if(!killedInfo->IsReplay)
+			return ScorePointsForPlayerKill;
+
+		if(killedInfo->IsReplay)
+			return ScorePointsForReplayKill;
+	}
+	return 0;
+}
+
+float UTDMScoreHandler::GetKilledScoreChange(AController * KilledPlayer, AController* KillingPlayer) {
+	return ScorePointsForDeath;
+}
+
+
+void UTDMScoreHandler::AddKill(AController * KilledPlayer, AController* KillingPlayer) {
+	AddKillToPlayerScore(KilledPlayer, KillingPlayer);
+	AddKillToPlayerState(KilledPlayer, KillingPlayer);
+}
+
+void UTDMScoreHandler::AddKillToPlayerScore(AController * KilledPlayer, AController* KillingPlayer) {
+	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
+	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
+
+	ATDMPlayerStateBase* killerState = Cast<ATDMPlayerStateBase>(killerInfo->PlayerState);
+	ATDMPlayerStateBase* killedState = Cast<ATDMPlayerStateBase>(killedInfo->PlayerState);
+
+	if(killerInfo)
+		killerState->Score += GetKillerScoreChange(KilledPlayer, KillingPlayer);
+	killedState->Score += GetKilledScoreChange(KilledPlayer, KillingPlayer);
+}
+
+
+void UTDMScoreHandler::AddKillToPlayerState(AController * KilledPlayer, AController* KillingPlayer) {
+	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
+	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
+
+	ATDMPlayerStateBase* killerState = Cast<ATDMPlayerStateBase>(killerInfo->PlayerState);
+	ATDMPlayerStateBase* killedState = Cast<ATDMPlayerStateBase>(killedInfo->PlayerState);
+
+	killedState->Deaths++;
+	if(!killerInfo)
+		return;
+
+	if(IsTeamKill(killedInfo, killerInfo)) {
+		killerState->TeamKills++;
+	} else {
+		if(!killedInfo->IsReplay)
+			killerState->PlayerKills++;
+
+		if(killedInfo->IsReplay)
+			killerState->ReplayKills++;
+	}
+}
+
+bool UTDMScoreHandler::IsTeamKill(UCharacterInfoProvider* killedInfo, UCharacterInfoProvider* killerInfo) {
+	return Cast<ATDMPlayerStateBase>(killedInfo->PlayerState)->Team == Cast<ATDMPlayerStateBase>(killerInfo->PlayerState)->Team;
+}
+
+

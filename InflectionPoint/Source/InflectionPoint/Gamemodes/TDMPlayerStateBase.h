@@ -26,46 +26,15 @@ public:
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		void AddPlayerKill();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		void AddReplayKill();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		void AddDeath();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		void AddTeamKill();
-
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		int GetPlayerKills();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		int GetReplayKills();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		int GetDeaths();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		int GetTeamKills();
-
-
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		void ResetScore();
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
-		float ScorePointsForPlayerKill = 100;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
-		float ScorePointsForReplayKill = 50;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
-		float ScorePointsForDeath = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
-		float ScorePointsForTeamKill = -25;
-
-
-private:
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 		int PlayerKills = 0;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 		int ReplayKills = 0;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 		int Deaths = 0;
-	UPROPERTY(Replicated)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 		int TeamKills = 0;
 
 };

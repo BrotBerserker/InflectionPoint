@@ -26,6 +26,8 @@ ATDMGameModeBase::ATDMGameModeBase()
 	// configure default classes
 	PlayerControllerClass = PlayerControllerClassFinder.Class;
 	PlayerStateClass = ATDMPlayerStateBase::StaticClass();
+
+	ScoreHandler = CreateDefaultSubobject<UTDMScoreHandler>(TEXT("ScoreHandler"));
 }
 
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
@@ -86,7 +88,7 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 	SendKillInfoToPlayers(KilledPlayer, KillingPlayer, DamageCauser);
 
 	if(GetGameState()->CurrentRound > 0)
-		WriteKillToPlayerStates(KilledPlayer, KillingPlayer);
+		ScoreHandler->AddKill(KilledPlayer, KillingPlayer);
 
 	APlayerControllerBase* playerController = Cast<APlayerControllerBase>(KilledPlayer);
 	if(!playerController)
@@ -108,24 +110,6 @@ void ATDMGameModeBase::ResetPlayerScores() {
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		Cast<ATDMPlayerStateBase>(playerController->PlayerState)->ResetScore();
-	}
-}
-
-void ATDMGameModeBase::WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer) {
-	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
-	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
-
-	if(!killedInfo->IsReplay)
-		Cast<ATDMPlayerStateBase>(KilledPlayer->PlayerState)->AddDeath();
-
-	if(killerInfo && !killerInfo->IsReplay) {
-		if(Cast<ATDMPlayerStateBase>(killedInfo->PlayerState)->Team == Cast<ATDMPlayerStateBase>(killerInfo->PlayerState)->Team) {
-			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddTeamKill();
-		} else if(!killedInfo->IsReplay) {
-			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddPlayerKill();
-		} else {
-			Cast<ATDMPlayerStateBase>(KillingPlayer->PlayerState)->AddReplayKill();
-		}
 	}
 }
 
