@@ -61,13 +61,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
 		void StartReplay();
 
-	/** Starts the replay */
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
-		void SetReplayData(TArray<FRecordedPlayerState> RecordData);
-
 	/** Stops the replay */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Replay")
 		void StopReplay();
+
+	/** Sets the replay data */
+	UFUNCTION()
+		void SetReplayData(TArray<FRecordedPlayerState> RecordData);
 
 	/** Act as if the player would have pressed the given key */
 	UFUNCTION()

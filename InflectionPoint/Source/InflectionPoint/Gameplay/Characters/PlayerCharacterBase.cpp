@@ -96,29 +96,6 @@ void APlayerCharacterBase::ClientStartRecording_Implementation() {
 	PlayerStateRecorder->ServerStartRecording();
 }
 
-void APlayerCharacterBase::ClientSetIgnoreInput_Implementation(bool ignore) {
-	APlayerController* controller = (APlayerController*)GetController();
-	AssertNotNull(controller, GetWorld(), __FILE__, __LINE__);
-	if(ignore) {
-		DisableInput(controller);
-	} else {
-		EnableInput(controller);
-	}
-}
-
-void APlayerCharacterBase::ClientShowCountdownNumber_Implementation(int number) {
-	OnCountdownUpdate(number);
-}
-
-void APlayerCharacterBase::ClientShowKillInfo_Implementation(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage) {
-	OnKillInfoAdded(KillerInfo, KilledInfo, WeaponImage);
-}
-
-void APlayerCharacterBase::ClientRoundStarted_Implementation(int Round) {
-	OnRoundStarted(Round);
-}
-
-
 void APlayerCharacterBase::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);

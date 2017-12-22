@@ -47,7 +47,7 @@ public:
 
 public:
 	/* ---------------------- */
-	/*   Editor Settings   */
+	/*    Editor Settings     */
 	/* ---------------------- */
 
 	/** Projectile class to spawn */
@@ -91,7 +91,7 @@ public:
 		FColor DebugArrowColor;
 
 public:
-
+	/* Fired when this character receives damage from a certain direction */
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")
 		void OnDirectionalDamageReceived(FVector direction, float damage);
 
@@ -107,6 +107,13 @@ public:
 	virtual void BeginPlay();
 
 	virtual void Tick(float DeltaTime) override;
+
+	/** Called when this character is restartet (e.g. by being possessed), fires OnRestart */
+	virtual void Restart() override;
+
+	/** Fired when this character is restartet (e.g. by being possessed) */
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnRestart();
 
 	/** Returns true if Initialize() can be called (e.g. checks if the PlayerState is not null) */
 	virtual bool IsReadyForInitialization() PURE_VIRTUAL(ABaseCharacter::IsReadyForInitialization, return false;);

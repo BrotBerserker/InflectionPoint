@@ -89,6 +89,11 @@ void ABaseCharacter::BeginPlay() {
 	Mesh1P->SetHiddenInGame(false, true);
 }
 
+void ABaseCharacter::Restart() {
+	Super::Restart();
+	OnRestart();
+}
+
 void ABaseCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 

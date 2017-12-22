@@ -20,16 +20,34 @@ void APlayerControllerBase::BeginPlay() {
 void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
 
-	SetInputMode(FInputModeGameOnly());
-
 	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
 	CharacterInfoProvider->PlayerState = InPawn->PlayerState;
-
-	UMortalityProvider* mortalityProvider = InPawn->FindComponentByClass<UMortalityProvider>();
-	AssertNotNull(mortalityProvider, GetWorld(), __FILE__, __LINE__);
-	
 }
 
 void APlayerControllerBase::ClientSetControlRotation_Implementation(FRotator rotation) {
 	SetControlRotation(rotation);
+}
+
+void APlayerControllerBase::ClientRoundStarted_Implementation(int Round) {
+	OnRoundStarted(Round);
+}
+
+void APlayerControllerBase::ClientShowKillInfo_Implementation(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage) {
+	OnKillInfoAdded(KillerInfo, KilledInfo, WeaponImage);
+}
+
+void APlayerControllerBase::ClientShowCountdownNumber_Implementation(int number) {
+	OnCountdownUpdate(number);
+}
+
+void APlayerControllerBase::ClientSetIgnoreInput_Implementation(bool ignore) {
+	ACharacter* character = GetCharacter();
+	AssertNotNull(character, GetWorld(), __FILE__, __LINE__);
+
+	if(ignore) {
+		character->DisableInput(this);
+	} else {
+		character->EnableInput(this);
+	}
+
 }
