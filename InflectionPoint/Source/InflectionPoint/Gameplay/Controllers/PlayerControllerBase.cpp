@@ -32,8 +32,8 @@ void APlayerControllerBase::ClientRoundStarted_Implementation(int Round) {
 	OnRoundStarted(Round);
 }
 
-void APlayerControllerBase::ClientShowKillInfo_Implementation(FCharacterInfo KillerInfo, FCharacterInfo KilledInfo, UTexture2D* WeaponImage) {
-	OnKillInfoAdded(KillerInfo, KilledInfo, WeaponImage);
+void APlayerControllerBase::ClientShowKillInfo_Implementation(FCharacterInfo KillerInfo, float killerScoreChange, FCharacterInfo KilledInfo, float killedScoreChange, UTexture2D* WeaponImage) {
+	OnKillInfoAdded(KillerInfo, killerScoreChange, KilledInfo, killedScoreChange, WeaponImage);
 }
 
 void APlayerControllerBase::ClientShowCountdownNumber_Implementation(int number) {
