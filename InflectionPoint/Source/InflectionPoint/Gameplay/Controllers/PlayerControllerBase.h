@@ -32,10 +32,10 @@ public:
 		void OnRoundStarted(int Round);
 
 	UFUNCTION(Client, Unreliable)
-		void ClientShowKillInfo(FCharacterInfo KillerInfo, float killerScoreChange, FCharacterInfo KilledInfo, float killedScoreChange, UTexture2D* WeaponImage);
+		void ClientShowKillInfo(FCharacterInfo KilledInfo, float killedScoreChange, FCharacterInfo KillerInfo, float killerScoreChange, UTexture2D* WeaponImage);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnKillInfoAdded(FCharacterInfo KillerInfo, float killerScoreChange, FCharacterInfo KilledInfo, float killedScoreChange, UTexture2D* WeaponImage);
+		void OnKillInfoAdded(FCharacterInfo KilledInfo, float killedScoreChange, FCharacterInfo KillerInfo, float killerScoreChange, UTexture2D* WeaponImage);
 
 	UFUNCTION(Client, Reliable)
 		void ClientShowCountdownNumber(int number);

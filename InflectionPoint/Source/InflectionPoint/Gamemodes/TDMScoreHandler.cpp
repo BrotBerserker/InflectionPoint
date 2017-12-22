@@ -44,12 +44,13 @@ void UTDMScoreHandler::AddKillToPlayerScore(AController * KilledPlayer, AControl
 	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
 	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
 
-	ATDMPlayerStateBase* killerState = Cast<ATDMPlayerStateBase>(killerInfo->PlayerState);
 	ATDMPlayerStateBase* killedState = Cast<ATDMPlayerStateBase>(killedInfo->PlayerState);
-
-	if(killerInfo)
-		killerState->Score += GetKillerScoreChange(KilledPlayer, KillingPlayer);
 	killedState->Score += GetKilledScoreChange(KilledPlayer, KillingPlayer);
+
+	if(!killerInfo)
+		return;
+	ATDMPlayerStateBase* killerState = Cast<ATDMPlayerStateBase>(killerInfo->PlayerState);
+	killerState->Score += GetKillerScoreChange(KilledPlayer, KillingPlayer);
 }
 
 
@@ -57,12 +58,12 @@ void UTDMScoreHandler::AddKillToPlayerState(AController * KilledPlayer, AControl
 	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
 	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
 
-	ATDMPlayerStateBase* killerState = Cast<ATDMPlayerStateBase>(killerInfo->PlayerState);
 	ATDMPlayerStateBase* killedState = Cast<ATDMPlayerStateBase>(killedInfo->PlayerState);
-
 	killedState->Deaths++;
 	if(!killerInfo)
 		return;
+
+	ATDMPlayerStateBase* killerState = Cast<ATDMPlayerStateBase>(killerInfo->PlayerState);
 
 	if(IsTeamKill(killedInfo, killerInfo)) {
 		killerState->TeamKills++;
