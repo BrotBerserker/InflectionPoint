@@ -35,6 +35,7 @@ bool AReplayCharacterBase::IsReadyForInitialization() {
 void AReplayCharacterBase::Initialize() {
 	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
 	MulticastApplyPlayerColor(Cast<ATDMPlayerStateBase>(owningController->PlayerState));
+	MulticastShowSpawnAnimation();
 }
 
 void AReplayCharacterBase::StartReplay() {

@@ -44,6 +44,9 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class UMortalityProvider* MortalityProvider;
 
+	/** Timeline used to show the materialize effect */
+	UPROPERTY()
+		UTimelineComponent* MaterializeTimeline;
 
 public:
 	/* ---------------------- */
@@ -69,6 +72,18 @@ public:
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class UAnimMontage* FireAnimation;
+
+	/** Determines the materialize amount over time when playing the materialize animation */
+	UPROPERTY(EditAnywhere, Category = Materialize)
+		UCurveFloat* MaterializeCurve;
+
+	/** Material to use for Mesh3P and Mesh1P after the materialize animation has finished */
+	UPROPERTY(EditAnywhere, Category = Materialize)
+		UMaterialInstance* BodyMaterialAfterMaterialize;
+
+	/** Material to use for the gun after the materialize animation has finished */
+	UPROPERTY(EditAnywhere, Category = Materialize)
+		UMaterial* GunMaterialAfterMaterialize;
 
 	/** One of these animations will be played when the character dies */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
@@ -132,6 +147,22 @@ public:
 	/** Applies the team color to Mesh3P and Mesh1P via Multicast */
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
 		void MulticastApplyPlayerColor(ATDMPlayerStateBase* state);
+
+	/** Shows a spawn animation using Materialize effects */
+	UFUNCTION(BlueprintCallable)
+		void ShowSpawnAnimation();
+
+	/** Shows a spawn animation using Materialize effects via Multicast */
+	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
+		void MulticastShowSpawnAnimation();
+
+	/** Called every tick during the materialize animation */
+	UFUNCTION()
+		void MaterializeCallback(float value);
+
+	/** Called when the materialize animation has finished */
+	UFUNCTION()
+		void MaterializeFinishCallback();
 
 	/** Takes damage using the MortalityProvider */
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
@@ -216,6 +247,9 @@ private:
 	bool initialized = false;
 
 	float LastShotTimeStamp;
+
+	UMaterialInstanceDynamic* DynamicBodyMaterial;
+	UMaterialInstanceDynamic* DynamicGunMaterial;
 
 };
 

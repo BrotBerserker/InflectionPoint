@@ -71,6 +71,9 @@ ABaseCharacter::ABaseCharacter() {
 	// Initialize MortalityProvider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
 	MortalityProvider->SetIsReplicated(true);
+
+	// Initialize Materialize Timeline (wtf aber ok, siehe https://wiki.unrealengine.com/Timeline_in_c%2B%2B)
+	MaterializeTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimeline"));
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -87,6 +90,14 @@ void ABaseCharacter::BeginPlay() {
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
+
+	// Create dynamic materials for materialize animation
+	DynamicBodyMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
+	Mesh3P->SetMaterial(0, DynamicBodyMaterial);
+	Mesh1P->SetMaterial(0, DynamicBodyMaterial);
+
+	DynamicGunMaterial = UMaterialInstanceDynamic::Create(TP_Gun->GetMaterial(0), TP_Gun);
+	TP_Gun->SetMaterial(0, DynamicGunMaterial);
 }
 
 void ABaseCharacter::Restart() {
@@ -101,21 +112,55 @@ void ABaseCharacter::Tick(float DeltaTime) {
 		Initialize();
 		OnInitialized();
 		initialized = true;
-	} 
+	}
 }
 
 void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
 	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__, TEXT("GameState is null!"));
 
-	UMaterialInstanceDynamic* dynamicMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
-	dynamicMaterial->SetVectorParameterValue("BodyColor", gameState->TeamColors[playerState->Team]);
-	Mesh3P->SetMaterial(0, dynamicMaterial);
-	Mesh1P->SetMaterial(0, dynamicMaterial);
+	DynamicBodyMaterial->SetVectorParameterValue("BodyColor", gameState->TeamColors[playerState->Team]);
 }
 
 void ABaseCharacter::MulticastApplyPlayerColor_Implementation(ATDMPlayerStateBase* playerState) {
 	ApplyPlayerColor(playerState);
+}
+
+void ABaseCharacter::ShowSpawnAnimation() {
+	AssertNotNull(MaterializeCurve, GetWorld(), __FILE__, __LINE__, TEXT("No materialize curve has been set!"));
+
+	// add curve to timeline
+	FOnTimelineFloat callback{};
+	callback.BindUFunction(this, FName{ TEXT("MaterializeCallback") });
+	MaterializeTimeline->AddInterpFloat(MaterializeCurve, callback, FName{ TEXT("MaterializeTimelineAnimation") });
+
+	// set timeline finish callback
+	FOnTimelineEvent finishCallback{};
+	finishCallback.BindUFunction(this, FName{ TEXT("MaterializeFinishCallback") });
+	MaterializeTimeline->SetTimelineFinishedFunc(finishCallback);
+
+	MaterializeTimeline->Play();
+}
+
+void ABaseCharacter::MaterializeCallback(float value) {
+	DynamicBodyMaterial->SetScalarParameterValue("Materialize Amount", value);
+	DynamicGunMaterial->SetScalarParameterValue("Materialize Amount", value);
+}
+
+void ABaseCharacter::MaterializeFinishCallback() {
+	// Switch to materials without materialize effect to save a lot of performance
+	UMaterialInstanceDynamic* dynamicMaterialWithoutMaterialize = UMaterialInstanceDynamic::Create(BodyMaterialAfterMaterialize, Mesh3P);
+	FLinearColor bodyColor;
+	DynamicBodyMaterial->GetVectorParameterValue("BodyColor", bodyColor);
+	dynamicMaterialWithoutMaterialize->SetVectorParameterValue("BodyColor", bodyColor);
+	Mesh3P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
+	Mesh1P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
+
+	TP_Gun->SetMaterial(0, GunMaterialAfterMaterialize);
+}
+
+void ABaseCharacter::MulticastShowSpawnAnimation_Implementation() {
+	ShowSpawnAnimation();
 }
 
 float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
@@ -221,6 +266,7 @@ void ABaseCharacter::MulticastOnDeath_Implementation() {
 
 	// Disable all input
 	DisableInput((APlayerController*)GetController());
+	DisableComponentsSimulatePhysics();
 
 	// Disable all collisions except for WorldStatic
 	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
