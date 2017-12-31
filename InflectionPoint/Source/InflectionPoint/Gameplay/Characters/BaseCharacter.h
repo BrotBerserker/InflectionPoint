@@ -176,6 +176,12 @@ public:
 	/** Stops firing. */
 	void OnStopFire();
 
+	/** Enables sprint and starts sprinting if all sprinting conditions are met */
+	void EnableSprint();
+
+	/** Disables sprint, stops sprinting if currently sprinting */
+	void DisableSprint();
+
 	/** Handles moving forward/backward */
 	void MoveForward(float val);
 
@@ -225,6 +231,14 @@ public:
 	/** Notifies Clients about projectile fired */
 	UFUNCTION(Unreliable, NetMulticast)
 		void MulticastProjectileFired();
+
+	/** Starts sprinting (increases max speed) */
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerStartSprinting();
+
+	/** Stops sprinting (decreases max speed over time) */
+	UFUNCTION(Reliable, Server, WithValidation)
+		void ServerStopSprinting();
 
 	/** Plays a death animation, disables input and collisions */
 	UFUNCTION(Unreliable, NetMulticast, BlueprintCallable)

@@ -333,3 +333,23 @@ void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {
 	currentRot.Yaw = 0;
 	FirstPersonCameraComponent->SetRelativeRotation(currentRot);
 }
+
+void ABaseCharacter::EnableSprint() {
+}
+
+void ABaseCharacter::DisableSprint() {
+}
+
+bool ABaseCharacter::ServerStartSprinting_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStartSprinting_Implementation() {
+}
+
+bool ABaseCharacter::ServerStopSprinting_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStopSprinting_Implementation() {
+}
