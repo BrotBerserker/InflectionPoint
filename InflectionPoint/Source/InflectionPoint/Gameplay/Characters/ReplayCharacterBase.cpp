@@ -126,6 +126,8 @@ void AReplayCharacterBase::UpdateReleasedKeys(FRecordedPlayerState &recordDataSt
 void AReplayCharacterBase::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
+	} else if(key == "Sprint") {
+		EnableSprint();
 	} else if(key == "Fire") {
 		OnFire();
 	} else if(key == "DEBUG_Fire") {
@@ -146,7 +148,8 @@ void AReplayCharacterBase::HoldKey(FString key) {
 }
 
 void AReplayCharacterBase::ReleaseKey(FString key) {
-	// ...
+	if(key == "Sprint")
+		DisableSprint();
 }
 
 void AReplayCharacterBase::ApplyYaw(float value) {

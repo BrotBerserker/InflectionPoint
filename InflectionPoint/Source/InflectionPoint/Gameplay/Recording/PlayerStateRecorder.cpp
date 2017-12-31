@@ -13,6 +13,9 @@ void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) 
 	inputComponent->BindAction("Jump", IE_Pressed, this, &UPlayerStateRecorder::RecordStartJump);
 	inputComponent->BindAction("Jump", IE_Released, this, &UPlayerStateRecorder::RecordStopJump);
 
+	inputComponent->BindAction("Sprint", IE_Pressed, this, &UPlayerStateRecorder::RecordStartSprint);
+	inputComponent->BindAction("Sprint", IE_Released, this, &UPlayerStateRecorder::RecordStopSprint);
+
 	inputComponent->BindAxis("MoveForward", this, &UPlayerStateRecorder::RecordMoveForward);
 	inputComponent->BindAxis("MoveRight", this, &UPlayerStateRecorder::RecordMoveRight);
 }
@@ -136,4 +139,12 @@ void UPlayerStateRecorder::RecordStartJump() {
 
 void UPlayerStateRecorder::RecordStopJump() {
 	ServerRecordKeyReleased("Jump");
+}
+
+void UPlayerStateRecorder::RecordStartSprint() {
+	ServerRecordKeyPressed("Sprint");
+}
+
+void UPlayerStateRecorder::RecordStopSprint() {
+	ServerRecordKeyReleased("Sprint");
 }

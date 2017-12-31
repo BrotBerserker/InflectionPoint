@@ -107,6 +107,10 @@ private:
 
 	void RecordStopJump();
 
+	void RecordStartSprint();
+
+	void RecordStopSprint();
+
 	void RecordMoveForward(float val);
 
 	void RecordMoveRight(float val);
