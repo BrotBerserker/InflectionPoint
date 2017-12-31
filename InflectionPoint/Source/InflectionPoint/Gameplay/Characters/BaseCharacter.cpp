@@ -74,6 +74,8 @@ ABaseCharacter::ABaseCharacter() {
 
 	// Initialize Materialize Timeline (wtf aber ok, siehe https://wiki.unrealengine.com/Timeline_in_c%2B%2B)
 	MaterializeTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimeline"));
+
+	walkSpeed = GetCharacterMovement()->MaxWalkSpeed;
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -175,6 +177,7 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 }
 
 void ABaseCharacter::OnFire() {
+	DisableSprint();
 	ServerFireProjectile(ProjectileClass);
 }
 
@@ -286,6 +289,12 @@ void ABaseCharacter::MoveForward(float value) {
 	if(value != 0.0f) {
 		AddMovementInput(GetActorForwardVector(), value);
 	}
+
+	if(ShouldStartSprinting(value)) {
+		ServerStartSprinting();
+	} else if (ShouldStopSprinting(value)) {
+		ServerStopSprinting();
+	}
 }
 
 void ABaseCharacter::MoveRight(float value) {
@@ -335,9 +344,11 @@ void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {
 }
 
 void ABaseCharacter::EnableSprint() {
+	sprintEnabled = true;
 }
 
 void ABaseCharacter::DisableSprint() {
+	sprintEnabled = false;
 }
 
 bool ABaseCharacter::ServerStartSprinting_Validate() {
@@ -345,6 +356,7 @@ bool ABaseCharacter::ServerStartSprinting_Validate() {
 }
 
 void ABaseCharacter::ServerStartSprinting_Implementation() {
+	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 }
 
 bool ABaseCharacter::ServerStopSprinting_Validate() {
@@ -352,4 +364,16 @@ bool ABaseCharacter::ServerStopSprinting_Validate() {
 }
 
 void ABaseCharacter::ServerStopSprinting_Implementation() {
+	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+}
+
+bool ABaseCharacter::ShouldStartSprinting(float ForwardMovement) {
+	return ForwardMovement > 0 && sprintEnabled && GetVelocity().Size() <= walkSpeed;
+}
+
+bool ABaseCharacter::ShouldStopSprinting(float ForwardMovement) {
+	if(GetVelocity().Size() <= walkSpeed) {
+		return false;
+	}
+	return ForwardMovement <= 0 || !sprintEnabled;
 }

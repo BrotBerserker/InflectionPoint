@@ -73,6 +73,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class UAnimMontage* FireAnimation;
 
+	/** Determines the maximum walk speed when sprinting */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
+		int SprintSpeed = 900;
+
 	/** Determines the materialize amount over time when playing the materialize animation */
 	UPROPERTY(EditAnywhere, Category = Materialize)
 		UCurveFloat* MaterializeCurve;
@@ -182,6 +186,12 @@ public:
 	/** Disables sprint, stops sprinting if currently sprinting */
 	void DisableSprint();
 
+	/** Returns true if the player is not sprinting and should start sprinting */
+	bool ShouldStartSprinting(float ForwardMovement);
+
+	/** Returns true if the player is sprinting and should stop sprinting */
+	bool ShouldStopSprinting(float ForwardMovement);
+
 	/** Handles moving forward/backward */
 	void MoveForward(float val);
 
@@ -259,6 +269,9 @@ public:
 
 private:
 	bool initialized = false;
+
+	bool sprintEnabled = false;
+	int walkSpeed;
 
 	float LastShotTimeStamp;
 
