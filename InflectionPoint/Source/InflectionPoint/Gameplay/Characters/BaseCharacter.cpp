@@ -291,8 +291,10 @@ void ABaseCharacter::MoveForward(float value) {
 	}
 
 	if(ShouldStartSprinting(value)) {
+		StartSprinting();
 		ServerStartSprinting();
 	} else if (ShouldStopSprinting(value)) {
+		StopSprinting();
 		ServerStopSprinting();
 	}
 }
@@ -351,22 +353,6 @@ void ABaseCharacter::DisableSprint() {
 	sprintEnabled = false;
 }
 
-bool ABaseCharacter::ServerStartSprinting_Validate() {
-	return true;
-}
-
-void ABaseCharacter::ServerStartSprinting_Implementation() {
-	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
-}
-
-bool ABaseCharacter::ServerStopSprinting_Validate() {
-	return true;
-}
-
-void ABaseCharacter::ServerStopSprinting_Implementation() {
-	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
-}
-
 bool ABaseCharacter::ShouldStartSprinting(float ForwardMovement) {
 	return ForwardMovement > 0 && sprintEnabled && GetVelocity().Size() <= walkSpeed;
 }
@@ -377,3 +363,28 @@ bool ABaseCharacter::ShouldStopSprinting(float ForwardMovement) {
 	}
 	return ForwardMovement <= 0 || !sprintEnabled;
 }
+
+void ABaseCharacter::StartSprinting() {
+	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
+}
+
+void ABaseCharacter::StopSprinting() {
+	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+}
+
+bool ABaseCharacter::ServerStartSprinting_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStartSprinting_Implementation() {
+	StartSprinting();
+}
+
+bool ABaseCharacter::ServerStopSprinting_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStopSprinting_Implementation() {
+	StopSprinting();
+}
+

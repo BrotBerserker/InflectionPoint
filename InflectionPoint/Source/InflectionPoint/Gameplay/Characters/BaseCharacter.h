@@ -192,6 +192,12 @@ public:
 	/** Returns true if the player is sprinting and should stop sprinting */
 	bool ShouldStopSprinting(float ForwardMovement);
 
+	/** Starts sprinting (increases max speed) */
+	void StartSprinting();
+
+	/** Stops sprinting (decreases max speed) */
+	void StopSprinting();
+
 	/** Handles moving forward/backward */
 	void MoveForward(float val);
 
@@ -242,11 +248,11 @@ public:
 	UFUNCTION(Unreliable, NetMulticast)
 		void MulticastProjectileFired();
 
-	/** Starts sprinting (increases max speed) */
+	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerStartSprinting();
 
-	/** Stops sprinting (decreases max speed over time) */
+	/** Stops sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerStopSprinting();
 
