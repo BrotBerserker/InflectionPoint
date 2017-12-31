@@ -30,7 +30,10 @@ public:
 	/* --------------- */
 
 	/** Constructor */
-	ATDMGameModeBase();
+	ATDMGameModeBase();	
+	
+	/** Tick, responsible for replaying */
+	virtual void Tick(float deltaTime) override;
 
 	/** Starts the match by starting round 1 */
 	UFUNCTION()
@@ -113,6 +116,7 @@ private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
 
 private:
+	float currentMatchStartDelay = -1; // <0 match is not starting
 
 	/** Check current round's status */
 	bool IsWinnerFound();

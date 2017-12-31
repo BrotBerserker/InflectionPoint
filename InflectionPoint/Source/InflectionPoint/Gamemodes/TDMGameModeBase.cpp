@@ -20,6 +20,10 @@ ATDMGameModeBase::ATDMGameModeBase()
 	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Controllers/PlayerController"));
 	static ConstructorHelpers::FClassFinder<ATDMGameStateBase> GameStateClassFinder(TEXT("/Game/InflectionPoint/Blueprints/GameModes/TDMGameState"));
 
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryActorTick.bCanEverTick = true;
+
 	DefaultPawnClass = PlayerPawnClassFinder.Class;
 	GameStateClass = GameStateClassFinder.Class;
 
@@ -30,12 +34,21 @@ ATDMGameModeBase::ATDMGameModeBase()
 	ScoreHandler = CreateDefaultSubobject<UTDMScoreHandler>(TEXT("ScoreHandler"));
 }
 
+void ATDMGameModeBase::Tick(float deltaTime) {
+	Super::Tick(deltaTime);
+	if(currentMatchStartDelay >= 0) {
+		currentMatchStartDelay -= deltaTime;
+		if(currentMatchStartDelay < 0)
+			StartMatch();
+	}
+}
+
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
 	NumPlayers++;
 	APlayerControllerBase* controller = Cast<APlayerControllerBase>(NewPlayer);
 	if(NumPlayers == MaxPlayers)
-		StartMatch();
+		currentMatchStartDelay = MatchStartDelay;
 }
 
 
@@ -54,7 +67,7 @@ void ATDMGameModeBase::StartMatch() {
 	GetGameState()->CurrentRound = 0;
 	AssignTeamsAndPlayerStartGroups();
 	ResetPlayerScores();
-	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned
+	StartNextRound();
 }
 
 void ATDMGameModeBase::EndCurrentRound() {
