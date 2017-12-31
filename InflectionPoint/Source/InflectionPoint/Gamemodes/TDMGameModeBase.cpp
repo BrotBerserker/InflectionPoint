@@ -221,10 +221,6 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(APlayerControllerBase * playerContr
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
-
-	if(GetGameState()->CurrentRound == 0) {
-		playerController->ClientRoundStarted(0);
-	}
 }
 
 void ATDMGameModeBase::SpawnAndPrepareReplay(APlayerControllerBase* playerController, int round) {
