@@ -118,8 +118,9 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
-		controller->ClientShowKillInfo(killedInfo, ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer),
-			killerInfo, ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer), NULL);
+		float killedScoreChange = GetGameState()->CurrentRound == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
+		float killerScoreChange = GetGameState()->CurrentRound == 0 ? 0 : ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer);
+		controller->ClientShowKillInfo(killedInfo, killedScoreChange, killerInfo, killerScoreChange, NULL);
 	}
 }
 

@@ -38,9 +38,9 @@ public:
 
 private:
 	UFUNCTION()
-		void AddKillToPlayerScore(AController * KilledPlayer, AController* KillingPlayer);
+		void UpdatePlayerScoreAfterKill(AController * KilledPlayer, AController* KillingPlayer);
 	UFUNCTION()
-		void AddKillToPlayerState(AController * KilledPlayer, AController* KillingPlayer);
+		void UpdateKillDeathNumbers(AController * KilledPlayer, AController* KillingPlayer);
 
 	UFUNCTION()
 		bool IsTeamKill(UCharacterInfoProvider* killedInfo, UCharacterInfoProvider* killerInfo);

@@ -36,11 +36,11 @@ float UTDMScoreHandler::GetKilledScoreChange(AController * KilledPlayer, AContro
 
 
 void UTDMScoreHandler::AddKill(AController * KilledPlayer, AController* KillingPlayer) {
-	AddKillToPlayerScore(KilledPlayer, KillingPlayer);
-	AddKillToPlayerState(KilledPlayer, KillingPlayer);
+	UpdatePlayerScoreAfterKill(KilledPlayer, KillingPlayer);
+	UpdateKillDeathNumbers(KilledPlayer, KillingPlayer);
 }
 
-void UTDMScoreHandler::AddKillToPlayerScore(AController * KilledPlayer, AController* KillingPlayer) {
+void UTDMScoreHandler::UpdatePlayerScoreAfterKill(AController * KilledPlayer, AController* KillingPlayer) {
 	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
 	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
 
@@ -54,7 +54,7 @@ void UTDMScoreHandler::AddKillToPlayerScore(AController * KilledPlayer, AControl
 }
 
 
-void UTDMScoreHandler::AddKillToPlayerState(AController * KilledPlayer, AController* KillingPlayer) {
+void UTDMScoreHandler::UpdateKillDeathNumbers(AController * KilledPlayer, AController* KillingPlayer) {
 	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
 	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
 
