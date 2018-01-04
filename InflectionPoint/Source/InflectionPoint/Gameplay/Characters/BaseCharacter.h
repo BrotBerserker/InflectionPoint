@@ -180,13 +180,10 @@ public:
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
 	/** Fires a projectile. */
-	void OnFire();
+	void Fire();
 
 	/** Fires a debug projectile. */
-	void OnDebugFire();
-
-	/** Stops firing. */
-	void OnStopFire();
+	void DebugFire();
 
 	/** Event fired when CurrentAmmo changes */
 	UFUNCTION(BlueprintImplementableEvent)

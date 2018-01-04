@@ -186,17 +186,13 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 	return actualDamage;
 }
 
-void ABaseCharacter::OnFire() {
+void ABaseCharacter::Fire() {
 	DisableSprint();
 	ServerFireProjectile(ProjectileClass);
 }
 
-void ABaseCharacter::OnDebugFire() {
+void ABaseCharacter::DebugFire() {
 	ServerFireProjectile(DebugProjectileClass);
-}
-
-void ABaseCharacter::OnStopFire() {
-	ServerStopFire();
 }
 
 bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {

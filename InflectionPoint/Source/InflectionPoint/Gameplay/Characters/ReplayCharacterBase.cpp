@@ -129,9 +129,9 @@ void AReplayCharacterBase::PressKey(FString key) {
 	} else if(key == "Sprint") {
 		EnableSprint();
 	} else if(key == "Fire") {
-		OnFire();
+		Fire();
 	} else if(key == "DEBUG_Fire") {
-		OnDebugFire();
+		DebugFire();
 	}
 }
 

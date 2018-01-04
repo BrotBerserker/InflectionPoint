@@ -30,11 +30,11 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::OnFire);
-	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &ABaseCharacter::OnDebugFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::Fire);
+	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &ABaseCharacter::DebugFire);
 
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::OnStopFire);
-	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Released, this, &ABaseCharacter::OnStopFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
+	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABaseCharacter::EnableSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABaseCharacter::DisableSprint);
