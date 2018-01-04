@@ -65,6 +65,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		float DelayBetweenShots = 0.2f;
 
+	/** Number of shots per clip */
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		int MaxAmmo = 7;
+
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class USoundBase* FireSound;
@@ -72,6 +76,10 @@ public:
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class UAnimMontage* FireAnimation;
+
+	/** AnimMontage to play when reloading */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+		class UAnimMontage* ReloadAnimation1P;
 
 	/** Determines the maximum walk speed when sprinting */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
@@ -180,6 +188,10 @@ public:
 	/** Stops firing. */
 	void OnStopFire();
 
+	/** Event fired when CurrentAmmo changes */
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnAmmoChanged();
+
 	/** Enables sprint and starts sprinting if all sprinting conditions are met */
 	void EnableSprint();
 
@@ -248,6 +260,14 @@ public:
 	UFUNCTION(Unreliable, NetMulticast)
 		void MulticastProjectileFired();
 
+	/** Reloads the weapon by updating CurrentAmmo, assumes that the animation has already been played */
+	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable)
+		void ServerReload();
+
+	/** Tells everyone that this character has reloaded */
+	UFUNCTION(Unreliable, NetMulticast)
+		void MulticastReloaded();
+
 	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerStartSprinting();
@@ -272,6 +292,12 @@ public:
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastUpdateCameraPitch(float pitch);
 
+public:
+	/* ---------------------- */
+	/*  Replicated Variables  */
+	/* ---------------------- */
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		int CurrentAmmo;
 
 private:
 	bool initialized = false;

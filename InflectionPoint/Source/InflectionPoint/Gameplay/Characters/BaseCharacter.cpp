@@ -18,6 +18,12 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 //////////////////////////////////////////////////////////////////////////
 // ABaseCharacter
 
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseCharacter, CurrentAmmo);
+}
+
 ABaseCharacter::ABaseCharacter() {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -100,6 +106,10 @@ void ABaseCharacter::BeginPlay() {
 
 	DynamicGunMaterial = UMaterialInstanceDynamic::Create(TP_Gun->GetMaterial(0), TP_Gun);
 	TP_Gun->SetMaterial(0, DynamicGunMaterial);
+
+	// Initialize ammo
+	CurrentAmmo = MaxAmmo;
+	OnAmmoChanged();
 }
 
 void ABaseCharacter::Restart() {
@@ -195,7 +205,7 @@ bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflection
 
 void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
 	DrawDebugArrow();
-	if(UGameplayStatics::GetRealTimeSeconds(GetWorld()) - LastShotTimeStamp >= DelayBetweenShots) {
+	if(CurrentAmmo != 0 && UGameplayStatics::GetRealTimeSeconds(GetWorld()) - LastShotTimeStamp >= DelayBetweenShots) {
 		FireProjectile(projectileClassToSpawn);
 		LastShotTimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	}
@@ -222,6 +232,8 @@ void ABaseCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &pro
 
 			// spawn the projectile at the muzzle
 			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
+
+			CurrentAmmo--;
 
 			MulticastProjectileFired();
 		}
@@ -256,6 +268,21 @@ void ABaseCharacter::MulticastProjectileFired_Implementation() {
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
 	}
+
+	OnAmmoChanged();
+}
+
+bool ABaseCharacter::ServerReload_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerReload_Implementation() {
+	CurrentAmmo = MaxAmmo;
+	MulticastReloaded();
+}
+
+void ABaseCharacter::MulticastReloaded_Implementation() {
+	OnAmmoChanged();
 }
 
 void ABaseCharacter::MulticastOnDeath_Implementation() {
@@ -293,7 +320,7 @@ void ABaseCharacter::MoveForward(float value) {
 	if(ShouldStartSprinting(value)) {
 		StartSprinting();
 		ServerStartSprinting();
-	} else if (ShouldStopSprinting(value)) {
+	} else if(ShouldStopSprinting(value)) {
 		StopSprinting();
 		ServerStopSprinting();
 	}
