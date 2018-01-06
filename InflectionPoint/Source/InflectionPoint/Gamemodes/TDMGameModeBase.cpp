@@ -32,12 +32,22 @@ ATDMGameModeBase::ATDMGameModeBase()
 
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
+	if(NumPlayers >= MaxPlayers) {
+		GameSession->KickPlayer(NewPlayer, FText::FromString("Server is already full!"));
+		return;
+	}
 	NumPlayers++;
 	APlayerControllerBase* controller = Cast<APlayerControllerBase>(NewPlayer);
 	if(NumPlayers == MaxPlayers)
 		StartMatch();
 }
 
+void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
+	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+	if(NumPlayers >= MaxPlayers) {
+		ErrorMessage = "Server is already full!";
+	}
+}
 
 void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();

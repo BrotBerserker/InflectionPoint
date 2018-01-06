@@ -30,7 +30,7 @@ public:
 	/* --------------- */
 
 	/** Constructor */
-	ATDMGameModeBase();	
+	ATDMGameModeBase();
 
 	/** Starts the match by starting round 1 */
 	UFUNCTION()
@@ -62,6 +62,8 @@ public:
 
 	/** Called when a player connects to the server, starts the match when enouhg players have joined */
 	virtual void PostLogin(APlayerController * NewPlayer) override;
+
+	virtual void PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) override;
 
 	/** Returns the GameState as TDMGameStateBase */
 	FORCEINLINE class ATDMGameStateBase* GetGameState() const { return (ATDMGameStateBase*)GameState; };
@@ -99,12 +101,12 @@ public:
 
 	/** Max number of connected players and number of players required to start a match */
 	UPROPERTY(BlueprintReadWrite)
-		int MaxPlayers;
-	
+		int MaxPlayers = OfflineMaxPlayers;
+
 	/** Current number of connected players */
 	UPROPERTY(BlueprintReadWrite)
 		int NumPlayers = 0;
-	
+
 	UPROPERTY(BlueprintReadWrite)
 		UTDMScoreHandler* ScoreHandler;
 
