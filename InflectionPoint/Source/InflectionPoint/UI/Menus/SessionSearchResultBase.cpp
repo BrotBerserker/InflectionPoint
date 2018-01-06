@@ -12,7 +12,17 @@ USessionSearchResultBase::USessionSearchResultBase(const FObjectInitializer& Obj
 FString USessionSearchResultBase::GetOnlineSessionName() {
 	FString sessionName;
 	OnlineSessionSearchResult.Session.SessionSettings.Get(FName("SessionName"), sessionName);
+	int32 maxPlayers = OnlineSessionSearchResult.Session.SessionSettings.NumPublicConnections;
+	int32 connectedPlayers = maxPlayers - OnlineSessionSearchResult.Session.NumOpenPrivateConnections;
 	return sessionName;
+}
+
+int32 USessionSearchResultBase::GetMaxPlayers() {
+	return OnlineSessionSearchResult.Session.SessionSettings.NumPublicConnections;
+}
+
+int32 USessionSearchResultBase::GetConnectedPlayers() {
+	return GetMaxPlayers() - OnlineSessionSearchResult.Session.NumOpenPublicConnections;
 }
 
 void USessionSearchResultBase::JoinOnlineGame() {

@@ -26,9 +26,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
 		FString GetOnlineSessionName();
 
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
+		int32 GetMaxPlayers();
+
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
+		int32 GetConnectedPlayers();
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
 		void OnJoinComplete(FName SessioName);
-	
+
 public:
 	/* -------------- */
 	/*   Properties   */
