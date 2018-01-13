@@ -285,7 +285,7 @@ void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
 		APlayerControllerBase* controller = (APlayerControllerBase*)UGameplayStatics::GetPlayerController(world, iterator.GetIndex());
 		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
 		playerState->Team = iterator.GetIndex() % 2 + 1;
-		playerState->PlayerStartGroup = TEXT("A");
+		playerState->PlayerStartGroup = FString("").AppendChar('A' + iterator.GetIndex() / 2);
 	}
 }
 
