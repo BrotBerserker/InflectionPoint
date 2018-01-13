@@ -20,6 +20,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void UpdateMaxPlayers(FName SessioName);
 
+	/** Updates the current number of players using the given session */
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
+		void UpdateCurrentPlayers(FName SessionName);
+
 	/** Tells the game mode that a character has been killed by another player or by himself */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
 		void CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);

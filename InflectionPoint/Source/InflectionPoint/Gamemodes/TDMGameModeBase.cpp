@@ -12,6 +12,7 @@
 #include "Gameplay/Characters/ReplayCharacterBase.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
 #include "Gamemodes/TDMLevelScriptBase.h"
+#include "Gameplay/InflectionPointGameInstanceBase.h"
 
 ATDMGameModeBase::ATDMGameModeBase()
 	: Super() {
@@ -37,6 +38,7 @@ void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 		return;
 	}
 	NumPlayers++;
+	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
 	APlayerControllerBase* controller = Cast<APlayerControllerBase>(NewPlayer);
 	if(NumPlayers == MaxPlayers)
 		StartMatch();
@@ -49,15 +51,24 @@ void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address
 	}
 }
 
-void ATDMGameModeBase::UpdateMaxPlayers(FName SessioName) {
+void ATDMGameModeBase::UpdateMaxPlayers(FName SessionName) {
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
-	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessioName);
+	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
 	if(sessionSettings) {
 		MaxPlayers = sessionSettings->NumPublicConnections;
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, setting MaxPlayers to %d."), OfflineMaxPlayers);
 		MaxPlayers = OfflineMaxPlayers;
 	}
+}
+
+void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
+	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
+	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
+	if(sessionSettings) {
+		sessionSettings->Set(FName("CurrentPlayers"), NumPlayers, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		session->UpdateSession(SessionName, *sessionSettings);
+	} 
 }
 
 void ATDMGameModeBase::StartMatch() {

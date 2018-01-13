@@ -22,7 +22,9 @@ int32 USessionSearchResultBase::GetMaxPlayers() {
 }
 
 int32 USessionSearchResultBase::GetConnectedPlayers() {
-	return GetMaxPlayers() - OnlineSessionSearchResult.Session.NumOpenPublicConnections;
+	int32 currentPlayers;
+	OnlineSessionSearchResult.Session.SessionSettings.Get(FName("CurrentPlayers"), currentPlayers);
+	return currentPlayers;
 }
 
 void USessionSearchResultBase::JoinOnlineGame() {
