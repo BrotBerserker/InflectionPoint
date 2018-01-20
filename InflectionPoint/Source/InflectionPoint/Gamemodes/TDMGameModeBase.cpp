@@ -107,6 +107,9 @@ void ATDMGameModeBase::StartSpawnCinematics() {
 void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
 	SendKillInfoToPlayers(KilledPlayer, KillingPlayer, DamageCauser);
 
+	if(KilledPlayer->IsA(APlayerController::StaticClass()))
+		Cast<ATDMPlayerStateBase>(KilledPlayer->PlayerState)->IsAlive = false;
+
 	if(GetGameState()->CurrentRound > 0)
 		ScoreHandler->AddKill(KilledPlayer, KillingPlayer);
 
@@ -116,7 +119,6 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 
 	if(GetGameState()->CurrentRound > 0)
 		SavePlayerRecordings(playerController);
-
 
 	if(GetGameState()->CurrentRound == 0) {
 		SpawnAndPossessPlayer(playerController);
@@ -174,15 +176,7 @@ TArray<int> ATDMGameModeBase::GetTeamsAlive() {
 
 
 bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
-	auto pawn = playerController->GetPawn();
-	if(!pawn)
-		return false;
-
-	auto mortalityProvider = pawn->FindComponentByClass<UMortalityProvider>();
-	if(mortalityProvider && mortalityProvider->CurrentHealth > 0)
-		return true;
-
-	return false;
+	return Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive;
 }
 
 void ATDMGameModeBase::SpawnPlayersAndReplays() {
@@ -242,6 +236,7 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(APlayerControllerBase * playerContr
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
+	Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive = true;
 }
 
 void ATDMGameModeBase::SpawnAndPrepareReplay(APlayerControllerBase* playerController, int round) {
