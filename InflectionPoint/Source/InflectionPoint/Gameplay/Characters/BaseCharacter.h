@@ -66,7 +66,7 @@ public:
 		float DelayBetweenShots = 0.2f;
 
 	/** Number of shots per clip */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 		int MaxAmmo = 7;
 
 	/** Sound to play each time we fire */
