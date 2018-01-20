@@ -253,7 +253,11 @@ void ABaseCharacter::DrawDebugArrow() {
 void ABaseCharacter::MulticastProjectileFired_Implementation() {
 	// try and play the sound if specified
 	if(FireSound != NULL) {
-		UGameplayStatics::SpawnSoundAttached(FireSound, GetCapsuleComponent());
+		if(CurrentAmmo <= 4) {
+			UGameplayStatics::SpawnSoundAttached(FireSound, GetCapsuleComponent(), NAME_None, FVector(0, 0, 0), FRotator(0, 0, 0), EAttachLocation::KeepRelativeOffset, false, 1.2, 1.0 - (1-((float)CurrentAmmo / 4.0))*0.2);
+		} else {
+			UGameplayStatics::SpawnSoundAttached(FireSound, GetCapsuleComponent());
+		}
 	}
 
 	// try and play a firing animation if specified
