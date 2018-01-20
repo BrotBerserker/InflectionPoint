@@ -25,5 +25,5 @@ void ATDMPlayerStateBase::ResetScore() {
 	ReplayKills = 0;
 	TeamKills = 0;
 	Score = 0;
-	IsAlive = false;
+	IsAlive = 1;
 }

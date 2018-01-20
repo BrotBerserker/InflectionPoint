@@ -93,7 +93,7 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 		}
 
 		SetViewTargetWithBlend(otherCharacter, 0.3f);
-		ShowSpectatorViewSwitched(infoProvider->GetCharacterInfo());
+		SpactatingCharacterSwitched(otherCharacter, infoProvider->GetCharacterInfo());
 		return true;
 	}
 

@@ -49,10 +49,11 @@ public:
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
 		void ServerSwitchSpectatedPlayer();	
-	
+
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintImplementableEvent)
-		void ShowSpectatorViewSwitched(FCharacterInfo characterInfo);
+		void SpactatingCharacterSwitched(ABaseCharacter* newCharacter, FCharacterInfo newCharacterInfo);
+	
 
 private:
 	/** Searches the given array for an actor that can be spectated. If one is found, switches the camera to spectate him and returns true */

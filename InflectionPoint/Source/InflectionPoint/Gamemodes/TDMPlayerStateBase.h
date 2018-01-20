@@ -37,6 +37,6 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int TeamKills = 0;
 	UPROPERTY(Replicated, BlueprintReadWrite)
-		bool IsAlive = 0;
+		bool IsAlive = 1;
 
 };
