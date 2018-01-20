@@ -16,6 +16,7 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ATDMPlayerStateBase, TeamKills);
 	DOREPLIFETIME(ATDMPlayerStateBase, Score);
 	DOREPLIFETIME(ATDMPlayerStateBase, IsAlive);
+	DOREPLIFETIME(ATDMPlayerStateBase, Ping);
 }
 
 void ATDMPlayerStateBase::ResetScore() {
