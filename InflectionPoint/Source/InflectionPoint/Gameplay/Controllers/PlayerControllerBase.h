@@ -46,5 +46,13 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);
 
+	/** Spectates the next player or replay that is alive and in the same team as this player */
+	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
+		void ServerSwitchSpectatedPlayer();
+
+private:
+	/** Searches the given array for an actor that can be spectated. If one is found, switches the camera to spectate him and returns true */
+	bool SpectateNextActorInRange(TArray<AActor*> actors, int32 beginIndex, int32 endIndex);
+
 };
 

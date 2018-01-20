@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "DebugTools/InflectionPointCheatManager.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "PlayerControllerBase.h"
 
@@ -50,4 +51,50 @@ void APlayerControllerBase::ClientSetIgnoreInput_Implementation(bool ignore) {
 		character->EnableInput(this);
 	}
 
+}
+
+bool APlayerControllerBase::ServerSwitchSpectatedPlayer_Validate() {
+	return true;
+}
+
+void APlayerControllerBase::ServerSwitchSpectatedPlayer_Implementation() {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), foundActors);
+	int32 myIndex = foundActors.Find(GetViewTarget());
+
+	bool spectatorSwitched = SpectateNextActorInRange(foundActors, myIndex + 1, foundActors.Num());
+
+	if(!spectatorSwitched) {
+		SpectateNextActorInRange(foundActors, 0, myIndex);
+	}
+}
+
+bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int32 beginIndex, int32 endIndex) {
+	ATDMPlayerStateBase* myPlayerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	for(int32 i = beginIndex; i < endIndex; i++) {
+		ABaseCharacter* otherCharacter = Cast<ABaseCharacter>(actors[i]);
+
+		// Don't switch do ourself
+		if(otherCharacter->GetName().Equals(GetViewTarget()->GetName())) {
+			continue;
+		}
+
+		// Don't switch to dead people
+		UMortalityProvider* otherMortalityProvider = otherCharacter->FindComponentByClass<UMortalityProvider>();
+		if(otherMortalityProvider == NULL || !otherMortalityProvider->IsAlive()) {
+			continue;
+		}
+
+		// Don't switch to players in a different team
+		UCharacterInfoProvider* infoProvider = otherCharacter->GetController()->FindComponentByClass<UCharacterInfoProvider>();
+		ATDMPlayerStateBase* otherPlayerState = Cast<ATDMPlayerStateBase>(infoProvider->PlayerState);
+		if(otherPlayerState->Team != myPlayerState->Team) {
+			continue;
+		}
+
+		SetViewTargetWithBlend(otherCharacter, 0.3f);
+		return true;
+	}
+
+	return false;
 }

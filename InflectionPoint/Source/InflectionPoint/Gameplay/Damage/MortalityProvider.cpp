@@ -34,3 +34,7 @@ void UMortalityProvider::TakeDamage(float DamageAmount, AController * KillingPla
 		OnDeath.Broadcast(KillingPlayer, DamageCauser);
 	}
 }
+
+bool UMortalityProvider::IsAlive() {
+	return CurrentHealth > 0;
+}

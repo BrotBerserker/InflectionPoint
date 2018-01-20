@@ -59,4 +59,7 @@ public:
 	/* Fired when the current health value reaches 0. */
 	UPROPERTY(BlueprintAssignable)
 		FOnDeathDelegate OnDeath;
+
+	UFUNCTION()
+		bool IsAlive();
 };
