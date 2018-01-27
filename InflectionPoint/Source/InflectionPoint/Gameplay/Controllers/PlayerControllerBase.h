@@ -48,11 +48,11 @@ public:
 
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
-		void ServerSwitchSpectatedPlayer();	
+		void ServerSwitchSpectatedCharacter();	
 
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintImplementableEvent)
-		void SpactatingCharacterSwitched(ABaseCharacter* newCharacter, FCharacterInfo newCharacterInfo);
+		void SpectatedCharacterSwitched(ABaseCharacter* newCharacter, FCharacterInfo newCharacterInfo);
 	
 
 private:

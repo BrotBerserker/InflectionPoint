@@ -53,11 +53,11 @@ void APlayerControllerBase::ClientSetIgnoreInput_Implementation(bool ignore) {
 
 }
 
-bool APlayerControllerBase::ServerSwitchSpectatedPlayer_Validate() {
+bool APlayerControllerBase::ServerSwitchSpectatedCharacter_Validate() {
 	return true;
 }
 
-void APlayerControllerBase::ServerSwitchSpectatedPlayer_Implementation() {
+void APlayerControllerBase::ServerSwitchSpectatedCharacter_Implementation() {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), foundActors);
 	int32 myIndex = foundActors.Find(GetViewTarget());
@@ -93,7 +93,7 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 		}
 
 		SetViewTargetWithBlend(otherCharacter, 0.3f);
-		SpactatingCharacterSwitched(otherCharacter, infoProvider->GetCharacterInfo());
+		SpectatedCharacterSwitched(otherCharacter, infoProvider->GetCharacterInfo());
 		return true;
 	}
 

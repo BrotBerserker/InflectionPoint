@@ -272,19 +272,6 @@ void ABaseCharacter::MulticastProjectileFired_Implementation() {
 	OnAmmoChanged();
 }
 
-bool ABaseCharacter::ServerReload_Validate() {
-	return true;
-}
-
-void ABaseCharacter::ServerReload_Implementation() {
-	CurrentAmmo = MaxAmmo;
-	MulticastReloaded();
-}
-
-void ABaseCharacter::MulticastReloaded_Implementation() {
-	OnAmmoChanged();
-}
-
 void ABaseCharacter::MulticastOnDeath_Implementation() {
 	// Play random Death Animation
 	if(DeathAnimations.Num() == 0) {

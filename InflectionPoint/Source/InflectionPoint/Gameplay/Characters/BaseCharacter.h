@@ -186,7 +186,7 @@ public:
 	void DebugFire();
 
 	/** Event fired when CurrentAmmo changes */
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void OnAmmoChanged();
 
 	/** Enables sprint and starts sprinting if all sprinting conditions are met */
@@ -256,14 +256,6 @@ public:
 	/** Notifies Clients about projectile fired */
 	UFUNCTION(Unreliable, NetMulticast)
 		void MulticastProjectileFired();
-
-	/** Reloads the weapon by updating CurrentAmmo, assumes that the animation has already been played */
-	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable)
-		void ServerReload();
-
-	/** Tells everyone that this character has reloaded */
-	UFUNCTION(Unreliable, NetMulticast)
-		void MulticastReloaded();
 
 	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
