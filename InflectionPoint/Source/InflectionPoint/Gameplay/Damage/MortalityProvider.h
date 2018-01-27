@@ -60,6 +60,6 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FOnDeathDelegate OnDeath;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		bool IsAlive();
 };
