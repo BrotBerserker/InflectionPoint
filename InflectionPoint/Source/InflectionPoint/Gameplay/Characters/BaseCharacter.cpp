@@ -82,6 +82,9 @@ ABaseCharacter::ABaseCharacter() {
 	MaterializeTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimeline"));
 
 	walkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
+	CharacterInfoProvider->SetIsReplicated(true);
 }
 
 void ABaseCharacter::BeginPlay() {

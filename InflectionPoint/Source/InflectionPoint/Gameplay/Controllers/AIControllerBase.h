@@ -19,9 +19,6 @@ public:
 
 	void Initialize(APlayerController* OwningController);
 
-	UPROPERTY()
-		class UCharacterInfoProvider* CharacterInfoProvider;
-
 	UPROPERTY(BlueprintReadOnly)
 		APlayerController* OwningPlayerController;
 };

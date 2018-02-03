@@ -2,6 +2,7 @@
 #pragma once
 #include "GameFramework/Character.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
+#include "Gameplay/CharacterInfoProvider.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -47,6 +48,9 @@ public:
 	/** Timeline used to show the materialize effect */
 	UPROPERTY()
 		UTimelineComponent* MaterializeTimeline;
+
+	UPROPERTY()
+		class UCharacterInfoProvider* CharacterInfoProvider;
 
 public:
 	/* ---------------------- */

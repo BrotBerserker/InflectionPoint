@@ -10,8 +10,6 @@
 APlayerControllerBase::APlayerControllerBase(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer) {
 	CheatClass = UInflectionPointCheatManager::StaticClass();
-
-	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 }
 
 void APlayerControllerBase::BeginPlay() {
@@ -22,7 +20,7 @@ void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
 
 	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
-	CharacterInfoProvider->PlayerState = InPawn->PlayerState;
+	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->PlayerState;
 }
 
 void APlayerControllerBase::ClientSetControlRotation_Implementation(FRotator rotation) {
@@ -86,7 +84,7 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 		}
 
 		// Don't switch to players in a different team
-		UCharacterInfoProvider* infoProvider = otherCharacter->GetController()->FindComponentByClass<UCharacterInfoProvider>();
+		UCharacterInfoProvider* infoProvider = otherCharacter->FindComponentByClass<UCharacterInfoProvider>();
 		ATDMPlayerStateBase* otherPlayerState = Cast<ATDMPlayerStateBase>(infoProvider->PlayerState);
 		if(otherPlayerState->Team != myPlayerState->Team) {
 			continue;

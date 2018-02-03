@@ -12,8 +12,8 @@ UTDMScoreHandler::UTDMScoreHandler() {
 }
 
 float UTDMScoreHandler::GetKillerScoreChange(AController * KilledPlayer, AController* KillingPlayer) {
-	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
-	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
+	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>() : NULL;
+	UCharacterInfoProvider* killedInfo = KilledPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>();
 
 	if(!killerInfo)
 		return 0;
@@ -41,8 +41,8 @@ void UTDMScoreHandler::AddKill(AController * KilledPlayer, AController* KillingP
 }
 
 void UTDMScoreHandler::UpdatePlayerScoreAfterKill(AController * KilledPlayer, AController* KillingPlayer) {
-	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
-	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
+	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>() : NULL;
+	UCharacterInfoProvider* killedInfo = KilledPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>();
 
 	ATDMPlayerStateBase* killedState = Cast<ATDMPlayerStateBase>(killedInfo->PlayerState);
 	killedState->Score += GetKilledScoreChange(KilledPlayer, KillingPlayer);
@@ -55,8 +55,8 @@ void UTDMScoreHandler::UpdatePlayerScoreAfterKill(AController * KilledPlayer, AC
 
 
 void UTDMScoreHandler::UpdateKillDeathNumbers(AController * KilledPlayer, AController* KillingPlayer) {
-	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>() : NULL;
-	UCharacterInfoProvider* killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>();
+	UCharacterInfoProvider* killerInfo = KillingPlayer ? KillingPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>() : NULL;
+	UCharacterInfoProvider* killedInfo = KilledPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>();
 
 	ATDMPlayerStateBase* killedState = Cast<ATDMPlayerStateBase>(killedInfo->PlayerState);
 	killedState->Deaths++;

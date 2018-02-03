@@ -10,8 +10,8 @@ USTRUCT(BlueprintType)
 struct FCharacterInfo {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString PlayerName;
+		UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString PlayerName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int Team;
@@ -37,9 +37,15 @@ class INFLECTIONPOINT_API UCharacterInfoProvider : public UActorComponent {
 public:
 	UCharacterInfoProvider();
 
-	APlayerState* PlayerState;
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const;
 
-	bool IsReplay = false;
 
-	FCharacterInfo GetCharacterInfo();
+	UPROPERTY(BlueprintReadOnly, Replicated)
+		bool IsReplay = false;
+
+	UPROPERTY(BlueprintReadOnly, Replicated)
+		APlayerState* PlayerState;
+
+	UFUNCTION(BlueprintCallable)
+		FCharacterInfo GetCharacterInfo();
 };

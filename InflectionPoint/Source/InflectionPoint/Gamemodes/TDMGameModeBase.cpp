@@ -136,8 +136,8 @@ void ATDMGameModeBase::ResetPlayerScores() {
 }
 
 void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
-	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo() : FCharacterInfo();
-	FCharacterInfo killedInfo = KilledPlayer->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
+	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo() : FCharacterInfo();
+	FCharacterInfo killedInfo = KilledPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);

@@ -8,8 +8,6 @@
 
 AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer) {
-
-	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 }
 
 void AAIControllerBase::Initialize(APlayerController* OwningController) {
@@ -17,6 +15,7 @@ void AAIControllerBase::Initialize(APlayerController* OwningController) {
 
 	AssertNotNull(OwningPlayerController, GetWorld(), __FILE__, __LINE__);
 	AssertNotNull(OwningPlayerController->PlayerState, GetWorld(), __FILE__, __LINE__);
-	CharacterInfoProvider->PlayerState = OwningPlayerController->PlayerState;
-	CharacterInfoProvider->IsReplay = true;
+	UCharacterInfoProvider* provider = GetCharacter()->FindComponentByClass<UCharacterInfoProvider>();
+	provider->PlayerState = OwningPlayerController->PlayerState;
+	provider->IsReplay = true;
 }

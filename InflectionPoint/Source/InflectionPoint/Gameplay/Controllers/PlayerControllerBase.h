@@ -22,9 +22,6 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientSetControlRotation(FRotator rotation);
 
-	UPROPERTY()
-		class UCharacterInfoProvider* CharacterInfoProvider;
-
 	UFUNCTION(Client, Reliable)
 		void ClientRoundStarted(int Round);
 

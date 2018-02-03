@@ -10,8 +10,17 @@ UCharacterInfoProvider::UCharacterInfoProvider() {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
+void UCharacterInfoProvider::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UCharacterInfoProvider, PlayerState);
+	DOREPLIFETIME(UCharacterInfoProvider, IsReplay);
+}
+
 FCharacterInfo UCharacterInfoProvider::GetCharacterInfo() {
-	FString extraInfo = "";
+	if(PlayerState == NULL) {
+		return FCharacterInfo();
+	}
 	ATDMPlayerStateBase* tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerState);
-	return FCharacterInfo(tdmPlayerState->PlayerName, tdmPlayerState->Team, IsReplay);
+	return FCharacterInfo(tdmPlayerState->PlayerName, tdmPlayerState->Team, IsReplay); //asd
 }
