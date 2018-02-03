@@ -72,7 +72,13 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 	for(int32 i = beginIndex; i < endIndex; i++) {
 		ABaseCharacter* otherCharacter = Cast<ABaseCharacter>(actors[i]);
 
-		// Don't switch do ourself
+		// Don't switch to yourself
+		auto character = Cast<ABaseCharacter>(this->GetCharacter());
+		if(character && otherCharacter->GetName().Equals(character->GetName())) {
+			continue;
+		}		
+
+		// Don't switch to current viewtarget
 		if(otherCharacter->GetName().Equals(GetViewTarget()->GetName())) {
 			continue;
 		}
