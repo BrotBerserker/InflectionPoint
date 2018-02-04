@@ -113,10 +113,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 		float RotationOffsetTolerance = -1;
 
-	/* Draw arrows when shots are fired */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
-		bool DrawDebugArrows = false;
-
 	/* Debug arrow color */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		FColor DebugArrowColor;

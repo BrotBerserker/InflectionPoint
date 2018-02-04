@@ -11,6 +11,7 @@
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Utils/CheckFunctions.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
+#include "DebugTools/InflectionPointCheatManager.h"
 #include "Gamemodes/TDMGameStateBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
@@ -243,8 +244,8 @@ void ABaseCharacter::StopFire() {
 	// do nothing
 }
 
-void ABaseCharacter::DrawDebugArrow() {
-	if(DrawDebugArrows) {
+void ABaseCharacter::DrawDebugArrow() {	
+	if(Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager)->IsCharacterDebugArrowsEnabled) {
 		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
 		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
 

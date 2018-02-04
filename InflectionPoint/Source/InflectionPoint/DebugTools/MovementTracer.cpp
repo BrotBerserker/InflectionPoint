@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "MovementTracer.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "DebugTools/InflectionPointCheatManager.h"
 #include "DrawDebugHelpers.h"
 
 
@@ -26,7 +27,8 @@ void UMovementTracer::BeginPlay() {
 void UMovementTracer::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if(!Enabled) {
+	auto cheatManager = Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager);
+	if(!(Enabled || (cheatManager && cheatManager->IsLineTracingEnabled))) {
 		return;
 	}
 

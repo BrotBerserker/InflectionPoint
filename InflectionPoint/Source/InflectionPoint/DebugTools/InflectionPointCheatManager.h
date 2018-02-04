@@ -14,7 +14,28 @@ class INFLECTIONPOINT_API UInflectionPointCheatManager : public UCheatManager {
 	GENERATED_BODY()
 		
 		virtual void InitCheatManager() override;
+	// Cheats: https://docs.unrealengine.com/latest/INT/BlueprintAPI/CheatManager/
+	// Use the "flushpersistentdebuglines" command to clear debug lines
+public:
 
 	UFUNCTION(exec)
-		virtual void PrintTest();
+		virtual void EnableDebugProjectileLineTrace(bool enable = true);
+
+	UFUNCTION(exec)
+		virtual void EnableCharacterDebugArrows(bool enable = true);
+
+	UFUNCTION(exec)
+		virtual void EnableLineTracing(bool enable = true);
+
+	UFUNCTION(exec)
+		virtual void EnableAllReplayDebugging(bool enable = true);
+
+	UPROPERTY(BlueprintReadWrite)
+		bool IsDebugProjectileLineTraceEnabled = false;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool IsCharacterDebugArrowsEnabled = false;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool IsLineTracingEnabled = false;
 };
