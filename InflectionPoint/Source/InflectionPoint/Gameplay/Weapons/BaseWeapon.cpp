@@ -5,6 +5,12 @@
 #include "BaseWeapon.h"
 
 
+void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
+}
+
 // Sets default values
 ABaseWeapon::ABaseWeapon() {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -39,6 +45,7 @@ ABaseWeapon::ABaseWeapon() {
 void ABaseWeapon::BeginPlay() {
 	Super::BeginPlay();
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
+	CurrentAmmo = MaxAmmo;
 }
 
 // Called every frame
@@ -48,6 +55,9 @@ void ABaseWeapon::Tick(float DeltaTime) {
 }
 
 void ABaseWeapon::StartFire() {
+	if(CurrentAmmo == 0) {
+		return;
+	}
 	// try and fire a projectile
 	if(ProjectileClass != NULL) {
 		UWorld* const World = GetWorld();
@@ -61,7 +71,7 @@ void ABaseWeapon::StartFire() {
 			// spawn the projectile at the muzzle
 			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(ProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
 
-			//CurrentAmmo--;
+			CurrentAmmo--;
 
 			MulticastProjectileFired();
 		}

@@ -58,6 +58,13 @@ public:
 
 	ABaseCharacter* OwningCharacter;
 
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		int CurrentAmmo;
+
+	/** Number of shots per clip */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		int MaxAmmo = 7;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
