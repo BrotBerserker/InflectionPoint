@@ -256,10 +256,6 @@ public:
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerStopFire();
 
-	/** Notifies Clients about projectile fired */
-	UFUNCTION(Unreliable, NetMulticast)
-		void MulticastProjectileFired();
-
 	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerStartSprinting();

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 #include "BaseWeapon.h"
 
 
@@ -37,7 +38,7 @@ ABaseWeapon::ABaseWeapon() {
 // Called when the game starts or when spawned
 void ABaseWeapon::BeginPlay() {
 	Super::BeginPlay();
-
+	OwningCharacter = Cast<ABaseCharacter>(Instigator);
 }
 
 // Called every frame
@@ -47,7 +48,50 @@ void ABaseWeapon::Tick(float DeltaTime) {
 }
 
 void ABaseWeapon::StartFire() {
+	// try and fire a projectile
+	if(ProjectileClass != NULL) {
+		UWorld* const World = GetWorld();
+		if(AssertNotNull(World, GetWorld(), __FILE__, __LINE__)) {
+			//Set Spawn Collision Handling Override
+			FActorSpawnParameters ActorSpawnParams;
+			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+			ActorSpawnParams.Instigator = Instigator;
+			ActorSpawnParams.Owner = this;
 
+			// spawn the projectile at the muzzle
+			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(ProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
+
+			//CurrentAmmo--;
+
+			MulticastProjectileFired();
+		}
+	}
+}
+
+void ABaseWeapon::MulticastProjectileFired_Implementation() {
+	// try and play the sound if specified
+	if(FireSound != NULL) {
+		UGameplayStatics::SpawnSoundAttached(FireSound, Mesh1P);
+	}
+
+	// try and play a firing animation if specified
+	if(FireAnimation != NULL) {
+		// Get the animation object for the arms mesh
+		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+		if(AnimInstance != NULL) {
+			AnimInstance->Montage_Play(FireAnimation, 1.f);
+		}
+	}
+
+	//OnAmmoChanged();
+}
+
+FRotator ABaseWeapon::GetProjectileSpawnRotation() {
+	return OwningCharacter->FirstPersonCameraComponent->GetComponentRotation();
+}
+
+FVector ABaseWeapon::GetProjectileSpawnLocation() {
+	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
 }
 
 void ABaseWeapon::StopFire() {

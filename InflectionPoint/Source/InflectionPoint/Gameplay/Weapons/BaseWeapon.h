@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Gameplay/Weapons/InflectionPointProjectile.h"
 #include "BaseWeapon.generated.h"
+
+class ABaseCharacter;
 
 UCLASS()
 class INFLECTIONPOINT_API ABaseWeapon : public AActor {
@@ -31,6 +34,30 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* FP_MuzzleLocation;
 
+	/** Projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
+
+	/** Notifies Clients about projectile fired */
+	UFUNCTION(Unreliable, NetMulticast)
+		void MulticastProjectileFired();
+
+	/** Sound to play each time we fire */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+		class USoundBase* FireSound;
+
+	/** AnimMontage to play each time we fire */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+		class UAnimMontage* FireAnimation;
+
+	/** Returns the location at which a projectile should spawn */
+	FVector GetProjectileSpawnLocation();
+
+	/** Returns the rotation with which a projectile should spawn */
+	FRotator GetProjectileSpawnRotation();
+
+	ABaseCharacter* OwningCharacter;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -40,5 +67,6 @@ public:
 	virtual void StopFire();
 
 	virtual void Reload();
-
 };
+
+

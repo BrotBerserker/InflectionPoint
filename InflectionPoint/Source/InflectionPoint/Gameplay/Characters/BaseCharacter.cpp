@@ -92,6 +92,7 @@ void ABaseCharacter::BeginPlay() {
 
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnParams.Instigator = this;
 	spawnParams.Owner = this;
 	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(TestWeaponClass, spawnParams);
 
@@ -228,24 +229,7 @@ void ABaseCharacter::ServerStopFire_Implementation() {
 }
 
 void ABaseCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
-	// try and fire a projectile
-	if(projectileClassToSpawn != NULL) {
-		UWorld* const World = GetWorld();
-		if(AssertNotNull(World, GetWorld(), __FILE__, __LINE__)) {
-			//Set Spawn Collision Handling Override
-			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			ActorSpawnParams.Instigator = Instigator;
-			ActorSpawnParams.Owner = this;
-
-			// spawn the projectile at the muzzle
-			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
-
-			CurrentAmmo--;
-
-			MulticastProjectileFired();
-		}
-	}
+	CurrentWeapon->StartFire();
 }
 
 void ABaseCharacter::StopFire() {
@@ -261,24 +245,6 @@ void ABaseCharacter::DrawDebugArrow() {
 		//DebugArrowColor.B
 		DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, DebugArrowColor.B, DebugArrowColor, true, -1, 0, 0.5f);
 	}
-}
-
-void ABaseCharacter::MulticastProjectileFired_Implementation() {
-	// try and play the sound if specified
-	if(FireSound != NULL) {
-		UGameplayStatics::SpawnSoundAttached(FireSound, GetCapsuleComponent());
-	}
-
-	// try and play a firing animation if specified
-	if(FireAnimation != NULL) {
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if(AnimInstance != NULL) {
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
-
-	OnAmmoChanged();
 }
 
 void ABaseCharacter::MulticastOnDeath_Implementation() {
