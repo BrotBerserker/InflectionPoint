@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -21,21 +22,21 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh1P;
 
-	/** Gun mesh: 1st person view (seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USkeletalMeshComponent* FP_Gun;
+	///** Gun mesh: 1st person view (seen only by self) */
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//	class USkeletalMeshComponent* FP_Gun;
 
-	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USceneComponent* FP_MuzzleLocation;
+	///** Location on gun mesh where projectiles should spawn. */
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//	class USceneComponent* FP_MuzzleLocation;
 
 	/** Pawn mesh: 3rd person view (completed body; seen only by others) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh3P;
 
-	/** Gun mesh: 3rd person view (seen only by others) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USkeletalMeshComponent* TP_Gun;
+	///** Gun mesh: 3rd person view (seen only by others) */
+	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	//	class USkeletalMeshComponent* TP_Gun;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -287,6 +288,12 @@ public:
 	/* ---------------------- */
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmo;
+
+public:
+	UPROPERTY(EditDefaultsOnly, Category = Weapons)
+		TSubclassOf<ABaseWeapon> TestWeaponClass;
+
+		ABaseWeapon* CurrentWeapon;
 
 private:
 	bool initialized = false;

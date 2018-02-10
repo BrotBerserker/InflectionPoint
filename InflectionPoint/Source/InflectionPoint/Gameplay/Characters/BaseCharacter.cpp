@@ -46,21 +46,20 @@ ABaseCharacter::ABaseCharacter() {
 	Mesh1P->RelativeLocation = FVector(3.09f, 0.61f, -160.7f);
 	Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
 
-	// Create a gun mesh component
-	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	FP_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
-	FP_Gun->bCastDynamicShadow = false;
-	FP_Gun->CastShadow = false;
-	// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	FP_Gun->SetupAttachment(GetCapsuleComponent());
-	FP_Gun->RelativeScale3D = FVector(.4, .4, .4);
+	//// Create a gun mesh component
+	//FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
+	//FP_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
+	//FP_Gun->bCastDynamicShadow = false;
+	//FP_Gun->CastShadow = false;
+	//// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
+	//FP_Gun->RelativeScale3D = FVector(.4, .4, .4;)
 
-	// MuzzleLocation, where shots will be spawned
-	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	FP_MuzzleLocation->SetupAttachment(FP_Gun);
-	/*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
-	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
-	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
+	//// MuzzleLocation, where shots will be spawned
+	//FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
+	//FP_MuzzleLocation->SetupAttachment(FP_Gun);
+	///*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
+	////FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
+	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
 
 	// Create the '3rd person' body mesh
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh3P"));
@@ -69,11 +68,10 @@ ABaseCharacter::ABaseCharacter() {
 	Mesh3P->RelativeLocation = FVector(0.f, 0.f, -97.f);
 	Mesh3P->RelativeRotation = FRotator(0.f, -90.f, 0.f);
 
-	// Create the '3rd person' gun mesh
-	TP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TP_Gun"));
-	TP_Gun->SetOwnerNoSee(true);
-	//TP_Gun->SetupAttachment(Mesh3P, TEXT("GripPoint"));
-	TP_Gun->SetupAttachment(GetCapsuleComponent());
+	//// Create the '3rd person' gun mesh
+	//TP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TP_Gun"));
+	//TP_Gun->SetOwnerNoSee(true);
+	////TP_Gun->SetupAttachment(Mesh3P, TEXT("GripPoint"));
 
 	// Initialize MortalityProvider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
@@ -92,13 +90,21 @@ void ABaseCharacter::BeginPlay() {
 	// Call the base class  
 	Super::BeginPlay();
 
-	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnParams.Owner = this;
+	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(TestWeaponClass, spawnParams);
 
-	TP_Gun->AttachToComponent(Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	CurrentWeapon->Mesh1P->SetupAttachment(GetCapsuleComponent());
+	CurrentWeapon->Mesh3P->SetupAttachment(GetCapsuleComponent());
+
+	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
+	CurrentWeapon->Mesh1P->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+
+	CurrentWeapon->Mesh3P->AttachToComponent(Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 
 	// Detaches MuzzleLocation from weapon to prevent the weapon animation from moving the MuzzleLocation
-	FP_MuzzleLocation->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	CurrentWeapon->FP_MuzzleLocation->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
@@ -108,8 +114,8 @@ void ABaseCharacter::BeginPlay() {
 	Mesh3P->SetMaterial(0, DynamicBodyMaterial);
 	Mesh1P->SetMaterial(0, DynamicBodyMaterial);
 
-	DynamicGunMaterial = UMaterialInstanceDynamic::Create(TP_Gun->GetMaterial(0), TP_Gun);
-	TP_Gun->SetMaterial(0, DynamicGunMaterial);
+	DynamicGunMaterial = UMaterialInstanceDynamic::Create(CurrentWeapon->Mesh3P->GetMaterial(0), CurrentWeapon->Mesh3P);
+	CurrentWeapon->Mesh3P->SetMaterial(0, DynamicGunMaterial);
 
 	// Initialize ammo
 	CurrentAmmo = MaxAmmo;
@@ -172,7 +178,7 @@ void ABaseCharacter::MaterializeFinishCallback() {
 	Mesh3P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
 	Mesh1P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
 
-	TP_Gun->SetMaterial(0, GunMaterialAfterMaterialize);
+	CurrentWeapon->Mesh3P->SetMaterial(0, GunMaterialAfterMaterialize);
 }
 
 void ABaseCharacter::MulticastShowSpawnAnimation_Implementation() {
@@ -335,7 +341,7 @@ FRotator ABaseCharacter::GetProjectileSpawnRotation() {
 }
 
 FVector ABaseCharacter::GetProjectileSpawnLocation() {
-	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
+	return ((CurrentWeapon->FP_MuzzleLocation != nullptr) ? CurrentWeapon->FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
 }
 
 bool ABaseCharacter::ServerUpdateCameraPitch_Validate(float pitch) {
