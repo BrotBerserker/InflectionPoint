@@ -245,7 +245,8 @@ void ABaseCharacter::StopFire() {
 }
 
 void ABaseCharacter::DrawDebugArrow() {	
-	if(Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager)->IsCharacterDebugArrowsEnabled) {
+	if(Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager) && 
+		Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager)->IsCharacterDebugArrowsEnabled) {
 		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
 		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
 
