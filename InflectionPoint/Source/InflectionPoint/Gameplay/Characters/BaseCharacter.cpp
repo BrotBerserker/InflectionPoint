@@ -285,9 +285,7 @@ void ABaseCharacter::MulticastOnDeath_Implementation() {
 	DisableInput((APlayerController*)GetController());
 	DisableComponentsSimulatePhysics();
 
-	// Disable all collisions except for WorldStatic
-	GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	GetCapsuleComponent()->SetCollisionProfileName(FName("DeadCharacter"));
 }
 
 void ABaseCharacter::ClientOnDeath_Implementation() {

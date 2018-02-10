@@ -18,9 +18,10 @@ void UCharacterInfoProvider::GetLifetimeReplicatedProps(TArray< FLifetimePropert
 }
 
 FCharacterInfo UCharacterInfoProvider::GetCharacterInfo() {
+	// When getting the character info too early (e.g. just after spawn), the playerstate might not be set
 	if(PlayerState == NULL) {
 		return FCharacterInfo();
 	}
 	ATDMPlayerStateBase* tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerState);
-	return FCharacterInfo(tdmPlayerState->PlayerName, tdmPlayerState->Team, IsReplay); //asd
+	return FCharacterInfo(tdmPlayerState->PlayerName, tdmPlayerState->Team, IsReplay);
 }
