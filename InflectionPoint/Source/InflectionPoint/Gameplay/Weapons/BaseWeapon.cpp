@@ -15,6 +15,8 @@ ABaseWeapon::ABaseWeapon() {
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
 
+	RootComponent = Mesh1P;
+
 	//Mesh1P->SetupAttachment(GetCapsuleComponent());
 
 	Mesh1P->RelativeScale3D = FVector(.4, .4, .4);

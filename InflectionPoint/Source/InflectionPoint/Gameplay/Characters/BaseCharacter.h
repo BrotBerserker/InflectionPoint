@@ -139,6 +139,8 @@ public:
 	/** Called when this character is restartet (e.g. by being possessed), fires OnRestart */
 	virtual void Restart() override;
 
+	virtual void Destroyed() override;
+
 	/** Fired when this character is restartet (e.g. by being possessed) */
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnRestart();

@@ -95,9 +95,6 @@ void ABaseCharacter::BeginPlay() {
 	spawnParams.Owner = this;
 	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(TestWeaponClass, spawnParams);
 
-	CurrentWeapon->Mesh1P->SetupAttachment(GetCapsuleComponent());
-	CurrentWeapon->Mesh3P->SetupAttachment(GetCapsuleComponent());
-
 	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
 	CurrentWeapon->Mesh1P->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 
@@ -135,6 +132,11 @@ void ABaseCharacter::Tick(float DeltaTime) {
 		OnInitialized();
 		initialized = true;
 	}
+}
+
+void ABaseCharacter::Destroyed() {
+	Super::Destroyed();
+	CurrentWeapon->Destroy();
 }
 
 void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
