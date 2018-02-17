@@ -75,6 +75,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 		int MaxAmmo = 7;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		bool AutoFire = true;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+		float FireInterval = 1.0f;
+
 	EWeaponState CurrentState = EWeaponState::IDLE;
 
 public:
@@ -82,6 +88,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void StartFire();
+
+	virtual void Fire();
 
 	virtual void StopFire();
 
@@ -95,6 +103,9 @@ public:
 
 	UFUNCTION()
 		void ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted);
+
+private:
+	float LastShotTimeStamp = 0.f;
 };
 
 

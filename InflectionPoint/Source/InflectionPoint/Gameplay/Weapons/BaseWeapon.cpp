@@ -51,12 +51,24 @@ void ABaseWeapon::BeginPlay() {
 // Called every frame
 void ABaseWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	if(CurrentAmmo == 0 && HasAuthority()) {
+	if(!HasAuthority()) {
+		return;
+	}
+	if(CurrentAmmo == 0) {
 		Reload();
+	} else if(CurrentState == EWeaponState::FIRING && UGameplayStatics::GetRealTimeSeconds(GetWorld()) - LastShotTimeStamp >= FireInterval) {
+		Fire();
+		LastShotTimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 	}
 }
 
 void ABaseWeapon::StartFire() {
+	if(CurrentState == EWeaponState::IDLE) {
+		CurrentState = EWeaponState::FIRING;
+	}
+}
+
+void ABaseWeapon::Fire() {
 	if(CurrentAmmo == 0) {
 		return;
 	}
@@ -77,6 +89,9 @@ void ABaseWeapon::StartFire() {
 
 			MulticastProjectileFired();
 		}
+	}
+	if(!AutoFire) {
+		CurrentState = EWeaponState::IDLE;
 	}
 }
 
@@ -105,7 +120,7 @@ FVector ABaseWeapon::GetProjectileSpawnLocation() {
 }
 
 void ABaseWeapon::StopFire() {
-
+	CurrentState = EWeaponState::IDLE;
 }
 
 void ABaseWeapon::Reload() {
