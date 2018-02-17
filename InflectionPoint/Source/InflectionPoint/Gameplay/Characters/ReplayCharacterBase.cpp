@@ -129,10 +129,8 @@ void AReplayCharacterBase::PressKey(FString key) {
 	} else if(key == "Sprint") {
 		EnableSprint();
 	} else if(key == "Fire") {
-		Fire();
-	} else if(key == "DEBUG_Fire") {
-		DebugFire();
-	}
+		ServerStartFire();
+	} 
 }
 
 void AReplayCharacterBase::HoldKey(FString key) {

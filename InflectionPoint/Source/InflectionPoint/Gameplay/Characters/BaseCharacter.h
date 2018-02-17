@@ -22,21 +22,9 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh1P;
 
-	///** Gun mesh: 1st person view (seen only by self) */
-	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	//	class USkeletalMeshComponent* FP_Gun;
-
-	///** Location on gun mesh where projectiles should spawn. */
-	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	//	class USceneComponent* FP_MuzzleLocation;
-
 	/** Pawn mesh: 3rd person view (completed body; seen only by others) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh3P;
-
-	///** Gun mesh: 3rd person view (seen only by others) */
-	//UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-	//	class USkeletalMeshComponent* TP_Gun;
 
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -58,34 +46,6 @@ public:
 	/*    Editor Settings     */
 	/* ---------------------- */
 
-	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
-
-	/** Debug projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AInflectionPointProjectile> DebugProjectileClass;
-
-	/** Minimum a player has to wait between to shots */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float DelayBetweenShots = 0.2f;
-
-	/** Number of shots per clip */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-		int MaxAmmo = 7;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
-		class USoundBase* FireSound;
-
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
-		class UAnimMontage* FireAnimation;
-
-	/** AnimMontage to play when reloading */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
-		class UAnimMontage* ReloadAnimation1P;
-
 	/** Determines the maximum walk speed when sprinting */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
 		int SprintSpeed = 900;
@@ -97,10 +57,6 @@ public:
 	/** Material to use for Mesh3P and Mesh1P after the materialize animation has finished */
 	UPROPERTY(EditAnywhere, Category = Materialize)
 		UMaterialInstance* BodyMaterialAfterMaterialize;
-
-	/** Material to use for the gun after the materialize animation has finished */
-	UPROPERTY(EditAnywhere, Category = Materialize)
-		UMaterial* GunMaterialAfterMaterialize;
 
 	/** One of these animations will be played when the character dies */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
@@ -182,19 +138,6 @@ public:
 	/** Takes damage using the MortalityProvider */
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
-	/** Fires a projectile. */
-	void Fire();
-
-	/** Fires a debug projectile. */
-	void DebugFire();
-
-	UFUNCTION(Server, Reliable, WithValidation)
-		void ServerReload();
-
-	/** Event fired when CurrentAmmo changes */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-		void OnAmmoChanged();
-
 	/** Enables sprint and starts sprinting if all sprinting conditions are met */
 	void EnableSprint();
 
@@ -231,33 +174,26 @@ public:
 	*/
 	void LookUpAtRate(float rate);
 
-	/** Returns the location at which a projectile should spawn */
-	FVector GetProjectileSpawnLocation();
-
-	/** Returns the rotation with which a projectile should spawn */
-	FRotator GetProjectileSpawnRotation();
-
 	/** Draws an arrow indicating the current position and camera direction */
 	void DrawDebugArrow();
 
-	/** Fires the given projectile */
-	virtual void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn);
-
-	/** Stops firing */
-	virtual void StopFire();
 
 public:
 	/* --------------- */
 	/*  RPC Functions  */
 	/* --------------- */
 
-	/** Fires the given projectile on the Server */
-	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn);
+	/** Starts firing the currently equipped weapon */
+	UFUNCTION(Server, Reliable, WithValidation)
+		virtual void ServerStartFire();
 
-	/** Stops firing on the Server */
-	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerStopFire();
+	/** Stops firing the currently equipped weapon */
+	UFUNCTION(Server, Reliable, WithValidation)
+		virtual void ServerStopFire();
+
+	/** Reloads the currently equipped weapon */
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerReload();
 
 	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
@@ -284,13 +220,6 @@ public:
 		void MulticastUpdateCameraPitch(float pitch);
 
 public:
-	/* ---------------------- */
-	/*  Replicated Variables  */
-	/* ---------------------- */
-	UPROPERTY(Replicated, BlueprintReadWrite)
-		int CurrentAmmo;
-
-public:
 	UPROPERTY(EditDefaultsOnly, Category = Weapons)
 		TSubclassOf<ABaseWeapon> TestWeaponClass;
 
@@ -302,10 +231,6 @@ private:
 	bool sprintEnabled = false;
 	int walkSpeed;
 
-	float LastShotTimeStamp;
-
 	UMaterialInstanceDynamic* DynamicBodyMaterial;
-	UMaterialInstanceDynamic* DynamicGunMaterial;
-
 };
 

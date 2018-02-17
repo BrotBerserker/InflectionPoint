@@ -19,12 +19,6 @@ DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 //////////////////////////////////////////////////////////////////////////
 // ABaseCharacter
 
-void ABaseCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	DOREPLIFETIME(ABaseCharacter, CurrentAmmo);
-}
-
 ABaseCharacter::ABaseCharacter() {
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -32,7 +26,6 @@ ABaseCharacter::ABaseCharacter() {
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
-	//FirstPersonCameraComponent->RelativeLocation = FVector(-39.56f, 1.75f, 64.f); 
 	FirstPersonCameraComponent->RelativeLocation = FVector(-20.5f, 1.75f, 41.f); // Position the camera
 	FirstPersonCameraComponent->RelativeScale3D = FVector(0.4, 0.4, 0.4); // Scale of the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
@@ -46,32 +39,12 @@ ABaseCharacter::ABaseCharacter() {
 	Mesh1P->RelativeLocation = FVector(3.09f, 0.61f, -160.7f);
 	Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
 
-	//// Create a gun mesh component
-	//FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	//FP_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
-	//FP_Gun->bCastDynamicShadow = false;
-	//FP_Gun->CastShadow = false;
-	//// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	//FP_Gun->RelativeScale3D = FVector(.4, .4, .4;)
-
-	//// MuzzleLocation, where shots will be spawned
-	//FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	//FP_MuzzleLocation->SetupAttachment(FP_Gun);
-	///*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
-	////FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
-	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
-
 	// Create the '3rd person' body mesh
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh3P"));
 	Mesh3P->SetupAttachment(GetCapsuleComponent());
 	Mesh3P->SetOwnerNoSee(true);
 	Mesh3P->RelativeLocation = FVector(0.f, 0.f, -97.f);
 	Mesh3P->RelativeRotation = FRotator(0.f, -90.f, 0.f);
-
-	//// Create the '3rd person' gun mesh
-	//TP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TP_Gun"));
-	//TP_Gun->SetOwnerNoSee(true);
-	////TP_Gun->SetupAttachment(Mesh3P, TEXT("GripPoint"));
 
 	// Initialize MortalityProvider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
@@ -96,7 +69,7 @@ void ABaseCharacter::BeginPlay() {
 	spawnParams.Owner = this;
 	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(TestWeaponClass, spawnParams);
 
-	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
+	// Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
 	CurrentWeapon->Mesh1P->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 
 	CurrentWeapon->Mesh3P->AttachToComponent(Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
@@ -111,13 +84,6 @@ void ABaseCharacter::BeginPlay() {
 	DynamicBodyMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
 	Mesh3P->SetMaterial(0, DynamicBodyMaterial);
 	Mesh1P->SetMaterial(0, DynamicBodyMaterial);
-
-	DynamicGunMaterial = UMaterialInstanceDynamic::Create(CurrentWeapon->Mesh3P->GetMaterial(0), CurrentWeapon->Mesh3P);
-	CurrentWeapon->Mesh3P->SetMaterial(0, DynamicGunMaterial);
-
-	// Initialize ammo
-	CurrentAmmo = MaxAmmo;
-	OnAmmoChanged();
 }
 
 void ABaseCharacter::Restart() {
@@ -171,7 +137,6 @@ void ABaseCharacter::ShowSpawnAnimation() {
 
 void ABaseCharacter::MaterializeCallback(float value) {
 	DynamicBodyMaterial->SetScalarParameterValue("Materialize Amount", value);
-	DynamicGunMaterial->SetScalarParameterValue("Materialize Amount", value);
 }
 
 void ABaseCharacter::MaterializeFinishCallback() {
@@ -182,8 +147,6 @@ void ABaseCharacter::MaterializeFinishCallback() {
 	dynamicMaterialWithoutMaterialize->SetVectorParameterValue("BodyColor", bodyColor);
 	Mesh3P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
 	Mesh1P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
-
-	CurrentWeapon->Mesh3P->SetMaterial(0, GunMaterialAfterMaterialize);
 }
 
 void ABaseCharacter::MulticastShowSpawnAnimation_Implementation() {
@@ -201,13 +164,22 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 	return actualDamage;
 }
 
-void ABaseCharacter::Fire() {
-	DisableSprint();
-	ServerFireProjectile(ProjectileClass);
+bool ABaseCharacter::ServerStartFire_Validate() {
+	return true;
 }
 
-void ABaseCharacter::DebugFire() {
-	ServerFireProjectile(DebugProjectileClass);
+void ABaseCharacter::ServerStartFire_Implementation() {
+	DisableSprint();
+	DrawDebugArrow();
+	CurrentWeapon->StartFire();
+}
+
+bool ABaseCharacter::ServerStopFire_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStopFire_Implementation() {
+	CurrentWeapon->StopFire();
 }
 
 bool ABaseCharacter::ServerReload_Validate() {
@@ -216,34 +188,6 @@ bool ABaseCharacter::ServerReload_Validate() {
 
 void ABaseCharacter::ServerReload_Implementation() {
 	CurrentWeapon->Reload();
-}
-
-bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
-	return true;
-}
-
-void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
-	DrawDebugArrow();
-	if(CurrentAmmo != 0 && UGameplayStatics::GetRealTimeSeconds(GetWorld()) - LastShotTimeStamp >= DelayBetweenShots) {
-		FireProjectile(projectileClassToSpawn);
-		LastShotTimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-	}
-}
-
-bool ABaseCharacter::ServerStopFire_Validate() {
-	return true;
-}
-
-void ABaseCharacter::ServerStopFire_Implementation() {
-	StopFire();
-}
-
-void ABaseCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
-	CurrentWeapon->StartFire();
-}
-
-void ABaseCharacter::StopFire() {
-	// do nothing
 }
 
 void ABaseCharacter::DrawDebugArrow() {	
@@ -312,14 +256,6 @@ void ABaseCharacter::LookUpAtRate(float rate) {
 	AddControllerPitchInput(rate);
 	ServerUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
 	MulticastUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
-}
-
-FRotator ABaseCharacter::GetProjectileSpawnRotation() {
-	return FirstPersonCameraComponent->GetComponentRotation();
-}
-
-FVector ABaseCharacter::GetProjectileSpawnLocation() {
-	return ((CurrentWeapon->FP_MuzzleLocation != nullptr) ? CurrentWeapon->FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
 }
 
 bool ABaseCharacter::ServerUpdateCameraPitch_Validate(float pitch) {

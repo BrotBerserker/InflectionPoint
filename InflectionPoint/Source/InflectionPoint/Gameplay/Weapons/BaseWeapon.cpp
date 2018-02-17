@@ -120,7 +120,9 @@ FVector ABaseWeapon::GetProjectileSpawnLocation() {
 }
 
 void ABaseWeapon::StopFire() {
-	CurrentState = EWeaponState::IDLE;
+	if(CurrentState == EWeaponState::FIRING) {
+		CurrentState = EWeaponState::IDLE;
+	}
 }
 
 void ABaseWeapon::Reload() {

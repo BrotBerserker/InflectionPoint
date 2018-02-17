@@ -30,11 +30,8 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::Fire);
-	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &ABaseCharacter::DebugFire);
-
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::ServerStartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
-	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABaseCharacter::ServerReload);
 
@@ -55,10 +52,6 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	PlayerStateRecorder->InitializeBindings(PlayerInputComponent);
-
-	// Controller bindings
-	//PlayerInputComponent->BindAxis("TurnRate", this, &ABaseCharacter::TurnAtRate);
-	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
 }
 
 bool APlayerCharacterBase::DEBUG_ServerSpawnReplay_Validate() {
@@ -102,23 +95,19 @@ void APlayerCharacterBase::ClientStartRecording_Implementation() {
 	PlayerStateRecorder->ServerStartRecording();
 }
 
-void APlayerCharacterBase::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
+void APlayerCharacterBase::ServerStartFire_Implementation() {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	if(projectileClassToSpawn == ProjectileClass) {
-		recorder->RecordKeyPressed("Fire");
-	} else if(projectileClassToSpawn == DebugProjectileClass) {
-		recorder->RecordKeyPressed("DEBUG_Fire");
-	}
-	Super::FireProjectile(projectileClassToSpawn);
+	recorder->RecordKeyPressed("Fire");
+
+	Super::ServerStartFire_Implementation();
 }
 
-void APlayerCharacterBase::StopFire() {
+void APlayerCharacterBase::ServerStopFire_Implementation() {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
 	recorder->RecordKeyReleased("Fire");
-	recorder->RecordKeyReleased("DEBUG_Fire");
-	Super::StopFire();
+	Super::ServerStopFire_Implementation();
 }

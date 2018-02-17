@@ -49,7 +49,7 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientStartRecording();
 
-	void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) override;
+	void ServerStartFire_Implementation() override;
 
-	void StopFire() override;
+	void ServerStopFire_Implementation() override;
 };
