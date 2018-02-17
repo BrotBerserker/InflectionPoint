@@ -39,7 +39,7 @@ public:
 		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
 
 	/** Notifies Clients about projectile fired */
-	UFUNCTION(Unreliable, NetMulticast)
+	UFUNCTION(Reliable, NetMulticast)
 		void MulticastProjectileFired();
 
 	/** Sound to play each time we fire */

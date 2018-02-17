@@ -137,7 +137,9 @@ void ABaseCharacter::Tick(float DeltaTime) {
 
 void ABaseCharacter::Destroyed() {
 	Super::Destroyed();
-	CurrentWeapon->Destroy();
+	if(CurrentWeapon) {
+		CurrentWeapon->Destroy();
+	}
 }
 
 void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {

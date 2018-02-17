@@ -81,13 +81,13 @@ void ABaseWeapon::StartFire() {
 void ABaseWeapon::MulticastProjectileFired_Implementation() {
 	// try and play the sound if specified
 	if(FireSound != NULL) {
-		UGameplayStatics::SpawnSoundAttached(FireSound, Mesh1P);
+		UGameplayStatics::SpawnSoundAttached(FireSound, OwningCharacter->Mesh1P);
 	}
 
 	// try and play a firing animation if specified
 	if(FireAnimation != NULL) {
 		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
+		UAnimInstance* AnimInstance = OwningCharacter->Mesh1P->GetAnimInstance();
 		if(AnimInstance != NULL) {
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
