@@ -15,6 +15,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 ABaseWeapon::ABaseWeapon() {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	bReplicates = true;
 
 	// Create a gun mesh component
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh1P"));
@@ -39,6 +40,7 @@ ABaseWeapon::ABaseWeapon() {
 	/*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
 	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
+	
 }
 
 // Called when the game starts or when spawned
@@ -72,27 +74,11 @@ void ABaseWeapon::Fire() {
 	if(CurrentAmmo == 0) {
 		return;
 	}
-	// try and fire a projectile
-	if(ProjectileClass != NULL) {
-		UWorld* const World = GetWorld();
-		if(AssertNotNull(World, GetWorld(), __FILE__, __LINE__)) {
-			//Set Spawn Collision Handling Override
-			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			ActorSpawnParams.Instigator = Instigator;
-			ActorSpawnParams.Owner = this;
-
-			// spawn the projectile at the muzzle
-			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(ProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
-
-			CurrentAmmo--;
-
-			MulticastProjectileFired();
-		}
-	}
-	if(!AutoFire) {
+	ExecuteFire();
+	CurrentAmmo--;
+	MulticastProjectileFired();
+	if(!AutoFire)
 		CurrentState = EWeaponState::IDLE;
-	}
 }
 
 void ABaseWeapon::MulticastProjectileFired_Implementation() {
@@ -109,14 +95,6 @@ void ABaseWeapon::MulticastProjectileFired_Implementation() {
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
 	}
-}
-
-FRotator ABaseWeapon::GetProjectileSpawnRotation() {
-	return OwningCharacter->FirstPersonCameraComponent->GetComponentRotation();
-}
-
-FVector ABaseWeapon::GetProjectileSpawnLocation() {
-	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
 }
 
 void ABaseWeapon::StopFire() {

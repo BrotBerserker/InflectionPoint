@@ -9,7 +9,7 @@
 
 class ABaseCharacter;
 
-UENUM()
+UENUM(BlueprintType)
 enum EWeaponState {
 	IDLE,
 	RELOADING,
@@ -40,45 +40,36 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* FP_MuzzleLocation;
 
-	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
-
 	/** Notifies Clients about projectile fired */
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastProjectileFired();
 
 	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
 		class USoundBase* FireSound;
 
 	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* FireAnimation;
 
 	/** AnimMontage to play when reloading */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* ReloadAnimation;
 
-	/** Returns the location at which a projectile should spawn */
-	FVector GetProjectileSpawnLocation();
-
-	/** Returns the rotation with which a projectile should spawn */
-	FRotator GetProjectileSpawnRotation();
-
-	ABaseCharacter* OwningCharacter;
+	UPROPERTY(BlueprintReadWrite)
+		ABaseCharacter* OwningCharacter;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmo;
 
 	/** Number of shots per clip */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		int MaxAmmo = 7;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		bool AutoFire = true;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		float FireInterval = 1.0f;
 
 	EWeaponState CurrentState = EWeaponState::IDLE;
@@ -90,6 +81,9 @@ public:
 	virtual void StartFire();
 
 	virtual void Fire();
+
+	/* Override this Function */
+	virtual void ExecuteFire() PURE_VIRTUAL(ABaseWeapon::ExecuteFire, ;);
 
 	virtual void StopFire();
 
