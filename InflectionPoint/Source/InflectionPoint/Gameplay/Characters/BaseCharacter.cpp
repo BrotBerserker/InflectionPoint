@@ -16,6 +16,12 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
+}
+
 //////////////////////////////////////////////////////////////////////////
 // ABaseCharacter
 
@@ -63,19 +69,14 @@ void ABaseCharacter::BeginPlay() {
 	// Call the base class  
 	Super::BeginPlay();
 
-	FActorSpawnParameters spawnParams;
-	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-	spawnParams.Instigator = this;
-	spawnParams.Owner = this;
-	CurrentWeapon = GetWorld()->SpawnActor<ABaseWeapon>(TestWeaponClass, spawnParams);
-
-	// Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	CurrentWeapon->Mesh1P->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-
-	CurrentWeapon->Mesh3P->AttachToComponent(Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-
-	// Detaches MuzzleLocation from weapon to prevent the weapon animation from moving the MuzzleLocation
-	CurrentWeapon->FP_MuzzleLocation->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	if(HasAuthority()) {
+		FActorSpawnParameters spawnParams;
+		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		spawnParams.Instigator = this;
+		spawnParams.Owner = this;
+		ABaseWeapon* spawnedWeapon = GetWorld()->SpawnActor<ABaseWeapon>(TestWeaponClass, spawnParams);
+		EquipWeapon(spawnedWeapon);
+	}
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
@@ -190,8 +191,24 @@ void ABaseCharacter::ServerReload_Implementation() {
 	CurrentWeapon->Reload();
 }
 
-void ABaseCharacter::DrawDebugArrow() {	
-	if(Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager) && 
+void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
+	EquipWeapon(CurrentWeapon, OldWeapon);
+}
+
+void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {
+	CurrentWeapon = NewWeapon;
+
+	// Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
+	CurrentWeapon->Mesh1P->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+
+	CurrentWeapon->Mesh3P->AttachToComponent(Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+
+	// Detaches MuzzleLocation from weapon to prevent the weapon animation from moving the MuzzleLocation
+	CurrentWeapon->FP_MuzzleLocation->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+}
+
+void ABaseCharacter::DrawDebugArrow() {
+	if(Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager) &&
 		Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager)->IsCharacterDebugArrowsEnabled) {
 		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
 		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();

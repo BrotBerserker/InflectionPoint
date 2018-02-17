@@ -223,7 +223,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Weapons)
 		TSubclassOf<ABaseWeapon> TestWeaponClass;
 
-	ABaseWeapon* CurrentWeapon;
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentWeapon)
+		ABaseWeapon* CurrentWeapon;
+
+	UFUNCTION()
+		void OnRep_CurrentWeapon(ABaseWeapon* OldWeapon);
+
+	void EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon = NULL);
 
 private:
 	bool initialized = false;
