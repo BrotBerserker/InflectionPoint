@@ -36,6 +36,8 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
 	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
 
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABaseCharacter::ServerReload);
+
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABaseCharacter::EnableSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABaseCharacter::DisableSprint);
 

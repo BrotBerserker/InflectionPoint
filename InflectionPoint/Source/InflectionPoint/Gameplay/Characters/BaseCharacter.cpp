@@ -210,6 +210,14 @@ void ABaseCharacter::DebugFire() {
 	ServerFireProjectile(DebugProjectileClass);
 }
 
+bool ABaseCharacter::ServerReload_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerReload_Implementation() {
+	CurrentWeapon->Reload();
+}
+
 bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
 	return true;
 }

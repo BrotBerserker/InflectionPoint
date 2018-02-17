@@ -188,6 +188,9 @@ public:
 	/** Fires a debug projectile. */
 	void DebugFire();
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerReload();
+
 	/** Event fired when CurrentAmmo changes */
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void OnAmmoChanged();
@@ -291,7 +294,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Weapons)
 		TSubclassOf<ABaseWeapon> TestWeaponClass;
 
-		ABaseWeapon* CurrentWeapon;
+	ABaseWeapon* CurrentWeapon;
 
 private:
 	bool initialized = false;

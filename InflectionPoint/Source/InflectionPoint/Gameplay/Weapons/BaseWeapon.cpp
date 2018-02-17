@@ -51,7 +51,9 @@ void ABaseWeapon::BeginPlay() {
 // Called every frame
 void ABaseWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-
+	if(CurrentAmmo == 0 && HasAuthority()) {
+		Reload();
+	}
 }
 
 void ABaseWeapon::StartFire() {
@@ -92,8 +94,6 @@ void ABaseWeapon::MulticastProjectileFired_Implementation() {
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
 	}
-
-	//OnAmmoChanged();
 }
 
 FRotator ABaseWeapon::GetProjectileSpawnRotation() {
@@ -109,5 +109,36 @@ void ABaseWeapon::StopFire() {
 }
 
 void ABaseWeapon::Reload() {
+	if(CurrentState != EWeaponState::RELOADING && CurrentAmmo != MaxAmmo) {
+		CurrentState = EWeaponState::RELOADING;
+		MulticastPlayReloadAnimation();
+		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation);
 
+		FScriptDelegate NotifyDelegate;
+		NotifyDelegate.BindUFunction(this, "ReloadAnimationNotifyCallback");
+		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(NotifyDelegate);
+
+		FScriptDelegate EndDelegate;
+		EndDelegate.BindUFunction(this, "ReloadAnimationEndCallback");
+		OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.AddUnique(EndDelegate);
+	}
 }
+
+void ABaseWeapon::MulticastPlayReloadAnimation_Implementation() {
+	if(!HasAuthority()) {
+		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation);
+	}
+}
+
+void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload) {
+	if(NotifyName.ToString() == "RefillAmmo") {
+		CurrentAmmo = MaxAmmo;
+	}
+}
+
+void ABaseWeapon::ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted) {
+	if(Montage == ReloadAnimation) {
+		CurrentState = EWeaponState::IDLE;
+	}
+}
+

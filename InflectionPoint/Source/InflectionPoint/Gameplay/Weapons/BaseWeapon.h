@@ -9,6 +9,12 @@
 
 class ABaseCharacter;
 
+UENUM()
+enum EWeaponState {
+	IDLE,
+	RELOADING,
+	FIRING
+};
 UCLASS()
 class INFLECTIONPOINT_API ABaseWeapon : public AActor {
 	GENERATED_BODY()
@@ -50,6 +56,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
 		class UAnimMontage* FireAnimation;
 
+	/** AnimMontage to play when reloading */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
+		class UAnimMontage* ReloadAnimation;
+
 	/** Returns the location at which a projectile should spawn */
 	FVector GetProjectileSpawnLocation();
 
@@ -65,6 +75,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
 		int MaxAmmo = 7;
 
+	EWeaponState CurrentState = EWeaponState::IDLE;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -74,6 +86,15 @@ public:
 	virtual void StopFire();
 
 	virtual void Reload();
+
+	UFUNCTION(NetMulticast, Reliable)
+		virtual void MulticastPlayReloadAnimation();
+
+	UFUNCTION()
+		void ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
+
+	UFUNCTION()
+		void ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted);
 };
 
 
