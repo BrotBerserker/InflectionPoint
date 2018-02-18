@@ -76,6 +76,7 @@ void ABaseWeapon::Fire() {
 	}
 	ExecuteFire();
 	CurrentAmmo--;
+	ForceNetUpdate();
 	MulticastProjectileFired();
 	if(!AutoFire)
 		CurrentState = EWeaponState::IDLE;
@@ -128,6 +129,7 @@ void ABaseWeapon::MulticastPlayReloadAnimation_Implementation() {
 void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload) {
 	if(NotifyName.ToString() == "RefillAmmo") {
 		CurrentAmmo = MaxAmmo;
+		ForceNetUpdate();
 	}
 }
 
