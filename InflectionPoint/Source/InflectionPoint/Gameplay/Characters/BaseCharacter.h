@@ -162,6 +162,8 @@ public:
 	/** Handles stafing movement, left and right */
 	void MoveRight(float val);
 
+	void StartFire();
+
 	/**
 	* Called via input to turn at a given rate.
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -225,7 +227,7 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentWeapon)
 		ABaseWeapon* CurrentWeapon;
-
+	
 	UFUNCTION()
 		void OnRep_CurrentWeapon(ABaseWeapon* OldWeapon);
 
@@ -233,8 +235,8 @@ public:
 
 private:
 	bool initialized = false;
-
 	bool sprintEnabled = false;
+
 	int walkSpeed;
 
 	UMaterialInstanceDynamic* DynamicBodyMaterial;

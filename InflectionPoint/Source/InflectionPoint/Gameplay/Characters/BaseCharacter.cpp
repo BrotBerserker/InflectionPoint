@@ -63,6 +63,7 @@ ABaseCharacter::ABaseCharacter() {
 
 	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 	CharacterInfoProvider->SetIsReplicated(true);
+	bReplicates = true;
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -163,6 +164,12 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 		OnDirectionalDamageReceived(directionVector, actualDamage);
 	}
 	return actualDamage;
+}
+
+void ABaseCharacter::StartFire() {
+	// DisableSprint needs to be called on the Client
+	DisableSprint();
+	ServerStartFire();
 }
 
 bool ABaseCharacter::ServerStartFire_Validate() {
