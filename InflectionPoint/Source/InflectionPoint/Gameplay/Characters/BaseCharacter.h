@@ -30,6 +30,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FirstPersonCameraComponent;
 
+	UPROPERTY(VisibleAnywhere)
+		class UWeaponInventory* WeaponInventory;
+
 	/** MortalityProvider which holds our HP */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class UMortalityProvider* MortalityProvider;
@@ -197,6 +200,12 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerReload();
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerEquipNextWeapon();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerEquipPreviousWeapon();
+
 	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerStartSprinting();
@@ -222,12 +231,9 @@ public:
 		void MulticastUpdateCameraPitch(float pitch);
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = Weapons)
-		TSubclassOf<ABaseWeapon> TestWeaponClass;
-
 	UPROPERTY(BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentWeapon)
 		ABaseWeapon* CurrentWeapon;
-	
+
 	UFUNCTION()
 		void OnRep_CurrentWeapon(ABaseWeapon* OldWeapon);
 

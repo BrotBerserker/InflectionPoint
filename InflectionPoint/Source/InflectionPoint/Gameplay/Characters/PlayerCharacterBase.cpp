@@ -35,6 +35,9 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABaseCharacter::ServerReload);
 
+	PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, this, &ABaseCharacter::ServerEquipNextWeapon);
+	PlayerInputComponent->BindAction("PreviousWeapon", IE_Pressed, this, &ABaseCharacter::ServerEquipPreviousWeapon);
+
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABaseCharacter::EnableSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABaseCharacter::DisableSprint);
 

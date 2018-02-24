@@ -57,7 +57,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* ReloadAnimation;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+		class UAnimMontage* EquipAnimation;
+
+	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;
 
 	UPlayerStateRecorder* Recorder;
@@ -90,7 +93,16 @@ public:
 
 	virtual void StopFire();
 
-	virtual void Reload();
+	UFUNCTION()
+		virtual void Reload();
+
+	virtual void OnEquip();
+
+	virtual void OnUnequip();
+
+	void AttachToOwner();
+
+	void DetachFromOwner();
 
 	UFUNCTION(NetMulticast, Reliable)
 		virtual void MulticastPlayReloadAnimation();
@@ -111,6 +123,9 @@ public:
 private:
 	float LastShotTimeStamp = 0.f;
 	float passedTime = 0.f;
+
+	FScriptDelegate AnimationNotifyDelegate;
+	FScriptDelegate AnimationEndDelegate;
+
+	bool equipped = false;
 };
-
-

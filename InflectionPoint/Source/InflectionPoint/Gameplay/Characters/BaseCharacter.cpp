@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "BaseCharacter.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "Animation/AnimInstance.h"
 #include "GameFramework/InputSettings.h"
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
@@ -52,6 +53,8 @@ ABaseCharacter::ABaseCharacter() {
 	Mesh3P->RelativeLocation = FVector(0.f, 0.f, -97.f);
 	Mesh3P->RelativeRotation = FRotator(0.f, -90.f, 0.f);
 
+	WeaponInventory = CreateDefaultSubobject<UWeaponInventory>(TEXT("WeaponInventory"));
+
 	// Initialize MortalityProvider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
 	MortalityProvider->SetIsReplicated(true);
@@ -63,7 +66,6 @@ ABaseCharacter::ABaseCharacter() {
 
 	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 	CharacterInfoProvider->SetIsReplicated(true);
-	bReplicates = true;
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -71,12 +73,7 @@ void ABaseCharacter::BeginPlay() {
 	Super::BeginPlay();
 
 	if(HasAuthority()) {
-		FActorSpawnParameters spawnParams;
-		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		spawnParams.Instigator = this;
-		spawnParams.Owner = this;
-		ABaseWeapon* spawnedWeapon = GetWorld()->SpawnActor<ABaseWeapon>(TestWeaponClass, spawnParams);
-		EquipWeapon(spawnedWeapon);
+		EquipWeapon(WeaponInventory->GetNextWeapon(NULL));
 	}
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
@@ -105,9 +102,7 @@ void ABaseCharacter::Tick(float DeltaTime) {
 
 void ABaseCharacter::Destroyed() {
 	Super::Destroyed();
-	if(CurrentWeapon) {
-		CurrentWeapon->Destroy();
-	}
+	WeaponInventory->Destroy();
 }
 
 void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
@@ -198,6 +193,22 @@ void ABaseCharacter::ServerReload_Implementation() {
 	CurrentWeapon->Reload();
 }
 
+bool ABaseCharacter::ServerEquipNextWeapon_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerEquipNextWeapon_Implementation() {
+	EquipWeapon(WeaponInventory->GetNextWeapon(CurrentWeapon), CurrentWeapon);
+}
+
+bool ABaseCharacter::ServerEquipPreviousWeapon_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {
+	EquipWeapon(WeaponInventory->GetPreviousWeapon(CurrentWeapon), CurrentWeapon);
+}
+
 void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
 	EquipWeapon(CurrentWeapon, OldWeapon);
 }
@@ -205,13 +216,11 @@ void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
 void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {
 	CurrentWeapon = NewWeapon;
 
-	// Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	CurrentWeapon->Mesh1P->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
+	if(OldWeapon) {
+		OldWeapon->OnUnequip();
+	}
 
-	CurrentWeapon->Mesh3P->AttachToComponent(Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-
-	// Detaches MuzzleLocation from weapon to prevent the weapon animation from moving the MuzzleLocation
-	CurrentWeapon->FP_MuzzleLocation->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	CurrentWeapon->OnEquip();
 }
 
 void ABaseCharacter::DrawDebugArrow() {
