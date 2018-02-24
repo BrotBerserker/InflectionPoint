@@ -150,3 +150,11 @@ void ABaseWeapon::ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterr
 	}
 }
 
+FRotator ABaseWeapon::GetProjectileSpawnRotation() {
+	return OwningCharacter->FirstPersonCameraComponent->GetComponentRotation();
+}
+
+FVector ABaseWeapon::GetProjectileSpawnLocation() {
+	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
+}
+

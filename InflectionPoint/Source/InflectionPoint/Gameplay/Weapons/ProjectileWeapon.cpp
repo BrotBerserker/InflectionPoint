@@ -18,14 +18,3 @@ void AProjectileWeapon::ExecuteFire() {
 	// spawn the projectile at the muzzle
 	AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(ProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
 }
-
-
-FRotator AProjectileWeapon::GetProjectileSpawnRotation() {
-	return OwningCharacter->FirstPersonCameraComponent->GetComponentRotation();
-}
-
-FVector AProjectileWeapon::GetProjectileSpawnLocation() {
-	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
-}
-
-

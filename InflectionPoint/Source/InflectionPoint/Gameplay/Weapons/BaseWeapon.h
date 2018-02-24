@@ -101,6 +101,13 @@ public:
 	UFUNCTION()
 		void ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted);
 
+
+	/** Returns the location at which a projectile should spawn */
+	FVector GetProjectileSpawnLocation();
+
+	/** Returns the rotation with which a projectile should spawn */
+	FRotator GetProjectileSpawnRotation();
+
 private:
 	float LastShotTimeStamp = 0.f;
 	float passedTime = 0.f;
