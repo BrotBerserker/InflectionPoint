@@ -17,13 +17,10 @@ void AInstantWeapon::ExecuteFire() {
 	const FVector ShootDir = WeaponRandomStream.VRandCone(direction, ConeHalfAngle, ConeHalfAngle);
 	const FVector EndTrace = StartTrace + ShootDir * Range;
 
-	const FHitResult Impact = WeaponTrace(StartTrace, EndTrace);
-	MulticastSpawnWeaponEffects(GetProjectileSpawnLocation(), Impact.Actor == NULL ? EndTrace : Impact.ImpactPoint);
-	if(Impact.Actor.IsValid())
-		DealDamage(Impact, ShootDir);
-
-
-
+	const FHitResult hitResult = WeaponTrace(StartTrace, EndTrace);
+	MulticastSpawnWeaponEffects(hitResult);
+	if(hitResult.Actor.IsValid())
+		DealDamage(hitResult, ShootDir);
 }
 
 FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector& endTrace) {
@@ -34,8 +31,8 @@ FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector&
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = true;
 
-	FHitResult Hit(ForceInit);
-	GetWorld()->LineTraceSingleByChannel(Hit, startTrace, endTrace, ECC_GameTraceChannel1, TraceParams);
+	FHitResult Hit(ForceInit); 
+	GetWorld()->LineTraceSingleByChannel(Hit, startTrace, endTrace, (ECollisionChannel)CollisionChannel, TraceParams);
 
 	return Hit;
 }
@@ -46,14 +43,14 @@ void AInstantWeapon::DealDamage(const FHitResult& Impact, const FVector& ShootDi
 	PointDmg.HitInfo = Impact;
 	PointDmg.ShotDirection = ShootDir;
 	PointDmg.Damage = Damage;
-
+	
 	Impact.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
 }
 
-void AInstantWeapon::MulticastSpawnWeaponEffects_Implementation(const FVector& startPoint, const FVector& endPoint) {
+void AInstantWeapon::MulticastSpawnWeaponEffects_Implementation(FHitResult hitResult) {
 	SpawnMuzzleFX();
-	SpawnTrailFX(startPoint, endPoint);
-	SpawnImpactFX();
+	SpawnTrailFX(hitResult.bBlockingHit ? hitResult.ImpactPoint : hitResult.TraceEnd);
+	SpawnImpactFX(hitResult);
 }
 
 void AInstantWeapon::SpawnMuzzleFX() {
@@ -61,34 +58,50 @@ void AInstantWeapon::SpawnMuzzleFX() {
 		return;
 
 	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, NAME_None);
-	mesh1pFX->SetWorldLocation(GetProjectileSpawnLocation());
-	mesh1pFX->SetWorldRotation(GetProjectileSpawnRotation());
+	mesh1pFX->SetWorldLocation(GetFPMuzzleLocation());
+	mesh1pFX->SetWorldRotation(GetAimDirection());
 	mesh1pFX->bOwnerNoSee = false;
 	mesh1pFX->bOnlyOwnerSee = true;
 
-	//UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, NAME_None);
-	//mesh3pFX->SetWorldLocation(GetProjectileSpawnLocation());
-	//mesh3pFX->SetWorldRotation(GetProjectileSpawnRotation());
-	//mesh3pFX->bOwnerNoSee = false;
-	//mesh3pFX->bOnlyOwnerSee = true;
+	UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, NAME_None);
+	mesh3pFX->SetWorldLocation(GetTPMuzzleLocation());
+	mesh3pFX->SetWorldRotation(GetAimDirection());
+	mesh3pFX->bOwnerNoSee = true;
+	mesh3pFX->bOnlyOwnerSee = false;
 
-	if(IsMuzzleFXLooped) {
-		StartTimer(this, GetWorld(), "DecativateParticleSystem", 0.1, false, mesh1pFX);
+	if(MuzzleFXDuration > 0) {
+		StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh1pFX);
+		StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh3pFX);
 	}
 
 }
 
-void AInstantWeapon::SpawnTrailFX(const FVector& startPoint, const FVector& endPoint) {
+void AInstantWeapon::SpawnTrailFX(const FVector& endPoint) {
 	if(!TrailFX)
 		return;
-	UParticleSystemComponent* TrailPSC = UGameplayStatics::SpawnEmitterAtLocation(this, TrailFX, startPoint);
-	if(TrailPSC) {
-		TrailPSC->SetVectorParameter(TrailTargetParam, endPoint);
+	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh3P, NAME_None);
+	tpTrail->SetWorldLocation(GetTPMuzzleLocation());
+	tpTrail->SetWorldRotation(GetAimDirection());
+	tpTrail->bOwnerNoSee = true;
+	tpTrail->bOnlyOwnerSee = false;
+
+	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh1P, NAME_None);
+	fpTrail->SetWorldLocation(GetFPMuzzleLocation());
+	fpTrail->SetWorldRotation(GetAimDirection());
+	fpTrail->bOwnerNoSee = false;
+	fpTrail->bOnlyOwnerSee = true;
+
+	if(tpTrail && fpTrail) {
+		tpTrail->SetVectorParameter(TrailTargetParam, endPoint);
+		fpTrail->SetVectorParameter(TrailTargetParam, endPoint);
 	}
 }
 
-void AInstantWeapon::SpawnImpactFX() {
-
+void AInstantWeapon::SpawnImpactFX(FHitResult hitResult) {
+	if(!hitResult.bBlockingHit)
+		return;
+	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAtLocation(this, ImpactFX, hitResult.ImpactPoint);
+	tpTrail->SetWorldRotation(hitResult.ImpactNormal.ToOrientationRotator());
 }
 
 void AInstantWeapon::DecativateParticleSystem(UParticleSystemComponent* effect) {

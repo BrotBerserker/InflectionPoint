@@ -16,5 +16,5 @@ void AProjectileWeapon::ExecuteFire() {
 	ActorSpawnParams.Owner = this;
 
 	// spawn the projectile at the muzzle
-	AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(ProjectileClass, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
+	AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(ProjectileClass, GetFPMuzzleLocation(), GetAimDirection(), ActorSpawnParams);
 }

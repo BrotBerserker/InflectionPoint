@@ -31,6 +31,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		TSubclassOf<UDamageType> DamageType;
 
+	//UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+	//	ECollisionChannel CollisionChannel = ECC_GameTraceChannel1; 
+	UPROPERTY(EditAnywhere, meta = (Bitmask, BitmaskEnum = "ECollisionChannel"))
+		int32 CollisionChannel;
+
 	/** smoke trail */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		UParticleSystem* TrailFX;
@@ -45,7 +50,11 @@ public:
 
 	/** FX for muzzle flash */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		bool IsMuzzleFXLooped = true;
+		UParticleSystem* ImpactFX;
+
+	/** Duration for the muzzle FX flash (-1 for endless)*/
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		float MuzzleFXDuration = 0.1;
 
 public:
 		void ExecuteFire() override;
@@ -53,12 +62,12 @@ public:
 		void DealDamage(const FHitResult& Impact, const FVector& ShootDir);
 
 		UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
-			void MulticastSpawnWeaponEffects(const FVector& startPoint,const FVector& endPoint);
+			void MulticastSpawnWeaponEffects(FHitResult hitResult);
 
 		void SpawnMuzzleFX();
-		void SpawnTrailFX(const FVector& startPoint, const FVector& endPoint);
-		void SpawnImpactFX();
-
+		void SpawnTrailFX(const FVector& endPoint);
+		void SpawnImpactFX(FHitResult hitResult);
+		UParticleSystemComponent* CreateParticleSystem(UParticleSystem* EmitterTemplate, UWorld* World, AActor* Actor, bool bAutoDestroy);
 		UFUNCTION()
 			void DecativateParticleSystem(UParticleSystemComponent* effect);
 

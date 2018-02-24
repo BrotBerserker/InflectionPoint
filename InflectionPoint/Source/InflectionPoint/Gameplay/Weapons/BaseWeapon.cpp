@@ -38,6 +38,10 @@ ABaseWeapon::ABaseWeapon() {
 	FP_MuzzleLocation->SetupAttachment(Mesh1P);
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
 
+	TP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("TPMuzzleLocation"));
+	TP_MuzzleLocation->SetupAttachment(Mesh3P);
+	TP_MuzzleLocation->SetRelativeLocation(FVector(0.7f, 56.f, 10.8f));
+
 	AnimationNotifyDelegate.BindUFunction(this, "ReloadAnimationNotifyCallback");
 	AnimationEndDelegate.BindUFunction(this, "ReloadAnimationEndCallback");
 }
@@ -192,11 +196,15 @@ void ABaseWeapon::ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterr
 	}
 }
 
-FRotator ABaseWeapon::GetProjectileSpawnRotation() {
+FRotator ABaseWeapon::GetAimDirection() {
 	return OwningCharacter->FirstPersonCameraComponent->GetComponentRotation();
 }
 
-FVector ABaseWeapon::GetProjectileSpawnLocation() {
-	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
+FVector ABaseWeapon::GetFPMuzzleLocation() {
+	return FP_MuzzleLocation->GetComponentLocation();
+}
+
+FVector ABaseWeapon::GetTPMuzzleLocation() {
+	return TP_MuzzleLocation->GetComponentLocation();
 }
 

@@ -41,6 +41,10 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* FP_MuzzleLocation;
 
+	/** Location on gun mesh where projectiles should spawn. */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		class USceneComponent* TP_MuzzleLocation;
+
 	/** Notifies Clients about projectile fired */
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastProjectileFired();
@@ -114,11 +118,13 @@ public:
 		void ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted);
 
 
-	/** Returns the location at which a projectile should spawn */
-	FVector GetProjectileSpawnLocation();
+	/** Returns the 1 Person muzzle location */
+	FVector GetFPMuzzleLocation();
+	/** Returns the 3 Person muzzle location */
+	FVector GetTPMuzzleLocation();
 
-	/** Returns the rotation with which a projectile should spawn */
-	FRotator GetProjectileSpawnRotation();
+	/** Returns the rotation where the player is aiming */
+	FRotator GetAimDirection();
 
 private:
 	float LastShotTimeStamp = 0.f;
