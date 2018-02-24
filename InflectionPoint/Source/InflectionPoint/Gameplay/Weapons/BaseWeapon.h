@@ -8,6 +8,7 @@
 #include "BaseWeapon.generated.h"
 
 class ABaseCharacter;
+class UPlayerStateRecorder;
 
 UENUM(BlueprintType)
 enum EWeaponState {
@@ -59,6 +60,8 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		ABaseCharacter* OwningCharacter;
 
+	UPlayerStateRecorder* Recorder;
+
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmo;
 
@@ -100,6 +103,7 @@ public:
 
 private:
 	float LastShotTimeStamp = 0.f;
+	float passedTime = 0.f;
 };
 
 

@@ -62,7 +62,7 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 	// Correct position 
 	bool shouldCorrectPosition = CurrentPositionShouldBeCorrected();
 	if(shouldCorrectPosition)
-		CorrectPosition(recordData[replayIndex - 1].Position);
+		CorrectPosition(recordData[replayIndex].Position);
 
 	// Draw debug sphere
 	if(CreateDebugCorrectionSpheres)
@@ -95,7 +95,7 @@ void AReplayCharacterBase::UpdateRotation() {
 		return;
 	}
 	// Update Rotation (-1 because unreal ^^)
-	ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
+	ApplyYaw(recordData[replayIndex].CapsuleYaw);
 	if(Cast<AAIControllerBase>(GetController())->OwningPlayerController->IsLocalPlayerController()) {
 		ApplyPitch(recordData[replayIndex].CameraPitch);
 	} else {
@@ -128,9 +128,9 @@ void AReplayCharacterBase::PressKey(FString key) {
 		Jump();
 	} else if(key == "Sprint") {
 		EnableSprint();
-	} else if(key == "Fire") {
-		ServerStartFire();
-	} 
+	} else if(key == "WeaponFired") {
+		CurrentWeapon->Fire();
+	}
 }
 
 void AReplayCharacterBase::HoldKey(FString key) {

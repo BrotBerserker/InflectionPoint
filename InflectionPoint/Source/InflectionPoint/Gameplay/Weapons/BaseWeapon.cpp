@@ -2,6 +2,7 @@
 
 #include "InflectionPoint.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Characters/ReplayCharacterBase.h"
 #include "BaseWeapon.h"
 
 
@@ -40,13 +41,13 @@ ABaseWeapon::ABaseWeapon() {
 	/*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
 	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
-	
 }
 
 // Called when the game starts or when spawned
 void ABaseWeapon::BeginPlay() {
 	Super::BeginPlay();
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
+	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
 	CurrentAmmo = MaxAmmo;
 }
 
@@ -56,11 +57,16 @@ void ABaseWeapon::Tick(float DeltaTime) {
 	if(!HasAuthority()) {
 		return;
 	}
+
+	passedTime += DeltaTime;
+
 	if(CurrentAmmo == 0) {
 		Reload();
-	} else if(CurrentState == EWeaponState::FIRING && UGameplayStatics::GetRealTimeSeconds(GetWorld()) - LastShotTimeStamp >= FireInterval) {
+	} else if(CurrentState == EWeaponState::FIRING && passedTime - LastShotTimeStamp >= FireInterval) {
 		Fire();
-		LastShotTimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
+		passedTime = 0;
+	} else if(Recorder) {
+		Recorder->RecordKeyReleased("WeaponFired");
 	}
 }
 
@@ -74,6 +80,11 @@ void ABaseWeapon::Fire() {
 	if(CurrentAmmo == 0) {
 		return;
 	}
+
+	if(Recorder) {
+		Recorder->RecordKeyPressed("WeaponFired");
+	}
+
 	ExecuteFire();
 	CurrentAmmo--;
 	ForceNetUpdate();
