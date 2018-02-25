@@ -88,8 +88,9 @@ void ABaseWeapon::Tick(float DeltaTime) {
 	} else if(CurrentState == EWeaponState::FIRING && passedTime - LastShotTimeStamp >= FireInterval) {
 		Fire();
 		passedTime = 0;
-	} else if(Recorder) {
-		Recorder->RecordKeyReleased("WeaponFired");
+	} else if(Recorder && IsReplaySimulatedFirePressed) {
+		IsReplaySimulatedFirePressed = false;
+		Recorder->ServerRecordKeyReleased("WeaponFired");
 	}
 }
 
@@ -100,12 +101,14 @@ void ABaseWeapon::StartFire() {
 }
 
 void ABaseWeapon::Fire() {
+	UE_LOG(LogTemp, Warning, TEXT("Fire"));
 	if(CurrentAmmo == 0) {
 		return;
 	}
 
 	if(Recorder) {
-		Recorder->RecordKeyPressed("WeaponFired");
+		IsReplaySimulatedFirePressed = true;
+		Recorder->ServerRecordKeyPressed("WeaponFired");
 	}
 
 	ExecuteFire();

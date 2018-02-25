@@ -134,4 +134,5 @@ private:
 	FScriptDelegate AnimationEndDelegate;
 
 	bool equipped = false;
+	bool IsReplaySimulatedFirePressed = false;
 };

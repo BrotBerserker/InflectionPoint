@@ -9,6 +9,7 @@
 
 
 void AInstantWeapon::ExecuteFire() {
+	UE_LOG(LogTemp, Warning, TEXT("ExecuteFire"));
 	//const float CurrentSpread = 0;
 	const float ConeHalfAngle = FMath::DegreesToRadians(Spread * 0.5f);
 
@@ -124,6 +125,17 @@ void AInstantWeapon::DrawDebugLineTrace(const FVector& endPoint) {
 	auto cheatManager = Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager);
 	if(!(cheatManager && cheatManager->IsDebugProjectileLineTraceEnabled))
 		return;
-	DrawDebugLine(GetWorld(), GetFPMuzzleLocation(), endPoint, DebugColor, true, -1, 0, 0.5);
-	DrawDebugPoint(GetWorld(), endPoint, 3, DebugColor, true);
+	if(Recorder) {
+		DrawDebugLine(GetWorld(), GetFPMuzzleLocation(), endPoint, PlayerDebugColor, true, -1, 0, 0.5);
+		DrawDebugPoint(GetWorld(), endPoint, 3, PlayerDebugColor, true);
+	} else {
+		DrawDebugLine(GetWorld(), GetFPMuzzleLocation(), endPoint, ReplayDebugColor, true, -1, 0, 0.5);
+		DrawDebugPoint(GetWorld(), endPoint, 3, ReplayDebugColor, true);
+	}
+}
+
+void AInstantWeapon::OnEquip() {
+	Super::OnEquip();
+	// always start with a new RandomStream for replay Precision
+	WeaponRandomStream = FRandomStream(0);
 }

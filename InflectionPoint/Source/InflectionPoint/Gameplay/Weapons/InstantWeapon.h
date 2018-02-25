@@ -60,8 +60,11 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		FRandomStream WeaponRandomStream = FRandomStream(0);
 
-	UPROPERTY(EditAnywhere)
-		FColor DebugColor = FColor(160,60,50);
+	UPROPERTY(EditAnywhere, Category = Debug)
+		FColor PlayerDebugColor = FColor(10, 12, 160);
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+		FColor ReplayDebugColor = FColor(160, 14, 0);
 
 public:
 		void ExecuteFire() override;
@@ -74,6 +77,8 @@ public:
 		void SpawnMuzzleFX();
 		void SpawnTrailFX(const FVector& endPoint);
 		void SpawnImpactFX(FHitResult hitResult);
+
+		void OnEquip() override;
 		
 		UFUNCTION()
 			void DecativateParticleSystem(UParticleSystemComponent* effect);
