@@ -2,6 +2,8 @@
 
 #include "InflectionPoint.h"
 #include "DebugTools/InflectionPointCheatManager.h"
+#include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "InstantWeapon.h"
 
 
@@ -37,6 +39,8 @@ FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector&
 }
 
 void AInstantWeapon::DealDamage(const FHitResult& Impact, const FVector& ShootDir) {
+	if(!(Impact.Actor.IsValid() && Impact.Actor.Get()->IsA(ABaseCharacter::StaticClass())))
+		return;
 	FPointDamageEvent PointDmg;
 	PointDmg.DamageTypeClass = DamageType;
 	PointDmg.HitInfo = Impact;
@@ -44,6 +48,11 @@ void AInstantWeapon::DealDamage(const FHitResult& Impact, const FVector& ShootDi
 	PointDmg.Damage = Damage;
 
 	Impact.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
+
+	// notify controller
+	auto controller = Cast<APlayerControllerBase>(OwningCharacter->Controller);
+	if(controller)
+		controller->DamageDealt();
 }
 
 void AInstantWeapon::MulticastSpawnWeaponEffects_Implementation(FHitResult hitResult) {

@@ -43,6 +43,9 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void DamageDealt();
+
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
 		void ServerSwitchSpectatedCharacter();	
