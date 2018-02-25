@@ -43,7 +43,7 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 		void DamageDealt();
 
 	/** Spectates the next player or replay that is alive and in the same team as this player */

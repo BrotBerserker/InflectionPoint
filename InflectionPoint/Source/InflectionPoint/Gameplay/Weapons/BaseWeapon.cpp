@@ -101,7 +101,6 @@ void ABaseWeapon::StartFire() {
 }
 
 void ABaseWeapon::Fire() {
-	UE_LOG(LogTemp, Warning, TEXT("Fire"));
 	if(CurrentAmmo == 0) {
 		return;
 	}
@@ -190,11 +189,13 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 	if(NotifyName.ToString() == "RefillAmmo") {
 		CurrentAmmo = MaxAmmo;
 		ForceNetUpdate();
+	} else if(NotifyName.ToString() == "EnableFiring") {
+		CurrentState = EWeaponState::IDLE;
 	}
 }
 
 void ABaseWeapon::ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted) {
-	if(Montage == ReloadAnimation) {
+	if(Montage == ReloadAnimation && CurrentState == EWeaponState::RELOADING) {
 		CurrentState = EWeaponState::IDLE;
 	}
 }

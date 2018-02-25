@@ -9,7 +9,6 @@
 
 
 void AInstantWeapon::ExecuteFire() {
-	UE_LOG(LogTemp, Warning, TEXT("ExecuteFire"));
 	//const float CurrentSpread = 0;
 	const float ConeHalfAngle = FMath::DegreesToRadians(Spread * 0.5f);
 
