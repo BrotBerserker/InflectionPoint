@@ -1,16 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
+#include "DebugTools/InflectionPointCheatManager.h"
 #include "InstantWeapon.h"
 
 
 
 void AInstantWeapon::ExecuteFire() {
-	const int32 RandomSeed = FMath::Rand();
-	FRandomStream WeaponRandomStream(RandomSeed);
-
-	const float CurrentSpread = 0;
-	const float ConeHalfAngle = FMath::DegreesToRadians(CurrentSpread * 0.5f);
+	//const float CurrentSpread = 0;
+	const float ConeHalfAngle = FMath::DegreesToRadians(Spread * 0.5f);
 
 	const FVector direction = OwningCharacter->FirstPersonCameraComponent->GetForwardVector();//GetProjectileSpawnRotation().Vector();
 	const FVector StartTrace = OwningCharacter->FirstPersonCameraComponent->GetComponentLocation();
@@ -19,6 +17,7 @@ void AInstantWeapon::ExecuteFire() {
 
 	const FHitResult hitResult = WeaponTrace(StartTrace, EndTrace);
 	MulticastSpawnWeaponEffects(hitResult);
+	DrawDebugLineTrace(hitResult.ImpactPoint);
 	if(hitResult.Actor.IsValid())
 		DealDamage(hitResult, ShootDir);
 }
@@ -31,7 +30,7 @@ FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector&
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = true;
 
-	FHitResult Hit(ForceInit); 
+	FHitResult Hit(ForceInit);
 	GetWorld()->LineTraceSingleByChannel(Hit, startTrace, endTrace, (ECollisionChannel)CollisionChannel, TraceParams);
 
 	return Hit;
@@ -43,7 +42,7 @@ void AInstantWeapon::DealDamage(const FHitResult& Impact, const FVector& ShootDi
 	PointDmg.HitInfo = Impact;
 	PointDmg.ShotDirection = ShootDir;
 	PointDmg.Damage = Damage;
-	
+
 	Impact.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
 }
 
@@ -58,41 +57,43 @@ void AInstantWeapon::SpawnMuzzleFX() {
 		return;
 
 	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, NAME_None);
-	mesh1pFX->SetWorldLocation(GetFPMuzzleLocation());
-	mesh1pFX->SetWorldRotation(GetAimDirection());
-	mesh1pFX->bOwnerNoSee = false;
-	mesh1pFX->bOnlyOwnerSee = true;
-
-	UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, NAME_None);
-	mesh3pFX->SetWorldLocation(GetTPMuzzleLocation());
-	mesh3pFX->SetWorldRotation(GetAimDirection());
-	mesh3pFX->bOwnerNoSee = true;
-	mesh3pFX->bOnlyOwnerSee = false;
-
-	if(MuzzleFXDuration > 0) {
-		StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh1pFX);
-		StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh3pFX);
+	if(mesh1pFX) {
+		mesh1pFX->SetWorldLocation(GetFPMuzzleLocation());
+		mesh1pFX->SetWorldRotation(GetAimDirection());
+		mesh1pFX->bOwnerNoSee = false;
+		mesh1pFX->bOnlyOwnerSee = true;
+		if(MuzzleFXDuration > 0)
+			StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh1pFX);
 	}
-
+	UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, NAME_None);
+	if(mesh3pFX) {
+		mesh3pFX->SetWorldLocation(GetTPMuzzleLocation());
+		mesh3pFX->SetWorldRotation(GetAimDirection());
+		mesh3pFX->bOwnerNoSee = true;
+		mesh3pFX->bOnlyOwnerSee = false;
+		if(MuzzleFXDuration > 0)
+			StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh3pFX);
+	}
 }
 
 void AInstantWeapon::SpawnTrailFX(const FVector& endPoint) {
 	if(!TrailFX)
 		return;
 	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh3P, NAME_None);
-	tpTrail->SetWorldLocation(GetTPMuzzleLocation());
-	tpTrail->SetWorldRotation(GetAimDirection());
-	tpTrail->bOwnerNoSee = true;
-	tpTrail->bOnlyOwnerSee = false;
+	if(tpTrail) {
+		tpTrail->SetWorldLocation(GetTPMuzzleLocation());
+		tpTrail->SetWorldRotation(GetAimDirection());
+		tpTrail->bOwnerNoSee = true;
+		tpTrail->bOnlyOwnerSee = false;
+		tpTrail->SetVectorParameter(TrailTargetParam, endPoint);
+	}
 
 	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh1P, NAME_None);
-	fpTrail->SetWorldLocation(GetFPMuzzleLocation());
-	fpTrail->SetWorldRotation(GetAimDirection());
-	fpTrail->bOwnerNoSee = false;
-	fpTrail->bOnlyOwnerSee = true;
-
-	if(tpTrail && fpTrail) {
-		tpTrail->SetVectorParameter(TrailTargetParam, endPoint);
+	if(fpTrail) {
+		fpTrail->SetWorldLocation(GetFPMuzzleLocation());
+		fpTrail->SetWorldRotation(GetAimDirection());
+		fpTrail->bOwnerNoSee = false;
+		fpTrail->bOnlyOwnerSee = true;
 		fpTrail->SetVectorParameter(TrailTargetParam, endPoint);
 	}
 }
@@ -101,9 +102,19 @@ void AInstantWeapon::SpawnImpactFX(FHitResult hitResult) {
 	if(!hitResult.bBlockingHit)
 		return;
 	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAtLocation(this, ImpactFX, hitResult.ImpactPoint);
-	tpTrail->SetWorldRotation(hitResult.ImpactNormal.ToOrientationRotator());
+	if(tpTrail)
+		tpTrail->SetWorldRotation(hitResult.ImpactNormal.ToOrientationRotator());
 }
 
 void AInstantWeapon::DecativateParticleSystem(UParticleSystemComponent* effect) {
 	effect->DeactivateSystem();
+}
+
+
+void AInstantWeapon::DrawDebugLineTrace(const FVector& endPoint) {
+	auto cheatManager = Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager);
+	if(!(cheatManager && cheatManager->IsDebugProjectileLineTraceEnabled))
+		return;
+	DrawDebugLine(GetWorld(), GetFPMuzzleLocation(), endPoint, DebugColor, true, -1, 0, 0.5);
+	DrawDebugPoint(GetWorld(), endPoint, 3, DebugColor, true);
 }
