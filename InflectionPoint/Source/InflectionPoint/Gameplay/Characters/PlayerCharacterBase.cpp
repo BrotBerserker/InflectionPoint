@@ -110,7 +110,7 @@ void APlayerCharacterBase::ServerStartFire_Implementation() {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	recorder->RecordKeyPressed("Fire");
+	recorder->ServerRecordKeyPressed("Fire");
 
 	Super::ServerStartFire_Implementation();
 }
@@ -119,6 +119,6 @@ void APlayerCharacterBase::ServerStopFire_Implementation() {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	recorder->RecordKeyReleased("Fire");
+	recorder->ServerRecordKeyReleased("Fire");
 	Super::ServerStopFire_Implementation();
 }

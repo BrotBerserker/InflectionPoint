@@ -68,7 +68,7 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 	if(CreateDebugCorrectionSpheres)
 		DrawDebugSphereAtCurrentPosition(shouldCorrectPosition);
 
-	UpdatePressedKeys();
+	UpdateKeys();
 
 	// Call Hold for all currently pressed buttons
 	for(auto &key : pressedKeys) {
@@ -80,7 +80,7 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 		StopReplay();
 }
 
-void AReplayCharacterBase::UpdatePressedKeys() {
+void AReplayCharacterBase::UpdateKeys() {
 	// iterate through all record data since last tick until now
 	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
 		UpdateRotation();
@@ -105,21 +105,15 @@ void AReplayCharacterBase::UpdateRotation() {
 
 void AReplayCharacterBase::UpdatePressedKeys(FRecordedPlayerState &recordDataStep) {
 	for(auto &item : recordDataStep.PressedKeys) {
-		if(!pressedKeys.Contains(item)) {
-			PressKey(item);
-			pressedKeys.Add(item);
-		}
+		PressKey(item);
+		pressedKeys.Add(item);
 	}
 }
 
 void AReplayCharacterBase::UpdateReleasedKeys(FRecordedPlayerState &recordDataStep) {
-	for(int i = 0; i < pressedKeys.Num(); i++) {
-		auto item = pressedKeys[i];
-		if(!recordDataStep.PressedKeys.Contains(item)) {
-			ReleaseKey(item);
-			pressedKeys.Remove(item);
-			i--;
-		}
+	for(auto &item : recordDataStep.ReleasedKeys) {
+		ReleaseKey(item);
+		pressedKeys.Remove(item);
 	}
 }
 
@@ -130,6 +124,17 @@ void AReplayCharacterBase::PressKey(FString key) {
 		EnableSprint();
 	} else if(key == "WeaponFired") {
 		CurrentWeapon->Fire();
+	} else if(key == "Reload") {
+		CurrentWeapon->Reload();
+	} else if(key == "EquipNextWeapon") {
+		ServerEquipNextWeapon();
+	} else if(key == "EquipPreviousWeapon") {
+		ServerEquipPreviousWeapon();
+	} else if(key.Contains("EquipSpecificWeapon")) {
+		auto str = FString(key); // to not alter string
+		str.RemoveFromStart("EquipSpecificWeapon");
+		int index = FCString::Atoi(*str);
+		ServerEquipSpecificWeapon(index);
 	}
 }
 

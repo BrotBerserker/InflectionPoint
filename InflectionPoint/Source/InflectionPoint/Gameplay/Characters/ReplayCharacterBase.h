@@ -103,7 +103,7 @@ private:
 	int replayIndex = 0;
 	TArray<FString> pressedKeys;
 
-	void UpdatePressedKeys();
+	void UpdateKeys();
 
 	void UpdateRotation();
 

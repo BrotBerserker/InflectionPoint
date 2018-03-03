@@ -26,16 +26,20 @@ struct FRecordedPlayerState {
 	UPROPERTY()
 		TArray<FString> PressedKeys;
 
+	UPROPERTY()
+		TArray<FString> ReleasedKeys;
+
 	FRecordedPlayerState() {
 		PressedKeys = TArray<FString>();
 	}
 
-	FRecordedPlayerState(float timestamp, FVector position, float capsuleYaw, float cameraPitch, TArray<FString> pressedKeys) {
+	FRecordedPlayerState(float timestamp, FVector position, float capsuleYaw, float cameraPitch, TArray<FString> pressedKeys, TArray<FString> releasedKeys) {
 		Timestamp = timestamp;
 		Position = position;
 		CapsuleYaw = capsuleYaw;
 		CameraPitch = cameraPitch;
 		PressedKeys = pressedKeys;
+		ReleasedKeys = releasedKeys;
 	}
 
 	FString ToString() {
@@ -93,6 +97,7 @@ private:
 	float passedTime;
 	ABaseCharacter* owner;
 	TArray<FString> pressedKeys;
+	TArray<FString> releasedKeys;
 
 	TArray<FRecordedPlayerState> recordedPlayerStateQueue;
 
@@ -103,23 +108,31 @@ private:
 
 	int movingRight = 0;
 
-	void RecordStartJump();
+	void RecordKey(FString key, EInputEvent eventType);
 
-	void RecordStopJump();
+	template<EInputEvent eventType>
+	void RecordJump();
 
-	void RecordStartSprint();
+	template<EInputEvent eventType>
+	void RecordSprint();
 
-	void RecordStopSprint();
+	template<EInputEvent eventType>
+	void RecordReload();
+
+	template<EInputEvent eventType>
+	void RecordEquipNextWeapon();
+
+	template<EInputEvent eventType>
+	void RecordEquipPreviousWeapon();
 
 	void RecordMoveForward(float val);
 
 	void RecordMoveRight(float val);
 
+	template<int index, EInputEvent eventType>
+	void RecordEquipSpecificWeapon();
 
 public:
-	void RecordKeyPressed(const FString &key);
-	void RecordKeyReleased(const FString &key);
-
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerRecordKeyPressed(const FString &key);
 
