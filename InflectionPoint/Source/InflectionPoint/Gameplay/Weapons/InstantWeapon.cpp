@@ -7,6 +7,10 @@
 #include "InstantWeapon.h"
 
 
+AInstantWeapon::AInstantWeapon() {
+	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
+}
+
 void AInstantWeapon::ExecuteFire() {
 	const float ConeHalfAngle = FMath::DegreesToRadians(Spread * 0.5f);
 
@@ -17,7 +21,10 @@ void AInstantWeapon::ExecuteFire() {
 
 	FHitResult hitResult = WeaponTrace(StartTrace, EndTrace);
 	MulticastSpawnInstantWeaponFX(hitResult);
-	DrawDebugLineTrace(hitResult);
+
+	if(hitResult.bBlockingHit) {
+		DebugLineDrawer->DrawDebugLineTrace(GetFPMuzzleLocation(), hitResult.ImpactPoint);
+	}
 	DealDamage(hitResult, ShootDir);
 }
 
@@ -85,21 +92,6 @@ void AInstantWeapon::SpawnImpactFX(const FHitResult hitResult) {
 	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAtLocation(this, ImpactFX, hitResult.ImpactPoint);
 	if(tpTrail)
 		tpTrail->SetWorldRotation(hitResult.ImpactNormal.ToOrientationRotator());
-}
-
-void AInstantWeapon::DrawDebugLineTrace(const FHitResult hitResult) {
-	if(!hitResult.bBlockingHit)
-		return;
-	auto cheatManager = Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager);
-	if(!(cheatManager && cheatManager->IsDebugProjectileLineTraceEnabled))
-		return;
-	if(Recorder) {
-		DrawDebugLine(GetWorld(), GetFPMuzzleLocation(), hitResult.ImpactPoint, PlayerDebugColor, true, -1, 0, 0.5);
-		DrawDebugPoint(GetWorld(), hitResult.ImpactPoint, 3, PlayerDebugColor, true);
-	} else {
-		DrawDebugLine(GetWorld(), GetFPMuzzleLocation(), hitResult.ImpactPoint, ReplayDebugColor, true, -1, 0, 0.5);
-		DrawDebugPoint(GetWorld(), hitResult.ImpactPoint, 3, ReplayDebugColor, true);
-	}
 }
 
 void AInstantWeapon::OnEquip() {

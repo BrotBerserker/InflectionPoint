@@ -34,13 +34,14 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 void AInflectionPointProjectile::BeginPlay() {
 	Super::BeginPlay();
 	APawn* instigator = GetInstigator();
+
 	// instigator is null if the character has already died when the shot is spawned
 	if(instigator == nullptr) {
 		return;
 	}
 
+	// Avoid collision with instigator
 	((ABaseCharacter*)instigator)->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
-
 	CollisionComp->IgnoreActorWhenMoving(instigator, true);
 }
 
