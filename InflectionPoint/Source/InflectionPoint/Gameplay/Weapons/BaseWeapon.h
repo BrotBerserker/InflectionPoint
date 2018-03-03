@@ -21,14 +21,10 @@ class INFLECTIONPOINT_API ABaseWeapon : public AActor {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
-	ABaseWeapon();
+	/* -------------- */
+	/*   Components   */
+	/* -------------- */
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-public:
 	/** Gun mesh: 1st person view (seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh1P;
@@ -37,17 +33,18 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh3P;
 
-	/** Location on gun mesh where projectiles should spawn. */
+	/** Location on Mesh1P where projectiles and effects should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* FP_MuzzleLocation;
 
-	/** Location on gun mesh where projectiles should spawn. */
+	/** Location on Mesh3P where effects should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* TP_MuzzleLocation;
 
-	/** Notifies Clients about projectile fired */
-	UFUNCTION(Reliable, NetMulticast)
-		void MulticastProjectileFired();
+public:
+	/* ---------------------- */
+	/*    Editor Settings     */
+	/* ---------------------- */
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
@@ -61,72 +58,101 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* ReloadAnimation;
 
+	/** AnimMontage to play when this weapon is equipped */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* EquipAnimation;
-
-	UPROPERTY(BlueprintReadWrite, Replicated)
-		ABaseCharacter* OwningCharacter;
-
-	UPlayerStateRecorder* Recorder;
-
-	UPROPERTY(Replicated, BlueprintReadWrite)
-		int CurrentAmmo;
 
 	/** Number of shots per clip */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		int MaxAmmo = 7;
 
+	/** Whether automatic fire should be enabled for this weapon */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		bool AutoFire = true;
 
+	/** Seconds to wait between two shots */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		float FireInterval = 1.0f;
 
-	EWeaponState CurrentState = EWeaponState::IDLE;
-
 public:
-	// Called every frame
+	/* ------------- */
+	/*   Functions   */
+	/* ------------- */
+
+	/** Constructor, initializes components */
+	ABaseWeapon();
+
+	/** Initializes variables and attachments */
+	virtual void BeginPlay() override;
+
+	/** Executes behaviour depending on the current state */
 	virtual void Tick(float DeltaTime) override;
 
+	/** If possible, changes the current state to FIRING */
 	virtual void StartFire();
 
-	virtual void Fire();
-
-	/* Override this Function */
-	virtual void ExecuteFire() PURE_VIRTUAL(ABaseWeapon::ExecuteFire, ;);
-
+	/** If currently firing, changes the current state to IDLE */
 	virtual void StopFire();
 
+	/** Fires a shot (includes animation, sound, and decreasing ammo) */
+	virtual void Fire();
+
+	/** This function should be overriden in subclasses to implement specific fire behaviour */
+	virtual void ExecuteFire() PURE_VIRTUAL(ABaseWeapon::ExecuteFire, ;);
+
+	/** Plays the reload animation (only if the weapon doesn't have max ammo) */
 	UFUNCTION()
 		virtual void Reload();
 
-	virtual void OnEquip();
-
-	virtual void OnUnequip();
-
-	void AttachToOwner();
-
-	void DetachFromOwner();
-
+	/** Plays the reload animation on all clients */
 	UFUNCTION(NetMulticast, Reliable)
 		virtual void MulticastPlayReloadAnimation();
 
+	/** Called when this weapon is equipped. Sets up attachment, plays equip animation etc. */
+	virtual void OnEquip();
+
+	/** Called when this weapon is unequipped. Removes attachment, stops animations etc. */
+	virtual void OnUnequip();
+
+	/** Attaches this weapon's meshes to the owning character */
+	void AttachToOwner();
+
+	/** Dettaches this weapon's meshes from the owning character */
+	void DetachFromOwner();
+
+	/** Callback for anim notifies during the reload animation */
 	UFUNCTION()
 		void ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 
+	/** Callback for when the reload animation ends or is interrupted */
 	UFUNCTION()
 		void ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted);
 
-
-	/** Returns the 1 Person muzzle location */
+	/** Returns the 1st person muzzle location */
 	FVector GetFPMuzzleLocation();
-	/** Returns the 3 Person muzzle location */
+
+	/** Returns the 3rd person muzzle location */
 	FVector GetTPMuzzleLocation();
 
-	/** Returns the rotation where the player is aiming */
+	/** Returns the owning character's aim direction */
 	FRotator GetAimDirection();
 
-private:
+	/** Notifies clients about projectile fired (plays animation, sound etc.) */
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastProjectileFired();
+
+public:
+	UPROPERTY(BlueprintReadWrite, Replicated)
+		ABaseCharacter* OwningCharacter;
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		int CurrentAmmo;
+
+protected:
+	EWeaponState CurrentState = EWeaponState::IDLE;
+
+	UPlayerStateRecorder* Recorder;
+
 	float LastShotTimeStamp = 0.f;
 	float passedTime = 0.f;
 
