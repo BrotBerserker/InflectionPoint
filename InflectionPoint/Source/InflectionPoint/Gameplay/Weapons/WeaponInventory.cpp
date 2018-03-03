@@ -55,3 +55,9 @@ ABaseWeapon* UWeaponInventory::GetPreviousWeapon(ABaseWeapon* CurrentWeapon) {
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
 	return weapons[(index - 1 + weapons.Num()) % weapons.Num()];
 }
+
+ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
+	if(index < 0 || index >= weapons.Num())
+		return NULL;
+	return weapons[index];
+}

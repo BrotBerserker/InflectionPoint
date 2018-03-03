@@ -206,6 +206,9 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerEquipPreviousWeapon();
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerEquipSpecificWeapon(int index);
+
 	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerStartSprinting();

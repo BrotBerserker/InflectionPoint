@@ -32,6 +32,9 @@ public:
 
 	void RemoveWeapon(ABaseWeapon* Weapon);
 
+
+	ABaseWeapon* GetWeapon(int index);
+
 	ABaseWeapon* GetNextWeapon(ABaseWeapon* CurrentWeapon);
 
 	ABaseWeapon* GetPreviousWeapon(ABaseWeapon* CurrentWeapon);

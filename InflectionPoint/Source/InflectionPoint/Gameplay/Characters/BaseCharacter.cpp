@@ -209,6 +209,17 @@ void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {
 	EquipWeapon(WeaponInventory->GetPreviousWeapon(CurrentWeapon), CurrentWeapon);
 }
 
+
+bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {
+	return true;
+}
+
+void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(int index) {
+	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
+	if(newWeapon && CurrentWeapon != newWeapon)
+		EquipWeapon(newWeapon, CurrentWeapon);
+}
+
 void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
 	EquipWeapon(CurrentWeapon, OldWeapon);
 }
