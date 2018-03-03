@@ -42,45 +42,41 @@ public:
 	/** param name for beam target in smoke trail */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		FName TrailTargetParamName;
-
-	/** FX for muzzle flash */
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		UParticleSystem* MuzzleFX;
-
+	
 	/** FX for impact */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		UParticleSystem* ImpactFX;
-
-	/** Duration for the muzzle FX flash (-1 for endless)*/
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		float MuzzleFXDuration = 0.1;
-
+	
 	/** For generating Random numbers*/
 	UPROPERTY(BlueprintReadWrite)
 		FRandomStream WeaponRandomStream = FRandomStream(0);
 
+	/* Color for Player debug Trace*/
 	UPROPERTY(EditAnywhere, Category = Debug)
 		FColor PlayerDebugColor = FColor(10, 12, 160);
 
+	/* Color for Replay debug Trace*/
 	UPROPERTY(EditAnywhere, Category = Debug)
 		FColor ReplayDebugColor = FColor(160, 14, 0);
 
 public:
 	void ExecuteFire() override;
+
+	/* Perform a line trace to retrieve hit info */
 	FHitResult AInstantWeapon::WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
-	void DealDamage(const FHitResult& Impact, const FVector& ShootDir);
 
-	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
-		void MulticastSpawnWeaponEffects(FHitResult hitResult);
-
-	void SpawnMuzzleFX();
-	void SpawnTrailFX(const FVector& endPoint);
-	void SpawnImpactFX(FHitResult hitResult);
+	/* Deals Damage if Character was hit*/
+	void DealDamage(const FHitResult hitResult, const FVector& ShootDir);
 
 	void OnEquip() override;
 
-	UFUNCTION()
-		void DecativateParticleSystem(UParticleSystemComponent* effect);
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastSpawnInstantWeaponFX(const FHitResult hitResult);
+
+	void SpawnTrailFX(const FHitResult hitResult);
+
+	void SpawnImpactFX(const FHitResult hitResult);
+
 private:
-	void DrawDebugLineTrace(const FVector& endPoint);
+	void DrawDebugLineTrace(const FHitResult hitResult);
 };

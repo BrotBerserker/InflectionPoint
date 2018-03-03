@@ -113,7 +113,7 @@ void ABaseWeapon::Fire() {
 	ExecuteFire();
 	CurrentAmmo--;
 	ForceNetUpdate();
-	MulticastProjectileFired();
+	MulticastFireExecuted();
 	if(!AutoFire)
 		CurrentState = EWeaponState::IDLE;
 }
@@ -146,12 +146,20 @@ void ABaseWeapon::OnUnequip() {
 	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Stop(0, ReloadAnimation); 
 }
 
-void ABaseWeapon::MulticastProjectileFired_Implementation() {
+void ABaseWeapon::MulticastFireExecuted_Implementation() {
+	SpawnMuzzleFX();
+	SpawnFireSound();
+	PlayFireAnimation();
+}
+
+void ABaseWeapon::SpawnFireSound() {
 	// try and play the sound if specified
 	if(FireSound != NULL) {
 		UGameplayStatics::SpawnSoundAttached(FireSound, OwningCharacter->Mesh1P);
 	}
+}
 
+void ABaseWeapon::PlayFireAnimation() {
 	// try and play a firing animation if specified
 	if(FireAnimation != NULL) {
 		// Get the animation object for the arms mesh
@@ -198,6 +206,34 @@ void ABaseWeapon::ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterr
 	if(Montage == ReloadAnimation && CurrentState == EWeaponState::RELOADING) {
 		CurrentState = EWeaponState::IDLE;
 	}
+}
+
+void ABaseWeapon::SpawnMuzzleFX() {
+	if(!MuzzleFX)
+		return;
+
+	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, NAME_None);
+	if(mesh1pFX) {
+		mesh1pFX->SetWorldLocation(GetFPMuzzleLocation());
+		mesh1pFX->SetWorldRotation(GetAimDirection());
+		mesh1pFX->bOwnerNoSee = false;
+		mesh1pFX->bOnlyOwnerSee = true;
+		if(MuzzleFXDuration > 0)
+			StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh1pFX);
+	}
+	UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, NAME_None);
+	if(mesh3pFX) {
+		mesh3pFX->SetWorldLocation(GetTPMuzzleLocation());
+		mesh3pFX->SetWorldRotation(GetAimDirection());
+		mesh3pFX->bOwnerNoSee = true;
+		mesh3pFX->bOnlyOwnerSee = false;
+		if(MuzzleFXDuration > 0)
+			StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh3pFX);
+	}
+}
+
+void ABaseWeapon::DecativateParticleSystem(UParticleSystemComponent* effect) {
+	effect->DeactivateSystem();
 }
 
 FRotator ABaseWeapon::GetAimDirection() {

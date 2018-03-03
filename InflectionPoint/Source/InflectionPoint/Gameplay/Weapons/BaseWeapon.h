@@ -58,6 +58,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* ReloadAnimation;
 
+	/** FX for muzzle flash */
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		UParticleSystem* MuzzleFX;
+
+	/** Duration for the muzzle FX flash (-1 for endless)*/
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		float MuzzleFXDuration = 0.1;
+
 	/** AnimMontage to play when this weapon is equipped */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* EquipAnimation;
@@ -120,6 +128,15 @@ public:
 	/** Dettaches this weapon's meshes from the owning character */
 	void DetachFromOwner();
 
+	/* Spawns the Fire Sound (called from multicast)*/
+	void SpawnFireSound();
+
+	/* Plays the Fire Animation (called from multicast)*/
+	void PlayFireAnimation();
+
+	/* Spawns the MuzzleFX for 1P and 3P (called from multicast)*/
+	void SpawnMuzzleFX();
+
 	/** Callback for anim notifies during the reload animation */
 	UFUNCTION()
 		void ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
@@ -130,6 +147,8 @@ public:
 
 	/** Returns the 1st person muzzle location */
 	FVector GetFPMuzzleLocation();
+	UFUNCTION()
+		void DecativateParticleSystem(UParticleSystemComponent* effect);
 
 	/** Returns the 3rd person muzzle location */
 	FVector GetTPMuzzleLocation();
@@ -139,7 +158,7 @@ public:
 
 	/** Notifies clients about projectile fired (plays animation, sound etc.) */
 	UFUNCTION(Reliable, NetMulticast)
-		void MulticastProjectileFired();
+		void MulticastFireExecuted();
 
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
