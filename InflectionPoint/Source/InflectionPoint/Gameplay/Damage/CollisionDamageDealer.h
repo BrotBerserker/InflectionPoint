@@ -10,17 +10,13 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UCollisionDamageDealer : public UActorComponent {
 	GENERATED_BODY()
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageHitDelegate, float, damage, const FHitResult&, Hit);
+		DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageHitDelegate, float, damage, const FHitResult&, Hit);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHarmlessHitDelegate, const FHitResult&, Hit);
 
 public:
 	/* ---------------------- */
 	/*  Editor Settings   */
 	/* ---------------------- */
-
-	/** Only deals damage when hitting subclasses of ACharacter */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
-		bool DealDamageOnlyOnCharacters = true;
 
 	/** Destroys the projectile when it collides with an actor that shouldn't be damaged by this projectile */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
@@ -53,9 +49,13 @@ public:
 	/** BeginPlay, registers OnHit Event */
 	virtual void BeginPlay() override;
 
-	/** Responsible for dealing damage when hitting another actor */
+	/** Called when overlapping with another actor. Deals damage and calls OnDamageHit. */
 	UFUNCTION()
-		void OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+		void OnOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	/** Called when colliding with another actor. Deals NO damage and calls OnHarmlessHit. */
+	UFUNCTION()
+		void OnCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	/** Fired when this projectile hit another actor and dealt damage to it */
 	UPROPERTY(BlueprintAssignable)

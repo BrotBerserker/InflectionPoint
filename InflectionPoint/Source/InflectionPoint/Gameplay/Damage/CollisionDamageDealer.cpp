@@ -28,21 +28,22 @@ void UCollisionDamageDealer::BeginPlay() {
 	if(!AssertNotNull(DamageType, GetWorld(), __FILE__, __LINE__))
 		return;
 
-	//collisionShapeComponent->OnComponentHit.AddDynamic(this, &UCollisionDamageDealer::OnHit);
-	collisionShapeComponent->OnComponentBeginOverlap.AddDynamic(this, &UCollisionDamageDealer::OnHit);
+	collisionShapeComponent->OnComponentHit.AddDynamic(this, &UCollisionDamageDealer::OnCollision);
+	collisionShapeComponent->OnComponentBeginOverlap.AddDynamic(this, &UCollisionDamageDealer::OnOverlap);
 }
 
-void UCollisionDamageDealer::OnHit(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {
+void UCollisionDamageDealer::OnCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
+	OnHarmlessHit.Broadcast(Hit);
+	PerformHitConsequences(false);
+}
+
+void UCollisionDamageDealer::OnOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {
 	bool damageDealt = false;
-	if(OtherActor && (!DealDamageOnlyOnCharacters || OtherActor->IsA(ACharacter::StaticClass()))) {
-		// projectile doesn't deal damage on client side, so damage will be 0 for clients
-		float damage = InflictDamage(OtherActor);
-		damageDealt = damage > 0; 
-		if(damageDealt)
-			OnDamageHit.Broadcast(damage, SweepResult);
-	} else {
-		OnHarmlessHit.Broadcast(SweepResult);
-	}
+
+	float damage = InflictDamage(OtherActor);
+	damageDealt = damage > 0;
+	if(damageDealt)
+		OnDamageHit.Broadcast(damage, SweepResult);
 	PerformHitConsequences(damageDealt);
 }
 
@@ -63,11 +64,12 @@ void UCollisionDamageDealer::DestroyOwner() {
 	GetOwner()->SetActorHiddenInGame(true);
 
 	if(DestroyDelay == 0) {
-		collisionShapeComponent->OnComponentBeginOverlap.RemoveDynamic(this, &UCollisionDamageDealer::OnHit); // avoid unwanted hits
+		collisionShapeComponent->OnComponentBeginOverlap.RemoveDynamic(this, &UCollisionDamageDealer::OnOverlap); // avoid unwanted hits
+		collisionShapeComponent->OnComponentHit.RemoveDynamic(this, &UCollisionDamageDealer::OnCollision);
 		GetOwner()->Destroy();
 		return;
 	}
 
 	GetOwner()->SetLifeSpan(DestroyDelay + 0.0000001); // 0 does not destroy o0
-	
+
 }
