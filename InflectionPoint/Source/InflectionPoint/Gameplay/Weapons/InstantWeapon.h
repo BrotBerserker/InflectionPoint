@@ -41,7 +41,7 @@ public:
 
 	/** param name for beam target in smoke trail */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		FName TrailTargetParam;
+		FName TrailTargetParamName;
 
 	/** FX for muzzle flash */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
@@ -55,7 +55,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		float MuzzleFXDuration = 0.1;
 
-
 	/** For generating Random numbers*/
 	UPROPERTY(BlueprintReadWrite)
 		FRandomStream WeaponRandomStream = FRandomStream(0);
@@ -67,21 +66,21 @@ public:
 		FColor ReplayDebugColor = FColor(160, 14, 0);
 
 public:
-		void ExecuteFire() override;
-		FHitResult AInstantWeapon::WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
-		void DealDamage(const FHitResult& Impact, const FVector& ShootDir);
+	void ExecuteFire() override;
+	FHitResult AInstantWeapon::WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
+	void DealDamage(const FHitResult& Impact, const FVector& ShootDir);
 
-		UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
-			void MulticastSpawnWeaponEffects(FHitResult hitResult);
+	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
+		void MulticastSpawnWeaponEffects(FHitResult hitResult);
 
-		void SpawnMuzzleFX();
-		void SpawnTrailFX(const FVector& endPoint);
-		void SpawnImpactFX(FHitResult hitResult);
+	void SpawnMuzzleFX();
+	void SpawnTrailFX(const FVector& endPoint);
+	void SpawnImpactFX(FHitResult hitResult);
 
-		void OnEquip() override;
-		
-		UFUNCTION()
-			void DecativateParticleSystem(UParticleSystemComponent* effect);
+	void OnEquip() override;
+
+	UFUNCTION()
+		void DecativateParticleSystem(UParticleSystemComponent* effect);
 private:
 	void DrawDebugLineTrace(const FVector& endPoint);
 };

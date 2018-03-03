@@ -6,7 +6,7 @@
 
 // Sets default values for this component's properties
 UWeaponInventory::UWeaponInventory() {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 // Called when the game starts

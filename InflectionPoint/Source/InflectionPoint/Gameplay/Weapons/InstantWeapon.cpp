@@ -7,12 +7,10 @@
 #include "InstantWeapon.h"
 
 
-
 void AInstantWeapon::ExecuteFire() {
-	//const float CurrentSpread = 0;
 	const float ConeHalfAngle = FMath::DegreesToRadians(Spread * 0.5f);
 
-	const FVector direction = OwningCharacter->FirstPersonCameraComponent->GetForwardVector();//GetProjectileSpawnRotation().Vector();
+	const FVector direction = OwningCharacter->FirstPersonCameraComponent->GetForwardVector();
 	const FVector StartTrace = OwningCharacter->FirstPersonCameraComponent->GetComponentLocation();
 	const FVector ShootDir = WeaponRandomStream.VRandCone(direction, ConeHalfAngle, ConeHalfAngle);
 	const FVector EndTrace = StartTrace + ShootDir * Range;
@@ -20,8 +18,7 @@ void AInstantWeapon::ExecuteFire() {
 	const FHitResult hitResult = WeaponTrace(StartTrace, EndTrace);
 	MulticastSpawnWeaponEffects(hitResult);
 	DrawDebugLineTrace(hitResult.ImpactPoint);
-	if(hitResult.Actor.IsValid())
-		DealDamage(hitResult, ShootDir);
+	DealDamage(hitResult, ShootDir);
 }
 
 FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector& endTrace) {
@@ -94,7 +91,7 @@ void AInstantWeapon::SpawnTrailFX(const FVector& endPoint) {
 		tpTrail->SetWorldRotation(GetAimDirection());
 		tpTrail->bOwnerNoSee = true;
 		tpTrail->bOnlyOwnerSee = false;
-		tpTrail->SetVectorParameter(TrailTargetParam, endPoint);
+		tpTrail->SetVectorParameter(TrailTargetParamName, endPoint);
 	}
 
 	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh1P, NAME_None);
@@ -103,7 +100,7 @@ void AInstantWeapon::SpawnTrailFX(const FVector& endPoint) {
 		fpTrail->SetWorldRotation(GetAimDirection());
 		fpTrail->bOwnerNoSee = false;
 		fpTrail->bOnlyOwnerSee = true;
-		fpTrail->SetVectorParameter(TrailTargetParam, endPoint);
+		fpTrail->SetVectorParameter(TrailTargetParamName, endPoint);
 	}
 }
 
@@ -118,7 +115,6 @@ void AInstantWeapon::SpawnImpactFX(FHitResult hitResult) {
 void AInstantWeapon::DecativateParticleSystem(UParticleSystemComponent* effect) {
 	effect->DeactivateSystem();
 }
-
 
 void AInstantWeapon::DrawDebugLineTrace(const FVector& endPoint) {
 	auto cheatManager = Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager);
