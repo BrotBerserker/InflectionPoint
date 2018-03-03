@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "InflectionPointProjectile.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
 AInflectionPointProjectile::AInflectionPointProjectile() {
@@ -16,6 +17,8 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
 
+	CollisionDamageDealer = CreateDefaultSubobject<UCollisionDamageDealer>(TEXT("CollisionDamageDealer"));
+
 	// Set as root component
 	RootComponent = CollisionComp;
 
@@ -27,24 +30,55 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 	ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->bShouldBounce = true;
 
+	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
+
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
 }
 
 void AInflectionPointProjectile::BeginPlay() {
 	Super::BeginPlay();
-	APawn* instigator = GetInstigator();
+
+	startPos = GetActorLocation();
+
+	// We can't do this in the constructor because CollisionDamageDealer->OnDamageHit is not yet initialized then
+	CollisionDamageDealer->OnDamageHit.AddDynamic(this, &AInflectionPointProjectile::OnDamageHit);
 
 	// instigator is null if the character has already died when the shot is spawned
-	if(instigator == nullptr) {
+	if(Instigator == nullptr) {
 		return;
 	}
 
 	// Avoid collision with instigator
-	((ABaseCharacter*)instigator)->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
-	CollisionComp->IgnoreActorWhenMoving(instigator, true);
+	((ABaseCharacter*)Instigator)->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
+	CollisionComp->IgnoreActorWhenMoving(Instigator, true);
 }
 
 void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
-	// not needed yet
+	if(firstHit) {
+		DebugLineDrawer->DrawDebugLineTrace(startPos, Hit.Location);
+		firstHit = false;
+	}
+}
+
+void AInflectionPointProjectile::OnDamageHit(float Damage, const FHitResult& Hit) {
+	MulticastSpawnHitEffect();
+	APlayerControllerBase* playerController = Cast<APlayerControllerBase>(Instigator->GetController());
+	if(playerController) {
+		playerController->DamageDealt();
+	}
+}
+
+void AInflectionPointProjectile::MulticastSpawnHitEffect_Implementation() {
+	if(HitEffectClass == NULL)
+		return;
+
+	//Set Spawn Collision Handling Override
+	FActorSpawnParameters ActorSpawnParams;
+	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ActorSpawnParams.Instigator = Instigator;
+	ActorSpawnParams.Owner = GetOwner();
+	
+	// spawn the projectile at the muzzle
+	GetWorld()->SpawnActor<AActor>(HitEffectClass, GetActorTransform(), ActorSpawnParams);
 }
