@@ -186,6 +186,7 @@ void ABaseWeapon::Reload() {
 		MulticastPlayReloadAnimation();
 		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation1P);
 		OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(ReloadAnimation3P);
+		Mesh1P->PlayAnimation(ReloadAnimationWeapon1P, false);
 	}
 }
 
@@ -193,6 +194,7 @@ void ABaseWeapon::MulticastPlayReloadAnimation_Implementation() {
 	if(!HasAuthority()) {
 		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation1P);
 		OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(ReloadAnimation3P);
+		Mesh1P->PlayAnimation(ReloadAnimationWeapon1P, false);
 	}
 }
 
