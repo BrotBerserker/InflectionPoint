@@ -98,7 +98,7 @@ bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString &key) 
 }
 
 void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString &key) {
-	releasedKeys.Remove(key);
+	releasedKeys.Add(key);
 }
 
 void UPlayerStateRecorder::RecordMoveForward(float val) {
