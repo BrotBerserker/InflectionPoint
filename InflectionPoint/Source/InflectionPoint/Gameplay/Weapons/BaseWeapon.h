@@ -54,9 +54,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* FireAnimation;
 
-	/** AnimMontage to play when reloading */
+	/** AnimMontage to play on Mesh1P when reloading */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-		class UAnimMontage* ReloadAnimation;
+		class UAnimMontage* ReloadAnimation1P;
+
+	/** AnimMontage to play on Mesh3P when reloading */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+		class UAnimMontage* ReloadAnimation3P;
 
 	/** FX for muzzle flash */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
@@ -66,9 +70,13 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		float MuzzleFXDuration = 0.1;
 
-	/** AnimMontage to play when this weapon is equipped */
+	/** AnimMontage to play on Mesh1P when this weapon is equipped */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-		class UAnimMontage* EquipAnimation;
+		class UAnimMontage* EquipAnimation1P;
+
+	/** AnimMontage to playon Mesh3P when this weapon is equipped */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+		class UAnimMontage* EquipAnimation3P;
 
 	/** Number of shots per clip */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)

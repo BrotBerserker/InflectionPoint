@@ -121,7 +121,8 @@ void ABaseWeapon::Fire() {
 void ABaseWeapon::OnEquip() {
 	equipped = true;
 	SetActorTickEnabled(true);
-	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(EquipAnimation);
+	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(EquipAnimation1P);
+	OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(EquipAnimation3P);
 
 	AttachToOwner();
 
@@ -143,7 +144,7 @@ void ABaseWeapon::OnUnequip() {
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(AnimationNotifyDelegate);
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.Remove(AnimationEndDelegate);
 
-	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Stop(0, ReloadAnimation); 
+	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Stop(0, ReloadAnimation1P); 
 }
 
 void ABaseWeapon::MulticastFireExecuted_Implementation() {
@@ -183,13 +184,15 @@ void ABaseWeapon::Reload() {
 
 		CurrentState = EWeaponState::RELOADING;
 		MulticastPlayReloadAnimation();
-		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation);
+		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation1P);
+		OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(ReloadAnimation3P);
 	}
 }
 
 void ABaseWeapon::MulticastPlayReloadAnimation_Implementation() {
 	if(!HasAuthority()) {
-		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation);
+		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation1P);
+		OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(ReloadAnimation3P);
 	}
 }
 
@@ -203,7 +206,7 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 }
 
 void ABaseWeapon::ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted) {
-	if(Montage == ReloadAnimation && CurrentState == EWeaponState::RELOADING) {
+	if(Montage == ReloadAnimation1P && CurrentState == EWeaponState::RELOADING) {
 		CurrentState = EWeaponState::IDLE;
 	}
 }
