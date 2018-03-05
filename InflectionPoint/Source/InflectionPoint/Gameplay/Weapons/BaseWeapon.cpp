@@ -58,7 +58,7 @@ void ABaseWeapon::BeginPlay() {
 	AttachToOwner();
 	FP_MuzzleLocation->AttachToComponent(OwningCharacter->FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 	if(!equipped) {
-		DetachFromOwner();
+		OnUnequip();
 	}
 }
 
@@ -140,6 +140,7 @@ void ABaseWeapon::OnUnequip() {
 
 	Mesh1P->SetHiddenInGame(true);
 	Mesh3P->SetHiddenInGame(true);
+	Mesh3P->bCastHiddenShadow = false;
 
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(AnimationNotifyDelegate);
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.Remove(AnimationEndDelegate);
