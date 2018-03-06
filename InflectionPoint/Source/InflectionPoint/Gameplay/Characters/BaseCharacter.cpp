@@ -162,8 +162,8 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 }
 
 void ABaseCharacter::StartFire() {
-	// DisableSprint needs to be called on the Client
 	DisableSprint();
+	sprintAllowed = false;
 	ServerStartFire();
 }
 
@@ -172,9 +172,13 @@ bool ABaseCharacter::ServerStartFire_Validate() {
 }
 
 void ABaseCharacter::ServerStartFire_Implementation() {
-	DisableSprint();
 	DrawDebugArrow();
 	CurrentWeapon->StartFire();
+}
+
+void ABaseCharacter::StopFire() {
+	sprintAllowed = true;
+	ServerStopFire();
 }
 
 bool ABaseCharacter::ServerStopFire_Validate() {
@@ -331,14 +335,14 @@ void ABaseCharacter::DisableSprint() {
 }
 
 bool ABaseCharacter::ShouldStartSprinting(float ForwardMovement) {
-	return ForwardMovement > 0 && sprintEnabled && GetVelocity().Size() <= walkSpeed;
+	return sprintAllowed && sprintEnabled && ForwardMovement > 0 && GetVelocity().Size() <= walkSpeed;
 }
 
 bool ABaseCharacter::ShouldStopSprinting(float ForwardMovement) {
 	if(GetVelocity().Size() <= walkSpeed) {
 		return false;
 	}
-	return ForwardMovement <= 0 || !sprintEnabled;
+	return !sprintAllowed || !sprintEnabled || ForwardMovement <= 0;
 }
 
 void ABaseCharacter::StartSprinting() {

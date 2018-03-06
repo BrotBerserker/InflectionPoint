@@ -165,7 +165,9 @@ public:
 	/** Handles stafing movement, left and right */
 	void MoveRight(float val);
 
+	/** These two are needed because sprinting is handled on client side */
 	void StartFire();
+	void StopFire();
 
 	/**
 	* Called via input to turn at a given rate.
@@ -244,7 +246,12 @@ public:
 
 private:
 	bool initialized = false;
+
+	/** True if the player has pressed shift and wants to sprint */
 	bool sprintEnabled = false;
+
+	/** False if the player is not allowed to sprint (e.g. when firing a weapon) */
+	bool sprintAllowed = true;
 
 	int walkSpeed;
 

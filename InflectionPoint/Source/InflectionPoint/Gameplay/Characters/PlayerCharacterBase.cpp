@@ -31,7 +31,7 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::StartFire);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::StopFire);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABaseCharacter::ServerReload);
 
