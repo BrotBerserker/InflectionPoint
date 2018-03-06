@@ -83,6 +83,8 @@ bool UPlayerStateRecorder::ServerResetRecordedPlayerStates_Validate() {
 
 void UPlayerStateRecorder::ServerResetRecordedPlayerStates_Implementation() {
 	RecordedPlayerStates.Empty();
+	pressedKeys.Empty();
+	releasedKeys.Empty();
 }
 
 bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString &key) {
