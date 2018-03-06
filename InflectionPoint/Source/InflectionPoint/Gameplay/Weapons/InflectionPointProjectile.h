@@ -53,6 +53,9 @@ public:
 	UFUNCTION()
 		void OnDamageHit(float Damage, const FHitResult& Hit);
 
+	UFUNCTION()
+		void OnHarmlessHit(const FHitResult& Hit);
+
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 		void MulticastSpawnHitEffect();
 

@@ -43,6 +43,7 @@ void AInflectionPointProjectile::BeginPlay() {
 
 	// We can't do this in the constructor because CollisionDamageDealer->OnDamageHit is not yet initialized then
 	CollisionDamageDealer->OnDamageHit.AddDynamic(this, &AInflectionPointProjectile::OnDamageHit);
+	CollisionDamageDealer->OnHarmlessHit.AddDynamic(this, &AInflectionPointProjectile::OnHarmlessHit);
 
 	// instigator is null if the character has already died when the shot is spawned
 	if(Instigator == nullptr) {
@@ -62,10 +63,18 @@ void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* Oth
 }
 
 void AInflectionPointProjectile::OnDamageHit(float Damage, const FHitResult& Hit) {
-	MulticastSpawnHitEffect();
+	if(CollisionDamageDealer->DestroyOnDamageDealt) {
+		MulticastSpawnHitEffect();
+	}
 	APlayerControllerBase* playerController = Cast<APlayerControllerBase>(Instigator->GetController());
 	if(playerController) {
 		playerController->DamageDealt();
+	}
+}
+
+void AInflectionPointProjectile::OnHarmlessHit(const FHitResult& Hit) {
+	if(CollisionDamageDealer->DestroyOnHarmlessHit) {
+		MulticastSpawnHitEffect();
 	}
 }
 
@@ -78,7 +87,7 @@ void AInflectionPointProjectile::MulticastSpawnHitEffect_Implementation() {
 	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 	ActorSpawnParams.Instigator = Instigator;
 	ActorSpawnParams.Owner = GetOwner();
-	
+
 	// spawn the projectile at the muzzle
 	GetWorld()->SpawnActor<AActor>(HitEffectClass, GetActorTransform(), ActorSpawnParams);
 }
