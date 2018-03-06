@@ -23,6 +23,12 @@ void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) 
 	inputComponent->BindAction("SwitchToWeapon1", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<0, IE_Released>);
 	inputComponent->BindAction("SwitchToWeapon2", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<1, IE_Pressed>);
 	inputComponent->BindAction("SwitchToWeapon2", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<1, IE_Released>);
+	inputComponent->BindAction("SwitchToWeapon3", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<2, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon3", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<2, IE_Released>);
+	inputComponent->BindAction("SwitchToWeapon4", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<3, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon4", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<3, IE_Released>);
+	inputComponent->BindAction("SwitchToWeapon5", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<4, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon5", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<4, IE_Released>);
 
 	inputComponent->BindAction("Jump", IE_Pressed, this, &UPlayerStateRecorder::RecordJump<IE_Pressed>);
 	inputComponent->BindAction("Jump", IE_Released, this, &UPlayerStateRecorder::RecordJump<IE_Released>);
