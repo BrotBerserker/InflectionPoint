@@ -98,6 +98,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		float FireInterval = 1.0f;
 
+	/** Delay before reloading */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+		float ReloadDelay = 0;
+
+	/** How many shots are fired at once */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+		int FireShotNum = 1;
+
 public:
 	/* ------------- */
 	/*   Functions   */

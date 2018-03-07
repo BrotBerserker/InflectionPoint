@@ -84,7 +84,7 @@ void ABaseWeapon::Tick(float DeltaTime) {
 	passedTime += DeltaTime;
 
 	if(CurrentAmmo == 0 && CurrentState != EWeaponState::RELOADING) {
-		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
+		StartTimer(this, GetWorld(), "Reload", 0.1f + ReloadDelay, false); // use timer to avoid reload animation loops
 	} else if(CurrentState == EWeaponState::FIRING && passedTime - LastShotTimeStamp >= FireInterval) {
 		Fire();
 		passedTime = 0;
@@ -109,8 +109,8 @@ void ABaseWeapon::Fire() {
 		IsReplaySimulatedFirePressed = true;
 		Recorder->ServerRecordKeyPressed("WeaponFired");
 	}
-
-	ExecuteFire();
+	for(int i=0;i<FireShotNum;i++)
+		ExecuteFire();
 	CurrentAmmo--;
 	ForceNetUpdate();
 	MulticastFireExecuted();
