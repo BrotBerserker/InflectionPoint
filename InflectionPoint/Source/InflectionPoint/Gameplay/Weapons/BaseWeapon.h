@@ -54,6 +54,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* FireAnimation;
 
+	/** AnimMontage to play on 1p weapon when firing */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+		class UAnimationAsset* FireAnimationWeapon1P;
+
 	/** AnimMontage to play on 1P hands when reloading */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* ReloadAnimation1P;

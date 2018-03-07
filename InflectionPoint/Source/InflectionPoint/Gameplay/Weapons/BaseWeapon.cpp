@@ -170,6 +170,7 @@ void ABaseWeapon::PlayFireAnimation() {
 			AnimInstance->Montage_Play(FireAnimation, 1.f);
 		}
 	}
+	Mesh1P->PlayAnimation(FireAnimationWeapon1P, false);
 }
 
 void ABaseWeapon::StopFire() {
