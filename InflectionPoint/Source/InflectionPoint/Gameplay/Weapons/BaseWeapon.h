@@ -47,6 +47,10 @@ public:
 	/* ---------------------- */
 
 	/** Sound to play each time we fire */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GUI)
+		UTexture2D* WeaponTexture;
+
+	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
 		class USoundBase* FireSound;
 

@@ -48,6 +48,8 @@ void UCollisionDamageDealer::OnOverlap(class UPrimitiveComponent* HitComp, class
 }
 
 float UCollisionDamageDealer::InflictDamage(AActor* DamagedActor) {
+	if(!GetOwner()->HasAuthority())
+		return 0;
 	AController* instigator = GetOwner()->Instigator ? GetOwner()->Instigator->GetController() : nullptr;
 	return UGameplayStatics::ApplyDamage(DamagedActor, Damage, instigator, GetOwner(), DamageType);
 }

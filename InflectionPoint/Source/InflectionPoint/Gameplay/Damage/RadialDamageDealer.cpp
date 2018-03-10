@@ -20,6 +20,8 @@ void URadialDamageDealer::BeginPlay() {
 
 
 void URadialDamageDealer::DealDamage() {
+	if(!GetOwner()->HasAuthority())
+		return;
 	auto controller = Cast<APlayerControllerBase>(GetOwner()->GetInstigatorController());
 	auto instigator = GetOwner()->Instigator;
 	auto location = GetOwner()->GetActorLocation();
