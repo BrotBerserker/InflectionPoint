@@ -231,7 +231,7 @@ public:
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerUpdateCameraPitch(float pitch);
 
-	/** Updates the Camera pitch rotation on Clients */
+	/** Updates the Camera pitch rotation on Clients */ 
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastUpdateCameraPitch(float pitch);
 
@@ -243,6 +243,9 @@ public:
 		void OnRep_CurrentWeapon(ABaseWeapon* OldWeapon);
 
 	void EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon = NULL);
+
+	UPROPERTY(BlueprintReadWrite)
+		bool IsAiming = false;
 
 private:
 	bool initialized = false;

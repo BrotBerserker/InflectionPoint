@@ -128,6 +128,7 @@ void ABaseWeapon::OnEquip() {
 
 	Mesh1P->SetHiddenInGame(false);
 	Mesh3P->SetHiddenInGame(false);
+	Mesh3P->bCastHiddenShadow = true;
 
 	CurrentState = EWeaponState::IDLE;
 }
