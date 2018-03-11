@@ -59,7 +59,9 @@ public:
 		UDebugLineDrawer* DebugLineDrawer;
 
 public:
+	void PreExecuteFire() override;
 	void ExecuteFire() override;
+	void PostExecuteFire() override;
 
 	/* Perform a line trace to retrieve hit info */
 	FHitResult AInstantWeapon::WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
@@ -75,4 +77,6 @@ public:
 	void SpawnTrailFX(const FHitResult hitResult);
 
 	void SpawnImpactFX(const FHitResult hitResult);
+private:
+	bool damageWasDealt = false;
 };

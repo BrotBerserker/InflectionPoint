@@ -28,7 +28,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnRoundStarted(int Round);
 
-	UFUNCTION(Client, Unreliable)
+	UFUNCTION(Client, Reliable)
 		void ClientShowKillInfo(FCharacterInfo KilledInfo, float killedScoreChange, FCharacterInfo KillerInfo, float killerScoreChange, UTexture2D* WeaponImage);
 
 	UFUNCTION(BlueprintImplementableEvent)

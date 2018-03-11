@@ -11,6 +11,10 @@ AInstantWeapon::AInstantWeapon() {
 	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
 }
 
+void AInstantWeapon::PreExecuteFire() {
+	damageWasDealt = false;
+}
+
 void AInstantWeapon::ExecuteFire() {
 	const float ConeHalfAngle = FMath::DegreesToRadians(Spread * 0.5f);
 
@@ -26,6 +30,14 @@ void AInstantWeapon::ExecuteFire() {
 		DebugLineDrawer->DrawDebugLineTrace(GetFPMuzzleLocation(), hitResult.ImpactPoint);
 	}
 	DealDamage(hitResult, ShootDir);
+}
+
+void AInstantWeapon::PostExecuteFire() {
+	auto controller = Cast<APlayerControllerBase>(OwningCharacter->Controller);
+	UE_LOG(LogTemp, Warning, TEXT("DAMAGE: %i"), damageWasDealt);
+	AssertNotNull(controller, GetWorld(), __FILE__, __LINE__);
+	if(controller && damageWasDealt)
+		controller->DamageDealt();
 }
 
 FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector& endTrace) {
@@ -53,13 +65,9 @@ void AInstantWeapon::DealDamage(const FHitResult hitResult,const FVector& ShootD
 
 	hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
 
-	// notify controller if a character was damaged
-	if(!hitResult.Actor.Get()->IsA(ABaseCharacter::StaticClass()))
-		return;
-
-	auto controller = Cast<APlayerControllerBase>(OwningCharacter->Controller);
-	if(controller)
-		controller->DamageDealt();
+	// to notify a controller if a character was damaged
+	if(hitResult.Actor.Get()->IsA(ABaseCharacter::StaticClass()))
+		damageWasDealt = true;
 }
 
 void AInstantWeapon::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {
