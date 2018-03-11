@@ -30,7 +30,7 @@ void URadialDamageDealer::DealDamage() {
 
 
 void URadialDamageDealer::ExecuteDealDamage(FVector location, APlayerControllerBase* controller, AActor* instigator) {
-	auto actorList = ApplyRadialDamageWithFalloff(GetWorld(), BaseDamage, MinimumDamage, location, DamageInnerRadius, DamageOuterRadius, Falloff, DamageTypeClass, instigator, controller, (ECollisionChannel)DamagePreventionChannel);
+	auto actorList = ApplyRadialDamageWithFalloff(location, instigator, controller);
 	
 	// Draw debugs
 	auto cheatManager = Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager);
@@ -49,7 +49,7 @@ void URadialDamageDealer::ExecuteDealDamage(FVector location, APlayerControllerB
 }
 
 
-TArray<AActor*> URadialDamageDealer::ApplyRadialDamageWithFalloff(const UObject* WorldContextObject, float BaseDamage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser, AController* InstigatedByController, ECollisionChannel DamagePreventionChannel) {
+TArray<AActor*> URadialDamageDealer::ApplyRadialDamageWithFalloff(const FVector& Origin, AActor* DamageCauser, AController* InstigatedByController) {
 	static FName NAME_ApplyRadialDamage = FName(TEXT("ApplyRadialDamage"));
 	FCollisionQueryParams SphereParams(NAME_ApplyRadialDamage, false);//, DamageCauser);
 
@@ -57,7 +57,7 @@ TArray<AActor*> URadialDamageDealer::ApplyRadialDamageWithFalloff(const UObject*
 
 	// query scene to see what we hit
 	TArray<FOverlapResult> Overlaps;
-	UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject);
+	UWorld* World = GEngine->GetWorldFromContextObject(GetWorld());
 	World->OverlapMultiByObjectType(Overlaps, Origin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(DamageOuterRadius), SphereParams);
 
 	// collate into per-actor list of hit components
@@ -73,7 +73,7 @@ TArray<AActor*> URadialDamageDealer::ApplyRadialDamageWithFalloff(const UObject*
 			UE_LOG(LogTemp, Warning, TEXT("DealDamage"));
 
 			FHitResult Hit;
-			if(DamagePreventionChannel == ECC_MAX || CanHitComponent(Overlap.Component.Get(), Origin, DamagePreventionChannel, Hit)) {
+			if(DamagePreventionChannel == ECC_MAX || CanHitComponent(Overlap.Component.Get(), Origin, (ECollisionChannel)DamagePreventionChannel, Hit)) {
 				TArray<FHitResult>& HitList = OverlapComponentMap.FindOrAdd(OverlapActor);
 				HitList.Add(Hit);
 			}
@@ -90,7 +90,7 @@ TArray<AActor*> URadialDamageDealer::ApplyRadialDamageWithFalloff(const UObject*
 		FRadialDamageEvent DmgEvent;
 		DmgEvent.DamageTypeClass = ValidDamageTypeClass;
 		DmgEvent.Origin = Origin;
-		DmgEvent.Params = FRadialDamageParams(BaseDamage, MinimumDamage, DamageInnerRadius, DamageOuterRadius, DamageFalloff);
+		DmgEvent.Params = FRadialDamageParams(BaseDamage, MinimumDamage, DamageInnerRadius, DamageOuterRadius, Falloff);
 
 		// call damage function on each affected actors
 		for(TMap<AActor*, TArray<FHitResult> >::TIterator It(OverlapComponentMap); It; ++It) {

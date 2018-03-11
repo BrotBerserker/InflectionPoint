@@ -8,6 +8,7 @@
 
 void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(ABaseWeapon, CurrentAmmoInClip);
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 }
@@ -50,9 +51,9 @@ ABaseWeapon::ABaseWeapon() {
 void ABaseWeapon::BeginPlay() {
 	Super::BeginPlay();
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
+	CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
 
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
-	CurrentAmmo = MaxAmmo;
 
 	// Reattach MuzzleLocation from weapon to camera to prevent the weapon animation from moving the MuzzleLocation
 	AttachToOwner();
@@ -83,11 +84,11 @@ void ABaseWeapon::Tick(float DeltaTime) {
 
 	passedTime += DeltaTime;
 
-	if(CurrentAmmo == 0 && CurrentState != EWeaponState::RELOADING) {
+	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING) {
 		StartTimer(this, GetWorld(), "Reload", 0.1f + ReloadDelay, false); // use timer to avoid reload animation loops
 	} else if(CurrentState == EWeaponState::FIRING && passedTime - LastShotTimeStamp >= FireInterval) {
-		Fire();
 		passedTime = 0;
+		Fire();
 	} else if(Recorder && IsReplaySimulatedFirePressed) {
 		IsReplaySimulatedFirePressed = false;
 		Recorder->ServerRecordKeyReleased("WeaponFired");
@@ -101,19 +102,23 @@ void ABaseWeapon::StartFire() {
 }
 
 void ABaseWeapon::Fire() {
-	if(CurrentAmmo == 0) {
-		return;
-	}
+	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
+		SpawnNoAmmoSound();
+	} else {
+		if(CurrentAmmo == 0) 
+			return;
 
-	if(Recorder) {
-		IsReplaySimulatedFirePressed = true;
-		Recorder->ServerRecordKeyPressed("WeaponFired");
+		if(Recorder) {
+			IsReplaySimulatedFirePressed = true;
+			Recorder->ServerRecordKeyPressed("WeaponFired");
+		}
+		for(int i = 0; i < FireShotNum; i++)
+			ExecuteFire();
+		CurrentAmmoInClip--;
+		CurrentAmmo--;
+		ForceNetUpdate();
+		MulticastFireExecuted();
 	}
-	for(int i=0;i<FireShotNum;i++)
-		ExecuteFire();
-	CurrentAmmo--;
-	ForceNetUpdate();
-	MulticastFireExecuted();
 	if(!AutoFire)
 		CurrentState = EWeaponState::IDLE;
 }
@@ -162,6 +167,13 @@ void ABaseWeapon::SpawnFireSound() {
 	}
 }
 
+void ABaseWeapon::SpawnNoAmmoSound() {
+	// try and play the sound if specified
+	if(NoAmmoSound != NULL) {
+		UGameplayStatics::SpawnSoundAttached(NoAmmoSound, OwningCharacter->Mesh1P);
+	}
+}
+
 void ABaseWeapon::PlayFireAnimation() {
 	// try and play a firing animation if specified
 	if(FireAnimation != NULL) {
@@ -181,7 +193,7 @@ void ABaseWeapon::StopFire() {
 }
 
 void ABaseWeapon::Reload() {
-	if(CurrentState != EWeaponState::RELOADING && CurrentAmmo != MaxAmmo) {
+	if(CurrentState != EWeaponState::RELOADING && CurrentAmmoInClip != ClipSize && CurrentAmmoInClip != CurrentAmmo) {
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(AnimationNotifyDelegate);
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.AddUnique(AnimationEndDelegate);
 
@@ -203,7 +215,7 @@ void ABaseWeapon::MulticastPlayReloadAnimation_Implementation() {
 
 void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload) {
 	if(NotifyName.ToString() == "RefillAmmo") {
-		CurrentAmmo = MaxAmmo;
+		CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo ,ClipSize);
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
 		CurrentState = EWeaponState::IDLE;

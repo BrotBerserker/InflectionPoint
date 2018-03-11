@@ -50,6 +50,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GUI)
 		UTexture2D* WeaponTexture;
 
+	/** Sound to play when no Ammo is left */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
+		class USoundBase* NoAmmoSound;
+
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
 		class USoundBase* FireSound;
@@ -92,7 +96,11 @@ public:
 
 	/** Number of shots per clip */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
-		int MaxAmmo = 7;
+		int ClipSize = 7;
+	
+	/** Current amount of munition (with CurrentAmmoInClip included) */
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
+		int CurrentAmmo = -1;
 
 	/** Whether automatic fire should be enabled for this weapon */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
@@ -159,6 +167,9 @@ public:
 	/* Spawns the Fire Sound (called from multicast)*/
 	void SpawnFireSound();
 
+	/* Spawns the No Ammo Sound */
+	void SpawnNoAmmoSound();
+
 	/* Plays the Fire Animation (called from multicast)*/
 	void PlayFireAnimation();
 
@@ -193,7 +204,7 @@ public:
 		ABaseCharacter* OwningCharacter;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
-		int CurrentAmmo;
+		int CurrentAmmoInClip;
 
 protected:
 	EWeaponState CurrentState = EWeaponState::IDLE;

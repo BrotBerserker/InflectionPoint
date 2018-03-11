@@ -3,48 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Serialization/MemoryWriter.h"
-#include "Serialization/CustomVersion.h"
-#include "Serialization/ObjectAndNameAsStringProxyArchive.h"
-#include "Misc/PackageName.h"
-#include "Misc/EngineVersion.h"
-#include "GameFramework/DamageType.h"
-#include "GameFramework/Pawn.h"
-#include "WorldCollision.h"
-#include "SceneView.h"
-#include "Components/PrimitiveComponent.h"
-#include "Serialization/MemoryReader.h"
-#include "UObject/Package.h"
-#include "Audio.h"
-#include "GameFramework/WorldSettings.h"
-#include "Engine/CollisionProfile.h"
-#include "ParticleHelper.h"
-#include "Particles/ParticleSystemComponent.h"
-#include "Engine/LevelStreaming.h"
-#include "Engine/LocalPlayer.h"
-#include "ActiveSound.h"
-#include "DrawDebugHelpers.h"
-#include "EngineUtils.h"
-#include "AudioDevice.h"
-#include "SaveGameSystem.h"
-#include "DVRStreaming.h"
-#include "PlatformFeatures.h"
-#include "GameFramework/Character.h"
-#include "Sound/SoundBase.h"
-#include "Sound/DialogueWave.h"
-#include "GameFramework/SaveGame.h"
-#include "PhysicalMaterials/PhysicalMaterial.h"
-#include "Components/DecalComponent.h"
-#include "Components/ForceFeedbackComponent.h"
-#include "LandscapeProxy.h"
-#include "Logging/MessageLog.h"
-#include "Components/HierarchicalInstancedStaticMeshComponent.h"
-#include "PhysicsEngine/PhysicsSettings.h"
-#include "PhysicsEngine/BodySetup.h"
-#include "EngineStats.h"
-
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "RadialDamageDealer.generated.h"
@@ -111,7 +69,7 @@ private:
 	UFUNCTION()
 		void ExecuteDealDamage(FVector location, APlayerControllerBase* controller, AActor* instigator);
 
-	TArray<AActor*> ApplyRadialDamageWithFalloff(const UObject* WorldContextObject, float BaseDamage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser, AController* InstigatedByController, ECollisionChannel DamagePreventionChannel);
+	TArray<AActor*> ApplyRadialDamageWithFalloff(const FVector& Origin, AActor* DamageCauser, AController* InstigatedByController);
 
 	bool CanHitComponent(UPrimitiveComponent* VictimComp, FVector const& Origin, ECollisionChannel TraceChannel, FHitResult& OutHitResult);
 };
