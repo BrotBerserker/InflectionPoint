@@ -42,8 +42,9 @@ FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector&
 }
 
 void AInstantWeapon::DealDamage(const FHitResult hitResult,const FVector& ShootDir) {
-	if(!(hitResult.Actor.IsValid() && hitResult.Actor.Get()->IsA(ABaseCharacter::StaticClass())))
+	if(!hitResult.Actor.IsValid())
 		return;
+
 	FPointDamageEvent PointDmg;
 	PointDmg.DamageTypeClass = DamageType;
 	PointDmg.HitInfo = hitResult;
@@ -52,7 +53,10 @@ void AInstantWeapon::DealDamage(const FHitResult hitResult,const FVector& ShootD
 
 	hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
 
-	// notify controller
+	// notify controller if a character was damaged
+	if(!hitResult.Actor.Get()->IsA(ABaseCharacter::StaticClass()))
+		return;
+
 	auto controller = Cast<APlayerControllerBase>(OwningCharacter->Controller);
 	if(controller)
 		controller->DamageDealt();

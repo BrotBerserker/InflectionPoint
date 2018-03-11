@@ -21,6 +21,10 @@ public:
 	/*  Blueprint Properties  */
 	/* ---------------------- */
 
+	/** MortalityProvider which holds our HP */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		class UMortalityProvider* MortalityProvider;
+
 	/** Sphere collision component */
 	UPROPERTY(VisibleDefaultsOnly, Category = Projectile)
 		class USphereComponent* CollisionComp;
@@ -59,8 +63,15 @@ public:
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 		void MulticastSpawnHitEffect();
 
+	/** Takes damage using the MortalityProvider */
+	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
+
+	UFUNCTION()
+		void DestroyProjectile(AController* KillingPlayer, AActor* DamageCauser);
 private:
 	FVector startPos;
 	bool firstHit = true;
+
+		
 };
 

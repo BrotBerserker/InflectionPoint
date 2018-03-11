@@ -18,6 +18,10 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
 
 	CollisionDamageDealer = CreateDefaultSubobject<UCollisionDamageDealer>(TEXT("CollisionDamageDealer"));
+	
+	// Initialize MortalityProvider
+	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
+	MortalityProvider->SetIsReplicated(true);
 
 	// Set as root component
 	RootComponent = CollisionComp;
@@ -32,8 +36,8 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 
 	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
 
-	// Die after 3 seconds by default
-	InitialLifeSpan = 3.0f;
+	// Die after 5 seconds by default
+	InitialLifeSpan = 5.0f;
 }
 
 void AInflectionPointProjectile::BeginPlay() {
@@ -41,9 +45,11 @@ void AInflectionPointProjectile::BeginPlay() {
 
 	startPos = GetActorLocation();
 
-	// We can't do this in the constructor because CollisionDamageDealer->OnDamageHit is not yet initialized then
+	// We can't do this in the constructor because the Events are not yet initialized then
 	CollisionDamageDealer->OnDamageHit.AddDynamic(this, &AInflectionPointProjectile::OnDamageHit);
 	CollisionDamageDealer->OnHarmlessHit.AddDynamic(this, &AInflectionPointProjectile::OnHarmlessHit);
+	MortalityProvider->OnDeath.AddDynamic(this, &AInflectionPointProjectile::DestroyProjectile);
+	MortalityProvider->StartHealth = 1;
 
 	// instigator is null if the character has already died when the shot is spawned
 	if(Instigator == nullptr) {
@@ -90,4 +96,15 @@ void AInflectionPointProjectile::MulticastSpawnHitEffect_Implementation() {
 
 	// spawn the projectile at the muzzle
 	GetWorld()->SpawnActor<AActor>(HitEffectClass, GetActorTransform(), ActorSpawnParams);
+}
+
+float AInflectionPointProjectile::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
+	const float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	MortalityProvider->TakeDamage(actualDamage, EventInstigator, DamageCauser);
+	return actualDamage;
+}
+
+void AInflectionPointProjectile::DestroyProjectile(AController* KillingPlayer, AActor* DamageCauser) {
+	MulticastSpawnHitEffect();
+	SetLifeSpan(0.0000001);
 }
