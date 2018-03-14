@@ -34,8 +34,6 @@ void AInstantWeapon::ExecuteFire() {
 
 void AInstantWeapon::PostExecuteFire() {
 	auto controller = Cast<APlayerControllerBase>(OwningCharacter->Controller);
-	UE_LOG(LogTemp, Warning, TEXT("DAMAGE: %i"), damageWasDealt);
-	AssertNotNull(controller, GetWorld(), __FILE__, __LINE__);
 	if(controller && damageWasDealt)
 		controller->DamageDealt();
 }
