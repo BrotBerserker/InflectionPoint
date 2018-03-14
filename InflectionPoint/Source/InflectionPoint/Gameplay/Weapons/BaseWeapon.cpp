@@ -39,6 +39,12 @@ ABaseWeapon::ABaseWeapon() {
 	FP_MuzzleLocation->SetupAttachment(Mesh1P);
 	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
 
+	// MuzzleLocation that will be used instead when the player is aiming
+	FP_Aim_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("FPAimMuzzleLocation"));
+	FP_Aim_MuzzleLocation->SetupAttachment(Mesh1P);
+	FP_Aim_MuzzleLocation->SetRelativeLocation(FVector(9.f, 81.f, 11.f));
+
+	// MuzzleLocation for playing visual fx only
 	TP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("TPMuzzleLocation"));
 	TP_MuzzleLocation->SetupAttachment(Mesh3P);
 	TP_MuzzleLocation->SetRelativeLocation(FVector(0.7f, 56.f, 10.8f));
@@ -58,6 +64,7 @@ void ABaseWeapon::BeginPlay() {
 	// Reattach MuzzleLocation from weapon to camera to prevent the weapon animation from moving the MuzzleLocation
 	AttachToOwner();
 	FP_MuzzleLocation->AttachToComponent(OwningCharacter->FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	FP_Aim_MuzzleLocation->AttachToComponent(OwningCharacter->FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 	if(!equipped) {
 		OnUnequip();
 	}
@@ -263,6 +270,9 @@ FRotator ABaseWeapon::GetAimDirection() {
 }
 
 FVector ABaseWeapon::GetFPMuzzleLocation() {
+	if(OwningCharacter && OwningCharacter->IsAiming) {
+		return FP_Aim_MuzzleLocation->GetComponentLocation();
+	}
 	return FP_MuzzleLocation->GetComponentLocation();
 }
 

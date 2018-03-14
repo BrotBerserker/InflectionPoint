@@ -37,6 +37,10 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* FP_MuzzleLocation;
 
+	/** Location on Mesh1P where projectiles and effects should spawn if the player is aiming. */
+	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+		class USceneComponent* FP_Aim_MuzzleLocation;
+
 	/** Location on Mesh3P where effects should spawn. */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USceneComponent* TP_MuzzleLocation;
