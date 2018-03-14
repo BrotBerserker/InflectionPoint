@@ -112,6 +112,9 @@ private:
 
 	template<EInputEvent eventType>
 	void RecordJump();
+	
+	template<EInputEvent eventType>
+	void RecordAim();
 
 	template<EInputEvent eventType>
 	void RecordSprint();

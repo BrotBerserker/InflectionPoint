@@ -33,6 +33,9 @@ void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) 
 	inputComponent->BindAction("Jump", IE_Pressed, this, &UPlayerStateRecorder::RecordJump<IE_Pressed>);
 	inputComponent->BindAction("Jump", IE_Released, this, &UPlayerStateRecorder::RecordJump<IE_Released>);
 
+	inputComponent->BindAction("Aim", IE_Pressed, this, &UPlayerStateRecorder::RecordAim<IE_Pressed>);
+	inputComponent->BindAction("Aim", IE_Released, this, &UPlayerStateRecorder::RecordAim<IE_Released>);
+
 	inputComponent->BindAction("Sprint", IE_Pressed, this, &UPlayerStateRecorder::RecordSprint<IE_Pressed>);
 	inputComponent->BindAction("Sprint", IE_Released, this, &UPlayerStateRecorder::RecordSprint<IE_Released>);
 
@@ -164,6 +167,11 @@ void UPlayerStateRecorder::RecordJump() {
 template<EInputEvent eventType>
 void UPlayerStateRecorder::RecordSprint() {
 	RecordKey("Sprint", eventType);
+}
+
+template<EInputEvent eventType>
+void UPlayerStateRecorder::RecordAim() {
+	RecordKey("Aim", eventType);
 }
 
 template<EInputEvent eventType>

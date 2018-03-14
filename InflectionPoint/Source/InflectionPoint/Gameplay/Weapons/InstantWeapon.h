@@ -23,6 +23,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		float Spread = 0;
 
+	/** spread to use when the player is aiming */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+		float AimSpread = 0;
+
 	/** weapon range */
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		float Range = 10000;

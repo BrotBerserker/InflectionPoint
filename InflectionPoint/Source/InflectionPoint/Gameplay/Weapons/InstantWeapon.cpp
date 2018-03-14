@@ -16,7 +16,8 @@ void AInstantWeapon::PreExecuteFire() {
 }
 
 void AInstantWeapon::ExecuteFire() {
-	const float ConeHalfAngle = FMath::DegreesToRadians(Spread * 0.5f);
+	float spread = (OwningCharacter && OwningCharacter->IsAiming) ? AimSpread : Spread;
+	const float ConeHalfAngle = FMath::DegreesToRadians(spread * 0.5f);
 
 	const FVector direction = OwningCharacter->FirstPersonCameraComponent->GetForwardVector();
 	const FVector StartTrace = OwningCharacter->FirstPersonCameraComponent->GetComponentLocation();

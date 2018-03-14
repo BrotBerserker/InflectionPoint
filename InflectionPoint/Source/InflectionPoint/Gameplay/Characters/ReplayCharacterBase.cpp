@@ -120,6 +120,8 @@ void AReplayCharacterBase::UpdateReleasedKeys(FRecordedPlayerState &recordDataSt
 void AReplayCharacterBase::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
+	} else if(key == "Aim") {
+		StartAiming();
 	} else if(key == "Sprint") {
 		EnableSprint();
 	} else if(key == "WeaponFired") {
@@ -151,8 +153,11 @@ void AReplayCharacterBase::HoldKey(FString key) {
 }
 
 void AReplayCharacterBase::ReleaseKey(FString key) {
-	if(key == "Sprint")
+	if(key == "Sprint") {
 		DisableSprint();
+	} else if(key == "Aim") {
+		StopAiming();
+	}
 }
 
 void AReplayCharacterBase::ApplyYaw(float value) {

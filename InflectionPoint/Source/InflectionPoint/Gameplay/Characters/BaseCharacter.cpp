@@ -189,6 +189,36 @@ void ABaseCharacter::ServerStopFire_Implementation() {
 	CurrentWeapon->StopFire();
 }
 
+void ABaseCharacter::StartAiming() {
+	IsAiming = true;
+	if(!HasAuthority()) {
+		ServerStartAiming();
+	}
+}
+
+bool ABaseCharacter::ServerStartAiming_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStartAiming_Implementation() {
+	StartAiming();
+}
+
+void ABaseCharacter::StopAiming() {
+	IsAiming = false;
+	if(!HasAuthority()) {
+		ServerStopAiming();
+	}
+}
+
+bool ABaseCharacter::ServerStopAiming_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStopAiming_Implementation() {
+	StopAiming();
+}
+
 bool ABaseCharacter::ServerReload_Validate() {
 	return true;
 }

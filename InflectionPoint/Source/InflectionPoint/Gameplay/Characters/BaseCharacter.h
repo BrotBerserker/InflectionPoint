@@ -169,6 +169,10 @@ public:
 	void StartFire();
 	void StopFire();
 
+	/** Start/stop aiming has to be done on clients and server to ensure smooth animations */
+	void StartAiming();
+	void StopAiming();
+
 	/**
 	* Called via input to turn at a given rate.
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -197,6 +201,14 @@ public:
 	/** Stops firing the currently equipped weapon */
 	UFUNCTION(Server, Reliable, WithValidation)
 		virtual void ServerStopFire();
+
+	/** Starts aiming, which changes some animations and increases the weapon's precision */
+	UFUNCTION(Server, Reliable, WithValidation)
+		virtual void ServerStartAiming();
+
+	/** Stops aiming, which changes some animations and decreases the weapon's precision */
+	UFUNCTION(Server, Reliable, WithValidation)
+		virtual void ServerStopAiming();
 
 	/** Reloads the currently equipped weapon */
 	UFUNCTION(Server, Reliable, WithValidation)
