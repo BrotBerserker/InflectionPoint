@@ -281,3 +281,5 @@ FVector ABaseWeapon::GetTPMuzzleLocation() {
 	return TP_MuzzleLocation->GetComponentLocation();
 }
 
+void ABaseWeapon::PreExecuteFire() {}
+void ABaseWeapon::PostExecuteFire() {}

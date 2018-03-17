@@ -150,13 +150,13 @@ public:
 	virtual void Fire();
 
 	/** Called before ExecuteFire */
-	virtual void PreExecuteFire() PURE_VIRTUAL(ABaseWeapon::ExecuteFire, ;);
+	virtual void PreExecuteFire();
 
 	/** This function should be overriden in subclasses to implement specific fire behaviour */
 	virtual void ExecuteFire() PURE_VIRTUAL(ABaseWeapon::ExecuteFire, ;);
 	
 	/** Called after ExecuteFire*/
-	virtual void PostExecuteFire() PURE_VIRTUAL(ABaseWeapon::ExecuteFire, ;);
+	virtual void PostExecuteFire();
 
 	/** Plays the reload animation (only if the weapon doesn't have max ammo) */
 	UFUNCTION()
