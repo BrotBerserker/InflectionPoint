@@ -210,6 +210,14 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		virtual void ServerStopAiming();
 
+	/** Shows the aiming animations an all clients */
+	UFUNCTION(NetMulticast, Reliable)
+		virtual void MulticastStartAiming();
+
+	/** Stops the aiming animations an all clients */
+	UFUNCTION(NetMulticast, Reliable)
+		virtual void MulticastStopAiming();
+
 	/** Reloads the currently equipped weapon */
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerReload();

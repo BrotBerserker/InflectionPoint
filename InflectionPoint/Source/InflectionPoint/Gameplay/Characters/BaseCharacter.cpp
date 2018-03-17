@@ -208,7 +208,12 @@ bool ABaseCharacter::ServerStartAiming_Validate() {
 }
 
 void ABaseCharacter::ServerStartAiming_Implementation() {
-	StartAiming();
+	IsAiming = true;
+	MulticastStartAiming();
+}
+
+void ABaseCharacter::MulticastStartAiming_Implementation() {
+	IsAiming = true;
 }
 
 void ABaseCharacter::StopAiming() {
@@ -223,7 +228,12 @@ bool ABaseCharacter::ServerStopAiming_Validate() {
 }
 
 void ABaseCharacter::ServerStopAiming_Implementation() {
-	StopAiming();
+	IsAiming = false;
+	MulticastStopAiming();
+}
+
+void ABaseCharacter::MulticastStopAiming_Implementation() {
+	IsAiming = false;
 }
 
 bool ABaseCharacter::ServerReload_Validate() {
