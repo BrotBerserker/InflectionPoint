@@ -112,7 +112,7 @@ void ABaseWeapon::Fire() {
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
 		SpawnNoAmmoSound();
 	} else {
-		if(CurrentAmmo == 0) 
+		if(CurrentAmmo == 0)
 			return;
 
 		if(Recorder) {
@@ -160,7 +160,7 @@ void ABaseWeapon::OnUnequip() {
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(AnimationNotifyDelegate);
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.Remove(AnimationEndDelegate);
 
-	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Stop(0, ReloadAnimation1P); 
+	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Stop(0, ReloadAnimation1P);
 }
 
 void ABaseWeapon::MulticastFireExecuted_Implementation() {
@@ -224,7 +224,7 @@ void ABaseWeapon::MulticastPlayReloadAnimation_Implementation() {
 
 void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload) {
 	if(NotifyName.ToString() == "RefillAmmo") {
-		CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo ,ClipSize);
+		CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
 		CurrentState = EWeaponState::IDLE;
@@ -243,6 +243,7 @@ void ABaseWeapon::SpawnMuzzleFX() {
 
 	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, NAME_None);
 	if(mesh1pFX) {
+		mesh1pFX->SetRelativeScale3D(MuzzleFXScale);
 		mesh1pFX->SetWorldLocation(GetFPMuzzleLocation());
 		mesh1pFX->SetWorldRotation(GetAimDirection());
 		mesh1pFX->bOwnerNoSee = false;

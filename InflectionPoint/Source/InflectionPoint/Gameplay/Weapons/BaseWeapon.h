@@ -86,6 +86,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		UParticleSystem* MuzzleFX;
 
+	/** Can be used to scale the muzzle fx */
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		FVector MuzzleFXScale = FVector(1.f, 1.f, 1.f);
+
 	/** Duration for the muzzle FX flash (-1 for endless)*/
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		float MuzzleFXDuration = 0.1;
