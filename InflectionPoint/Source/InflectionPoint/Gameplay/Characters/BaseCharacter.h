@@ -243,7 +243,7 @@ public:
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerUpdateCameraPitch(float pitch);
 
-	/** Updates the Camera pitch rotation on Clients */ 
+	/** Updates the Camera pitch rotation on Clients */
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastUpdateCameraPitch(float pitch);
 
@@ -258,6 +258,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 		bool IsAiming = false;
+
+private:
+	void UpdateFieldOfView(float DeltaTime);
 
 private:
 	bool initialized = false;

@@ -98,11 +98,18 @@ void ABaseCharacter::Tick(float DeltaTime) {
 		OnInitialized();
 		initialized = true;
 	}
+
+	UpdateFieldOfView(DeltaTime);
 }
 
 void ABaseCharacter::Destroyed() {
 	Super::Destroyed();
 	WeaponInventory->Destroy();
+}
+
+void ABaseCharacter::UpdateFieldOfView(float DeltaTime) {
+	float targetFoV = IsAiming ? 75.f : 90.f;
+	FirstPersonCameraComponent->SetFieldOfView(FMath::FInterpTo(FirstPersonCameraComponent->FieldOfView, targetFoV, DeltaTime, 14.f));
 }
 
 void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
