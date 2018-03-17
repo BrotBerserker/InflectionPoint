@@ -94,13 +94,9 @@ void AReplayCharacterBase::UpdateRotation() {
 	if(replayIndex == 0) {
 		return;
 	}
-	// Update Rotation (-1 because unreal ^^)
+	// Update Rotation
 	ApplyYaw(recordData[replayIndex].CapsuleYaw);
-	if(Cast<AAIControllerBase>(GetController())->OwningPlayerController->IsLocalPlayerController()) {
-		ApplyPitch(recordData[replayIndex].CameraPitch);
-	} else {
-		ApplyPitch(recordData[replayIndex - 1].CameraPitch);
-	}
+	ApplyPitch(recordData[replayIndex].CameraPitch);
 }
 
 void AReplayCharacterBase::UpdatePressedKeys(FRecordedPlayerState &recordDataStep) {
