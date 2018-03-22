@@ -59,6 +59,24 @@ void ABaseWeapon::BeginPlay() {
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
 	CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
 
+	if(!OwningCharacter)
+		return; // can happen if the instigator is not replicatet yet
+
+	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
+
+	// Reattach MuzzleLocation from weapon to camera to prevent the weapon animation from moving the MuzzleLocation
+	AttachToOwner();
+	FP_MuzzleLocation->AttachToComponent(OwningCharacter->FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	FP_Aim_MuzzleLocation->AttachToComponent(OwningCharacter->FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	if(!equipped) {
+		OnUnequip();
+	}
+}
+
+void ABaseWeapon::OnRep_Instigator() {
+	OwningCharacter = Cast<ABaseCharacter>(Instigator);
+	if(!AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__))
+		return;
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
 
 	// Reattach MuzzleLocation from weapon to camera to prevent the weapon animation from moving the MuzzleLocation

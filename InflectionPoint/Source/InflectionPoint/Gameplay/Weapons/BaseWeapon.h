@@ -134,6 +134,10 @@ public:
 	/** Constructor, initializes components */
 	ABaseWeapon();
 
+
+	/** Called when the Instigator is set */
+	void OnRep_Instigator() override;
+
 	/** Initializes variables and attachments */
 	virtual void BeginPlay() override;
 
