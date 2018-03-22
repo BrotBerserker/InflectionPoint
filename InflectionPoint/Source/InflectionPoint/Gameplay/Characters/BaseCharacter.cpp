@@ -180,6 +180,8 @@ bool ABaseCharacter::ServerStartFire_Validate() {
 
 void ABaseCharacter::ServerStartFire_Implementation() {
 	DrawDebugArrow();
+	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+		return;
 	CurrentWeapon->StartFire();
 }
 
@@ -193,6 +195,8 @@ bool ABaseCharacter::ServerStopFire_Validate() {
 }
 
 void ABaseCharacter::ServerStopFire_Implementation() {
+	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+		return;
 	CurrentWeapon->StopFire();
 }
 
@@ -241,6 +245,8 @@ bool ABaseCharacter::ServerReload_Validate() {
 }
 
 void ABaseCharacter::ServerReload_Implementation() {
+	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+		return;
 	CurrentWeapon->Reload();
 }
 

@@ -133,13 +133,15 @@ public:
 
 	/** Constructor, initializes components */
 	ABaseWeapon();
-
+	
+	/** Initializes variables and attachments */
+	virtual void BeginPlay() override;
 
 	/** Called when the Instigator is set */
 	void OnRep_Instigator() override;
 
-	/** Initializes variables and attachments */
-	virtual void BeginPlay() override;
+	/** Reattach MuzzleLocation from weapon to camera to prevent the weapon animation from moving the MuzzleLocation */
+	void ReattachMuzzleLocation();
 
 	/** Executes behaviour depending on the current state */
 	virtual void Tick(float DeltaTime) override;
