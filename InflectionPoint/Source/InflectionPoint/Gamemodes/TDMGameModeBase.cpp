@@ -73,7 +73,7 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 
 void ATDMGameModeBase::StartMatch() {
 	GetGameState()->CurrentRound = 0;
-	GetGameState()->MaxRoundNum = CountSpawnPoints() / OfflineMaxPlayers;
+	GetGameState()->MaxRoundNum = CountSpawnPoints() / MaxPlayers;
 	AssignTeamsAndPlayerStartGroups();
 	ResetPlayerScores();
 	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
