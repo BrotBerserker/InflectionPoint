@@ -105,6 +105,8 @@ void ATDMGameModeBase::StartSpawnCinematics() {
 }
 
 void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
+	if(!AssertNotNull(KilledPlayer, GetWorld(), __FILE__, __LINE__))
+		return;
 	SendKillInfoToPlayers(KilledPlayer, KillingPlayer, DamageCauser);
 
 	if(KilledPlayer->IsA(APlayerController::StaticClass()))
@@ -233,6 +235,7 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(APlayerControllerBase * playerContr
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__);
 
 	auto character = SpawnCharacter<APlayerCharacterBase>(DefaultPawnClass.Get(), playerController, spawnPoint);
+	AssertNotNull(character, GetWorld(), __FILE__, __LINE__);
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
@@ -245,6 +248,7 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(APlayerControllerBase* playerContro
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 	auto character = SpawnCharacter<AReplayCharacterBase>(ReplayCharacter, playerController, spawnPoint);
 
+	AssertNotNull(character, GetWorld(), __FILE__, __LINE__);
 	AssertTrue(PlayerRecordings[playerController].Contains(round), GetWorld(), __FILE__, __LINE__, "Could not find replay");
 
 	// Start Replay on spawned ReplayCharacter
@@ -279,6 +283,7 @@ void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
 	for(auto iterator = world->GetPlayerControllerIterator(); iterator; ++iterator) {
 		APlayerControllerBase* controller = (APlayerControllerBase*)UGameplayStatics::GetPlayerController(world, iterator.GetIndex());
 		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
+		AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
 		playerState->Team = iterator.GetIndex() % 2 + 1;
 		playerState->PlayerStartGroup = FString("").AppendChar('A' + iterator.GetIndex() / 2);
 	}

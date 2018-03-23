@@ -74,6 +74,8 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 
 		// Don't switch to yourself
 		auto character = Cast<ABaseCharacter>(this->GetCharacter());
+		AssertNotNull(otherCharacter, GetWorld(), __FILE__, __LINE__);
+		AssertNotNull(character, GetWorld(), __FILE__, __LINE__);
 		if(character && otherCharacter->GetName().Equals(character->GetName())) {
 			continue;
 		}		
@@ -91,7 +93,9 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 
 		// Don't switch to players in a different team
 		UCharacterInfoProvider* infoProvider = otherCharacter->FindComponentByClass<UCharacterInfoProvider>();
+		AssertNotNull(infoProvider, GetWorld(), __FILE__, __LINE__);
 		ATDMPlayerStateBase* otherPlayerState = Cast<ATDMPlayerStateBase>(infoProvider->PlayerState);
+		AssertNotNull(otherPlayerState, GetWorld(), __FILE__, __LINE__);
 		if(otherPlayerState->Team != myPlayerState->Team) {
 			continue;
 		}
