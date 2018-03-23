@@ -46,6 +46,7 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("SwitchToWeapon3", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<2>);
 	PlayerInputComponent->BindAction("SwitchToWeapon4", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<3>);
 	PlayerInputComponent->BindAction("SwitchToWeapon5", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<4>);
+	PlayerInputComponent->BindAction("SwitchToWeapon6", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<5>);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABaseCharacter::EnableSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABaseCharacter::DisableSprint);
