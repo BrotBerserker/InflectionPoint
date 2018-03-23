@@ -152,6 +152,7 @@ void ABaseWeapon::OnEquip() {
 	if(!AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__))
 		return;
 	equipped = true;
+	passedTime = 0.f;
 	SetActorTickEnabled(true);
 	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(EquipAnimation1P);
 	OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(EquipAnimation3P);
