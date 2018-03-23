@@ -5,11 +5,11 @@
 
 
 // Sets default values for this component's properties
-UPlayerStateRecorder::UPlayerStateRecorder() {
+UPlayerStateRecorder::UPlayerStateRecorder() {DebugPrint(__FILE__, __LINE__);
 	PrimaryComponentTick.bCanEverTick = true;
-}
+DebugPrint(__FILE__, __LINE__);}
 
-void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) {
+void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) {DebugPrint(__FILE__, __LINE__);
 	inputComponent->BindAction("Reload", IE_Pressed, this, &UPlayerStateRecorder::RecordReload<IE_Pressed>);
 	inputComponent->BindAction("Reload", IE_Released, this, &UPlayerStateRecorder::RecordReload<IE_Released>);
 
@@ -41,27 +41,27 @@ void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) 
 
 	inputComponent->BindAxis("MoveForward", this, &UPlayerStateRecorder::RecordMoveForward);
 	inputComponent->BindAxis("MoveRight", this, &UPlayerStateRecorder::RecordMoveRight);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 
 // Called when the game starts
-void UPlayerStateRecorder::BeginPlay() {
+void UPlayerStateRecorder::BeginPlay() {DebugPrint(__FILE__, __LINE__);
 	Super::BeginPlay();
 
 	//passedTime = 0.f;
 
 	owner = (ABaseCharacter*)GetOwner();
 	AssertNotNull(owner, GetWorld(), __FILE__, __LINE__);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 
 // Called every frame
-void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
+void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {DebugPrint(__FILE__, __LINE__);
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if(!recording) {
+	if(!recording) {DebugPrint(__FILE__, __LINE__);
 		return;
-	}
+	DebugPrint(__FILE__, __LINE__);}
 
 	passedTime += DeltaTime;
 
@@ -73,123 +73,123 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	RecordedPlayerStates.Add(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys, releasedKeys));
 	pressedKeys = TArray<FString>();
 	releasedKeys = TArray<FString>();
-}
+DebugPrint(__FILE__, __LINE__);}
 
-bool UPlayerStateRecorder::ServerStartRecording_Validate() {
+bool UPlayerStateRecorder::ServerStartRecording_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
-}
+DebugPrint(__FILE__, __LINE__);}
 
-void UPlayerStateRecorder::ServerStartRecording_Implementation() {
+void UPlayerStateRecorder::ServerStartRecording_Implementation() {DebugPrint(__FILE__, __LINE__);
 	ServerResetRecordedPlayerStates();
 	recordedPlayerStateQueue.Empty();
 	passedTime = 0.f;
 	recording = true;
-}
+DebugPrint(__FILE__, __LINE__);}
 
-bool UPlayerStateRecorder::ServerResetRecordedPlayerStates_Validate() {
+bool UPlayerStateRecorder::ServerResetRecordedPlayerStates_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
-}
+DebugPrint(__FILE__, __LINE__);}
 
-void UPlayerStateRecorder::ServerResetRecordedPlayerStates_Implementation() {
+void UPlayerStateRecorder::ServerResetRecordedPlayerStates_Implementation() {DebugPrint(__FILE__, __LINE__);
 	RecordedPlayerStates.Empty();
 	pressedKeys.Empty();
 	releasedKeys.Empty();
-}
+DebugPrint(__FILE__, __LINE__);}
 
-bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString &key) {
+bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString &key) {DebugPrint(__FILE__, __LINE__);
 	return true;
-}
+DebugPrint(__FILE__, __LINE__);}
 
-void UPlayerStateRecorder::ServerRecordKeyPressed_Implementation(const FString &key) {
+void UPlayerStateRecorder::ServerRecordKeyPressed_Implementation(const FString &key) {DebugPrint(__FILE__, __LINE__);
 	pressedKeys.Add(key);
-}
+DebugPrint(__FILE__, __LINE__);}
 
-bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString &key) {
+bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString &key) {DebugPrint(__FILE__, __LINE__);
 	return true;
-}
+DebugPrint(__FILE__, __LINE__);}
 
-void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString &key) {
+void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString &key) {DebugPrint(__FILE__, __LINE__);
 	releasedKeys.Add(key);
-}
+DebugPrint(__FILE__, __LINE__);}
 
-void UPlayerStateRecorder::RecordMoveForward(float val) {
-	if(movingForward == val) {
+void UPlayerStateRecorder::RecordMoveForward(float val) {DebugPrint(__FILE__, __LINE__);
+	if(movingForward == val) {DebugPrint(__FILE__, __LINE__);
 		return;
-	}
+	DebugPrint(__FILE__, __LINE__);}
 
-	if(val > 0) {
+	if(val > 0) {DebugPrint(__FILE__, __LINE__);
 		ServerRecordKeyPressed("MoveForward");
-	} else if(val < 0) {
+	DebugPrint(__FILE__, __LINE__);} else if(val < 0) {DebugPrint(__FILE__, __LINE__);
 		ServerRecordKeyPressed("MoveBackward");
-	}
+	DebugPrint(__FILE__, __LINE__);}
 
-	if(movingForward > 0) {
+	if(movingForward > 0) {DebugPrint(__FILE__, __LINE__);
 		ServerRecordKeyReleased("MoveForward");
-	} else if(movingForward < 0) {
+	DebugPrint(__FILE__, __LINE__);} else if(movingForward < 0) {DebugPrint(__FILE__, __LINE__);
 		ServerRecordKeyReleased("MoveBackward");
-	}
+	DebugPrint(__FILE__, __LINE__);}
 
 	movingForward = val;
-}
+DebugPrint(__FILE__, __LINE__);}
 
-void UPlayerStateRecorder::RecordMoveRight(float val) {
-	if(movingRight == val) {
+void UPlayerStateRecorder::RecordMoveRight(float val) {DebugPrint(__FILE__, __LINE__);
+	if(movingRight == val) {DebugPrint(__FILE__, __LINE__);
 		return;
-	}
+	DebugPrint(__FILE__, __LINE__);}
 
-	if(val > 0) {
+	if(val > 0) {DebugPrint(__FILE__, __LINE__);
 		ServerRecordKeyPressed("MoveRight");
-	} else if(val < 0) {
+	DebugPrint(__FILE__, __LINE__);} else if(val < 0) {DebugPrint(__FILE__, __LINE__);
 		ServerRecordKeyPressed("MoveLeft");
-	}
+	DebugPrint(__FILE__, __LINE__);}
 
-	if(movingRight > 0) {
+	if(movingRight > 0) {DebugPrint(__FILE__, __LINE__);
 		ServerRecordKeyReleased("MoveRight");
-	} else if(movingRight < 0) {
+	DebugPrint(__FILE__, __LINE__);} else if(movingRight < 0) {DebugPrint(__FILE__, __LINE__);
 		ServerRecordKeyReleased("MoveLeft");
-	}
+	DebugPrint(__FILE__, __LINE__);}
 
 	movingRight = val;
-}
+DebugPrint(__FILE__, __LINE__);}
 
-void UPlayerStateRecorder::RecordKey(FString key, EInputEvent eventType) {
+void UPlayerStateRecorder::RecordKey(FString key, EInputEvent eventType) {DebugPrint(__FILE__, __LINE__);
 	if(eventType == IE_Pressed)
 		ServerRecordKeyPressed(key);
 	if(eventType == IE_Released)
 		ServerRecordKeyReleased(key);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 template<EInputEvent eventType>
-void UPlayerStateRecorder::RecordJump() {
+void UPlayerStateRecorder::RecordJump() {DebugPrint(__FILE__, __LINE__);
 	RecordKey("Jump", eventType);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 template<EInputEvent eventType>
-void UPlayerStateRecorder::RecordSprint() {
+void UPlayerStateRecorder::RecordSprint() {DebugPrint(__FILE__, __LINE__);
 	RecordKey("Sprint", eventType);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 template<EInputEvent eventType>
-void UPlayerStateRecorder::RecordAim() {
+void UPlayerStateRecorder::RecordAim() {DebugPrint(__FILE__, __LINE__);
 	RecordKey("Aim", eventType);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 template<EInputEvent eventType>
-void UPlayerStateRecorder::RecordReload() {
+void UPlayerStateRecorder::RecordReload() {DebugPrint(__FILE__, __LINE__);
 	RecordKey("Reload", eventType);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 template<EInputEvent eventType>
-void UPlayerStateRecorder::RecordEquipNextWeapon() {
+void UPlayerStateRecorder::RecordEquipNextWeapon() {DebugPrint(__FILE__, __LINE__);
 	RecordKey("EquipNextWeapon", eventType);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 template<EInputEvent eventType>
-void UPlayerStateRecorder::RecordEquipPreviousWeapon() {
+void UPlayerStateRecorder::RecordEquipPreviousWeapon() {DebugPrint(__FILE__, __LINE__);
 	RecordKey("EquipPreviousWeapon", eventType);
-}
+DebugPrint(__FILE__, __LINE__);}
 
 template<int index, EInputEvent eventType>
-void UPlayerStateRecorder::RecordEquipSpecificWeapon() {
+void UPlayerStateRecorder::RecordEquipSpecificWeapon() {DebugPrint(__FILE__, __LINE__);
 	RecordKey(FString("EquipSpecificWeapon") + FString::FromInt(index), eventType);
-}
+DebugPrint(__FILE__, __LINE__);}

@@ -11,6 +11,7 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 }
 
 void AAIControllerBase::Initialize(APlayerController* OwningController) {
+	DebugPrint(__FILE__, __LINE__);
 	OwningPlayerController = OwningController;
 
 	AssertNotNull(OwningPlayerController, GetWorld(), __FILE__, __LINE__);
@@ -20,4 +21,5 @@ void AAIControllerBase::Initialize(APlayerController* OwningController) {
 	AssertNotNull(provider, GetWorld(), __FILE__, __LINE__);
 	provider->PlayerState = OwningPlayerController->PlayerState;
 	provider->IsReplay = true;
+	DebugPrint(__FILE__, __LINE__);
 }
