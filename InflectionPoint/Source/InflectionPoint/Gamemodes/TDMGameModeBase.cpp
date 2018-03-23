@@ -68,11 +68,12 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 	if(sessionSettings) {
 		sessionSettings->Set(FName("CurrentPlayers"), NumPlayers, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 		session->UpdateSession(SessionName, *sessionSettings);
-	} 
+	}
 }
 
 void ATDMGameModeBase::StartMatch() {
 	GetGameState()->CurrentRound = 0;
+	GetGameState()->MaxRoundNum = CountSpawnPoints() / OfflineMaxPlayers;
 	AssignTeamsAndPlayerStartGroups();
 	ResetPlayerScores();
 	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
@@ -273,8 +274,18 @@ AActor* ATDMGameModeBase::FindSpawnForPlayer(APlayerControllerBase * playerContr
 
 FString ATDMGameModeBase::GetSpawnTag(APlayerControllerBase*  playerController, int round) {
 	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
-	FString spawnTag = FString::FromInt(playerState->Team) + playerState->PlayerStartGroup + FString::FromInt(round);
+	int teams = 2;
+	int PlayerPerTeam = (OfflineMaxPlayers / 2);
+	int spawnsPerTeam = CountSpawnPoints() / teams;
+	int spawnIndex = ((playerState->PlayerStartGroup) * (spawnsPerTeam / PlayerPerTeam)) + (round);
+	FString spawnTag = FString::FromInt(playerState->Team) + "|" + FString::FromInt(spawnIndex);
 	return spawnTag;
+}
+
+int ATDMGameModeBase::CountSpawnPoints() {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), foundActors);
+	return foundActors.Num();
 }
 
 void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
@@ -285,7 +296,7 @@ void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
 		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
 		AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
 		playerState->Team = iterator.GetIndex() % 2 + 1;
-		playerState->PlayerStartGroup = FString("").AppendChar('A' + iterator.GetIndex() / 2);
+		playerState->PlayerStartGroup = iterator.GetIndex() / 2;
 	}
 }
 

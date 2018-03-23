@@ -130,6 +130,7 @@ private:
 	void SpawnPlayersAndReplays();
 	FString GetSpawnTag(APlayerControllerBase*  playerController, int round);
 	AActor* FindSpawnForPlayer(APlayerControllerBase* playerController, int round);
+	int CountSpawnPoints();
 	void SpawnAndPrepareReplay(APlayerControllerBase* controller, int round);
 	void SpawnAndPossessPlayer(APlayerControllerBase* playerController);
 
