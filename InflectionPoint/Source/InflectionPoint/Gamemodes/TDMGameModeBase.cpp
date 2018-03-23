@@ -326,11 +326,19 @@ void ATDMGameModeBase::ClearMap() {
 	DestroyAllActors(AReplayCharacterBase::StaticClass());
 	DestroyAllActors(APlayerCharacterBase::StaticClass());
 	DestroyAllActors(AInflectionPointProjectile::StaticClass());
+	DestroyAllActorsWithTag(FName("DeleteOnClearMap"));
 }
 
 void ATDMGameModeBase::DestroyAllActors(TSubclassOf<AActor> actorClass) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), actorClass, foundActors);
+	for(auto& item : foundActors)
+		item->Destroy();
+}
+
+void ATDMGameModeBase::DestroyAllActorsWithTag(FName tag) {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), tag, foundActors);
 	for(auto& item : foundActors)
 		item->Destroy();
 }

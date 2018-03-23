@@ -145,6 +145,7 @@ private:
 
 	void ClearMap();
 	void DestroyAllActors(TSubclassOf<AActor> actorClass);
+	void DestroyAllActorsWithTag(FName tag);
 
 	/** Inform players about kill etc. */
 	void WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer);
