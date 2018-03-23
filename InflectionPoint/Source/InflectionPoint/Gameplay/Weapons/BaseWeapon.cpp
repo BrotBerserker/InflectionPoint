@@ -107,8 +107,8 @@ void ABaseWeapon::Tick(float DeltaTime) {
 
 	passedTime += DeltaTime;
 
-	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING) {
-		StartTimer(this, GetWorld(), "Reload", 0.1f + ReloadDelay, false); // use timer to avoid reload animation loops
+	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING && passedTime - LastShotTimeStamp >= ReloadDelay) {
+		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	} else if(CurrentState == EWeaponState::FIRING && passedTime - LastShotTimeStamp >= FireInterval) {
 		passedTime = 0;
 		Fire();
