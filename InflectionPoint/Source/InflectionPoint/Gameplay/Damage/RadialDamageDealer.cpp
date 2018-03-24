@@ -25,24 +25,20 @@ void URadialDamageDealer::BeginPlay() {
 void URadialDamageDealer::DealDamage() {
 	if(!GetOwner()->HasAuthority())
 		return;
+
 	auto controller = Cast<APlayerControllerBase>(GetOwner()->GetInstigatorController());
-	auto damageCauser = GetOwner()->GetOwner();//GetOwner()->Instigator;
 	auto location = GetOwner()->GetActorLocation();
-	StartTimer(this, GetWorld(), "ExecuteDealDamage", 0.001f + DamageDealDelay, false, location, controller, damageCauser);
+	StartTimer(this, GetWorld(), "ExecuteDealDamage", 0.001f + DamageDealDelay, false, location, controller);
 }
 
 
-void URadialDamageDealer::ExecuteDealDamage(FVector location, APlayerControllerBase* controller, AActor* instigator) {
-	auto actorList = ApplyRadialDamageWithFalloff(location, instigator, controller);
-	
-	// Draw debugs
-	auto cheatManager = Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager);
-	if(cheatManager && cheatManager->IsDebugProjectileLineTraceEnabled) {
-		DrawDebugSphere(GetWorld(), location, DamageOuterRadius, 16, FColor(71, 244, 65), true, 1000);
-		DrawDebugSphere(GetWorld(), location, DamageInnerRadius, 16, FColor(244, 95, 66), true, 1000);
-	}
+void URadialDamageDealer::ExecuteDealDamage(FVector location, APlayerControllerBase* controller) {
+	DrawDebugs(location);
 
-	// Show hitmarker
+	// Apply the Damage
+	auto actorList = ApplyRadialDamageWithFalloff(location, controller);
+
+	// Show hitmarker if a character was hit
 	for(int i = 0; i < actorList.Num() && controller; ++i) {
 		if(actorList[i]->IsA(ABaseCharacter::StaticClass())) {
 			controller->DamageDealt();
@@ -51,66 +47,72 @@ void URadialDamageDealer::ExecuteDealDamage(FVector location, APlayerControllerB
 	}
 }
 
+void URadialDamageDealer::DrawDebugs(FVector &location) {
+	auto cheatManager = Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager);
+	if(cheatManager && cheatManager->IsDebugProjectileLineTraceEnabled) {
+		DrawDebugSphere(GetWorld(), location, DamageOuterRadius, 16, FColor(71, 244, 65), true, 1000);
+		DrawDebugSphere(GetWorld(), location, DamageInnerRadius, 16, FColor(244, 95, 66), true, 1000);
+	}
+}
 
-TArray<AActor*> URadialDamageDealer::ApplyRadialDamageWithFalloff(const FVector& Origin, AActor* DamageCauser, AController* InstigatedByController) {
+
+TMap<AActor*, TArray<FHitResult> > URadialDamageDealer::GetActorsInRange(const FVector& origin) {
 	static FName NAME_ApplyRadialDamage = FName(TEXT("ApplyRadialDamage"));
-	FCollisionQueryParams SphereParams(NAME_ApplyRadialDamage, false);//, DamageCauser);
-
-	//SphereParams.AddIgnoredActors(IgnoreActors);
+	FCollisionQueryParams SphereParams(NAME_ApplyRadialDamage, false);
 
 	// query scene to see what we hit
 	TArray<FOverlapResult> Overlaps;
 	UWorld* World = GEngine->GetWorldFromContextObject(GetWorld());
-	World->OverlapMultiByObjectType(Overlaps, Origin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(DamageOuterRadius), SphereParams);
-
+	World->OverlapMultiByObjectType(Overlaps, origin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllDynamicObjects), FCollisionShape::MakeSphere(DamageOuterRadius), SphereParams);
+	
 	// collate into per-actor list of hit components
 	TMap<AActor*, TArray<FHitResult> > OverlapComponentMap;
-	for(int32 Idx = 0; Idx<Overlaps.Num(); ++Idx) {
-		FOverlapResult const& Overlap = Overlaps[Idx];
+	for(int32 i = 0; i<Overlaps.Num(); ++i) {
+		FOverlapResult const& Overlap = Overlaps[i];
 		AActor* const OverlapActor = Overlap.GetActor();
 
-		if(OverlapActor &&
-			OverlapActor->bCanBeDamaged &&
-			(OverlapActor != DamageCauser || DealDamageToDamageCauser) &&
-			Overlap.Component.IsValid()) {
-			UE_LOG(LogTemp, Warning, TEXT("DealDamage"));
-
+		if(OverlapActor && OverlapActor->bCanBeDamaged && Overlap.Component.IsValid()) {
 			FHitResult Hit;
-			if(DamagePreventionChannel == ECC_MAX || CanHitComponent(Overlap.Component.Get(), Origin, (ECollisionChannel)DamagePreventionChannel, Hit)) {
+			if(CanHitComponent(Overlap.Component.Get(), origin, (ECollisionChannel)DamagePreventionChannel, Hit)) {
 				TArray<FHitResult>& HitList = OverlapComponentMap.FindOrAdd(OverlapActor);
 				HitList.Add(Hit);
 			}
 		}
 	}
+	return OverlapComponentMap;
+}
 
-	bool bAppliedDamage = false;
+TArray<AActor*> URadialDamageDealer::ApplyRadialDamageWithFalloff(const FVector& origin, AController* instigatedByController) {
+	auto overlappingActors = GetActorsInRange(origin);
+
+	if(overlappingActors.Num() < 1)
+		return TArray<AActor*>();
+	
+	return DealDamage(origin, overlappingActors, instigatedByController);
+}
+
+TArray<AActor*> URadialDamageDealer::DealDamage(const FVector & origin, TMap<AActor *, TArray<FHitResult>> &OverlapComponentMap, AController * instigatedByController) {
 	TArray<AActor*> DamagedActorList = TArray<AActor*>();
+	
+	FRadialDamageEvent DmgEvent;
+	DmgEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : UDamageType::StaticClass();
+	DmgEvent.Origin = origin;
+	DmgEvent.Params = FRadialDamageParams(BaseDamage, MinimumDamage, DamageInnerRadius, DamageOuterRadius, Falloff);
 
-	if(OverlapComponentMap.Num() > 0) {
-		// make sure we have a good damage type
-		TSubclassOf<UDamageType> const ValidDamageTypeClass = DamageTypeClass ? DamageTypeClass : TSubclassOf<UDamageType>(UDamageType::StaticClass());
+	// call damage function on each affected actors
+	for(TMap<AActor*, TArray<FHitResult> >::TIterator It(OverlapComponentMap); It; ++It) {
+		AActor* const Victim = It.Key();
+		TArray<FHitResult> const& ComponentHits = It.Value();
+		DmgEvent.ComponentHits = ComponentHits;
 
-		FRadialDamageEvent DmgEvent;
-		DmgEvent.DamageTypeClass = ValidDamageTypeClass;
-		DmgEvent.Origin = Origin;
-		DmgEvent.Params = FRadialDamageParams(BaseDamage, MinimumDamage, DamageInnerRadius, DamageOuterRadius, Falloff);
-
-		// call damage function on each affected actors
-		for(TMap<AActor*, TArray<FHitResult> >::TIterator It(OverlapComponentMap); It; ++It) {
-			AActor* const Victim = It.Key();
-			TArray<FHitResult> const& ComponentHits = It.Value();
-			DmgEvent.ComponentHits = ComponentHits;
-
-			float damage = Victim->TakeDamage(BaseDamage, DmgEvent, InstigatedByController, DamageCauser);
-			if(damage > 0)
-				DamagedActorList.Add(Victim);
-		}
+		float damage = Victim->TakeDamage(BaseDamage, DmgEvent, instigatedByController, DamageCauser);
+		if(damage > 0)
+			DamagedActorList.Add(Victim);
 	}
-
 	return DamagedActorList;
 }
 
-/** @RETURN True if weapon trace from Origin hits component VictimComp.  OutHitResult will contain properties of the hit. */
+
 bool URadialDamageDealer::CanHitComponent(UPrimitiveComponent* VictimComp, FVector const& Origin, ECollisionChannel TraceChannel, FHitResult& OutHitResult) {
 	static FName NAME_ComponentIsVisibleFrom = FName(TEXT("ComponentIsVisibleFrom"));
 	//FCollisionQueryParams LineParams(NAME_ComponentIsVisibleFrom, true, IgnoredActor);

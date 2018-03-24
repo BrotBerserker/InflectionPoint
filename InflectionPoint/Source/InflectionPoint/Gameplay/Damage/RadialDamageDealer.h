@@ -71,9 +71,14 @@ public:
 
 private:
 	UFUNCTION()
-		void ExecuteDealDamage(FVector location, APlayerControllerBase* controller, AActor* instigator);
+		void ExecuteDealDamage(FVector location, APlayerControllerBase* controller);
 
-	TArray<AActor*> ApplyRadialDamageWithFalloff(const FVector& Origin, AActor* DamageCauser, AController* InstigatedByController);
+	void DrawDebugs(FVector &location);
+	TMap<AActor*, TArray<FHitResult>> GetActorsInRange(const FVector& origin);
+
+	TArray<AActor*> ApplyRadialDamageWithFalloff(const FVector& Origin, AController* InstigatedByController);
+
+	TArray<AActor*>  DealDamage(const FVector& origin, TMap<AActor*,TArray<FHitResult>> &OverlapComponentMap, AController* instigatedByController);
 
 	bool CanHitComponent(UPrimitiveComponent* VictimComp, FVector const& Origin, ECollisionChannel TraceChannel, FHitResult& OutHitResult);
 };

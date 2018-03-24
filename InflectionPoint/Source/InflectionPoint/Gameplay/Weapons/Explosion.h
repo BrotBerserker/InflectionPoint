@@ -20,9 +20,13 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	/* ---------------- */
-	/*    Components    */
+
 	/* ---------------- */
 	UPROPERTY(EditDefaultsOnly)
 		URadialDamageDealer* RadialDamageDealer;
+public:
+
+	/* -1 for infinit lifespan*/
+	UPROPERTY(EditDefaultsOnly)
+		float LifeSpan = 10;
 };

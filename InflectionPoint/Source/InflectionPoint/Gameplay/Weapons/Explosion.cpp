@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
+#include "Gameplay/Damage/DamageTypes/DefaultDamageType.h"
 #include "Explosion.h"
 
 
@@ -11,14 +12,17 @@ AExplosion::AExplosion() {
 
 	RadialDamageDealer = CreateDefaultSubobject<URadialDamageDealer>(TEXT("RadialDamageDealer"));
 	RadialDamageDealer->DealDamageOnBeginPlay = false;
-
-	// Set the Weapon as DamageDealer
-	RadialDamageDealer->DamageCauser = GetOwner();
+	RadialDamageDealer->DamageTypeClass = UDefaultDamageType::StaticClass();
 }
 
 // Called when the game starts or when spawned
 void AExplosion::BeginPlay() {
 	Super::BeginPlay();
+	// Set the Weapon as DamageDealer
+	RadialDamageDealer->DamageCauser = GetOwner();
 	RadialDamageDealer->DealDamage();
+
+	if(LifeSpan > 0)
+		SetLifeSpan(LifeSpan);
 }
 
