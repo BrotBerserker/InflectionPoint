@@ -28,12 +28,12 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Ou
 
 ABaseCharacter::ABaseCharacter() {
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(55.f, 89.f);
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
-	FirstPersonCameraComponent->RelativeLocation = FVector(-20.5f, 1.75f, 41.f); // Position the camera
+	FirstPersonCameraComponent->RelativeLocation = FVector(-16.7f, -1.18f, 49.f); // Position the camera
 	FirstPersonCameraComponent->RelativeScale3D = FVector(0.4, 0.4, 0.4); // Scale of the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
@@ -43,14 +43,14 @@ ABaseCharacter::ABaseCharacter() {
 	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
-	Mesh1P->RelativeLocation = FVector(3.09f, 0.61f, -160.7f);
+	Mesh1P->RelativeLocation = FVector(-10.6f, 0.81f, -125.7f);
 	Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
 
 	// Create the '3rd person' body mesh
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh3P"));
 	Mesh3P->SetupAttachment(GetCapsuleComponent());
 	Mesh3P->SetOwnerNoSee(true);
-	Mesh3P->RelativeLocation = FVector(0.f, 0.f, -97.f);
+	Mesh3P->RelativeLocation = FVector(3.8f, -2.93f, -89.f);
 	Mesh3P->RelativeRotation = FRotator(0.f, -90.f, 0.f);
 
 	WeaponInventory = CreateDefaultSubobject<UWeaponInventory>(TEXT("WeaponInventory"));

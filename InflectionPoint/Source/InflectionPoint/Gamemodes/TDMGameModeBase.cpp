@@ -73,7 +73,7 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 
 void ATDMGameModeBase::StartMatch() {
 	GetGameState()->CurrentRound = 0;
-	GetGameState()->MaxRoundNum = CountSpawnPoints() / MaxPlayers;
+	GetGameState()->MaxRoundNum = GetSpawnPointCount() / MaxPlayers;
 	AssignTeamsAndPlayerStartGroups();
 	ResetPlayerScores();
 	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
@@ -275,14 +275,15 @@ AActor* ATDMGameModeBase::FindSpawnForPlayer(APlayerControllerBase * playerContr
 FString ATDMGameModeBase::GetSpawnTag(APlayerControllerBase*  playerController, int round) {
 	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
 	int teams = 2;
-	int PlayerPerTeam = (OfflineMaxPlayers / 2);
-	int spawnsPerTeam = CountSpawnPoints() / teams;
-	int spawnIndex = ((playerState->PlayerStartGroup) * (spawnsPerTeam / PlayerPerTeam)) + (round);
+	int playersPerTeam = (MaxPlayers / 2);
+	int spawnsPerTeam = GetSpawnPointCount() / teams;
+	int spawnsPerPlayer = spawnsPerTeam / playersPerTeam;
+	int spawnIndex = playerState->PlayerStartGroup * spawnsPerPlayer + round;
 	FString spawnTag = FString::FromInt(playerState->Team) + "|" + FString::FromInt(spawnIndex);
 	return spawnTag;
 }
 
-int ATDMGameModeBase::CountSpawnPoints() {
+int ATDMGameModeBase::GetSpawnPointCount() {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), foundActors);
 	return foundActors.Num();
