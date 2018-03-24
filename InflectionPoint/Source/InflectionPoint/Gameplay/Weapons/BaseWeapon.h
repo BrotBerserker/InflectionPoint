@@ -142,6 +142,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		int FireShotNum = 1;
 
+	/** If true, the crosshair will be hidden when aiming with this weapon */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
+		bool HideCrosshairWhenAiming = true;
+
 public:
 	/* ------------- */
 	/*   Functions   */
