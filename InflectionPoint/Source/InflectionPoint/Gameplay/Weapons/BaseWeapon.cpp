@@ -154,8 +154,8 @@ void ABaseWeapon::OnEquip() {
 
 	AttachToOwner();
 
-	Mesh1P->SetHiddenInGame(false);
-	Mesh3P->SetHiddenInGame(false);
+	Mesh1P->SetHiddenInGame(false, true);
+	Mesh3P->SetHiddenInGame(false, true);
 	Mesh3P->bCastHiddenShadow = true;
 
 	CurrentState = EWeaponState::IDLE;
@@ -167,8 +167,8 @@ void ABaseWeapon::OnUnequip() {
 
 	DetachFromOwner();
 
-	Mesh1P->SetHiddenInGame(true);
-	Mesh3P->SetHiddenInGame(true);
+	Mesh1P->SetHiddenInGame(true, true);
+	Mesh3P->SetHiddenInGame(true, true);
 	Mesh3P->bCastHiddenShadow = false;
 
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(AnimationNotifyDelegate);
