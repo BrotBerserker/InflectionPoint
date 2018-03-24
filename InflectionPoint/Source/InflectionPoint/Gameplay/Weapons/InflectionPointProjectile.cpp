@@ -51,6 +51,9 @@ void AInflectionPointProjectile::BeginPlay() {
 	MortalityProvider->OnDeath.AddDynamic(this, &AInflectionPointProjectile::DestroyProjectile);
 	MortalityProvider->StartHealth = 1;
 
+	// Set the Weapon as DamageDealer
+	CollisionDamageDealer->DamageCauser = GetOwner();
+
 	// instigator is null if the character has already died when the shot is spawned
 	if(Instigator == nullptr) {
 		return;

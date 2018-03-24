@@ -58,6 +58,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = DamageConfig, meta = (Bitmask, BitmaskEnum = "ECollisionChannel"))
 		int32 DamagePreventionChannel = ECC_Visibility;
 
+	/** Default is the Owner */
+	UPROPERTY(BlueprintReadWrite, Category = "InflectionPoint|Damage")
+		AActor* DamageCauser;
+
 	// Called when the game starts
 	virtual void BeginPlay() override;
 

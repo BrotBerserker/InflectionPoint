@@ -34,6 +34,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
 		TSubclassOf<UDamageType> DamageType;
 
+	/** Default is the Owner */
+	UPROPERTY(BlueprintReadWrite, Category = "InflectionPoint|Damage")
+		AActor* DamageCauser;
+
 	/** The amount of damage */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
 		float Damage = 0.;

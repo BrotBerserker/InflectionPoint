@@ -14,6 +14,9 @@ URadialDamageDealer::URadialDamageDealer() {
 void URadialDamageDealer::BeginPlay() {
 	Super::BeginPlay();
 
+	if(!DamageCauser)
+		DamageCauser = GetOwner();
+
 	if(DealDamageOnBeginPlay)
 		DealDamage();
 }
@@ -23,9 +26,9 @@ void URadialDamageDealer::DealDamage() {
 	if(!GetOwner()->HasAuthority())
 		return;
 	auto controller = Cast<APlayerControllerBase>(GetOwner()->GetInstigatorController());
-	auto instigator = GetOwner()->Instigator;
+	auto damageCauser = GetOwner()->GetOwner();//GetOwner()->Instigator;
 	auto location = GetOwner()->GetActorLocation();
-	StartTimer(this, GetWorld(), "ExecuteDealDamage", 0.001f + DamageDealDelay, false, location, controller, instigator);
+	StartTimer(this, GetWorld(), "ExecuteDealDamage", 0.001f + DamageDealDelay, false, location, controller, damageCauser);
 }
 
 

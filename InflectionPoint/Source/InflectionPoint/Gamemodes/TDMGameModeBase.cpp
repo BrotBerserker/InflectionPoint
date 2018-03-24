@@ -146,7 +146,13 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
 		float killedScoreChange = GetGameState()->CurrentRound == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
 		float killerScoreChange = GetGameState()->CurrentRound == 0 ? 0 : ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer);
-		controller->ClientShowKillInfo(killedInfo, killedScoreChange, killerInfo, killerScoreChange, NULL);
+		auto weapon = Cast<ABaseWeapon>(DamageCauser);
+		if(DamageCauser) {
+			UE_LOG(LogTemp, Warning, TEXT("DamageCauser -> [%s]"), *(DamageCauser->GetName()));
+		} else {
+			UE_LOG(LogTemp, Warning, TEXT("DamageCauser -> null"));
+		}
+		controller->ClientShowKillInfo(killedInfo, killedScoreChange, killerInfo, killerScoreChange, weapon ? weapon->WeaponTexture : NULL);
 	}
 }
 

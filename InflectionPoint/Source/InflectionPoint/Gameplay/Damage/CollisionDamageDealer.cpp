@@ -27,7 +27,8 @@ void UCollisionDamageDealer::BeginPlay() {
 
 	if(!AssertNotNull(DamageType, GetWorld(), __FILE__, __LINE__))
 		return;
-
+	if(!DamageCauser)
+		DamageCauser = GetOwner();
 	collisionShapeComponent->OnComponentHit.AddDynamic(this, &UCollisionDamageDealer::OnCollision);
 	collisionShapeComponent->OnComponentBeginOverlap.AddDynamic(this, &UCollisionDamageDealer::OnOverlap);
 }
@@ -51,7 +52,7 @@ float UCollisionDamageDealer::InflictDamage(AActor* DamagedActor) {
 	if(!GetOwner()->HasAuthority())
 		return 0;
 	AController* instigator = GetOwner()->Instigator ? GetOwner()->Instigator->GetController() : nullptr;
-	return UGameplayStatics::ApplyDamage(DamagedActor, Damage, instigator, GetOwner(), DamageType);
+	return UGameplayStatics::ApplyDamage(DamagedActor, Damage, instigator, DamageCauser, DamageType);
 }
 
 void UCollisionDamageDealer::PerformHitConsequences(bool damageDealt) {
