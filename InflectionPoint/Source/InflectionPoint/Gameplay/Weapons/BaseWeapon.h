@@ -105,7 +105,7 @@ public:
 	/** Number of shots per clip */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		int ClipSize = 7;
-	
+
 	/** Current amount of munition (with CurrentAmmoInClip included) */
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		int CurrentAmmo = -1;
@@ -133,7 +133,7 @@ public:
 
 	/** Constructor, initializes components */
 	ABaseWeapon();
-	
+
 	/** Initializes variables and attachments */
 	virtual void BeginPlay() override;
 
@@ -160,7 +160,7 @@ public:
 
 	/** This function should be overriden in subclasses to implement specific fire behaviour */
 	virtual void ExecuteFire() PURE_VIRTUAL(ABaseWeapon::ExecuteFire, ;);
-	
+
 	/** Called after ExecuteFire*/
 	virtual void PostExecuteFire();
 
@@ -188,7 +188,8 @@ public:
 	void SpawnFireSound();
 
 	/* Spawns the No Ammo Sound */
-	void SpawnNoAmmoSound();
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastSpawnNoAmmoSound();
 
 	/* Plays the Fire Animation (called from multicast)*/
 	void PlayFireAnimation();

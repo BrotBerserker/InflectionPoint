@@ -126,7 +126,7 @@ void ABaseWeapon::StartFire() {
 
 void ABaseWeapon::Fire() {
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-		SpawnNoAmmoSound();
+		MulticastSpawnNoAmmoSound();
 	} else {
 		if(CurrentAmmo == 0)
 			return;
@@ -195,7 +195,7 @@ void ABaseWeapon::SpawnFireSound() {
 	}
 }
 
-void ABaseWeapon::SpawnNoAmmoSound() {
+void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
 	// try and play the sound if specified
 	if(NoAmmoSound != NULL) {
 		UGameplayStatics::SpawnSoundAttached(NoAmmoSound, OwningCharacter->Mesh1P);
