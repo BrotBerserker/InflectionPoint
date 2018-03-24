@@ -49,7 +49,11 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientStartRecording();
 
-	void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) override;
+	void ServerStartFire_Implementation() override;
 
-	void StopFire() override;
+	void ServerStopFire_Implementation() override;	
+	
+	/* Is Called from the Binding to swich to a specific weapon*/
+	template<int32 Index> 
+	void EquipSpecificWeapon();
 };

@@ -21,6 +21,6 @@ void ATDMLevelScriptBase::MulticastStartSpawnCinematic_Implementation() {
 }
 
 int ATDMLevelScriptBase::GetTeam() {
-	auto state = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->Controller->PlayerState;
+	auto state = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerState;
 	return Cast<ATDMPlayerStateBase>(state)->Team;
 }

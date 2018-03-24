@@ -130,6 +130,7 @@ private:
 	void SpawnPlayersAndReplays();
 	FString GetSpawnTag(APlayerControllerBase*  playerController, int round);
 	AActor* FindSpawnForPlayer(APlayerControllerBase* playerController, int round);
+	int GetSpawnPointCount();
 	void SpawnAndPrepareReplay(APlayerControllerBase* controller, int round);
 	void SpawnAndPossessPlayer(APlayerControllerBase* playerController);
 
@@ -144,6 +145,7 @@ private:
 
 	void ClearMap();
 	void DestroyAllActors(TSubclassOf<AActor> actorClass);
+	void DestroyAllActorsWithTag(FName tag);
 
 	/** Inform players about kill etc. */
 	void WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer);

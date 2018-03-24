@@ -30,11 +30,23 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::Fire);
-	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Pressed, this, &ABaseCharacter::DebugFire);
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::StopFire);
 
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
-	PlayerInputComponent->BindAction("DEBUG_Fire", IE_Released, this, &ABaseCharacter::ServerStopFire);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABaseCharacter::StartAiming);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABaseCharacter::StopAiming);
+
+	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABaseCharacter::ServerReload);
+
+	PlayerInputComponent->BindAction("NextWeapon", IE_Pressed, this, &ABaseCharacter::ServerEquipNextWeapon);
+	PlayerInputComponent->BindAction("PreviousWeapon", IE_Pressed, this, &ABaseCharacter::ServerEquipPreviousWeapon);
+
+	PlayerInputComponent->BindAction("SwitchToWeapon1", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<0>);
+	PlayerInputComponent->BindAction("SwitchToWeapon2", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<1>);
+	PlayerInputComponent->BindAction("SwitchToWeapon3", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<2>);
+	PlayerInputComponent->BindAction("SwitchToWeapon4", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<3>);
+	PlayerInputComponent->BindAction("SwitchToWeapon5", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<4>);
+	PlayerInputComponent->BindAction("SwitchToWeapon6", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<5>);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABaseCharacter::EnableSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABaseCharacter::DisableSprint);
@@ -53,10 +65,11 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerStateRecorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	PlayerStateRecorder->InitializeBindings(PlayerInputComponent);
+}
 
-	// Controller bindings
-	//PlayerInputComponent->BindAxis("TurnRate", this, &ABaseCharacter::TurnAtRate);
-	//PlayerInputComponent->BindAxis("LookUpRate", this, &ABaseCharacter::LookUpAtRate);
+template<int32 Index>
+void APlayerCharacterBase::EquipSpecificWeapon() {
+	ServerEquipSpecificWeapon(Index);
 }
 
 bool APlayerCharacterBase::DEBUG_ServerSpawnReplay_Validate() {
@@ -100,23 +113,19 @@ void APlayerCharacterBase::ClientStartRecording_Implementation() {
 	PlayerStateRecorder->ServerStartRecording();
 }
 
-void APlayerCharacterBase::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
+void APlayerCharacterBase::ServerStartFire_Implementation() {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	if(projectileClassToSpawn == ProjectileClass) {
-		recorder->RecordKeyPressed("Fire");
-	} else if(projectileClassToSpawn == DebugProjectileClass) {
-		recorder->RecordKeyPressed("DEBUG_Fire");
-	}
-	Super::FireProjectile(projectileClassToSpawn);
+	recorder->ServerRecordKeyPressed("Fire");
+
+	Super::ServerStartFire_Implementation();
 }
 
-void APlayerCharacterBase::StopFire() {
+void APlayerCharacterBase::ServerStopFire_Implementation() {
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	recorder->RecordKeyReleased("Fire");
-	recorder->RecordKeyReleased("DEBUG_Fire");
-	Super::StopFire();
+	recorder->ServerRecordKeyReleased("Fire");
+	Super::ServerStopFire_Implementation();
 }

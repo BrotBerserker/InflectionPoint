@@ -68,11 +68,12 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 	if(sessionSettings) {
 		sessionSettings->Set(FName("CurrentPlayers"), NumPlayers, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 		session->UpdateSession(SessionName, *sessionSettings);
-	} 
+	}
 }
 
 void ATDMGameModeBase::StartMatch() {
 	GetGameState()->CurrentRound = 0;
+	GetGameState()->MaxRoundNum = GetSpawnPointCount() / MaxPlayers;
 	AssignTeamsAndPlayerStartGroups();
 	ResetPlayerScores();
 	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
@@ -105,6 +106,8 @@ void ATDMGameModeBase::StartSpawnCinematics() {
 }
 
 void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
+	if(!AssertNotNull(KilledPlayer, GetWorld(), __FILE__, __LINE__))
+		return;
 	SendKillInfoToPlayers(KilledPlayer, KillingPlayer, DamageCauser);
 
 	if(KilledPlayer->IsA(APlayerController::StaticClass()))
@@ -143,7 +146,13 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
 		float killedScoreChange = GetGameState()->CurrentRound == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
 		float killerScoreChange = GetGameState()->CurrentRound == 0 ? 0 : ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer);
-		controller->ClientShowKillInfo(killedInfo, killedScoreChange, killerInfo, killerScoreChange, NULL);
+		auto weapon = Cast<ABaseWeapon>(DamageCauser);
+		if(DamageCauser) {
+			UE_LOG(LogTemp, Warning, TEXT("DamageCauser -> [%s]"), *(DamageCauser->GetName()));
+		} else {
+			UE_LOG(LogTemp, Warning, TEXT("DamageCauser -> null"));
+		}
+		controller->ClientShowKillInfo(killedInfo, killedScoreChange, killerInfo, killerScoreChange, weapon ? weapon->WeaponTexture : NULL);
 	}
 }
 
@@ -233,6 +242,7 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(APlayerControllerBase * playerContr
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__);
 
 	auto character = SpawnCharacter<APlayerCharacterBase>(DefaultPawnClass.Get(), playerController, spawnPoint);
+	AssertNotNull(character, GetWorld(), __FILE__, __LINE__);
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
@@ -245,6 +255,7 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(APlayerControllerBase* playerContro
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 	auto character = SpawnCharacter<AReplayCharacterBase>(ReplayCharacter, playerController, spawnPoint);
 
+	AssertNotNull(character, GetWorld(), __FILE__, __LINE__);
 	AssertTrue(PlayerRecordings[playerController].Contains(round), GetWorld(), __FILE__, __LINE__, "Could not find replay");
 
 	// Start Replay on spawned ReplayCharacter
@@ -269,8 +280,19 @@ AActor* ATDMGameModeBase::FindSpawnForPlayer(APlayerControllerBase * playerContr
 
 FString ATDMGameModeBase::GetSpawnTag(APlayerControllerBase*  playerController, int round) {
 	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
-	FString spawnTag = FString::FromInt(playerState->Team) + playerState->PlayerStartGroup + FString::FromInt(round);
+	int teams = 2;
+	int playersPerTeam = (MaxPlayers / 2);
+	int spawnsPerTeam = GetSpawnPointCount() / teams;
+	int spawnsPerPlayer = spawnsPerTeam / playersPerTeam;
+	int spawnIndex = playerState->PlayerStartGroup * spawnsPerPlayer + round;
+	FString spawnTag = FString::FromInt(playerState->Team) + "|" + FString::FromInt(spawnIndex);
 	return spawnTag;
+}
+
+int ATDMGameModeBase::GetSpawnPointCount() {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), foundActors);
+	return foundActors.Num();
 }
 
 void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
@@ -279,8 +301,9 @@ void ATDMGameModeBase::AssignTeamsAndPlayerStartGroups() {
 	for(auto iterator = world->GetPlayerControllerIterator(); iterator; ++iterator) {
 		APlayerControllerBase* controller = (APlayerControllerBase*)UGameplayStatics::GetPlayerController(world, iterator.GetIndex());
 		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
+		AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
 		playerState->Team = iterator.GetIndex() % 2 + 1;
-		playerState->PlayerStartGroup = FString("").AppendChar('A' + iterator.GetIndex() / 2);
+		playerState->PlayerStartGroup = iterator.GetIndex() / 2;
 	}
 }
 
@@ -310,11 +333,19 @@ void ATDMGameModeBase::ClearMap() {
 	DestroyAllActors(AReplayCharacterBase::StaticClass());
 	DestroyAllActors(APlayerCharacterBase::StaticClass());
 	DestroyAllActors(AInflectionPointProjectile::StaticClass());
+	DestroyAllActorsWithTag(FName("DeleteOnClearMap"));
 }
 
 void ATDMGameModeBase::DestroyAllActors(TSubclassOf<AActor> actorClass) {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), actorClass, foundActors);
+	for(auto& item : foundActors)
+		item->Destroy();
+}
+
+void ATDMGameModeBase::DestroyAllActorsWithTag(FName tag) {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), tag, foundActors);
 	for(auto& item : foundActors)
 		item->Destroy();
 }

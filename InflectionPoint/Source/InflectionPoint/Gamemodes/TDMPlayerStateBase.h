@@ -22,7 +22,7 @@ public:
 		int Team = 0;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint|Gameplay")
-		FString PlayerStartGroup;
+		int PlayerStartGroup = 1;
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")

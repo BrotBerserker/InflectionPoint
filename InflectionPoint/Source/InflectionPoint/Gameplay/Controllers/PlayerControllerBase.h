@@ -28,7 +28,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnRoundStarted(int Round);
 
-	UFUNCTION(Client, Unreliable)
+	UFUNCTION(Client, Reliable)
 		void ClientShowKillInfo(FCharacterInfo KilledInfo, float killedScoreChange, FCharacterInfo KillerInfo, float killerScoreChange, UTexture2D* WeaponImage);
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -42,6 +42,9 @@ public:
 
 	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+		void DamageDealt();
 
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)

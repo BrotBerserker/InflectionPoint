@@ -9,6 +9,7 @@ bool AssertNotNull(void* pointer, UWorld* world, FString file, int line, FString
 bool AssertTrue(bool check, UWorld* world, FString file, int line, FString description = "No description provided"); 
 bool SoftAssertTrue(bool check, UWorld* world, FString file, int line, FString description = "No description provided");
 
+void DebugPrint(FString file, int line, FString description = "No description provided");
 //template<typename T>
 //bool AssertCanCast(void* type, UWorld* world, FString file, int line, FString description = "No description provided") {
 //	if(typeid(*type) == typeid(T))

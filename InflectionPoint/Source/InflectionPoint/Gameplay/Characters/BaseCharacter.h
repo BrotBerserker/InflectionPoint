@@ -3,6 +3,7 @@
 #include "GameFramework/Character.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -21,25 +22,16 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh1P;
 
-	/** Gun mesh: 1st person view (seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USkeletalMeshComponent* FP_Gun;
-
-	/** Location on gun mesh where projectiles should spawn. */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USceneComponent* FP_MuzzleLocation;
-
 	/** Pawn mesh: 3rd person view (completed body; seen only by others) */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh3P;
 
-	/** Gun mesh: 3rd person view (seen only by others) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
-		class USkeletalMeshComponent* TP_Gun;
-
 	/** First person camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FirstPersonCameraComponent;
+
+	UPROPERTY(VisibleAnywhere)
+		class UWeaponInventory* WeaponInventory;
 
 	/** MortalityProvider which holds our HP */
 	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
@@ -57,34 +49,6 @@ public:
 	/*    Editor Settings     */
 	/* ---------------------- */
 
-	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
-
-	/** Debug projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AInflectionPointProjectile> DebugProjectileClass;
-
-	/** Minimum a player has to wait between to shots */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float DelayBetweenShots = 0.2f;
-
-	/** Number of shots per clip */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Projectile)
-		int MaxAmmo = 7;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
-		class USoundBase* FireSound;
-
-	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
-		class UAnimMontage* FireAnimation;
-
-	/** AnimMontage to play when reloading */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Projectile)
-		class UAnimMontage* ReloadAnimation1P;
-
 	/** Determines the maximum walk speed when sprinting */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
 		int SprintSpeed = 900;
@@ -96,10 +60,6 @@ public:
 	/** Material to use for Mesh3P and Mesh1P after the materialize animation has finished */
 	UPROPERTY(EditAnywhere, Category = Materialize)
 		UMaterialInstance* BodyMaterialAfterMaterialize;
-
-	/** Material to use for the gun after the materialize animation has finished */
-	UPROPERTY(EditAnywhere, Category = Materialize)
-		UMaterial* GunMaterialAfterMaterialize;
 
 	/** One of these animations will be played when the character dies */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
@@ -137,6 +97,8 @@ public:
 
 	/** Called when this character is restartet (e.g. by being possessed), fires OnRestart */
 	virtual void Restart() override;
+
+	virtual void Destroyed() override;
 
 	/** Fired when this character is restartet (e.g. by being possessed) */
 	UFUNCTION(BlueprintImplementableEvent)
@@ -179,16 +141,6 @@ public:
 	/** Takes damage using the MortalityProvider */
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
-	/** Fires a projectile. */
-	void Fire();
-
-	/** Fires a debug projectile. */
-	void DebugFire();
-
-	/** Event fired when CurrentAmmo changes */
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-		void OnAmmoChanged();
-
 	/** Enables sprint and starts sprinting if all sprinting conditions are met */
 	void EnableSprint();
 
@@ -213,6 +165,14 @@ public:
 	/** Handles stafing movement, left and right */
 	void MoveRight(float val);
 
+	/** These two are needed because sprinting is handled on client side */
+	void StartFire();
+	void StopFire();
+
+	/** Start/stop aiming has to be done on clients and server to ensure smooth animations */
+	void StartAiming();
+	void StopAiming();
+
 	/**
 	* Called via input to turn at a given rate.
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
@@ -225,37 +185,51 @@ public:
 	*/
 	void LookUpAtRate(float rate);
 
-	/** Returns the location at which a projectile should spawn */
-	FVector GetProjectileSpawnLocation();
-
-	/** Returns the rotation with which a projectile should spawn */
-	FRotator GetProjectileSpawnRotation();
-
 	/** Draws an arrow indicating the current position and camera direction */
 	void DrawDebugArrow();
 
-	/** Fires the given projectile */
-	virtual void FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn);
-
-	/** Stops firing */
-	virtual void StopFire();
 
 public:
 	/* --------------- */
 	/*  RPC Functions  */
 	/* --------------- */
 
-	/** Fires the given projectile on the Server */
-	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerFireProjectile(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn);
+	/** Starts firing the currently equipped weapon */
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+		virtual void ServerStartFire();
 
-	/** Stops firing on the Server */
-	UFUNCTION(Reliable, Server, WithValidation)
-		void ServerStopFire();
+	/** Stops firing the currently equipped weapon */
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
+		virtual void ServerStopFire();
 
-	/** Notifies Clients about projectile fired */
-	UFUNCTION(Unreliable, NetMulticast)
-		void MulticastProjectileFired();
+	/** Starts aiming, which changes some animations and increases the weapon's precision */
+	UFUNCTION(Server, Reliable, WithValidation)
+		virtual void ServerStartAiming();
+
+	/** Stops aiming, which changes some animations and decreases the weapon's precision */
+	UFUNCTION(Server, Reliable, WithValidation)
+		virtual void ServerStopAiming();
+
+	/** Shows the aiming animations an all clients */
+	UFUNCTION(NetMulticast, Reliable)
+		virtual void MulticastStartAiming();
+
+	/** Stops the aiming animations an all clients */
+	UFUNCTION(NetMulticast, Reliable)
+		virtual void MulticastStopAiming();
+
+	/** Reloads the currently equipped weapon */
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerReload();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerEquipNextWeapon();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerEquipPreviousWeapon();
+
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerEquipSpecificWeapon(int index);
 
 	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
@@ -282,22 +256,31 @@ public:
 		void MulticastUpdateCameraPitch(float pitch);
 
 public:
-	/* ---------------------- */
-	/*  Replicated Variables  */
-	/* ---------------------- */
-	UPROPERTY(Replicated, BlueprintReadWrite)
-		int CurrentAmmo;
+	UPROPERTY(BlueprintReadWrite, ReplicatedUsing = OnRep_CurrentWeapon)
+		ABaseWeapon* CurrentWeapon;
+
+	UFUNCTION()
+		void OnRep_CurrentWeapon(ABaseWeapon* OldWeapon);
+
+	void EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon = NULL);
+
+	UPROPERTY(BlueprintReadWrite)
+		bool IsAiming = false;
+
+private:
+	void UpdateFieldOfView(float DeltaTime);
 
 private:
 	bool initialized = false;
 
+	/** True if the player has pressed shift and wants to sprint */
 	bool sprintEnabled = false;
+
+	/** False if the player is not allowed to sprint (e.g. when firing a weapon) */
+	bool sprintAllowed = true;
+
 	int walkSpeed;
 
-	float LastShotTimeStamp;
-
 	UMaterialInstanceDynamic* DynamicBodyMaterial;
-	UMaterialInstanceDynamic* DynamicGunMaterial;
-
 };
 

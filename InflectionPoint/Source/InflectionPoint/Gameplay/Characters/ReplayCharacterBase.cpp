@@ -34,6 +34,7 @@ bool AReplayCharacterBase::IsReadyForInitialization() {
 
 void AReplayCharacterBase::Initialize() {
 	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
+	AssertNotNull(owningController, GetWorld(), __FILE__, __LINE__);
 	MulticastApplyPlayerColor(Cast<ATDMPlayerStateBase>(owningController->PlayerState));
 	MulticastShowSpawnAnimation();
 }
@@ -62,13 +63,13 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 	// Correct position 
 	bool shouldCorrectPosition = CurrentPositionShouldBeCorrected();
 	if(shouldCorrectPosition)
-		CorrectPosition(recordData[replayIndex - 1].Position);
+		CorrectPosition(recordData[replayIndex].Position);
 
 	// Draw debug sphere
 	if(CreateDebugCorrectionSpheres)
 		DrawDebugSphereAtCurrentPosition(shouldCorrectPosition);
 
-	UpdatePressedKeys();
+	UpdateKeys();
 
 	// Call Hold for all currently pressed buttons
 	for(auto &key : pressedKeys) {
@@ -80,7 +81,7 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 		StopReplay();
 }
 
-void AReplayCharacterBase::UpdatePressedKeys() {
+void AReplayCharacterBase::UpdateKeys() {
 	// iterate through all record data since last tick until now
 	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
 		UpdateRotation();
@@ -94,44 +95,45 @@ void AReplayCharacterBase::UpdateRotation() {
 	if(replayIndex == 0) {
 		return;
 	}
-	// Update Rotation (-1 because unreal ^^)
-	ApplyYaw(recordData[replayIndex - 1].CapsuleYaw);
-	if(Cast<AAIControllerBase>(GetController())->OwningPlayerController->IsLocalPlayerController()) {
-		ApplyPitch(recordData[replayIndex].CameraPitch);
-	} else {
-		ApplyPitch(recordData[replayIndex - 1].CameraPitch);
-	}
+	// Update Rotation
+	ApplyYaw(recordData[replayIndex].CapsuleYaw);
+	ApplyPitch(recordData[replayIndex].CameraPitch);
 }
 
 void AReplayCharacterBase::UpdatePressedKeys(FRecordedPlayerState &recordDataStep) {
 	for(auto &item : recordDataStep.PressedKeys) {
-		if(!pressedKeys.Contains(item)) {
-			PressKey(item);
-			pressedKeys.Add(item);
-		}
+		PressKey(item);
+		pressedKeys.Add(item);
 	}
 }
 
 void AReplayCharacterBase::UpdateReleasedKeys(FRecordedPlayerState &recordDataStep) {
-	for(int i = 0; i < pressedKeys.Num(); i++) {
-		auto item = pressedKeys[i];
-		if(!recordDataStep.PressedKeys.Contains(item)) {
-			ReleaseKey(item);
-			pressedKeys.Remove(item);
-			i--;
-		}
+	for(auto &item : recordDataStep.ReleasedKeys) {
+		ReleaseKey(item);
+		pressedKeys.Remove(item);
 	}
 }
 
 void AReplayCharacterBase::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
+	} else if(key == "Aim") {
+		StartAiming();
 	} else if(key == "Sprint") {
 		EnableSprint();
-	} else if(key == "Fire") {
-		Fire();
-	} else if(key == "DEBUG_Fire") {
-		DebugFire();
+	} else if(key == "WeaponFired") {
+		CurrentWeapon->Fire();
+	} else if(key == "Reload") {
+		CurrentWeapon->Reload();
+	} else if(key == "EquipNextWeapon") {
+		ServerEquipNextWeapon();
+	} else if(key == "EquipPreviousWeapon") {
+		ServerEquipPreviousWeapon();
+	} else if(key.Contains("EquipSpecificWeapon")) {
+		auto str = FString(key); // to not alter string
+		str.RemoveFromStart("EquipSpecificWeapon");
+		int index = FCString::Atoi(*str);
+		ServerEquipSpecificWeapon(index);
 	}
 }
 
@@ -148,8 +150,11 @@ void AReplayCharacterBase::HoldKey(FString key) {
 }
 
 void AReplayCharacterBase::ReleaseKey(FString key) {
-	if(key == "Sprint")
+	if(key == "Sprint") {
 		DisableSprint();
+	} else if(key == "Aim") {
+		StopAiming();
+	}
 }
 
 void AReplayCharacterBase::ApplyYaw(float value) {

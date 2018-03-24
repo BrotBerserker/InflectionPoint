@@ -10,11 +10,36 @@ UPlayerStateRecorder::UPlayerStateRecorder() {
 }
 
 void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) {
-	inputComponent->BindAction("Jump", IE_Pressed, this, &UPlayerStateRecorder::RecordStartJump);
-	inputComponent->BindAction("Jump", IE_Released, this, &UPlayerStateRecorder::RecordStopJump);
+	inputComponent->BindAction("Reload", IE_Pressed, this, &UPlayerStateRecorder::RecordReload<IE_Pressed>);
+	inputComponent->BindAction("Reload", IE_Released, this, &UPlayerStateRecorder::RecordReload<IE_Released>);
 
-	inputComponent->BindAction("Sprint", IE_Pressed, this, &UPlayerStateRecorder::RecordStartSprint);
-	inputComponent->BindAction("Sprint", IE_Released, this, &UPlayerStateRecorder::RecordStopSprint);
+	inputComponent->BindAction("NextWeapon", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipNextWeapon<IE_Pressed>);
+	inputComponent->BindAction("NextWeapon", IE_Released, this, &UPlayerStateRecorder::RecordEquipNextWeapon<IE_Released>);
+
+	inputComponent->BindAction("PreviousWeapon", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipPreviousWeapon<IE_Pressed>);
+	inputComponent->BindAction("PreviousWeapon", IE_Released, this, &UPlayerStateRecorder::RecordEquipPreviousWeapon<IE_Released>);
+
+	inputComponent->BindAction("SwitchToWeapon1", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<0, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon1", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<0, IE_Released>);
+	inputComponent->BindAction("SwitchToWeapon2", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<1, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon2", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<1, IE_Released>);
+	inputComponent->BindAction("SwitchToWeapon3", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<2, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon3", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<2, IE_Released>);
+	inputComponent->BindAction("SwitchToWeapon4", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<3, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon4", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<3, IE_Released>);
+	inputComponent->BindAction("SwitchToWeapon5", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<4, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon5", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<4, IE_Released>);
+	inputComponent->BindAction("SwitchToWeapon6", IE_Pressed, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<5, IE_Pressed>);
+	inputComponent->BindAction("SwitchToWeapon6", IE_Released, this, &UPlayerStateRecorder::RecordEquipSpecificWeapon<5, IE_Released>);
+
+	inputComponent->BindAction("Jump", IE_Pressed, this, &UPlayerStateRecorder::RecordJump<IE_Pressed>);
+	inputComponent->BindAction("Jump", IE_Released, this, &UPlayerStateRecorder::RecordJump<IE_Released>);
+
+	inputComponent->BindAction("Aim", IE_Pressed, this, &UPlayerStateRecorder::RecordAim<IE_Pressed>);
+	inputComponent->BindAction("Aim", IE_Released, this, &UPlayerStateRecorder::RecordAim<IE_Released>);
+
+	inputComponent->BindAction("Sprint", IE_Pressed, this, &UPlayerStateRecorder::RecordSprint<IE_Pressed>);
+	inputComponent->BindAction("Sprint", IE_Released, this, &UPlayerStateRecorder::RecordSprint<IE_Released>);
 
 	inputComponent->BindAxis("MoveForward", this, &UPlayerStateRecorder::RecordMoveForward);
 	inputComponent->BindAxis("MoveRight", this, &UPlayerStateRecorder::RecordMoveRight);
@@ -47,7 +72,9 @@ void UPlayerStateRecorder::TickComponent(float DeltaTime, ELevelTick TickType, F
 	float yaw = owner->GetCapsuleComponent()->GetComponentRotation().Yaw;
 	float pitch = owner->FirstPersonCameraComponent->GetComponentRotation().Pitch;
 
-	RecordedPlayerStates.Add(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys));
+	RecordedPlayerStates.Add(FRecordedPlayerState(passedTime, pos, yaw, pitch, pressedKeys, releasedKeys));
+	pressedKeys = TArray<FString>();
+	releasedKeys = TArray<FString>();
 }
 
 bool UPlayerStateRecorder::ServerStartRecording_Validate() {
@@ -67,6 +94,8 @@ bool UPlayerStateRecorder::ServerResetRecordedPlayerStates_Validate() {
 
 void UPlayerStateRecorder::ServerResetRecordedPlayerStates_Implementation() {
 	RecordedPlayerStates.Empty();
+	pressedKeys.Empty();
+	releasedKeys.Empty();
 }
 
 bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString &key) {
@@ -74,10 +103,6 @@ bool UPlayerStateRecorder::ServerRecordKeyPressed_Validate(const FString &key) {
 }
 
 void UPlayerStateRecorder::ServerRecordKeyPressed_Implementation(const FString &key) {
-	RecordKeyPressed(key);
-}
-
-void UPlayerStateRecorder::RecordKeyPressed(const FString &key) {
 	pressedKeys.Add(key);
 }
 
@@ -86,11 +111,7 @@ bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString &key) 
 }
 
 void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString &key) {
-	RecordKeyReleased(key);
-}
-
-void UPlayerStateRecorder::RecordKeyReleased(const FString &key) {
-	pressedKeys.Remove(key);
+	releasedKeys.Add(key);
 }
 
 void UPlayerStateRecorder::RecordMoveForward(float val) {
@@ -133,18 +154,44 @@ void UPlayerStateRecorder::RecordMoveRight(float val) {
 	movingRight = val;
 }
 
-void UPlayerStateRecorder::RecordStartJump() {
-	ServerRecordKeyPressed("Jump");
+void UPlayerStateRecorder::RecordKey(FString key, EInputEvent eventType) {
+	if(eventType == IE_Pressed)
+		ServerRecordKeyPressed(key);
+	if(eventType == IE_Released)
+		ServerRecordKeyReleased(key);
 }
 
-void UPlayerStateRecorder::RecordStopJump() {
-	ServerRecordKeyReleased("Jump");
+template<EInputEvent eventType>
+void UPlayerStateRecorder::RecordJump() {
+	RecordKey("Jump", eventType);
 }
 
-void UPlayerStateRecorder::RecordStartSprint() {
-	ServerRecordKeyPressed("Sprint");
+template<EInputEvent eventType>
+void UPlayerStateRecorder::RecordSprint() {
+	RecordKey("Sprint", eventType);
 }
 
-void UPlayerStateRecorder::RecordStopSprint() {
-	ServerRecordKeyReleased("Sprint");
+template<EInputEvent eventType>
+void UPlayerStateRecorder::RecordAim() {
+	RecordKey("Aim", eventType);
+}
+
+template<EInputEvent eventType>
+void UPlayerStateRecorder::RecordReload() {
+	RecordKey("Reload", eventType);
+}
+
+template<EInputEvent eventType>
+void UPlayerStateRecorder::RecordEquipNextWeapon() {
+	RecordKey("EquipNextWeapon", eventType);
+}
+
+template<EInputEvent eventType>
+void UPlayerStateRecorder::RecordEquipPreviousWeapon() {
+	RecordKey("EquipPreviousWeapon", eventType);
+}
+
+template<int index, EInputEvent eventType>
+void UPlayerStateRecorder::RecordEquipSpecificWeapon() {
+	RecordKey(FString("EquipSpecificWeapon") + FString::FromInt(index), eventType);
 }

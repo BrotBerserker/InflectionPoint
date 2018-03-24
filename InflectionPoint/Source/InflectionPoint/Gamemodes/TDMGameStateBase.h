@@ -17,8 +17,8 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
 		int CurrentRound = 0;
 
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
-		int MaxRoundNum = 3;
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
+		int MaxRoundNum = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<FColor> TeamColors;

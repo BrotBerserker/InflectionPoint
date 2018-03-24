@@ -8,5 +8,6 @@ void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ATDMGameStateBase, CurrentRound);
+	DOREPLIFETIME(ATDMGameStateBase, MaxRoundNum);
 }
 

@@ -18,6 +18,9 @@ public:
 	/*   Editor Settings      */
 	/* ---------------------- */
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool Invincible = false;
+
 	/* The health to start with */
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0))
 		int StartHealth = 100;

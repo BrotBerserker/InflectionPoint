@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "BaseCharacter.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "Animation/AnimInstance.h"
 #include "GameFramework/InputSettings.h"
 #include "Kismet/HeadMountedDisplayFunctionLibrary.h"
@@ -16,24 +17,23 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
-//////////////////////////////////////////////////////////////////////////
-// ABaseCharacter
-
 void ABaseCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(ABaseCharacter, CurrentAmmo);
+	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
 }
+
+//////////////////////////////////////////////////////////////////////////
+// ABaseCharacter
 
 ABaseCharacter::ABaseCharacter() {
 	// Set size for collision capsule
-	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
+	GetCapsuleComponent()->InitCapsuleSize(55.f, 89.f);
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
-	//FirstPersonCameraComponent->RelativeLocation = FVector(-39.56f, 1.75f, 64.f); 
-	FirstPersonCameraComponent->RelativeLocation = FVector(-20.5f, 1.75f, 41.f); // Position the camera
+	FirstPersonCameraComponent->RelativeLocation = FVector(-16.7f, -1.18f, 49.f); // Position the camera
 	FirstPersonCameraComponent->RelativeScale3D = FVector(0.4, 0.4, 0.4); // Scale of the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
@@ -43,37 +43,17 @@ ABaseCharacter::ABaseCharacter() {
 	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
 	Mesh1P->bCastDynamicShadow = false;
 	Mesh1P->CastShadow = false;
-	Mesh1P->RelativeLocation = FVector(3.09f, 0.61f, -160.7f);
+	Mesh1P->RelativeLocation = FVector(-10.6f, 0.81f, -125.7f);
 	Mesh1P->RelativeRotation = FRotator(1.9f, -19.19f, 5.2f);
-
-	// Create a gun mesh component
-	FP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FP_Gun"));
-	FP_Gun->SetOnlyOwnerSee(true);			// only the owning player will see this mesh
-	FP_Gun->bCastDynamicShadow = false;
-	FP_Gun->CastShadow = false;
-	// FP_Gun->SetupAttachment(Mesh1P, TEXT("GripPoint"));
-	FP_Gun->SetupAttachment(GetCapsuleComponent());
-	FP_Gun->RelativeScale3D = FVector(.4, .4, .4);
-
-	// MuzzleLocation, where shots will be spawned
-	FP_MuzzleLocation = CreateDefaultSubobject<USceneComponent>(TEXT("MuzzleLocation"));
-	FP_MuzzleLocation->SetupAttachment(FP_Gun);
-	/*FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 48.4f, -10.6f));*/
-	//FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 172.f, 11.f));
-	FP_MuzzleLocation->SetRelativeLocation(FVector(0.2f, 60.f, 11.f));
 
 	// Create the '3rd person' body mesh
 	Mesh3P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh3P"));
 	Mesh3P->SetupAttachment(GetCapsuleComponent());
 	Mesh3P->SetOwnerNoSee(true);
-	Mesh3P->RelativeLocation = FVector(0.f, 0.f, -97.f);
+	Mesh3P->RelativeLocation = FVector(3.8f, -2.93f, -89.f);
 	Mesh3P->RelativeRotation = FRotator(0.f, -90.f, 0.f);
 
-	// Create the '3rd person' gun mesh
-	TP_Gun = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TP_Gun"));
-	TP_Gun->SetOwnerNoSee(true);
-	//TP_Gun->SetupAttachment(Mesh3P, TEXT("GripPoint"));
-	TP_Gun->SetupAttachment(GetCapsuleComponent());
+	WeaponInventory = CreateDefaultSubobject<UWeaponInventory>(TEXT("WeaponInventory"));
 
 	// Initialize MortalityProvider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
@@ -92,13 +72,9 @@ void ABaseCharacter::BeginPlay() {
 	// Call the base class  
 	Super::BeginPlay();
 
-	//Attach gun mesh component to Skeleton, doing it here because the skeleton is not yet created in the constructor
-	FP_Gun->AttachToComponent(Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-
-	TP_Gun->AttachToComponent(Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
-
-	// Detaches MuzzleLocation from weapon to prevent the weapon animation from moving the MuzzleLocation
-	FP_MuzzleLocation->AttachToComponent(FirstPersonCameraComponent, FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+	if(HasAuthority()) {
+		EquipWeapon(WeaponInventory->GetNextWeapon(NULL));
+	}
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
@@ -107,13 +83,6 @@ void ABaseCharacter::BeginPlay() {
 	DynamicBodyMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
 	Mesh3P->SetMaterial(0, DynamicBodyMaterial);
 	Mesh1P->SetMaterial(0, DynamicBodyMaterial);
-
-	DynamicGunMaterial = UMaterialInstanceDynamic::Create(TP_Gun->GetMaterial(0), TP_Gun);
-	TP_Gun->SetMaterial(0, DynamicGunMaterial);
-
-	// Initialize ammo
-	CurrentAmmo = MaxAmmo;
-	OnAmmoChanged();
 }
 
 void ABaseCharacter::Restart() {
@@ -129,6 +98,18 @@ void ABaseCharacter::Tick(float DeltaTime) {
 		OnInitialized();
 		initialized = true;
 	}
+
+	UpdateFieldOfView(DeltaTime);
+}
+
+void ABaseCharacter::Destroyed() {
+	Super::Destroyed();
+	WeaponInventory->Destroy();
+}
+
+void ABaseCharacter::UpdateFieldOfView(float DeltaTime) {
+	float targetFoV = IsAiming ? 75.f : 90.f;
+	FirstPersonCameraComponent->SetFieldOfView(FMath::FInterpTo(FirstPersonCameraComponent->FieldOfView, targetFoV, DeltaTime, 14.f));
 }
 
 void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
@@ -160,7 +141,6 @@ void ABaseCharacter::ShowSpawnAnimation() {
 
 void ABaseCharacter::MaterializeCallback(float value) {
 	DynamicBodyMaterial->SetScalarParameterValue("Materialize Amount", value);
-	DynamicGunMaterial->SetScalarParameterValue("Materialize Amount", value);
 }
 
 void ABaseCharacter::MaterializeFinishCallback() {
@@ -171,8 +151,6 @@ void ABaseCharacter::MaterializeFinishCallback() {
 	dynamicMaterialWithoutMaterialize->SetVectorParameterValue("BodyColor", bodyColor);
 	Mesh3P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
 	Mesh1P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
-
-	TP_Gun->SetMaterial(0, GunMaterialAfterMaterialize);
 }
 
 void ABaseCharacter::MulticastShowSpawnAnimation_Implementation() {
@@ -190,25 +168,26 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 	return actualDamage;
 }
 
-void ABaseCharacter::Fire() {
+void ABaseCharacter::StartFire() {
 	DisableSprint();
-	ServerFireProjectile(ProjectileClass);
+	sprintAllowed = false;
+	ServerStartFire();
 }
 
-void ABaseCharacter::DebugFire() {
-	ServerFireProjectile(DebugProjectileClass);
-}
-
-bool ABaseCharacter::ServerFireProjectile_Validate(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
+bool ABaseCharacter::ServerStartFire_Validate() {
 	return true;
 }
 
-void ABaseCharacter::ServerFireProjectile_Implementation(TSubclassOf<class AInflectionPointProjectile> projectileClassToSpawn) {
+void ABaseCharacter::ServerStartFire_Implementation() {
 	DrawDebugArrow();
-	if(CurrentAmmo != 0 && UGameplayStatics::GetRealTimeSeconds(GetWorld()) - LastShotTimeStamp >= DelayBetweenShots) {
-		FireProjectile(projectileClassToSpawn);
-		LastShotTimeStamp = UGameplayStatics::GetRealTimeSeconds(GetWorld());
-	}
+	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+		return;
+	CurrentWeapon->StartFire();
+}
+
+void ABaseCharacter::StopFire() {
+	sprintAllowed = true;
+	ServerStopFire();
 }
 
 bool ABaseCharacter::ServerStopFire_Validate() {
@@ -216,36 +195,100 @@ bool ABaseCharacter::ServerStopFire_Validate() {
 }
 
 void ABaseCharacter::ServerStopFire_Implementation() {
-	StopFire();
+	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+		return;
+	CurrentWeapon->StopFire();
 }
 
-void ABaseCharacter::FireProjectile(TSubclassOf<AInflectionPointProjectile> &projectileClassToSpawn) {
-	// try and fire a projectile
-	if(projectileClassToSpawn != NULL) {
-		UWorld* const World = GetWorld();
-		if(AssertNotNull(World, GetWorld(), __FILE__, __LINE__)) {
-			//Set Spawn Collision Handling Override
-			FActorSpawnParameters ActorSpawnParams;
-			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-			ActorSpawnParams.Instigator = Instigator;
-			ActorSpawnParams.Owner = this;
+void ABaseCharacter::StartAiming() {
+	IsAiming = true;
+	ServerStartAiming();
+}
 
-			// spawn the projectile at the muzzle
-			AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(projectileClassToSpawn, GetProjectileSpawnLocation(), GetProjectileSpawnRotation(), ActorSpawnParams);
+bool ABaseCharacter::ServerStartAiming_Validate() {
+	return true;
+}
 
-			CurrentAmmo--;
+void ABaseCharacter::ServerStartAiming_Implementation() {
+	IsAiming = true;
+	MulticastStartAiming();
+}
 
-			MulticastProjectileFired();
-		}
+void ABaseCharacter::MulticastStartAiming_Implementation() {
+	IsAiming = true;
+}
+
+void ABaseCharacter::StopAiming() {
+	IsAiming = false;
+	ServerStopAiming();
+}
+
+bool ABaseCharacter::ServerStopAiming_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerStopAiming_Implementation() {
+	IsAiming = false;
+	MulticastStopAiming();
+}
+
+void ABaseCharacter::MulticastStopAiming_Implementation() {
+	IsAiming = false;
+}
+
+bool ABaseCharacter::ServerReload_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerReload_Implementation() {
+	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+		return;
+	CurrentWeapon->Reload();
+}
+
+bool ABaseCharacter::ServerEquipNextWeapon_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerEquipNextWeapon_Implementation() {
+	EquipWeapon(WeaponInventory->GetNextWeapon(CurrentWeapon), CurrentWeapon);
+}
+
+bool ABaseCharacter::ServerEquipPreviousWeapon_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {
+	EquipWeapon(WeaponInventory->GetPreviousWeapon(CurrentWeapon), CurrentWeapon);
+}
+
+
+bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {
+	return true;
+}
+
+void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(int index) {
+	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
+	if(newWeapon && CurrentWeapon != newWeapon)
+		EquipWeapon(newWeapon, CurrentWeapon);
+}
+
+void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
+	EquipWeapon(CurrentWeapon, OldWeapon);
+}
+
+void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {
+	CurrentWeapon = NewWeapon;
+
+	if(OldWeapon) {
+		OldWeapon->OnUnequip();
 	}
+
+	CurrentWeapon->OnEquip();
 }
 
-void ABaseCharacter::StopFire() {
-	// do nothing
-}
-
-void ABaseCharacter::DrawDebugArrow() {	
-	if(Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager) && 
+void ABaseCharacter::DrawDebugArrow() {
+	if(Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager) &&
 		Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager)->IsCharacterDebugArrowsEnabled) {
 		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
 		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
@@ -253,24 +296,6 @@ void ABaseCharacter::DrawDebugArrow() {
 		//DebugArrowColor.B
 		DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, DebugArrowColor.B, DebugArrowColor, true, -1, 0, 0.5f);
 	}
-}
-
-void ABaseCharacter::MulticastProjectileFired_Implementation() {
-	// try and play the sound if specified
-	if(FireSound != NULL) {
-		UGameplayStatics::SpawnSoundAttached(FireSound, GetCapsuleComponent());
-	}
-
-	// try and play a firing animation if specified
-	if(FireAnimation != NULL) {
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = Mesh1P->GetAnimInstance();
-		if(AnimInstance != NULL) {
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
-	}
-
-	OnAmmoChanged();
 }
 
 void ABaseCharacter::MulticastOnDeath_Implementation() {
@@ -293,7 +318,8 @@ void ABaseCharacter::ClientOnDeath_Implementation() {
 	Mesh3P->SetOwnerNoSee(false);
 	Mesh1P->SetVisibility(false, true);
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-200.f, 1.75f, 130.f));
-	AssertNotNull(GetController(), GetWorld(), __FILE__, __LINE__);
+	if(!AssertNotNull(GetController(), GetWorld(), __FILE__, __LINE__))
+		return;
 	FRotator rot = GetController()->GetControlRotation();
 	GetController()->SetControlRotation(FRotator(-30, rot.Yaw, rot.Roll));
 }
@@ -330,14 +356,6 @@ void ABaseCharacter::LookUpAtRate(float rate) {
 	MulticastUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
 }
 
-FRotator ABaseCharacter::GetProjectileSpawnRotation() {
-	return FirstPersonCameraComponent->GetComponentRotation();
-}
-
-FVector ABaseCharacter::GetProjectileSpawnLocation() {
-	return ((FP_MuzzleLocation != nullptr) ? FP_MuzzleLocation->GetComponentLocation() : GetActorLocation());
-}
-
 bool ABaseCharacter::ServerUpdateCameraPitch_Validate(float pitch) {
 	return true;
 }
@@ -367,14 +385,14 @@ void ABaseCharacter::DisableSprint() {
 }
 
 bool ABaseCharacter::ShouldStartSprinting(float ForwardMovement) {
-	return ForwardMovement > 0 && sprintEnabled && GetVelocity().Size() <= walkSpeed;
+	return sprintAllowed && sprintEnabled && ForwardMovement > 0 && GetVelocity().Size() <= walkSpeed;
 }
 
 bool ABaseCharacter::ShouldStopSprinting(float ForwardMovement) {
 	if(GetVelocity().Size() <= walkSpeed) {
 		return false;
 	}
-	return ForwardMovement <= 0 || !sprintEnabled;
+	return !sprintAllowed || !sprintEnabled || ForwardMovement <= 0;
 }
 
 void ABaseCharacter::StartSprinting() {

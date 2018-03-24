@@ -42,6 +42,11 @@ bool SoftAssertTrue(bool check, UWorld* world, FString file, int line, FString d
 	return false;
 }
 
+
+void DebugPrint(FString file, int line, FString description) {
+	UE_LOG(LogTemp, Error, TEXT("DebugPrint in file: %s at line: %d [%s]"), *file, line, *description);
+}
+
 CheckFunctions::CheckFunctions() {}
 
 CheckFunctions::~CheckFunctions() {}

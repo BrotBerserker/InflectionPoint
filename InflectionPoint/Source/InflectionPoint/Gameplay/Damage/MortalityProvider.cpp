@@ -22,7 +22,7 @@ void UMortalityProvider::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 }
 
 void UMortalityProvider::TakeDamage(float DamageAmount, AController * KillingPlayer, AActor * DamageCauser) {
-	if(CurrentHealth <= 0) {
+	if(CurrentHealth <= 0 || Invincible) {
 		return;
 	}
 
