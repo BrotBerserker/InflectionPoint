@@ -78,9 +78,25 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* ReloadAnimation3P;
 
-	/** AnimMontage to play on 1p weapon when reloading */
+	/** Animation to play on 1p weapon when reloading */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimationAsset* ReloadAnimationWeapon1P;
+
+	/** Idle Animation to play on 1p hands when aiming */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|Aiming")
+		class UAnimationAsset* AimAnimation1PIdle;
+
+	/** Walk Animation to play on 1p hands when aiming */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|Aiming")
+		class UAnimationAsset* AimAnimation1PWalk;
+
+	/** JumpStart Animation to play on 1p hands when aiming */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|Aiming")
+		class UAnimationAsset* AimAnimation1PJumpStart;
+
+	/** JumpEnd Animation to play on 1p hands when aiming */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|Aiming")
+		class UAnimationAsset* AimAnimation1PJumpEnd;
 
 	/** FX for muzzle flash */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
