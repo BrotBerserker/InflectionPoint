@@ -202,9 +202,7 @@ void ABaseCharacter::ServerStopFire_Implementation() {
 
 void ABaseCharacter::StartAiming() {
 	IsAiming = true;
-	if(!HasAuthority()) {
-		ServerStartAiming();
-	}
+	ServerStartAiming();
 }
 
 bool ABaseCharacter::ServerStartAiming_Validate() {
@@ -222,9 +220,7 @@ void ABaseCharacter::MulticastStartAiming_Implementation() {
 
 void ABaseCharacter::StopAiming() {
 	IsAiming = false;
-	if(!HasAuthority()) {
-		ServerStopAiming();
-	}
+	ServerStopAiming();
 }
 
 bool ABaseCharacter::ServerStopAiming_Validate() {
