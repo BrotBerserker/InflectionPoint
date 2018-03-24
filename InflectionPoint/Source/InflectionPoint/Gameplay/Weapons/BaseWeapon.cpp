@@ -119,31 +119,26 @@ void ABaseWeapon::Tick(float DeltaTime) {
 }
 
 void ABaseWeapon::StartFire() {
-	if(CurrentState == EWeaponState::IDLE) {
+	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
+		MulticastSpawnNoAmmoSound();
+	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
 		CurrentState = EWeaponState::FIRING;
 	}
 }
 
 void ABaseWeapon::Fire() {
-	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-		MulticastSpawnNoAmmoSound();
-	} else {
-		if(CurrentAmmo == 0)
-			return;
-
-		if(Recorder) {
-			IsReplaySimulatedFirePressed = true;
-			Recorder->ServerRecordKeyPressed("WeaponFired");
-		}
-		PreExecuteFire();
-		for(int i = 0; i < FireShotNum; i++)
-			ExecuteFire();
-		PostExecuteFire();
-		CurrentAmmoInClip--;
-		CurrentAmmo--;
-		ForceNetUpdate();
-		MulticastFireExecuted();
+	if(Recorder) {
+		IsReplaySimulatedFirePressed = true;
+		Recorder->ServerRecordKeyPressed("WeaponFired");
 	}
+	PreExecuteFire();
+	for(int i = 0; i < FireShotNum; i++)
+		ExecuteFire();
+	PostExecuteFire();
+	CurrentAmmoInClip--;
+	CurrentAmmo--;
+	ForceNetUpdate();
+	MulticastFireExecuted();
 	if(!AutoFire)
 		CurrentState = EWeaponState::IDLE;
 }
