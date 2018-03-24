@@ -195,11 +195,11 @@ public:
 	/* --------------- */
 
 	/** Starts firing the currently equipped weapon */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 		virtual void ServerStartFire();
 
 	/** Stops firing the currently equipped weapon */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 		virtual void ServerStopFire();
 
 	/** Starts aiming, which changes some animations and increases the weapon's precision */
