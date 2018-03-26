@@ -317,6 +317,10 @@ void ABaseCharacter::MulticastOnDeath_Implementation() {
 void ABaseCharacter::ClientOnDeath_Implementation() {
 	Mesh3P->SetOwnerNoSee(false);
 	Mesh1P->SetVisibility(false, true);
+	if(!AssertNotNull(GetController(), GetWorld(), __FILE__, __LINE__))
+		return;
+	FRotator rot = GetController()->GetControlRotation();
+	GetController()->SetControlRotation(FRotator(-30, rot.Yaw, rot.Roll));
 }
 
 void ABaseCharacter::MoveForward(float value) {
