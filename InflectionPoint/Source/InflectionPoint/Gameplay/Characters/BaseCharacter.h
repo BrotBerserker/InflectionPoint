@@ -243,7 +243,7 @@ public:
 	UFUNCTION(Unreliable, NetMulticast, BlueprintCallable)
 		void MulticastOnDeath();
 
-	/** Shows a death camera perspective */
+	/** Hides Mesh1P and shows Mesh3P for the death camera */
 	UFUNCTION(Unreliable, Client, BlueprintCallable)
 		void ClientOnDeath();
 
