@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
+#include "Blueprint/UserWidget.h"
 #include "BaseWeapon.generated.h"
 
 class ABaseCharacter;
@@ -145,6 +146,18 @@ public:
 	/** If true, the crosshair will be hidden when aiming with this weapon */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		bool HideCrosshairWhenAiming = true;
+
+	/** The FieldOfView when Aiming with the Weapon (for a zoom effect) */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
+		float AimFieldOfView = 75.f;
+
+	/** SWidget that gets displayed when aiming */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
+		TSubclassOf<UUserWidget> AimDisplayWidget;
+
+	/** Hides Weapon when aiming */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
+		bool HideWeaponWhenAiming = false;
 
 public:
 	/* ------------- */

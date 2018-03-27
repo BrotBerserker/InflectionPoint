@@ -108,7 +108,7 @@ void ABaseCharacter::Destroyed() {
 }
 
 void ABaseCharacter::UpdateFieldOfView(float DeltaTime) {
-	float targetFoV = IsAiming ? 75.f : 90.f;
+	float targetFoV = IsAiming && CurrentWeapon ? CurrentWeapon->AimFieldOfView : 90.f;
 	FirstPersonCameraComponent->SetFieldOfView(FMath::FInterpTo(FirstPersonCameraComponent->FieldOfView, targetFoV, DeltaTime, 14.f));
 }
 
@@ -202,6 +202,8 @@ void ABaseCharacter::ServerStopFire_Implementation() {
 
 void ABaseCharacter::StartAiming() {
 	IsAiming = true;
+	if(CurrentWeapon->HideWeaponWhenAiming)
+		CurrentWeapon->Mesh1P->SetVisibility(false,true);
 	ServerStartAiming();
 }
 
@@ -220,6 +222,8 @@ void ABaseCharacter::MulticastStartAiming_Implementation() {
 
 void ABaseCharacter::StopAiming() {
 	IsAiming = false;
+	if(CurrentWeapon->HideWeaponWhenAiming)
+		CurrentWeapon->Mesh1P->SetVisibility(true, true);
 	ServerStopAiming();
 }
 
