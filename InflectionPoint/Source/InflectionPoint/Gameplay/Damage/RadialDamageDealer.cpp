@@ -63,7 +63,7 @@ void URadialDamageDealer::DrawDebugTraceLine(FVector &start, FVector &end, FColo
 }
 
 
-TArray<AActor*> URadialDamageDealer::GetAllActorsInRange(const FVector& origin, float radius) {
+TMap<AActor*, TArray<UPrimitiveComponent*>> URadialDamageDealer::GetAllActorComponentsInRange(const FVector& origin, float radius) {
 	FCollisionQueryParams SphereParams(FName("ApplyRadialDamage"), false);
 
 	// query scene to see what we hit
@@ -72,41 +72,43 @@ TArray<AActor*> URadialDamageDealer::GetAllActorsInRange(const FVector& origin, 
 	World->OverlapMultiByObjectType(overlaps, origin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllObjects), FCollisionShape::MakeSphere(radius), SphereParams);
 	
 	// Convert to Actor Array
-	TArray<AActor*> actors;
+	TMap<AActor*, TArray<UPrimitiveComponent*>> overlapHits;
 	for(int32 i = 0; i < overlaps.Num(); ++i) {
-		if(overlaps[i].GetActor() && overlaps[i].GetActor()->bCanBeDamaged)
-			actors.Add(overlaps[i].GetActor());
+		if(overlaps[i].GetActor() && overlaps[i].GetActor()->bCanBeDamaged) {
+			TArray<UPrimitiveComponent*>& HitList = overlapHits.FindOrAdd(overlaps[i].GetActor());
+			HitList.Add(overlaps[i].Component.Get());
+		}
 	}	
-	return actors;
+	return overlapHits;
 }
 
-TArray<AActor*> URadialDamageDealer::GetHitableActorsInRange(const FVector& origin) {
-	TArray<AActor*> actorsInRange = GetAllActorsInRange(origin, DamageOuterRadius);
-	if(!DamageCanBeBlocked)
-		return actorsInRange;
+TMap<AActor*, TArray<FHitResult>> URadialDamageDealer::GetHitableActorsInRange(const FVector& origin) {
+	TMap<AActor*, TArray<UPrimitiveComponent*>> actorComponentsInRange = GetAllActorComponentsInRange(origin, DamageOuterRadius);
 
-	// See if Actors can be hit
-	TArray<AActor*> damagableActors;
-	for(int32 i = 0; i < actorsInRange.Num(); ++i) {
-		auto actorInRange = actorsInRange[i];
+	// See if Components of the Actor that are in range can be hit
+	TMap<AActor*, TArray<FHitResult>> damagableActors;
+	for(TMap<AActor*, TArray<UPrimitiveComponent*> >::TIterator It(actorComponentsInRange); It; ++It) {
+		AActor* const victim = It.Key();
+		TArray<UPrimitiveComponent*> const& components = It.Value();
 
-		if(CanHitActor(actorInRange, origin)) {
-			damagableActors.Add(actorInRange);
+		for(int32 i = 0; i < components.Num(); ++i) {
+			auto component = components[i];
+			auto hitResult = RaycastToComponent(component, origin);
+			if(WasRaycastBlocked(component, hitResult)) {
+				TArray<FHitResult>& HitList = damagableActors.FindOrAdd(victim);
+				HitList.Add(hitResult);
+			}
 		}
 	}
 	return damagableActors;
 }
 
 TArray<AActor*> URadialDamageDealer::ApplyRadialDamageWithFalloff(const FVector& origin, AController* instigatedByController) {
-	auto actors = GetHitableActorsInRange(origin);
-
-	if(actors.Num() <= 0)
-		return TArray<AActor*>();
-
-	return DealDamage(origin, actors, instigatedByController);
+	auto damagableActors = GetHitableActorsInRange(origin);
+	return DealDamage(origin, damagableActors, instigatedByController);
 }
 
-TArray<AActor*> URadialDamageDealer::DealDamage(const FVector & origin, TArray<AActor*> &actors, AController * instigatedByController) {
+TArray<AActor*> URadialDamageDealer::DealDamage(const FVector & origin, TMap<AActor*, TArray<FHitResult>>& damagableActors, AController * instigatedByController) {
 	TArray<AActor*> DamagedActorList = TArray<AActor*>();
 
 	FRadialDamageEvent DmgEvent;
@@ -115,9 +117,11 @@ TArray<AActor*> URadialDamageDealer::DealDamage(const FVector & origin, TArray<A
 	DmgEvent.Params = FRadialDamageParams(BaseDamage, MinimumDamage, DamageInnerRadius, DamageOuterRadius, Falloff);
 
 	// call damage function on each affected actors
-	for(int32 i = 0; i < actors.Num(); ++i) {
-		auto victim = actors[i];
+	for(TMap<AActor*, TArray<FHitResult> >::TIterator It(damagableActors); It; ++It) {
+		AActor* const victim = It.Key();
+		TArray<FHitResult> const& hitResults = It.Value();
 
+		DmgEvent.ComponentHits = hitResults;
 		float damage = victim->TakeDamage(BaseDamage, DmgEvent, instigatedByController, DamageCauser);
 		if(damage > 0)
 			DamagedActorList.Add(victim);
@@ -126,19 +130,27 @@ TArray<AActor*> URadialDamageDealer::DealDamage(const FVector & origin, TArray<A
 }
 
 
-bool URadialDamageDealer::CanHitActor(AActor* actor, FVector const& origin) {
-	auto victimComp = (UPrimitiveComponent*)actor->GetRootComponent();
+FHitResult URadialDamageDealer::RaycastToComponent(UPrimitiveComponent* victimComp, FVector const& origin) {
 	FCollisionQueryParams lineParams(FName("ComponentIsVisibleFrom"), true);
 	FVector traceEnd = victimComp->Bounds.Origin;
 	FVector traceStart = origin;
 
 	// tiny nudge so LineTraceSingle doesn't early out with no hits
-	if(traceEnd == traceStart) 
+	if(traceEnd == traceStart)
 		traceStart.Z += 0.01f;
-	
+
 	FHitResult hitResult;
 	bool traceBlocked = GetWorld()->LineTraceSingleByChannel(hitResult, traceStart, traceEnd, (ECollisionChannel)DamagePreventionChannel, lineParams);
-	bool canHitActor = !traceBlocked || hitResult.Component == victimComp || hitResult.Component->GetOwner() == actor;
-	DrawDebugTraceLine(traceStart, traceEnd, canHitActor ? FColor::Green : FColor::Red);
-	return canHitActor;
+	if(!traceBlocked) {
+		// didn't hit anything, assume nothing blocking the damage (creating a fake hit result)
+		FVector const fakeHitLoc = victimComp->GetComponentLocation();
+		FVector const fakeHitNorm = (origin - fakeHitLoc).GetSafeNormal();
+		hitResult = FHitResult(victimComp->GetOwner(), victimComp, fakeHitLoc, fakeHitNorm);
+	}
+	DrawDebugTraceLine(traceStart, traceEnd, WasRaycastBlocked(victimComp, hitResult) ? FColor::Green : FColor::Red);
+	return hitResult;
+}
+
+bool URadialDamageDealer::WasRaycastBlocked(UPrimitiveComponent* victimComp, FHitResult& hitResult) {	
+	return !hitResult.bBlockingHit || hitResult.Component == victimComp;
 }

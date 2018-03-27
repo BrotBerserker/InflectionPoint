@@ -80,12 +80,13 @@ private:
 	void DrawDebugSpheres(FVector &location);
 	void DrawDebugTraceLine(FVector &start, FVector &end, FColor color);
 
-	TArray<AActor*> GetAllActorsInRange(const FVector& origin, float radius);
-	TArray<AActor*> GetHitableActorsInRange(const FVector& origin);
+	TMap<AActor*, TArray<UPrimitiveComponent*>> GetAllActorComponentsInRange(const FVector& origin, float radius);
+	TMap<AActor*, TArray<FHitResult>> GetHitableActorsInRange(const FVector& origin);
 
 	TArray<AActor*> ApplyRadialDamageWithFalloff(const FVector& Origin, AController* InstigatedByController);
 
-	TArray<AActor*> DealDamage(const FVector & origin, TArray<AActor*> &actors, AController * instigatedByController);
+	TArray<AActor*> DealDamage(const FVector & origin, TMap<AActor*, TArray<FHitResult>>& damagableActors, AController * instigatedByController);
 
-	bool CanHitActor(AActor* actor, FVector const& origin);
+	FHitResult RaycastToComponent(UPrimitiveComponent* victimComp, FVector const& origin);
+	bool WasRaycastBlocked(UPrimitiveComponent* victimComp, FHitResult& hitResult);
 };
