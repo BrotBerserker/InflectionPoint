@@ -91,6 +91,9 @@ void AInflectionPointProjectile::MulticastSpawnHitEffect_Implementation() {
 	if(HitEffectClass == NULL)
 		return;
 
+	// avoid projectile getting destroyed by explosion
+	bCanBeDamaged = false;
+
 	//Set Spawn Collision Handling Override
 	FActorSpawnParameters ActorSpawnParams;
 	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;

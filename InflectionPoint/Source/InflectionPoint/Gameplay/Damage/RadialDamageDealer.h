@@ -50,6 +50,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = DamageConfig)
 		float Falloff = 1;
 
+	/** Weather the Damage can be blocked inside the Damage radius or not */
+	UPROPERTY(EditDefaultsOnly, Category = DamageConfig)
+		bool DamageCanBeBlocked = true;
+
 	/** Class that describes the damage that was done. */
 	UPROPERTY(EditDefaultsOnly, Category = DamageConfig)
 		TSubclassOf < class UDamageType > DamageTypeClass;
@@ -73,12 +77,15 @@ private:
 	UFUNCTION()
 		void ExecuteDealDamage(FVector location, APlayerControllerBase* controller);
 
-	void DrawDebugs(FVector &location);
-	TMap<AActor*, TArray<FHitResult>> GetActorsInRange(const FVector& origin);
+	void DrawDebugSpheres(FVector &location);
+	void DrawDebugTraceLine(FVector &start, FVector &end, FColor color);
+
+	TArray<AActor*> GetAllActorsInRange(const FVector& origin, float radius);
+	TArray<AActor*> GetHitableActorsInRange(const FVector& origin);
 
 	TArray<AActor*> ApplyRadialDamageWithFalloff(const FVector& Origin, AController* InstigatedByController);
 
-	TArray<AActor*>  DealDamage(const FVector& origin, TMap<AActor*,TArray<FHitResult>> &OverlapComponentMap, AController* instigatedByController);
+	TArray<AActor*> DealDamage(const FVector & origin, TArray<AActor*> &actors, AController * instigatedByController);
 
-	bool CanHitComponent(UPrimitiveComponent* VictimComp, FVector const& Origin, ECollisionChannel TraceChannel, FHitResult& OutHitResult);
+	bool CanHitActor(AActor* actor, FVector const& origin);
 };
