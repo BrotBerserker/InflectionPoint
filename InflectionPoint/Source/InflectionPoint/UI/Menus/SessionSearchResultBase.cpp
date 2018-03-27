@@ -27,6 +27,12 @@ int32 USessionSearchResultBase::GetConnectedPlayers() {
 	return currentPlayers;
 }
 
+FString USessionSearchResultBase::GetMapName() {
+	FString mapName;
+	OnlineSessionSearchResult.Session.SessionSettings.Get(SETTING_MAPNAME, mapName);
+	return mapName;
+}
+
 void USessionSearchResultBase::JoinOnlineGame() {
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
 

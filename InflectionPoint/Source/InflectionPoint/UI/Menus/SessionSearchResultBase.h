@@ -24,6 +24,9 @@ public:
 		void JoinOnlineGame();
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
+		FString GetMapName();
+
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
 		FString GetOnlineSessionName();
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
