@@ -6,7 +6,7 @@
 #include "Gameplay/Weapons/WeaponInventory.h"
 #include "Animation/AnimInstance.h"
 #include "GameFramework/InputSettings.h"
-#include "Kismet/HeadMountedDisplayFunctionLibrary.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "MotionControllerComponent.h"
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
@@ -147,7 +147,7 @@ void ABaseCharacter::MaterializeFinishCallback() {
 	// Switch to materials without materialize effect to save a lot of performance
 	UMaterialInstanceDynamic* dynamicMaterialWithoutMaterialize = UMaterialInstanceDynamic::Create(BodyMaterialAfterMaterialize, Mesh3P);
 	FLinearColor bodyColor;
-	DynamicBodyMaterial->GetVectorParameterValue("BodyColor", bodyColor);
+	DynamicBodyMaterial->GetVectorParameterValue(FMaterialParameterInfo("BodyColor"), bodyColor);
 	dynamicMaterialWithoutMaterialize->SetVectorParameterValue("BodyColor", bodyColor);
 	Mesh3P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
 	Mesh1P->SetMaterial(0, dynamicMaterialWithoutMaterialize);

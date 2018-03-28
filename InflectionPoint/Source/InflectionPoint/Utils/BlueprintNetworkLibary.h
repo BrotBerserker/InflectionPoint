@@ -9,29 +9,10 @@
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API UBlueprintNetworkLibary : public UBlueprintCore {
-	GENERATED_BODY()
-
-public:
-	/* ------------- */
-	/*   Functions   */
-	/* ------------- */ 
-
-	UBlueprintNetworkLibary();
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Networking")
-		void OnSessionDestroyed();
+class UBlueprintNetworkLibary : public UBlueprintFunctionLibrary {
+	GENERATED_UCLASS_BODY()
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
-		void LeaveMultiplayerGame(FName SessionName);
+		static void LeaveMultiplayerGame(FName SessionName);
 
-private:
-
-	/** Delegate for destroying a session */
-	FOnDestroySessionCompleteDelegate OnDestroySessionCompleteDelegate;
-
-	/** Handle to registered delegate for destroying a session */
-	FDelegateHandle OnDestroySessionCompleteDelegateHandle;
-
-	void OnDestroySessionComplete(FName SessionName, bool bWasSuccessful);
 };

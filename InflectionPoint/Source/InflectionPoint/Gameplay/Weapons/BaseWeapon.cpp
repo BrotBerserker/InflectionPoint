@@ -65,7 +65,8 @@ void ABaseWeapon::BeginPlay() {
 	if(!AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__))
 		return;
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
-	ReattachMuzzleLocation();
+	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
+	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.5f, false);
 }
 
 void ABaseWeapon::OnRep_Instigator() {

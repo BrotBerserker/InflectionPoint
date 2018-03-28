@@ -174,7 +174,8 @@ public:
 	void OnRep_Instigator() override;
 
 	/** Reattach MuzzleLocation from weapon to camera to prevent the weapon animation from moving the MuzzleLocation */
-	void ReattachMuzzleLocation();
+	UFUNCTION()
+		void ReattachMuzzleLocation();
 
 	/** Executes behaviour depending on the current state */
 	virtual void Tick(float DeltaTime) override;

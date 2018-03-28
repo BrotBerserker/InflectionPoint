@@ -14,6 +14,9 @@ class INFLECTIONPOINT_API ATDMPlayerStateBase : public APlayerState {
 	GENERATED_BODY()
 
 public:
+
+	ATDMPlayerStateBase();
+
 	void GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const;
 
 public:
@@ -38,5 +41,14 @@ public:
 		int TeamKills = 0;
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		bool IsAlive = 1;
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		FString ReplicatedPlayerName;
+
+public:
+
+	virtual void SetPlayerName(const FString& S) override;
+
+	virtual FString GetPlayerNameCustom() const override;
 
 };

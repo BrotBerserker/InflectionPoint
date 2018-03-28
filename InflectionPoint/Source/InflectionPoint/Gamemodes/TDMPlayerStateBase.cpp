@@ -3,13 +3,14 @@
 #include "InflectionPoint.h"
 #include "TDMPlayerStateBase.h"
 
-
+ATDMPlayerStateBase::ATDMPlayerStateBase() {
+	bUseCustomPlayerNames = true;
+}
 
 
 void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	DOREPLIFETIME(ATDMPlayerStateBase, Team);
 	DOREPLIFETIME(ATDMPlayerStateBase, PlayerStartGroup);
-	DOREPLIFETIME(ATDMPlayerStateBase, PlayerName);
 	DOREPLIFETIME(ATDMPlayerStateBase, PlayerKills);
 	DOREPLIFETIME(ATDMPlayerStateBase, ReplayKills);
 	DOREPLIFETIME(ATDMPlayerStateBase, Deaths);
@@ -17,6 +18,7 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ATDMPlayerStateBase, Score);
 	DOREPLIFETIME(ATDMPlayerStateBase, IsAlive);
 	DOREPLIFETIME(ATDMPlayerStateBase, Ping);
+	DOREPLIFETIME(ATDMPlayerStateBase, ReplicatedPlayerName);
 }
 
 void ATDMPlayerStateBase::ResetScore() {
@@ -26,4 +28,13 @@ void ATDMPlayerStateBase::ResetScore() {
 	TeamKills = 0;
 	Score = 0;
 	IsAlive = 1;
+}
+
+void ATDMPlayerStateBase::SetPlayerName(const FString& S) {
+	Super::SetPlayerName(S);
+	ReplicatedPlayerName = S;
+}
+
+FString ATDMPlayerStateBase::GetPlayerNameCustom() const {
+	return ReplicatedPlayerName;
 }

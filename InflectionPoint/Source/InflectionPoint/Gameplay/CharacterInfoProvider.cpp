@@ -23,5 +23,5 @@ FCharacterInfo UCharacterInfoProvider::GetCharacterInfo() {
 		return FCharacterInfo();
 	}
 	ATDMPlayerStateBase* tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerState);
-	return FCharacterInfo(tdmPlayerState->PlayerName, tdmPlayerState->Team, IsReplay);
+	return FCharacterInfo(tdmPlayerState->GetPlayerName(), tdmPlayerState->Team, IsReplay);
 }

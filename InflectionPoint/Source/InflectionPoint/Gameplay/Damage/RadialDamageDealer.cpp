@@ -68,7 +68,7 @@ TMap<AActor*, TArray<UPrimitiveComponent*>> URadialDamageDealer::GetAllActorComp
 
 	// query scene to see what we hit
 	TArray<FOverlapResult> overlaps;
-	UWorld* World = GEngine->GetWorldFromContextObject(GetWorld());
+	UWorld* World = GEngine->GetWorldFromContextObjectChecked(GetWorld());
 	World->OverlapMultiByObjectType(overlaps, origin, FQuat::Identity, FCollisionObjectQueryParams(FCollisionObjectQueryParams::InitType::AllObjects), FCollisionShape::MakeSphere(radius), SphereParams);
 	
 	// Convert to Actor Array
