@@ -16,7 +16,7 @@ bool APlayerCharacterBase::IsReadyForInitialization() {
 
 void APlayerCharacterBase::Initialize() {
 	ApplyPlayerColor(Cast<ATDMPlayerStateBase>(PlayerState));
-	ShowSpawnAnimation();
+	//ShowSpawnAnimation();
 }
 
 

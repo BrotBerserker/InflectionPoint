@@ -77,6 +77,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		FColor DebugArrowColor;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Material)
+		FName TeamColorMaterialParameterName = FName("BodyMetalColor");
+
 public:
 	/* Fired when this character receives damage from a certain direction */
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")

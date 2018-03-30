@@ -79,10 +79,10 @@ void ABaseCharacter::BeginPlay() {
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
 
-	// Create dynamic materials for materialize animation
-	DynamicBodyMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
-	Mesh3P->SetMaterial(0, DynamicBodyMaterial);
-	Mesh1P->SetMaterial(0, DynamicBodyMaterial);
+	//// Create dynamic materials for materialize animation
+	//DynamicBodyMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
+	//Mesh3P->SetMaterial(0, DynamicBodyMaterial);
+	//Mesh1P->SetMaterial(0, DynamicBodyMaterial);
 }
 
 void ABaseCharacter::Restart() {
@@ -116,7 +116,25 @@ void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
 	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__, TEXT("GameState is null!"));
 
-	DynamicBodyMaterial->SetVectorParameterValue("BodyColor", gameState->TeamColors[playerState->Team]);
+	//DynamicBodyMaterial->SetVectorParameterValue("BodyMetalColor", gameState->TeamColors[playerState->Team]);
+	auto bodyMetalColor = gameState->TeamColors[playerState->Team];
+	auto linBodyMetalColor = FLinearColor(gameState->TeamColors[playerState->Team]);
+	for(int i = 0; i < Mesh3P->GetMaterials().Num(); i++) {
+		bool check = Mesh3P->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, linBodyMetalColor);
+		if(!check)
+			continue;
+		UMaterialInstanceDynamic* dynamic = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(i), Mesh3P);
+		dynamic->SetVectorParameterValue(TeamColorMaterialParameterName, bodyMetalColor);
+		Mesh3P->SetMaterial(i, dynamic);
+	}
+	for(int i = 0; i < Mesh1P->GetMaterials().Num(); i++) {
+		bool check = Mesh1P->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, linBodyMetalColor);
+		if(!check)
+			continue;
+		UMaterialInstanceDynamic* dynamic = UMaterialInstanceDynamic::Create(Mesh1P->GetMaterial(i), Mesh1P);
+		dynamic->SetVectorParameterValue(TeamColorMaterialParameterName, bodyMetalColor);
+		Mesh1P->SetMaterial(i, dynamic);
+	}
 }
 
 void ABaseCharacter::MulticastApplyPlayerColor_Implementation(ATDMPlayerStateBase* playerState) {
@@ -124,7 +142,8 @@ void ABaseCharacter::MulticastApplyPlayerColor_Implementation(ATDMPlayerStateBas
 }
 
 void ABaseCharacter::ShowSpawnAnimation() {
-	AssertNotNull(MaterializeCurve, GetWorld(), __FILE__, __LINE__, TEXT("No materialize curve has been set!"));
+	if(!SoftAssertTrue(MaterializeCurve != nullptr, GetWorld(), __FILE__, __LINE__, TEXT("No materialize curve has been set!")))
+		return;
 
 	// add curve to timeline
 	FOnTimelineFloat callback{};
