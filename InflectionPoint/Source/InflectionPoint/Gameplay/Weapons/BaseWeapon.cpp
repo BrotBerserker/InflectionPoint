@@ -74,7 +74,8 @@ void ABaseWeapon::OnRep_Instigator() {
 	if(!AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__))
 		return;
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
-	ReattachMuzzleLocation();
+	//ReattachMuzzleLocation();
+	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.5f, false);
 }
 
 void ABaseWeapon::ReattachMuzzleLocation() {
