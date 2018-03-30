@@ -133,6 +133,9 @@ void ABaseWeapon::Fire() {
 		IsReplaySimulatedFirePressed = true;
 		Recorder->ServerRecordKeyPressed("WeaponFired");
 	}
+	if(CurrentAmmoInClip <= 0) {
+		return;
+	}
 	PreExecuteFire();
 	for(int i = 0; i < FireShotNum; i++)
 		ExecuteFire();
