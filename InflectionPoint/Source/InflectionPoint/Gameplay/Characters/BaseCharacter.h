@@ -240,11 +240,11 @@ public:
 		void ServerStopSprinting();
 
 	/** Plays a death animation, disables input and collisions */
-	UFUNCTION(Unreliable, NetMulticast, BlueprintCallable)
+	UFUNCTION(Reliable, NetMulticast, BlueprintCallable)
 		void MulticastOnDeath();
 
 	/** Hides Mesh1P and shows Mesh3P for the death camera */
-	UFUNCTION(Unreliable, Client, BlueprintCallable)
+	UFUNCTION(Reliable, Client, BlueprintCallable)
 		void ClientOnDeath();
 
 	/** Updates the Camera pitch rotation on Server */
