@@ -191,6 +191,8 @@ public:
 	/** Draws an arrow indicating the current position and camera direction */
 	void DrawDebugArrow();
 
+	UFUNCTION(BlueprintCallable)
+		bool IsAReplay();
 
 public:
 	/* --------------- */

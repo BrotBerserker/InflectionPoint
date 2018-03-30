@@ -2,6 +2,7 @@
 
 #include "InflectionPoint.h"
 #include "BaseCharacter.h"
+#include "Gameplay/Characters/ReplayCharacterBase.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
 #include "Gameplay/Weapons/WeaponInventory.h"
 #include "Animation/AnimInstance.h"
@@ -112,13 +113,17 @@ void ABaseCharacter::UpdateFieldOfView(float DeltaTime) {
 	FirstPersonCameraComponent->SetFieldOfView(FMath::FInterpTo(FirstPersonCameraComponent->FieldOfView, targetFoV, DeltaTime, 14.f));
 }
 
+bool ABaseCharacter::IsAReplay() {
+	return this->IsA(AReplayCharacterBase::StaticClass());
+}
+
 void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
 	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__, TEXT("GameState is null!"));
 
 	//DynamicBodyMaterial->SetVectorParameterValue("BodyMetalColor", gameState->TeamColors[playerState->Team]);
-	auto bodyMetalColor = gameState->TeamColors[playerState->Team];
-	auto linBodyMetalColor = FLinearColor(gameState->TeamColors[playerState->Team]);
+	auto bodyMetalColor = IsAReplay() ? gameState->ReplayTeamColors[playerState->Team] : gameState->TeamColors[playerState->Team];
+	auto linBodyMetalColor = FLinearColor();
 	for(int i = 0; i < Mesh3P->GetMaterials().Num(); i++) {
 		bool check = Mesh3P->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, linBodyMetalColor);
 		if(!check)

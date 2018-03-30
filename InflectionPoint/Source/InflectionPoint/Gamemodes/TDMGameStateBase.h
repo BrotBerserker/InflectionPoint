@@ -23,6 +23,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<FColor> TeamColors;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<FColor> ReplayTeamColors;
+
 public:
 	/** Needed for replication */
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
