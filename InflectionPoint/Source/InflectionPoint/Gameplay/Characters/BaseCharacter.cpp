@@ -145,6 +145,9 @@ void ABaseCharacter::MaterializeCallback(float value) {
 
 void ABaseCharacter::MaterializeFinishCallback() {
 	// Switch to materials without materialize effect to save a lot of performance
+	if(!BodyMaterialAfterMaterialize) {
+		return;
+	}
 	UMaterialInstanceDynamic* dynamicMaterialWithoutMaterialize = UMaterialInstanceDynamic::Create(BodyMaterialAfterMaterialize, Mesh3P);
 	FLinearColor bodyColor;
 	DynamicBodyMaterial->GetVectorParameterValue(FMaterialParameterInfo("BodyColor"), bodyColor);
