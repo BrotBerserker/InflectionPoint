@@ -25,7 +25,7 @@ void UJoinMenuBase::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName Se
 	if(Sessions.IsValid() && UserId.IsValid()) {
 		SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		SessionSearch->bIsLanQuery = bIsLAN;
-		SessionSearch->MaxSearchResults = 20;
+		SessionSearch->MaxSearchResults = 9001;
 		SessionSearch->PingBucketSize = 50;
 
 		if(bIsPresence) {
