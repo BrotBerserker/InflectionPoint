@@ -26,22 +26,23 @@ void URadialDamageDealer::DealDamage() {
 	if(!GetOwner()->HasAuthority())
 		return;
 
-	auto controller = Cast<APlayerControllerBase>(GetOwner()->GetInstigatorController());
+	auto controller = GetOwner()->GetInstigatorController();
 	auto location = GetOwner()->GetActorLocation();
 	StartTimer(this, GetWorld(), "ExecuteDealDamage", 0.001f + DamageDealDelay, false, location, controller);
 }
 
 
-void URadialDamageDealer::ExecuteDealDamage(FVector location, APlayerControllerBase* controller) {
+void URadialDamageDealer::ExecuteDealDamage(FVector location, AController* controller) {
 	DrawDebugSpheres(location);
 
 	// Apply the Damage
 	auto damagedActors = ApplyRadialDamageWithFalloff(location, controller);
 
 	// Show hitmarker if a character was hit
-	for(int i = 0; i < damagedActors.Num() && controller; ++i) {
+	auto playerController = Cast<APlayerControllerBase>(controller);
+	for(int i = 0; i < damagedActors.Num() && playerController; ++i) {
 		if(damagedActors[i]->IsA(ABaseCharacter::StaticClass())) {
-			controller->DamageDealt();
+			playerController->DamageDealt();
 			return; // show damageDealt only once
 		}
 	}

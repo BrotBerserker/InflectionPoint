@@ -75,7 +75,7 @@ public:
 
 private:
 	UFUNCTION()
-		void ExecuteDealDamage(FVector location, APlayerControllerBase* controller);
+		void ExecuteDealDamage(FVector location, AController* controller);
 
 	void DrawDebugSpheres(FVector &location);
 	void DrawDebugTraceLine(FVector &start, FVector &end, FColor color);
