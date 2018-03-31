@@ -62,11 +62,11 @@ void AInstantWeapon::DealDamage(const FHitResult hitResult,const FVector& ShootD
 	PointDmg.ShotDirection = ShootDir;
 	PointDmg.Damage = Damage;
 
-	hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
-
 	// to notify a controller if a character was damaged
 	if(hitResult.Actor.Get()->IsA(ABaseCharacter::StaticClass()))
 		damageWasDealt = true;
+
+	hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
 }
 
 void AInstantWeapon::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {
