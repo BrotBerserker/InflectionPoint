@@ -99,7 +99,6 @@ void ATDMGameModeBase::StartNextRound() {
 void ATDMGameModeBase::StartSpawnCinematics() {
 	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
 	if(!levelScript) {
-		SoftAssertTrue(false, GetWorld(), __FILE__, __LINE__, "Could not play SpawnCinematic");
 		return;
 	}
 	levelScript->MulticastStartSpawnCinematic();
