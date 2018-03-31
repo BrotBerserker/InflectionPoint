@@ -2,6 +2,8 @@
 
 #include "InflectionPoint.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
+#include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Characters/ReplayCharacterBase.h"
 #include "CharacterInfoProvider.h"
 
 
@@ -14,7 +16,6 @@ void UCharacterInfoProvider::GetLifetimeReplicatedProps(TArray< FLifetimePropert
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(UCharacterInfoProvider, PlayerState);
-	DOREPLIFETIME(UCharacterInfoProvider, IsReplay);
 }
 
 FCharacterInfo UCharacterInfoProvider::GetCharacterInfo() {
@@ -23,5 +24,11 @@ FCharacterInfo UCharacterInfoProvider::GetCharacterInfo() {
 		return FCharacterInfo();
 	}
 	ATDMPlayerStateBase* tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerState);
-	return FCharacterInfo(tdmPlayerState->GetPlayerName(), tdmPlayerState->Team, IsReplay);
+	AReplayCharacterBase* owner = Cast<AReplayCharacterBase>(GetOwner());
+	return FCharacterInfo(tdmPlayerState->GetPlayerName(), tdmPlayerState->Team, IsAReplay(), owner ? owner->ReplayIndex : -1);
+}
+
+bool UCharacterInfoProvider::IsAReplay() {
+	ABaseCharacter* owner = Cast<ABaseCharacter>(GetOwner());
+	return owner->IsAReplay();
 }

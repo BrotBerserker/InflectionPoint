@@ -19,13 +19,18 @@ struct FCharacterInfo {
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool IsReplay = false;
 
+	// -1 if is no replay (to tell the diference between replays)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int ReplayIndex = -1;
+
 	FCharacterInfo() {
 	}
 
-	FCharacterInfo(FString playerName, int team, bool isReplay) {
+	FCharacterInfo(FString playerName, int team, bool isReplay, int replayIndex = -1) {
 		PlayerName = playerName;
 		Team = team;
 		IsReplay = isReplay;
+		ReplayIndex = replayIndex;
 	}
 
 };
@@ -39,13 +44,12 @@ public:
 
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty> & OutLifetimeProps) const;
 
-
-	UPROPERTY(BlueprintReadOnly, Replicated)
-		bool IsReplay = false;
-
 	UPROPERTY(BlueprintReadOnly, Replicated)
 		APlayerState* PlayerState;
 
 	UFUNCTION(BlueprintCallable)
 		FCharacterInfo GetCharacterInfo();
+
+	UFUNCTION(BlueprintCallable)
+		bool IsAReplay();
 };

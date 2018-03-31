@@ -6,6 +6,12 @@
 #include "Utils/TimerFunctions.h"
 
 
+void AReplayCharacterBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AReplayCharacterBase, ReplayIndex);
+}
+
 // Sets default values for this component's properties
 AReplayCharacterBase::AReplayCharacterBase() {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features

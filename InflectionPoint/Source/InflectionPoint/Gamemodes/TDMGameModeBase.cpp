@@ -256,7 +256,7 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(APlayerControllerBase* playerContro
 	// Start Replay on spawned ReplayCharacter
 	if(PlayerRecordings[playerController].Contains(round))
 		character->SetReplayData(PlayerRecordings[playerController][round]);
-
+	character->ReplayIndex = round;
 	Cast<AAIControllerBase>(character->GetController())->Initialize(playerController);
 }
 

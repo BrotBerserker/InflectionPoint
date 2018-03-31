@@ -21,10 +21,10 @@ float UTDMScoreHandler::GetKillerScoreChange(AController * KilledPlayer, AContro
 	if(IsTeamKill(killedInfo, killerInfo)) {
 		return ScorePointsForTeamKill;
 	} else {
-		if(!killedInfo->IsReplay)
+		if(!killedInfo->IsAReplay())
 			return ScorePointsForPlayerKill;
 
-		if(killedInfo->IsReplay)
+		if(killedInfo->IsAReplay())
 			return ScorePointsForReplayKill;
 	}
 	return 0;
@@ -68,10 +68,10 @@ void UTDMScoreHandler::UpdateKillDeathNumbers(AController * KilledPlayer, AContr
 	if(IsTeamKill(killedInfo, killerInfo)) {
 		killerState->TeamKills++;
 	} else {
-		if(!killedInfo->IsReplay)
+		if(!killedInfo->IsAReplay())
 			killerState->PlayerKills++;
 
-		if(killedInfo->IsReplay)
+		if(killedInfo->IsAReplay())
 			killerState->ReplayKills++;
 	}
 }

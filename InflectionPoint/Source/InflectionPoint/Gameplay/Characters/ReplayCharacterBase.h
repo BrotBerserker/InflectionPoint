@@ -94,6 +94,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		bool CorrectPositions = true;
 
+	// Index of the Replay (to tell the diference between the replays of a player)
+	UPROPERTY(BlueprintReadWrite, Replicated)
+		int ReplayIndex = -1;
 private:
 
 	TArray<FRecordedPlayerState> recordData;

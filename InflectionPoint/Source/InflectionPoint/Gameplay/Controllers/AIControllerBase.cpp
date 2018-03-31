@@ -19,5 +19,4 @@ void AAIControllerBase::Initialize(APlayerController* OwningController) {
 	UCharacterInfoProvider* provider = GetCharacter()->FindComponentByClass<UCharacterInfoProvider>();
 	AssertNotNull(provider, GetWorld(), __FILE__, __LINE__);
 	provider->PlayerState = OwningPlayerController->PlayerState;
-	provider->IsReplay = true;
 }
