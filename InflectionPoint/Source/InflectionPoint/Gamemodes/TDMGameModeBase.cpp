@@ -236,7 +236,7 @@ void ATDMGameModeBase::SpawnAndPossessPlayer(APlayerControllerBase * playerContr
 	AActor* spawnPoint = FindSpawnForPlayer(playerController, GetGameState()->CurrentRound);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__);
 
-	auto character = SpawnCharacter<APlayerCharacterBase>(DefaultPawnClass.Get(), playerController, spawnPoint);
+	auto character = SpawnCharacter<APlayerCharacterBase>(PlayerCharacters[GetTeam(playerController)], playerController, spawnPoint);
 	AssertNotNull(character, GetWorld(), __FILE__, __LINE__);
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
@@ -248,8 +248,8 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(APlayerControllerBase* playerContro
 	AssertTrue(PlayerRecordings.Contains(playerController), GetWorld(), __FILE__, __LINE__, "Could not find replay");
 	auto spawnPoint = FindSpawnForPlayer(playerController, round);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
-	auto character = SpawnCharacter<AReplayCharacterBase>(ReplayCharacter, playerController, spawnPoint);
-
+	
+	auto character = SpawnCharacter<AReplayCharacterBase>(ReplayCharacters[GetTeam(playerController)], playerController, spawnPoint);
 	AssertNotNull(character, GetWorld(), __FILE__, __LINE__);
 	AssertTrue(PlayerRecordings[playerController].Contains(round), GetWorld(), __FILE__, __LINE__, "Could not find replay");
 
@@ -258,6 +258,12 @@ void ATDMGameModeBase::SpawnAndPrepareReplay(APlayerControllerBase* playerContro
 		character->SetReplayData(PlayerRecordings[playerController][round]);
 	character->ReplayIndex = round;
 	Cast<AAIControllerBase>(character->GetController())->Initialize(playerController);
+}
+
+int ATDMGameModeBase::GetTeam(APlayerControllerBase* playerController) {
+	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	return playerState->Team;
 }
 
 void ATDMGameModeBase::StartReplays() {

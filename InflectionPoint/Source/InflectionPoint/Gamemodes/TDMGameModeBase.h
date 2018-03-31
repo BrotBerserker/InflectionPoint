@@ -89,10 +89,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float RoundEndDelay = 2.0f;
 
+	/** Characters to use for Players */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		TArray<class UClass*> PlayerCharacters;
+
 	/** Character to use as Replays */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
-		class UClass* ReplayCharacter;
-
+		TArray<class UClass*> ReplayCharacters;
 
 	/** MaxPlayers is set to this value when playing in editor or offline */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
@@ -124,6 +127,8 @@ private:
 	bool IsWinnerFound();
 	TArray<int> GetTeamsAlive();
 	bool IsPlayerAlive(APlayerControllerBase* playerController);
+
+	int GetTeam(APlayerControllerBase* playerController);
 
 	/** Spawning */
 	void AssignTeamsAndPlayerStartGroups();
