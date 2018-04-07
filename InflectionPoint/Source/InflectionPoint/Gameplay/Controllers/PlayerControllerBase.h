@@ -4,6 +4,8 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 #include "PlayerControllerBase.generated.h"
 
 /**
@@ -54,6 +56,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void SpectatedCharacterSwitched(ABaseCharacter* newCharacter, FCharacterInfo newCharacterInfo);
 	
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnStartAiming(ABaseWeapon* weapon);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnStopAiming(ABaseWeapon* weapon);
+public:
+	UPROPERTY(BlueprintReadWrite, Replicated)
+		ABaseCharacter* SpectatingCharacter;
 
 private:
 	/** Searches the given array for an actor that can be spectated. If one is found, switches the camera to spectate him and returns true */

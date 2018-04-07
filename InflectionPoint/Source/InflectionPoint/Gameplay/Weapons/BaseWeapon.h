@@ -198,6 +198,12 @@ public:
 	/** Called after ExecuteFire*/
 	virtual void PostExecuteFire();
 
+	/** Notify Weapon that it is aiming  */
+	virtual void StartAiming();
+
+	/** Notify Weapon that it is not aiming anymore */
+	virtual void StopAiming();
+
 	/** Plays the reload animation (only if the weapon doesn't have max ammo) */
 	UFUNCTION()
 		virtual void Reload();

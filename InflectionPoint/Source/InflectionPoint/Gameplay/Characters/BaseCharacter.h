@@ -4,6 +4,7 @@
 #include "Gamemodes/TDMPlayerStateBase.h"
 #include "Gameplay/CharacterInfoProvider.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
+#include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -194,6 +195,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool IsAReplay();
 
+	/** If this Character is alive or not */
+	UFUNCTION(BlueprintCallable)
+		bool IsAlive();
 public:
 	/* --------------- */
 	/*  RPC Functions  */
@@ -271,7 +275,6 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 		bool IsAiming = false;
-
 private:
 	void UpdateFieldOfView(float DeltaTime);
 

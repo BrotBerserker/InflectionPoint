@@ -7,6 +7,12 @@
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "PlayerControllerBase.h"
 
+void APlayerControllerBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(APlayerControllerBase, SpectatingCharacter);
+}
+
 APlayerControllerBase::APlayerControllerBase(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer) {
 	CheatClass = UInflectionPointCheatManager::StaticClass();
@@ -18,7 +24,7 @@ void APlayerControllerBase::BeginPlay() {
 
 void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
-
+	SpectatingCharacter = nullptr;
 	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
 	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->PlayerState;
 }
@@ -100,7 +106,9 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 			continue;
 		}
 
+		//UnPossess();
 		SetViewTargetWithBlend(otherCharacter, 0.3f);
+		SpectatingCharacter = otherCharacter;
 		SpectatedCharacterSwitched(otherCharacter, infoProvider->GetCharacterInfo());
 		return true;
 	}

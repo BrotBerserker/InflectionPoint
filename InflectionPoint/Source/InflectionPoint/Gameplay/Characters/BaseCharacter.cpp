@@ -229,8 +229,10 @@ void ABaseCharacter::ServerStopFire_Implementation() {
 
 void ABaseCharacter::StartAiming() {
 	IsAiming = true;
-	if(CurrentWeapon->HideWeaponWhenAiming)
-		CurrentWeapon->Mesh1P->SetVisibility(false,true);
+	CurrentWeapon->StartAiming();
+	auto controller = Cast<APlayerControllerBase>(GetController());
+	if(controller)
+		controller->OnStartAiming(CurrentWeapon);
 	ServerStartAiming();
 }
 
@@ -245,12 +247,19 @@ void ABaseCharacter::ServerStartAiming_Implementation() {
 
 void ABaseCharacter::MulticastStartAiming_Implementation() {
 	IsAiming = true;
+	CurrentWeapon->StartAiming();
+	auto controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());		
+	if(controller && controller->SpectatingCharacter == this) {
+		controller->OnStartAiming(CurrentWeapon);
+	}
 }
 
 void ABaseCharacter::StopAiming() {
 	IsAiming = false;
-	if(CurrentWeapon->HideWeaponWhenAiming)
-		CurrentWeapon->Mesh1P->SetVisibility(true, true);
+	CurrentWeapon->StopAiming();
+	auto controller = Cast<APlayerControllerBase>(GetController());
+	if(controller)
+		controller->OnStopAiming(CurrentWeapon);
 	ServerStopAiming();
 }
 
@@ -265,6 +274,10 @@ void ABaseCharacter::ServerStopAiming_Implementation() {
 
 void ABaseCharacter::MulticastStopAiming_Implementation() {
 	IsAiming = false;
+	CurrentWeapon->StopAiming();
+	auto controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
+	if(controller && controller->SpectatingCharacter == this)
+		controller->OnStopAiming(CurrentWeapon);
 }
 
 bool ABaseCharacter::ServerReload_Validate() {
@@ -449,3 +462,6 @@ void ABaseCharacter::ServerStopSprinting_Implementation() {
 	StopSprinting();
 }
 
+bool ABaseCharacter::IsAlive() {
+	return MortalityProvider && MortalityProvider->IsAlive();
+}

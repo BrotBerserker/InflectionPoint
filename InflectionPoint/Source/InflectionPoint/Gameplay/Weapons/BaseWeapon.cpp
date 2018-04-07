@@ -300,5 +300,15 @@ FVector ABaseWeapon::GetTPMuzzleLocation() {
 	return TP_MuzzleLocation->GetComponentLocation();
 }
 
+void ABaseWeapon::StartAiming() {
+	if(HideWeaponWhenAiming)
+		Mesh1P->SetVisibility(false, true);
+}
+
+void ABaseWeapon::StopAiming() {
+	if(HideWeaponWhenAiming)
+		Mesh1P->SetVisibility(true, true);
+}
+
 void ABaseWeapon::PreExecuteFire() {}
 void ABaseWeapon::PostExecuteFire() {}
