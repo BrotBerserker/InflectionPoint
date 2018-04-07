@@ -190,7 +190,7 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 	if(EventInstigator && EventInstigator->GetCharacter()) {
 		FVector directionVector = (EventInstigator->GetCharacter()->GetActorLocation() - GetActorLocation());
 		directionVector.Normalize();
-		OnDirectionalDamageReceived(directionVector, actualDamage);
+		OnDirectionalDamageReceived(directionVector, actualDamage, DamageEvent.DamageTypeClass);
 	}
 	return actualDamage;
 }

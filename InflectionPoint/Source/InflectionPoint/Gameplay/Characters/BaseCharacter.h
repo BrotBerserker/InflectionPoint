@@ -84,7 +84,7 @@ public:
 public:
 	/* Fired when this character receives damage from a certain direction */
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")
-		void OnDirectionalDamageReceived(FVector direction, float damage);
+		void OnDirectionalDamageReceived(FVector direction, float damage, TSubclassOf<class UDamageType> DamageType);
 
 public:
 	/* ------------- */
