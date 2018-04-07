@@ -47,7 +47,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		UParticleSystem* TrailFX;
 
-	/** param name for beam target in smoke trail */
+	/** param name for the trail's source */
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		FName TrailSourceParamName;
+
+	/** param name for the trail's target */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		FName TrailTargetParamName;
 

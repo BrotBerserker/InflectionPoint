@@ -77,23 +77,21 @@ void AInstantWeapon::MulticastSpawnInstantWeaponFX_Implementation(const FHitResu
 void AInstantWeapon::SpawnTrailFX(const FHitResult hitResult) {
 	if(!TrailFX)
 		return;
-	auto endPint = hitResult.bBlockingHit ? hitResult.ImpactPoint : hitResult.TraceEnd;
+	auto endPoint = hitResult.bBlockingHit ? hitResult.ImpactPoint : hitResult.TraceEnd;
 	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh3P, NAME_None);
 	if(tpTrail) {
-		tpTrail->SetWorldLocation(GetTPMuzzleLocation());
-		tpTrail->SetWorldRotation(GetAimDirection());
 		tpTrail->bOwnerNoSee = true;
 		tpTrail->bOnlyOwnerSee = false;
-		tpTrail->SetVectorParameter(TrailTargetParamName, endPint);
+		tpTrail->SetVectorParameter(TrailSourceParamName, GetTPMuzzleLocation());
+		tpTrail->SetVectorParameter(TrailTargetParamName, endPoint);
 	}
 
 	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh1P, NAME_None);
 	if(fpTrail) {
-		fpTrail->SetWorldLocation(GetFPMuzzleLocation());
-		fpTrail->SetWorldRotation(GetAimDirection());
 		fpTrail->bOwnerNoSee = false;
 		fpTrail->bOnlyOwnerSee = true;
-		fpTrail->SetVectorParameter(TrailTargetParamName, endPint);
+		fpTrail->SetVectorParameter(TrailSourceParamName, GetFPMuzzleLocation());
+		fpTrail->SetVectorParameter(TrailTargetParamName, endPoint);
 	}
 }
 

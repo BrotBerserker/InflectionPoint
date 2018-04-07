@@ -90,11 +90,11 @@ public:
 		float RoundEndDelay = 2.0f;
 
 	/** Characters to use for Players */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Characters)
 		TArray<class UClass*> PlayerCharacters;
 
 	/** Character to use as Replays */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Characters)
 		TArray<class UClass*> ReplayCharacters;
 
 	/** MaxPlayers is set to this value when playing in editor or offline */
