@@ -27,6 +27,10 @@ void UInflectionPointCheatManager::EnableAllReplayDebugging(bool enable) {
 	EnableLineTracing(enable);
 }
 
+void UInflectionPointCheatManager::EnableHUD(bool enable) {
+	IsHUDEnabled = enable;
+}
+
 //void UInflectionPointCheatManager::SetHP(int newHP) {
 //	auto player = GetWorld()->GetFirstPlayerController()->GetCharacter();
 //	if(player)

@@ -30,12 +30,18 @@ public:
 	UFUNCTION(exec)
 		virtual void EnableAllReplayDebugging(bool enable = true);
 
+	UFUNCTION(exec)
+		virtual void EnableHUD(bool enable = true);
+
 	UPROPERTY(BlueprintReadWrite)
 		bool IsDebugProjectileLineTraceEnabled = false;
 
 	UPROPERTY(BlueprintReadWrite)
 		bool IsCharacterDebugArrowsEnabled = false;
-
+	
 	UPROPERTY(BlueprintReadWrite)
 		bool IsLineTracingEnabled = false;
+
+	UPROPERTY(BlueprintReadWrite)
+		bool IsHUDEnabled = true;
 };
