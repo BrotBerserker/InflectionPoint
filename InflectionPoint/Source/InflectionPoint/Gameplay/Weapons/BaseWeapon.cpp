@@ -149,11 +149,12 @@ void ABaseWeapon::Fire() {
 }
 
 void ABaseWeapon::OnEquip() {
-	if(!AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__))
-		return;
+	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
+
 	equipped = true;
 	passedTime = 0.f;
 	SetActorTickEnabled(true);
+
 	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(EquipAnimation1P);
 	OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(EquipAnimation3P);
 
@@ -164,9 +165,17 @@ void ABaseWeapon::OnEquip() {
 	Mesh3P->bCastHiddenShadow = true;
 
 	CurrentState = EWeaponState::IDLE;
+
+	if(OwningCharacter->IsAiming) {
+		StartAiming();
+	}
 }
 
 void ABaseWeapon::OnUnequip() {
+	if(OwningCharacter->IsAiming) {
+		StopAiming();
+	}
+
 	equipped = false;
 	SetActorTickEnabled(false);
 
