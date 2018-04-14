@@ -41,7 +41,7 @@ bool AReplayCharacterBase::IsReadyForInitialization() {
 void AReplayCharacterBase::Initialize() {
 	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
 	AssertNotNull(owningController, GetWorld(), __FILE__, __LINE__);
-	MulticastApplyPlayerColor(Cast<ATDMPlayerStateBase>(owningController->PlayerState));
+	MulticastApplyTeamColor(Cast<ATDMPlayerStateBase>(owningController->PlayerState));
 	//MulticastShowSpawnAnimation();
 }
 

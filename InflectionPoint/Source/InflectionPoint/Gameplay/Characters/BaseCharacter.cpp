@@ -117,33 +117,30 @@ bool ABaseCharacter::IsAReplay() {
 	return this->IsA(AReplayCharacterBase::StaticClass());
 }
 
-void ABaseCharacter::ApplyPlayerColor(ATDMPlayerStateBase* playerState) {
+void ABaseCharacter::ApplyTeamColor(ATDMPlayerStateBase* playerState) {
 	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__, TEXT("GameState is null!"));
 
-	//DynamicBodyMaterial->SetVectorParameterValue("BodyMetalColor", gameState->TeamColors[playerState->Team]);
 	auto bodyMetalColor = IsAReplay() ? gameState->ReplayTeamColors[playerState->Team] : gameState->TeamColors[playerState->Team];
-	auto linBodyMetalColor = FLinearColor();
-	for(int i = 0; i < Mesh3P->GetMaterials().Num(); i++) {
-		bool check = Mesh3P->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, linBodyMetalColor);
+	ApplyColorToMaterials(Mesh3P, bodyMetalColor);
+	ApplyColorToMaterials(Mesh1P, bodyMetalColor);
+}
+
+
+void ABaseCharacter::ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color) {
+	auto unusedColor = FLinearColor(); // only needed for checking the vecorParameter
+	for(int i = 0; i < mesh->GetMaterials().Num(); i++) {
+		bool check = mesh->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, unusedColor);
 		if(!check)
 			continue;
-		UMaterialInstanceDynamic* dynamic = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(i), Mesh3P);
-		dynamic->SetVectorParameterValue(TeamColorMaterialParameterName, bodyMetalColor);
-		Mesh3P->SetMaterial(i, dynamic);
-	}
-	for(int i = 0; i < Mesh1P->GetMaterials().Num(); i++) {
-		bool check = Mesh1P->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, linBodyMetalColor);
-		if(!check)
-			continue;
-		UMaterialInstanceDynamic* dynamic = UMaterialInstanceDynamic::Create(Mesh1P->GetMaterial(i), Mesh1P);
-		dynamic->SetVectorParameterValue(TeamColorMaterialParameterName, bodyMetalColor);
-		Mesh1P->SetMaterial(i, dynamic);
+		UMaterialInstanceDynamic* dynamic = UMaterialInstanceDynamic::Create(mesh->GetMaterial(i), mesh);
+		dynamic->SetVectorParameterValue(TeamColorMaterialParameterName, color);
+		mesh->SetMaterial(i, dynamic);
 	}
 }
 
-void ABaseCharacter::MulticastApplyPlayerColor_Implementation(ATDMPlayerStateBase* playerState) {
-	ApplyPlayerColor(playerState);
+void ABaseCharacter::MulticastApplyTeamColor_Implementation(ATDMPlayerStateBase* playerState) {
+	ApplyTeamColor(playerState);
 }
 
 void ABaseCharacter::ShowSpawnAnimation() {

@@ -15,7 +15,7 @@ bool APlayerCharacterBase::IsReadyForInitialization() {
 }
 
 void APlayerCharacterBase::Initialize() {
-	ApplyPlayerColor(Cast<ATDMPlayerStateBase>(PlayerState));
+	ApplyTeamColor(Cast<ATDMPlayerStateBase>(PlayerState));
 	//ShowSpawnAnimation();
 }
 

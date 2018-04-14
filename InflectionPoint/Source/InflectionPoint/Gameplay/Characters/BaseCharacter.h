@@ -120,11 +120,11 @@ public:
 
 	/** Applies the team color to Mesh3P and Mesh1P */
 	UFUNCTION(BlueprintCallable)
-		void ApplyPlayerColor(ATDMPlayerStateBase* state);
+		void ApplyTeamColor(ATDMPlayerStateBase* state);
 
 	/** Applies the team color to Mesh3P and Mesh1P via Multicast */
 	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
-		void MulticastApplyPlayerColor(ATDMPlayerStateBase* state);
+		void MulticastApplyTeamColor(ATDMPlayerStateBase* state);
 
 	/** Shows a spawn animation using Materialize effects */
 	UFUNCTION(BlueprintCallable)
@@ -281,6 +281,7 @@ public:
 private:
 	void UpdateFieldOfView(float DeltaTime);
 
+	void ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color);
 private:
 	bool initialized = false;
 
