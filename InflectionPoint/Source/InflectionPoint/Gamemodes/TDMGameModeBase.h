@@ -5,6 +5,7 @@
 #include "Gameplay/Controllers/PlayerControllerBase.h" 
 #include "Gamemodes/TDMGameStateBase.h" 
 #include "Gamemodes/TDMScoreHandler.h"
+#include "Gamemodes/TDMCharacterSpawner.h"
 #include "TDMGameModeBase.generated.h"
 
 UCLASS(minimalapi)
@@ -89,14 +90,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float RoundEndDelay = 2.0f;
 
-	/** Characters to use for Players */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Characters)
-		TArray<class UClass*> PlayerCharacters;
-
-	/** Character to use as Replays */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Characters)
-		TArray<class UClass*> ReplayCharacters;
-
 	/** MaxPlayers is set to this value when playing in editor or offline */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		int OfflineMaxPlayers = 2;
@@ -114,9 +107,11 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		int NumPlayers = 0;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 		UTDMScoreHandler* ScoreHandler;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UTDMCharacterSpawner* CharacterSpawner;
 
 private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
@@ -128,23 +123,7 @@ private:
 	TArray<int> GetTeamsAlive();
 	bool IsPlayerAlive(APlayerControllerBase* playerController);
 
-	int GetTeam(APlayerControllerBase* playerController);
-
-	/** Spawning */
-	void AssignTeamsAndPlayerStartGroups();
-	void SpawnPlayersAndReplays();
-	FString GetSpawnTag(APlayerControllerBase*  playerController, int round);
-	AActor* FindSpawnForPlayer(APlayerControllerBase* playerController, int round);
-	int GetSpawnPointCount();
-	void SpawnAndPrepareReplay(APlayerControllerBase* controller, int round);
-	void SpawnAndPossessPlayer(APlayerControllerBase* playerController);
-
-	template <typename CharacterType>
-	CharacterType* SpawnCharacter(UClass* spawnClass, APlayerControllerBase * playerController, AActor* playerStart);
-
 	/** Start/end rounds */
-	void ResetPlayerScores();
-
 	void SaveRecordingsFromRemainingPlayers();
 	void SavePlayerRecordings(APlayerControllerBase * playerController);
 
@@ -153,10 +132,6 @@ private:
 	void DestroyAllActorsWithTag(FName tag);
 
 	/** Inform players about kill etc. */
-	void WriteKillToPlayerStates(AController * KilledPlayer, AController* KillingPlayer);
 	void SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
 	void SendRoundStartedToPlayers(int Round);
 };
-
-
-

@@ -7,12 +7,11 @@
 #include "TDMScoreHandler.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class INFLECTIONPOINT_API UTDMScoreHandler : public UActorComponent
-{
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class INFLECTIONPOINT_API UTDMScoreHandler : public UActorComponent {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UTDMScoreHandler();
 
@@ -29,12 +28,15 @@ public:
 
 	UFUNCTION()
 		float GetKillerScoreChange(AController * KilledPlayer, AController* KillingPlayer);
-	
+
 	UFUNCTION()
 		float GetKilledScoreChange(AController * KilledPlayer, AController* KillingPlayer);
-	
+
 	UFUNCTION()
 		void AddKill(AController * KilledPlayer, AController* KillingPlayer);
+
+	UFUNCTION()
+		void ResetPlayerScores();
 
 private:
 	UFUNCTION()

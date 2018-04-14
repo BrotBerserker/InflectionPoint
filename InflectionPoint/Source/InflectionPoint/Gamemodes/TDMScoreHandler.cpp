@@ -80,4 +80,11 @@ bool UTDMScoreHandler::IsTeamKill(UCharacterInfoProvider* killedInfo, UCharacter
 	return Cast<ATDMPlayerStateBase>(killedInfo->PlayerState)->Team == Cast<ATDMPlayerStateBase>(killerInfo->PlayerState)->Team;
 }
 
+void UTDMScoreHandler::ResetPlayerScores() {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		Cast<ATDMPlayerStateBase>(playerController->PlayerState)->ResetScore();
+	}
+}
+
 
