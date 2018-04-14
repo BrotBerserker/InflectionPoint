@@ -240,6 +240,9 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerEquipSpecificWeapon(int index);
 
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastWeaponChanged(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon);
+
 	/** Starts sprinting via RPC */
 	UFUNCTION(Reliable, Server, WithValidation)
 		void ServerStartSprinting();

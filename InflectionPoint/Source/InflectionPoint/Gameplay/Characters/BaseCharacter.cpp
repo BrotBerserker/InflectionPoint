@@ -324,11 +324,20 @@ void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
 void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {
 	CurrentWeapon = NewWeapon;
 
-	if(OldWeapon) {
+	if(OldWeapon) 
 		OldWeapon->OnUnequip();
-	}
+	CurrentWeapon->OnEquip(); 
 
-	CurrentWeapon->OnEquip();
+	MulticastWeaponChanged(NewWeapon, OldWeapon);
+}
+
+void ABaseCharacter::MulticastWeaponChanged_Implementation(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon) {
+	auto controller = Cast<APlayerControllerBase>(GetController());
+	if(controller)
+		controller->OnWeaponChanged(newWeapon, oldWeapon);
+	controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
+	if(controller && controller->SpectatedCharacter == this) 
+		controller->OnWeaponChanged(newWeapon, oldWeapon);
 }
 
 void ABaseCharacter::DrawDebugArrow() {

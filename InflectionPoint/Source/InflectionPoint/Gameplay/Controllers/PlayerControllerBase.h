@@ -60,6 +60,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnStopAiming(ABaseWeapon* weapon);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnWeaponChanged(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon);
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		class ABaseCharacter* SpectatedCharacter;
