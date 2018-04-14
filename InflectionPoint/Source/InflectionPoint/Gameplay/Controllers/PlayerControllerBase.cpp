@@ -10,7 +10,7 @@
 void APlayerControllerBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(APlayerControllerBase, SpectatingCharacter);
+	DOREPLIFETIME(APlayerControllerBase, SpectatedCharacter);
 }
 
 APlayerControllerBase::APlayerControllerBase(const FObjectInitializer& ObjectInitializer) :
@@ -24,7 +24,7 @@ void APlayerControllerBase::BeginPlay() {
 
 void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
-	SpectatingCharacter = nullptr;
+	SpectatedCharacter = nullptr;
 	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
 	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->PlayerState;
 }
@@ -108,7 +108,7 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 
 		//UnPossess();
 		SetViewTargetWithBlend(otherCharacter, 0.3f);
-		SpectatingCharacter = otherCharacter;
+		SpectatedCharacter = otherCharacter;
 		SpectatedCharacterSwitched(otherCharacter, infoProvider->GetCharacterInfo());
 		return true;
 	}
