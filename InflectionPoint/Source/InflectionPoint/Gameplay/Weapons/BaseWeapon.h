@@ -170,6 +170,8 @@ public:
 	/** Initializes variables and attachments */
 	virtual void BeginPlay() override;
 
+	void Initialize();
+
 	/** Called when the Instigator is set */
 	void OnRep_Instigator() override;
 
@@ -272,12 +274,13 @@ protected:
 
 	UPlayerStateRecorder* Recorder;
 
-	float LastShotTimeStamp = 0.f;
-	float passedTime = 0.f;
+	float timeSinceLastShot = 0.f;
 
 	FScriptDelegate AnimationNotifyDelegate;
 	FScriptDelegate AnimationEndDelegate;
 
 	bool equipped = false;
-	bool IsReplaySimulatedFirePressed = false;
+	bool RecordKeyReleaseNextTick = false;
+
+	void UpdateEquippedState(bool equipped);
 };

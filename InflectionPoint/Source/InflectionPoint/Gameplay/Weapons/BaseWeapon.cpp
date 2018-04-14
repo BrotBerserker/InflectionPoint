@@ -53,7 +53,6 @@ ABaseWeapon::ABaseWeapon() {
 	AnimationEndDelegate.BindUFunction(this, "ReloadAnimationEndCallback");
 }
 
-// Called when the game starts or when spawned
 void ABaseWeapon::BeginPlay() {
 	Super::BeginPlay();
 	CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
@@ -61,20 +60,18 @@ void ABaseWeapon::BeginPlay() {
 	if(!HasAuthority())
 		return; // On Client the Instigator is not set yet
 
-	OwningCharacter = Cast<ABaseCharacter>(Instigator);
-	if(!AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__))
-		return;
-	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
-	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
-	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.5f, false);
+	Initialize();
 }
 
 void ABaseWeapon::OnRep_Instigator() {
+	Initialize();
+}
+
+void ABaseWeapon::Initialize() {
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
-	if(!AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__))
-		return;
+	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
-	//ReattachMuzzleLocation();
+	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
 	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.5f, false);
 }
 
@@ -100,22 +97,21 @@ void ABaseWeapon::AttachToOwner() {
 	Mesh3P->AttachToComponent(OwningCharacter->Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 }
 
-// Called every frame
 void ABaseWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	if(!HasAuthority()) {
 		return;
 	}
 
-	passedTime += DeltaTime;
+	timeSinceLastShot += DeltaTime;
 
-	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING && passedTime - LastShotTimeStamp >= ReloadDelay) {
+	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING && timeSinceLastShot >= ReloadDelay) {
 		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
-	} else if(CurrentState == EWeaponState::FIRING && passedTime - LastShotTimeStamp >= FireInterval) {
-		passedTime = 0;
+	} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
+		timeSinceLastShot = 0;
 		Fire();
-	} else if(Recorder && IsReplaySimulatedFirePressed) {
-		IsReplaySimulatedFirePressed = false;
+	} else if(Recorder && RecordKeyReleaseNextTick) {
+		RecordKeyReleaseNextTick = false;
 		Recorder->ServerRecordKeyReleased("WeaponFired");
 	}
 }
@@ -130,7 +126,7 @@ void ABaseWeapon::StartFire() {
 
 void ABaseWeapon::Fire() {
 	if(Recorder) {
-		IsReplaySimulatedFirePressed = true;
+		RecordKeyReleaseNextTick = true;
 		Recorder->ServerRecordKeyPressed("WeaponFired");
 	}
 	if(CurrentAmmoInClip <= 0) {
@@ -149,20 +145,12 @@ void ABaseWeapon::Fire() {
 }
 
 void ABaseWeapon::OnEquip() {
-	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
-
-	equipped = true;
-	passedTime = 0.f;
-	SetActorTickEnabled(true);
+	timeSinceLastShot = 0.f;
 
 	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(EquipAnimation1P);
 	OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(EquipAnimation3P);
 
-	AttachToOwner();
-
-	Mesh1P->SetHiddenInGame(false, true);
-	Mesh3P->SetHiddenInGame(false, true);
-	Mesh3P->bCastHiddenShadow = true;
+	UpdateEquippedState(true);
 
 	CurrentState = EWeaponState::IDLE;
 
@@ -176,19 +164,21 @@ void ABaseWeapon::OnUnequip() {
 		StopAiming();
 	}
 
-	equipped = false;
-	SetActorTickEnabled(false);
-
-	DetachFromOwner();
-
-	Mesh1P->SetHiddenInGame(true, true);
-	Mesh3P->SetHiddenInGame(true, true);
-	Mesh3P->bCastHiddenShadow = false;
+	UpdateEquippedState(false);
 
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(AnimationNotifyDelegate);
 	OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.Remove(AnimationEndDelegate);
 
 	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Stop(0, ReloadAnimation1P);
+}
+
+void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
+	this->equipped = newEquipped;
+	SetActorTickEnabled(newEquipped);
+	Mesh1P->SetHiddenInGame(!newEquipped, true);
+	Mesh3P->SetHiddenInGame(!newEquipped, true);
+	Mesh3P->bCastHiddenShadow = newEquipped;
+	newEquipped ? AttachToOwner() : DetachFromOwner();
 }
 
 void ABaseWeapon::MulticastFireExecuted_Implementation() {
@@ -198,27 +188,17 @@ void ABaseWeapon::MulticastFireExecuted_Implementation() {
 }
 
 void ABaseWeapon::SpawnFireSound() {
-	// try and play the sound if specified
-	if(FireSound != NULL) {
-		UGameplayStatics::SpawnSoundAttached(FireSound, OwningCharacter->Mesh1P);
-	}
+	UGameplayStatics::SpawnSoundAttached(FireSound, OwningCharacter->Mesh1P);
 }
 
 void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
-	// try and play the sound if specified
-	if(NoAmmoSound != NULL) {
-		UGameplayStatics::SpawnSoundAttached(NoAmmoSound, OwningCharacter->Mesh1P);
-	}
+	UGameplayStatics::SpawnSoundAttached(NoAmmoSound, OwningCharacter->Mesh1P);
 }
 
 void ABaseWeapon::PlayFireAnimation() {
-	// try and play a firing animation if specified
-	if(FireAnimation != NULL) {
-		// Get the animation object for the arms mesh
-		UAnimInstance* AnimInstance = OwningCharacter->Mesh1P->GetAnimInstance();
-		if(AnimInstance != NULL) {
-			AnimInstance->Montage_Play(FireAnimation, 1.f);
-		}
+	UAnimInstance* AnimInstance = OwningCharacter->Mesh1P->GetAnimInstance();
+	if(AnimInstance != NULL) {
+		AnimInstance->Montage_Play(FireAnimation, 1.f);
 	}
 	Mesh1P->PlayAnimation(FireAnimationWeapon1P, false);
 }
