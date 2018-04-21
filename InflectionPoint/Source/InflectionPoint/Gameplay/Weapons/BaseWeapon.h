@@ -151,13 +151,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		float AimFieldOfView = 75.f;
 
-	/** SWidget that gets displayed when aiming */
+	/** Widget that gets displayed when aiming */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		TSubclassOf<UUserWidget> AimDisplayWidget;
 
 	/** Hides Weapon when aiming */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		bool HideWeaponWhenAiming = false;
+
+	/** Widget that shows the crosshair */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
+		TSubclassOf<UUserWidget> CrosshairDisplayWidget;
 
 public:
 	/* ------------- */
