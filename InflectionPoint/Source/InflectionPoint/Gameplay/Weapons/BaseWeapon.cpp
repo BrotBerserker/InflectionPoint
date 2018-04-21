@@ -11,6 +11,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmoInClip);
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
+	DOREPLIFETIME(ABaseWeapon, CurrentState);
 }
 
 // Sets default values
@@ -120,7 +121,7 @@ void ABaseWeapon::StartFire() {
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
 		MulticastSpawnNoAmmoSound();
 	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
-		CurrentState = EWeaponState::FIRING;
+		ChangeWeaponState(EWeaponState::FIRING);
 	}
 }
 
@@ -141,7 +142,7 @@ void ABaseWeapon::Fire() {
 	ForceNetUpdate();
 	MulticastFireExecuted();
 	if(!AutoFire)
-		CurrentState = EWeaponState::IDLE;
+		ChangeWeaponState(EWeaponState::IDLE);
 }
 
 void ABaseWeapon::OnEquip() {
@@ -152,7 +153,7 @@ void ABaseWeapon::OnEquip() {
 
 	UpdateEquippedState(true);
 
-	CurrentState = EWeaponState::IDLE;
+	ChangeWeaponState(EWeaponState::IDLE);
 
 	if(OwningCharacter->IsAiming) {
 		StartAiming();
@@ -185,6 +186,7 @@ void ABaseWeapon::MulticastFireExecuted_Implementation() {
 	SpawnMuzzleFX();
 	SpawnFireSound();
 	PlayFireAnimation();
+	OnFireExecuted.Broadcast();
 }
 
 void ABaseWeapon::SpawnFireSound() {
@@ -205,7 +207,7 @@ void ABaseWeapon::PlayFireAnimation() {
 
 void ABaseWeapon::StopFire() {
 	if(CurrentState == EWeaponState::FIRING) {
-		CurrentState = EWeaponState::IDLE;
+		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
 
@@ -214,7 +216,7 @@ void ABaseWeapon::Reload() {
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(AnimationNotifyDelegate);
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.AddUnique(AnimationEndDelegate);
 
-		CurrentState = EWeaponState::RELOADING;
+		ChangeWeaponState(EWeaponState::RELOADING);
 		MulticastPlayReloadAnimation();
 		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation1P);
 		OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(ReloadAnimation3P);
@@ -235,13 +237,13 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 		CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
-		CurrentState = EWeaponState::IDLE;
+		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
 
 void ABaseWeapon::ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted) {
 	if(Montage == ReloadAnimation1P && CurrentState == EWeaponState::RELOADING) {
-		CurrentState = EWeaponState::IDLE;
+		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
 
@@ -297,6 +299,16 @@ void ABaseWeapon::StartAiming() {
 void ABaseWeapon::StopAiming() {
 	if(HideWeaponWhenAiming)
 		Mesh1P->SetVisibility(true, true);
+}
+void ABaseWeapon::ChangeWeaponState(EWeaponState newState) {
+	if(newState == CurrentState)
+		return;
+	CurrentState = newState;
+	//OnStateChanged.Broadcast(newState);
+}
+
+EWeaponState ABaseWeapon::GetCurrentWeaponState() {
+	return CurrentState;
 }
 
 void ABaseWeapon::PreExecuteFire() {}

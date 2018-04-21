@@ -17,6 +17,9 @@ enum EWeaponState {
 	RELOADING,
 	FIRING
 };
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireExecutedDelegate);
+
 UCLASS()
 class INFLECTIONPOINT_API ABaseWeapon : public AActor {
 	GENERATED_BODY()
@@ -162,7 +165,12 @@ public:
 	/** Widget that shows the crosshair */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		TSubclassOf<UUserWidget> CrosshairDisplayWidget;
-
+public:
+	/* ------------- */
+	/*    Events     */
+	/* ------------- */
+	UPROPERTY(BlueprintAssignable)
+		FOnFireExecutedDelegate OnFireExecuted;
 public:
 	/* ------------- */
 	/*   Functions   */
@@ -266,6 +274,9 @@ public:
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastFireExecuted();
 
+	UFUNCTION(BlueprintCallable)
+		EWeaponState GetCurrentWeaponState();
+
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;
@@ -274,7 +285,8 @@ public:
 		int CurrentAmmoInClip;
 
 protected:
-	EWeaponState CurrentState = EWeaponState::IDLE;
+	UPROPERTY(Replicated)
+		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE;
 
 	UPlayerStateRecorder* Recorder;
 
@@ -287,4 +299,6 @@ protected:
 	bool RecordKeyReleaseNextTick = false;
 
 	void UpdateEquippedState(bool equipped);
+
+	void ChangeWeaponState(EWeaponState newState);
 };
