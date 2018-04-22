@@ -9,7 +9,7 @@
 
 UJoinMenuBase::UJoinMenuBase() : Super() {
 	OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UJoinMenuBase::OnFindSessionsComplete);
-	static ConstructorHelpers::FObjectFinder<UClass> SessionSearchResult(TEXT("Class'/Game/InflectionPoint/UI/Menus/SessionSearchResult.SessionSearchResult_C'"));
+	static ConstructorHelpers::FObjectFinder<UClass> SessionSearchResult(TEXT("Class'/Game/InflectionPoint/UI/Menus/Widgets/SessionSearchResult.SessionSearchResult_C'"));
 	if(SessionSearchResult.Object != NULL) {
 		SessionSearchResultType = SessionSearchResult.Object;
 	}
