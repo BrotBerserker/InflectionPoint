@@ -106,7 +106,8 @@ void ABaseWeapon::Tick(float DeltaTime) {
 
 	timeSinceLastShot += DeltaTime;
 
-	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING && timeSinceLastShot >= ReloadDelay) {
+	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING 
+		&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= ReloadDelay) {
 		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
 		timeSinceLastShot = 0;
@@ -146,14 +147,15 @@ void ABaseWeapon::Fire() {
 }
 
 void ABaseWeapon::OnEquip() {
-	timeSinceLastShot = 0.f;
+	timeSinceLastShot = FireInterval; // so you can fire after EquipDelay
+	ChangeWeaponState(EWeaponState::EQUIPPING);
 
 	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(EquipAnimation1P);
 	OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(EquipAnimation3P);
 
 	UpdateEquippedState(true);
 
-	ChangeWeaponState(EWeaponState::IDLE);
+	StartTimer(this, GetWorld(), "ChangeWeaponState", EquipDelay+0.001f, false, EWeaponState::IDLE);
 
 	if(OwningCharacter->IsAiming) {
 		StartAiming();
@@ -212,7 +214,7 @@ void ABaseWeapon::StopFire() {
 }
 
 void ABaseWeapon::Reload() {
-	if(CurrentState != EWeaponState::RELOADING && CurrentAmmoInClip != ClipSize && CurrentAmmoInClip != CurrentAmmo) {
+	if(CurrentState != EWeaponState::RELOADING && CurrentState != EWeaponState::EQUIPPING && CurrentAmmoInClip != ClipSize && CurrentAmmoInClip != CurrentAmmo) {
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(AnimationNotifyDelegate);
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.AddUnique(AnimationEndDelegate);
 

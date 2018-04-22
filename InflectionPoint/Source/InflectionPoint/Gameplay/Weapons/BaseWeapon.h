@@ -15,6 +15,7 @@ UENUM(BlueprintType)
 enum EWeaponState {
 	IDLE,
 	RELOADING,
+	EQUIPPING,
 	FIRING
 };
 
@@ -141,6 +142,10 @@ public:
 	/** Delay before reloading */
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		float ReloadDelay = 0;
+
+	/** Delay before firstshot after equip */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+		float EquipDelay = 0.2f;
 
 	/** How many shots are fired at once */
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
@@ -299,6 +304,8 @@ protected:
 	bool RecordKeyReleaseNextTick = false;
 
 	void UpdateEquippedState(bool equipped);
+	
+	UFUNCTION()
+		void ChangeWeaponState(EWeaponState newState);
 
-	void ChangeWeaponState(EWeaponState newState);
 };
