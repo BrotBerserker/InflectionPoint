@@ -4,5 +4,7 @@
 #include "InflectionPointGameInstanceBase.h"
 
 
-
+UInflectionPointGameInstanceBase::UInflectionPointGameInstanceBase() {
+	IPSettings = CreateDefaultSubobject<UInflectionPointSettings>(TEXT("asdf"));
+}
 

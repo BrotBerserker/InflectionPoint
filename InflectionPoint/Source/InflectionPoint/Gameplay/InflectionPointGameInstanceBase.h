@@ -14,7 +14,12 @@ class INFLECTIONPOINT_API UInflectionPointGameInstanceBase : public UGameInstanc
 	GENERATED_BODY()
 
 public:
+	UInflectionPointGameInstanceBase();
+
+public:
 	UPROPERTY(BlueprintReadWrite)
 		FName CurrentSessionName;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+		class UInflectionPointSettings* IPSettings;
 };
