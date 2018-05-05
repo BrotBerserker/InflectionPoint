@@ -5,6 +5,6 @@
 
 
 UInflectionPointGameInstanceBase::UInflectionPointGameInstanceBase() {
-	IPSettings = CreateDefaultSubobject<UInflectionPointSettings>(TEXT("asdf"));
+	IPSettings = CreateDefaultSubobject<UInflectionPointSettings>(TEXT("IPSettings"));
 }
 

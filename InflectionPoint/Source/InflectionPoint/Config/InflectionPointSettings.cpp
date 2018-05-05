@@ -7,12 +7,9 @@
 
 void UInflectionPointSettings::Save() {
 	SaveConfig();
-	UE_LOG(LogTemp, Warning, TEXT("saved")); //test
 }
 
 void UInflectionPointSettings::Load(UObject* WorldContextObject) {
-	UE_LOG(LogTemp, Warning, TEXT("The value of 'MasterVolume' is: %f"), MasterVolume);
-
 	UGameplayStatics::SetSoundMixClassOverride(WorldContextObject, SoundMix, MasterSoundClass, MasterVolume, 1.f, 0.f);
 	UGameplayStatics::SetSoundMixClassOverride(WorldContextObject, SoundMix, MusicSoundClass, MusicVolume, 1.f, 0.f);
 	UGameplayStatics::SetSoundMixClassOverride(WorldContextObject, SoundMix, EffectsSoundClass, EffectsVolume, 1.f, 0.f);
