@@ -15,19 +15,19 @@ class INFLECTIONPOINT_API UInflectionPointSettings : public UActorComponent {
 
 public:
 	UPROPERTY(Config, BlueprintReadOnly)
-		float MasterVolume;
+		float MasterVolume = 1.f;
 
 	UPROPERTY(Config, BlueprintReadOnly)
-		float MusicVolume;
+		float MusicVolume = 1.f;
 
 	UPROPERTY(Config, BlueprintReadOnly)
-		float EffectsVolume;
+		float EffectsVolume = 1.f;
 
 	UPROPERTY(Config, BlueprintReadOnly)
-		float MotionBlurAmount;
+		float MotionBlurAmount = 0.5f;
 
 	UPROPERTY(Config, BlueprintReadOnly)
-		float ResolutionScale;
+		float ResolutionScale = 100.f;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
