@@ -471,3 +471,10 @@ void ABaseCharacter::ServerStopSprinting_Implementation() {
 bool ABaseCharacter::IsAlive() {
 	return MortalityProvider && MortalityProvider->IsAlive();
 }
+
+bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
+	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
+	if(!AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__))
+		return false;
+	return localPlayerState->Team == CharacterInfoProvider->GetCharacterInfo().Team;
+}

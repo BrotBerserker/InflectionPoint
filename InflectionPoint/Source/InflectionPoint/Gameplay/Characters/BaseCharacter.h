@@ -35,14 +35,14 @@ public:
 		class UWeaponInventory* WeaponInventory;
 
 	/** MortalityProvider which holds our HP */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		class UMortalityProvider* MortalityProvider;
 
 	/** Timeline used to show the materialize effect */
 	UPROPERTY()
 		UTimelineComponent* MaterializeTimeline;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 		class UCharacterInfoProvider* CharacterInfoProvider;
 
 public:
@@ -198,6 +198,9 @@ public:
 	/** If this Character is alive or not */
 	UFUNCTION(BlueprintCallable)
 		bool IsAlive();
+
+	UFUNCTION(BlueprintCallable)
+		bool IsInSameTeamAsLocalPlayer();
 public:
 	/* --------------- */
 	/*  RPC Functions  */
