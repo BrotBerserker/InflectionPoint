@@ -70,7 +70,8 @@ ABaseCharacter::ABaseCharacter() {
 
 	CharacterNameTag = CreateDefaultSubobject<UTextRenderComponent>(TEXT("CharacterNameTag"));
 	CharacterNameTag->SetCastShadow(false);
-	CharacterNameTag->AttachTo(RootComponent);
+	CharacterNameTag->SetupAttachment(GetCapsuleComponent());
+	CharacterNameTag->SetOwnerNoSee(true);
 	CharacterNameTag->bCastDynamicShadow = false;
 	CharacterNameTag->bAffectDynamicIndirectLighting = false;
 	CharacterNameTag->SetRelativeLocation(FVector(0, 0, 90));
@@ -498,5 +499,5 @@ void ABaseCharacter::UpdateCharacterNameTag() {
 	}
 	CharacterNameTag->SetVisibility(true);
 	CharacterNameTag->SetWorldRotation(FRotator(0, 0, 0));
-	CharacterNameTag->SetText(CharacterInfoProvider->GetCharacterInfo().PlayerName);
+	CharacterNameTag->SetText(FText::FromString(CharacterInfoProvider->GetCharacterInfo().PlayerName));
 }
