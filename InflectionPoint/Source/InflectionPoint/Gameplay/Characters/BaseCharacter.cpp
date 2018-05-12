@@ -73,10 +73,6 @@ void ABaseCharacter::BeginPlay() {
 	// Call the base class  
 	Super::BeginPlay();
 
-	if(HasAuthority()) {
-		EquipWeapon(WeaponInventory->GetNextWeapon(NULL));
-	}
-
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
 
@@ -84,6 +80,12 @@ void ABaseCharacter::BeginPlay() {
 	//DynamicBodyMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
 	//Mesh3P->SetMaterial(0, DynamicBodyMaterial);
 	//Mesh1P->SetMaterial(0, DynamicBodyMaterial);
+}
+
+void ABaseCharacter::Initialize() {
+	if(IsLocallyControlled()) {
+		ServerEquipSpecificWeapon(0);
+	}
 }
 
 void ABaseCharacter::Restart() {
@@ -245,7 +247,7 @@ void ABaseCharacter::ServerStartAiming_Implementation() {
 void ABaseCharacter::MulticastStartAiming_Implementation() {
 	IsAiming = true;
 	CurrentWeapon->StartAiming();
-	auto controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());		
+	auto controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
 	if(controller && controller->SpectatedCharacter == this) {
 		controller->OnStartAiming(CurrentWeapon);
 	}
@@ -321,9 +323,9 @@ void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
 void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {
 	CurrentWeapon = NewWeapon;
 
-	if(OldWeapon) 
+	if(OldWeapon)
 		OldWeapon->OnUnequip();
-	CurrentWeapon->OnEquip(); 
+	CurrentWeapon->OnEquip();
 
 	MulticastWeaponChanged(NewWeapon, OldWeapon);
 }
@@ -333,7 +335,7 @@ void ABaseCharacter::MulticastWeaponChanged_Implementation(ABaseWeapon* newWeapo
 	if(controller)
 		controller->OnWeaponChanged(newWeapon, oldWeapon);
 	controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
-	if(controller && controller->SpectatedCharacter == this) 
+	if(controller && controller->SpectatedCharacter == this)
 		controller->OnWeaponChanged(newWeapon, oldWeapon);
 }
 
@@ -343,7 +345,6 @@ void ABaseCharacter::DrawDebugArrow() {
 		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
 		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
 
-		//DebugArrowColor.B
 		DrawDebugDirectionalArrow(GetWorld(), GetTransform().GetLocation(), cameraDirectionVector, DebugArrowColor.B, DebugArrowColor, true, -1, 0, 0.5f);
 	}
 }

@@ -73,7 +73,7 @@ void ABaseWeapon::Initialize() {
 	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
 	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
-	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.5f, false);
+	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.7f, false);
 }
 
 void ABaseWeapon::ReattachMuzzleLocation() {
@@ -302,11 +302,9 @@ void ABaseWeapon::StopAiming() {
 	if(HideWeaponWhenAiming)
 		Mesh1P->SetVisibility(true, true);
 }
+
 void ABaseWeapon::ChangeWeaponState(EWeaponState newState) {
-	if(newState == CurrentState)
-		return;
 	CurrentState = newState;
-	//OnStateChanged.Broadcast(newState);
 }
 
 EWeaponState ABaseWeapon::GetCurrentWeaponState() {

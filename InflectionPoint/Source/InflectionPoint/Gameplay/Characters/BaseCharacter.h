@@ -112,7 +112,7 @@ public:
 	virtual bool IsReadyForInitialization() PURE_VIRTUAL(ABaseCharacter::IsReadyForInitialization, return false;);
 
 	/** Initializes this character */
-	virtual void Initialize() PURE_VIRTUAL(ABaseCharacter::Initialize, ;);
+	virtual void Initialize();
 
 	/** Fired after Initialize() has been called */
 	UFUNCTION(BlueprintImplementableEvent)

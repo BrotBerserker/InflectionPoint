@@ -27,8 +27,6 @@ void APlayerControllerBase::Possess(APawn* InPawn) {
 	SpectatedCharacter = nullptr;
 	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
 	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->PlayerState;
-	ABaseCharacter* baseCharacter = Cast<ABaseCharacter>(GetCharacter());
-	OnWeaponChanged(baseCharacter->CurrentWeapon, NULL);
 }
 
 void APlayerControllerBase::ClientSetControlRotation_Implementation(FRotator rotation) {
