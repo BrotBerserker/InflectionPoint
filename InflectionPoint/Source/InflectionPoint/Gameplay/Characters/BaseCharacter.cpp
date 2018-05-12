@@ -67,6 +67,14 @@ ABaseCharacter::ABaseCharacter() {
 
 	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 	CharacterInfoProvider->SetIsReplicated(true);
+
+	CharacterNameTag = CreateDefaultSubobject<UTextRenderComponent>(TEXT("CharacterNameTag"));
+	CharacterNameTag->SetCastShadow(false);
+	CharacterNameTag->AttachTo(RootComponent);
+	CharacterNameTag->bCastDynamicShadow = false;
+	CharacterNameTag->bAffectDynamicIndirectLighting = false;
+	CharacterNameTag->SetRelativeLocation(FVector(0, 0, 90));
+	CharacterNameTag->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -103,6 +111,7 @@ void ABaseCharacter::Tick(float DeltaTime) {
 	}
 
 	UpdateFieldOfView(DeltaTime);
+	UpdateCharacterNameTag();
 }
 
 void ABaseCharacter::Destroyed() {
@@ -478,4 +487,16 @@ bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 	if(!localPlayerState)
 		return false;
 	return localPlayerState->Team == CharacterInfoProvider->GetCharacterInfo().Team;
+}
+
+
+
+void ABaseCharacter::UpdateCharacterNameTag() {
+	if(!GetWorld()->GetFirstPlayerController()->PlayerState || !IsInSameTeamAsLocalPlayer() || !IsAlive()) {
+		CharacterNameTag->SetVisibility(false);
+		return;
+	}
+	CharacterNameTag->SetVisibility(true);
+	CharacterNameTag->SetWorldRotation(FRotator(0, 0, 0));
+	CharacterNameTag->SetText(CharacterInfoProvider->GetCharacterInfo().PlayerName);
 }

@@ -45,6 +45,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		class UCharacterInfoProvider* CharacterInfoProvider;
 
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UTextRenderComponent* CharacterNameTag;
 public:
 	/* ---------------------- */
 	/*    Editor Settings     */
@@ -285,6 +288,8 @@ private:
 	void UpdateFieldOfView(float DeltaTime);
 
 	void ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color);
+
+	void UpdateCharacterNameTag();
 private:
 	bool initialized = false;
 
