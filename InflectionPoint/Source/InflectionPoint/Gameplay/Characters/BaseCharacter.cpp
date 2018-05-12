@@ -475,7 +475,7 @@ bool ABaseCharacter::IsAlive() {
 
 bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
-	if(!AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__))
+	if(!localPlayerState)
 		return false;
 	return localPlayerState->Team == CharacterInfoProvider->GetCharacterInfo().Team;
 }
