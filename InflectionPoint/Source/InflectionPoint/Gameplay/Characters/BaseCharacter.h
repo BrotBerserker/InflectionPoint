@@ -112,7 +112,7 @@ public:
 		void OnRestart();
 
 	/** Returns true if Initialize() can be called (e.g. checks if the PlayerState is not null) */
-	virtual bool IsReadyForInitialization() PURE_VIRTUAL(ABaseCharacter::IsReadyForInitialization, return false;);
+	virtual bool IsReadyForInitialization();
 
 	/** Initializes this character */
 	virtual void Initialize();
@@ -243,7 +243,7 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerEquipPreviousWeapon();
 
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 		void ServerEquipSpecificWeapon(int index);
 
 	UFUNCTION(NetMulticast, Reliable)

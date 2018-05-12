@@ -91,6 +91,10 @@ void ABaseCharacter::BeginPlay() {
 	//Mesh1P->SetMaterial(0, DynamicBodyMaterial);
 }
 
+bool ABaseCharacter::IsReadyForInitialization() {
+	return true;
+}
+
 void ABaseCharacter::Initialize() {
 	if(IsLocallyControlled()) {
 		ServerEquipSpecificWeapon(0);
