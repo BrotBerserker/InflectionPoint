@@ -199,6 +199,9 @@ public:
 	/** Executes behaviour depending on the current state */
 	virtual void Tick(float DeltaTime) override;
 
+	/** If possible, fires once */
+	virtual void FireOnce();
+
 	/** If possible, changes the current state to FIRING */
 	virtual void StartFire();
 

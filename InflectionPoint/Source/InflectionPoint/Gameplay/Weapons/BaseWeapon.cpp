@@ -110,7 +110,6 @@ void ABaseWeapon::Tick(float DeltaTime) {
 		&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= ReloadDelay) {
 		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
-		timeSinceLastShot = 0;
 		Fire();
 	} else if(Recorder && RecordKeyReleaseNextTick) {
 		RecordKeyReleaseNextTick = false;
@@ -126,14 +125,24 @@ void ABaseWeapon::StartFire() {
 	}
 }
 
+void ABaseWeapon::FireOnce() {
+	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
+		MulticastSpawnNoAmmoSound();
+	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= FireInterval) {
+		ChangeWeaponState(EWeaponState::FIRING);
+		Fire();
+		ChangeWeaponState(EWeaponState::IDLE);
+	}
+}
+
 void ABaseWeapon::Fire() {
 	if(Recorder) {
 		RecordKeyReleaseNextTick = true;
 		Recorder->ServerRecordKeyPressed("WeaponFired");
 	}
-	if(CurrentAmmoInClip <= 0) {
+	if(CurrentAmmoInClip <= 0) 
 		return;
-	}
+	timeSinceLastShot = 0;
 	PreExecuteFire();
 	for(int i = 0; i < FireShotNum; i++)
 		ExecuteFire();

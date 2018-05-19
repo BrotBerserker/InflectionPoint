@@ -214,6 +214,17 @@ void ABaseCharacter::StartFire() {
 	ServerStartFire();
 }
 
+bool ABaseCharacter::ServerFireOnce_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerFireOnce_Implementation() {
+	DrawDebugArrow();
+	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+		return;
+	CurrentWeapon->FireOnce();
+}
+
 bool ABaseCharacter::ServerStartFire_Validate() {
 	return true;
 }
