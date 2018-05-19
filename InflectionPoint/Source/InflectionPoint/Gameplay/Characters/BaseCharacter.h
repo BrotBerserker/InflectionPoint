@@ -45,7 +45,6 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		class UCharacterInfoProvider* CharacterInfoProvider;
 
-
 	UPROPERTY(VisibleDefaultsOnly)
 		class UTextRenderComponent* CharacterNameTag;
 public:
@@ -149,10 +148,12 @@ public:
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
 
 	/** Enables sprint and starts sprinting if all sprinting conditions are met */
-	void EnableSprint();
+	UFUNCTION(BlueprintCallable)
+		void EnableSprint();
 
 	/** Disables sprint, stops sprinting if currently sprinting */
-	void DisableSprint();
+	UFUNCTION(BlueprintCallable)
+		void DisableSprint();
 
 	/** Returns true if the player is not sprinting and should start sprinting */
 	bool ShouldStartSprinting(float ForwardMovement);
@@ -167,7 +168,8 @@ public:
 	void StopSprinting();
 
 	/** Handles moving forward/backward */
-	void MoveForward(float val);
+	UFUNCTION(BlueprintCallable)
+		void MoveForward(float val);
 
 	/** Handles stafing movement, left and right */
 	void MoveRight(float val);
