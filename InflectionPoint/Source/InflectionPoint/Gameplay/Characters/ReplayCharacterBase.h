@@ -14,6 +14,7 @@ UCLASS()
 class INFLECTIONPOINT_API AReplayCharacterBase : public ABaseCharacter {
 	GENERATED_BODY()
 
+		DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFinishedReplaying);
 public:
 	/* ------------------ */
 	/* Editor Settings */
@@ -89,6 +90,16 @@ public:
 	UFUNCTION()
 		void ApplyPitch(float value);
 
+	UFUNCTION()
+		bool HasFinishedReplaying();
+
+public:
+	/* ------------- */
+	/*    Events     */
+	/* ------------- */
+	UPROPERTY(BlueprintAssignable)
+		FOnFinishedReplaying OnFinishedReplaying;
+
 public:
 
 	UPROPERTY(BlueprintReadWrite)
@@ -97,6 +108,7 @@ public:
 	// Index of the Replay (to tell the diference between the replays of a player)
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		int ReplayIndex = -1;
+
 private:
 
 	TArray<FRecordedPlayerState> recordData;

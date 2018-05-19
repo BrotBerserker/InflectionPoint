@@ -84,13 +84,19 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 	}
 
 	// stop replay when end of recordData reached
-	if(replayIndex >= recordData.Num())
+	if(HasFinishedReplaying() && isReplaying) {
+		OnFinishedReplaying.Broadcast();
 		StopReplay();
+	}
+}
+
+bool AReplayCharacterBase::HasFinishedReplaying() {
+	return replayIndex >= recordData.Num();
 }
 
 void AReplayCharacterBase::UpdateKeys() {
 	// iterate through all record data since last tick until now
-	for(; replayIndex < recordData.Num() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
+	for(; !HasFinishedReplaying() && recordData[replayIndex].Timestamp <= passedTime; replayIndex++) {
 		UpdateRotation();
 		auto recordDataStep = recordData[replayIndex];
 		UpdatePressedKeys(recordDataStep);
