@@ -240,7 +240,7 @@ public:
 		virtual void MulticastStopAiming();
 
 	/** Reloads the currently equipped weapon */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 		void ServerReload();
 
 	UFUNCTION(Server, Reliable, WithValidation)
