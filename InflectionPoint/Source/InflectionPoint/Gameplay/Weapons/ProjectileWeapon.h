@@ -15,6 +15,8 @@ class INFLECTIONPOINT_API AProjectileWeapon : public ABaseWeapon {
 
 public:
 
+	AProjectileWeapon();
+
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;

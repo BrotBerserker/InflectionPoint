@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "BaseWeapon.h"
 #include "WeaponInventory.generated.h"
 
 
@@ -32,8 +33,11 @@ public:
 
 	void RemoveWeapon(ABaseWeapon* Weapon);
 
-
-	ABaseWeapon* GetWeapon(int index);
+	UFUNCTION(BlueprintCallable)
+		ABaseWeapon* GetWeapon(int index);
+	
+	UFUNCTION(BlueprintCallable)
+		int GetWeaponNum();
 
 	ABaseWeapon* GetNextWeapon(ABaseWeapon* CurrentWeapon);
 

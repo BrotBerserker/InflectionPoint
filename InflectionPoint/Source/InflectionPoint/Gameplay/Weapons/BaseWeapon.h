@@ -170,6 +170,11 @@ public:
 	/** Widget that shows the crosshair */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		TSubclassOf<UUserWidget> CrosshairDisplayWidget;
+
+
+	/** The FieldOfView when Aiming with the Weapon (for a zoom effect) */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "WeaponConfig|AI")
+		FRuntimeFloatCurve AISuitabilityWeaponRangeCurve;
 public:
 	/* ------------- */
 	/*    Events     */
@@ -284,6 +289,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		EWeaponState GetCurrentWeaponState();
+
+
+	/** Value between 0 and 1 that tells a AI how suitabe the Weapon is */
+	UFUNCTION(BlueprintCallable)
+		virtual float GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim);
 
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)

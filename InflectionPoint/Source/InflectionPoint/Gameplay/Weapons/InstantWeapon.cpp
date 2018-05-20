@@ -9,6 +9,10 @@
 
 AInstantWeapon::AInstantWeapon() {
 	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
+
+	// set default values
+	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(Range >= 100 ? Range-100 : 1, 1);
+	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(Range >= 100 ? Range : 100, 0);
 }
 
 void AInstantWeapon::PreExecuteFire() {
@@ -107,4 +111,11 @@ void AInstantWeapon::OnEquip() {
 	Super::OnEquip();
 	// always start with a new RandomStream for replay Precision
 	WeaponRandomStream = FRandomStream(0);
+}
+
+float AInstantWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) {
+	float suitability = Super::GetAIWeaponSuitability(shooter, victim);
+	if((shooter->GetActorLocation() - victim->GetActorLocation()).Size() > Range)
+		return 0;
+	return suitability;
 }

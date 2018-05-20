@@ -85,6 +85,8 @@ public:
 	void SpawnTrailFX(const FHitResult hitResult);
 
 	void SpawnImpactFX(const FHitResult hitResult);
+
+	float GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) override;
 private:
 	bool damageWasDealt = false;
 };

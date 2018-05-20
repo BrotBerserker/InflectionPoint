@@ -61,3 +61,7 @@ ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
 		return NULL;
 	return weapons[index];
 }
+
+int UWeaponInventory::GetWeaponNum() {
+	return weapons.Num();
+}

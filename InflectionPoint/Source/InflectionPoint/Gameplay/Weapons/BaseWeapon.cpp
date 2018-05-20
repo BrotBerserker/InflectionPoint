@@ -52,6 +52,9 @@ ABaseWeapon::ABaseWeapon() {
 
 	AnimationNotifyDelegate.BindUFunction(this, "ReloadAnimationNotifyCallback");
 	AnimationEndDelegate.BindUFunction(this, "ReloadAnimationEndCallback");
+
+	AISuitabilityWeaponRangeCurve.GetRichCurve()->DefaultValue = 1.0;
+	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(0, 1.0);
 }
 
 void ABaseWeapon::BeginPlay() {
@@ -318,6 +321,14 @@ void ABaseWeapon::ChangeWeaponState(EWeaponState newState) {
 
 EWeaponState ABaseWeapon::GetCurrentWeaponState() {
 	return CurrentState;
+}
+
+float ABaseWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) {
+	if(CurrentAmmo == 0)
+		return 0;
+	float distance = (shooter->GetActorLocation() - victim->GetActorLocation()).Size();
+	return AISuitabilityWeaponRangeCurve.GetRichCurveConst()->Eval(distance,0);
+	//return 1.0;
 }
 
 void ABaseWeapon::PreExecuteFire() {}

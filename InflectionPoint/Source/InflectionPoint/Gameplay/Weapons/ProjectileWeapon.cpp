@@ -4,6 +4,10 @@
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "ProjectileWeapon.h"
 
+AProjectileWeapon::AProjectileWeapon() {
+	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(1000, 1.0);
+}
+
 void AProjectileWeapon::ExecuteFire() {
 	UWorld* const World = GetWorld();
 	if(ProjectileClass == NULL || !AssertNotNull(World, GetWorld(), __FILE__, __LINE__))
