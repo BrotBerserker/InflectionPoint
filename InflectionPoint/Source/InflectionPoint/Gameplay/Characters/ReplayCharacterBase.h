@@ -67,7 +67,7 @@ public:
 		void StopReplay();
 
 	/** Sets the replay data */
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void SetReplayData(TArray<FRecordedPlayerState> RecordData);
 
 	/** Act as if the player would have pressed the given key */

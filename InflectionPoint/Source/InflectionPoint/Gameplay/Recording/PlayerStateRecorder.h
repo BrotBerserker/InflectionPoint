@@ -7,26 +7,26 @@
 #include "PlayerStateRecorder.generated.h"
 
 /** Represents a player's state (location, rotation, pressed keys) at a certain point of time */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FRecordedPlayerState {
 	GENERATED_BODY()
 
-		UPROPERTY()
+		UPROPERTY(BlueprintReadWrite)
 		float Timestamp;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		FVector Position;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		float CapsuleYaw;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		float CameraPitch;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		TArray<FString> PressedKeys;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 		TArray<FString> ReleasedKeys;
 
 	FRecordedPlayerState() {
@@ -77,7 +77,7 @@ public:
 	void InitializeBindings(UInputComponent * inputComponent);
 
 	/** Starts recording */
-	UFUNCTION(Server, Reliable, WithValidation)
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 		void ServerStartRecording();
 
 	/** Resets the list of recorded PlayerStates */
@@ -90,7 +90,8 @@ public:
 	/* -------------- */
 
 	/** List of recorded player states */
-	TArray<FRecordedPlayerState> RecordedPlayerStates;
+	UPROPERTY(BlueprintReadOnly)
+		TArray<FRecordedPlayerState> RecordedPlayerStates;
 
 private:
 	bool recording = false;
@@ -108,11 +109,12 @@ private:
 
 	int movingRight = 0;
 
-	void RecordKey(FString key, EInputEvent eventType);
+	UFUNCTION(BlueprintCallable)
+		void RecordKey(FString key, EInputEvent eventType);
 
 	template<EInputEvent eventType>
 	void RecordJump();
-	
+
 	template<EInputEvent eventType>
 	void RecordAim();
 
@@ -128,7 +130,8 @@ private:
 	template<EInputEvent eventType>
 	void RecordEquipPreviousWeapon();
 
-	void RecordMoveForward(float val);
+	UFUNCTION(BlueprintCallable)
+		void RecordMoveForward(float val);
 
 	void RecordMoveRight(float val);
 

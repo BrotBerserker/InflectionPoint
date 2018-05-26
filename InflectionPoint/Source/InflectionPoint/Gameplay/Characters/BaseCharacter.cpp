@@ -246,9 +246,8 @@ bool ABaseCharacter::ServerStopFire_Validate() {
 }
 
 void ABaseCharacter::ServerStopFire_Implementation() {
-	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
-		return;
-	CurrentWeapon->StopFire();
+	if(CurrentWeapon)
+		CurrentWeapon->StopFire();
 }
 
 void ABaseCharacter::StartAiming() {

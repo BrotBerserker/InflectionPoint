@@ -17,7 +17,8 @@ class INFLECTIONPOINT_API AAIControllerBase : public AAIController {
 public:
 	AAIControllerBase(const FObjectInitializer& ObjectInitializer);
 
-	void Initialize(APlayerController* OwningController);
+	UFUNCTION(BlueprintCallable)
+		void Initialize(APlayerController* OwningController);
 
 	UPROPERTY(BlueprintReadOnly)
 		APlayerController* OwningPlayerController;
