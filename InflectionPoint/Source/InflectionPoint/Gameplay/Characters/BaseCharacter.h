@@ -24,7 +24,7 @@ public:
 		class USkeletalMeshComponent* Mesh1P;
 
 	/** Pawn mesh: 3rd person view (completed body; seen only by others) */
-	UPROPERTY(VisibleDefaultsOnly, Category = Mesh)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
 		class USkeletalMeshComponent* Mesh3P;
 
 	/** First person camera */
