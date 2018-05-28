@@ -63,7 +63,7 @@ ABaseCharacter::ABaseCharacter() {
 	// Initialize Materialize Timeline (wtf aber ok, siehe https://wiki.unrealengine.com/Timeline_in_c%2B%2B)
 	MaterializeTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimeline"));
 
-	walkSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 	CharacterInfoProvider->SetIsReplicated(true);
@@ -459,11 +459,11 @@ void ABaseCharacter::DisableSprint() {
 }
 
 bool ABaseCharacter::ShouldStartSprinting(float ForwardMovement) {
-	return sprintAllowed && sprintEnabled && ForwardMovement > 0 && GetVelocity().Size() <= walkSpeed;
+	return sprintAllowed && sprintEnabled && ForwardMovement > 0 && GetVelocity().Size() <= WalkSpeed;
 }
 
 bool ABaseCharacter::ShouldStopSprinting(float ForwardMovement) {
-	if(GetVelocity().Size() <= walkSpeed) {
+	if(GetVelocity().Size() <= WalkSpeed) {
 		return false;
 	}
 	return !sprintAllowed || !sprintEnabled || ForwardMovement <= 0;
@@ -474,7 +474,7 @@ void ABaseCharacter::StartSprinting() {
 }
 
 void ABaseCharacter::StopSprinting() {
-	GetCharacterMovement()->MaxWalkSpeed = walkSpeed;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
 bool ABaseCharacter::ServerStartSprinting_Validate() {

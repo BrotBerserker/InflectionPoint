@@ -55,6 +55,10 @@ public:
 	/** Determines the maximum walk speed when sprinting */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
 		int SprintSpeed = 900;
+	
+	/** Determines the maximum walk speed when walking normaly */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
+		int WalkSpeed = 600;
 
 	/** Determines the materialize amount over time when playing the materialize animation */
 	UPROPERTY(EditAnywhere, Category = Materialize)
@@ -304,8 +308,6 @@ private:
 
 	/** False if the player is not allowed to sprint (e.g. when firing a weapon) */
 	bool sprintAllowed = true;
-
-	int walkSpeed;
 
 	UMaterialInstanceDynamic* DynamicBodyMaterial;
 };
