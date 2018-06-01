@@ -115,7 +115,7 @@ void AInstantWeapon::OnEquip() {
 
 float AInstantWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) {
 	float suitability = Super::GetAIWeaponSuitability(shooter, victim);
-	if((shooter->GetActorLocation() - victim->GetActorLocation()).Size() > Range)
+	if(shooter && victim && (shooter->GetActorLocation() - victim->GetActorLocation()).Size() > Range)
 		return 0;
 	return suitability;
 }

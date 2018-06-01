@@ -326,7 +326,9 @@ EWeaponState ABaseWeapon::GetCurrentWeaponState() {
 float ABaseWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) {
 	if(CurrentAmmo == 0)
 		return 0;
-	float distance = (shooter->GetActorLocation() - victim->GetActorLocation()).Size();
+	float distance = 1000;
+	if(shooter && victim)
+		distance = (shooter->GetActorLocation() - victim->GetActorLocation()).Size();
 	return AISuitabilityWeaponRangeCurve.GetRichCurveConst()->Eval(distance,0);
 	//return 1.0;
 }
