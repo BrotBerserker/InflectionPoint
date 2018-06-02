@@ -41,7 +41,7 @@ public:
 		FColor DebugMissColor = FColorList::LightSteelBlue;
 
 	/** If the AI takes ofer the controll after replay is finished */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = General)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = General)
 		bool AITakeoverAfterReplayEnd = true;
 public:
 	/* ------------- */
