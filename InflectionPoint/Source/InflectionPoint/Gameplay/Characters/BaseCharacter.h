@@ -55,7 +55,7 @@ public:
 	/** Determines the maximum walk speed when sprinting */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
 		int SprintSpeed = 900;
-	
+
 	/** Determines the maximum walk speed when walking normaly */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
 		int WalkSpeed = 600;
@@ -180,11 +180,15 @@ public:
 
 	/** These two are needed because sprinting is handled on client side */
 	void StartFire();
-	void StopFire();
+
+	UFUNCTION(BlueprintCallable)
+		void StopFire();
 
 	/** Start/stop aiming has to be done on clients and server to ensure smooth animations */
 	void StartAiming();
-	void StopAiming();
+
+	UFUNCTION(BlueprintCallable)
+		void StopAiming();
 
 	/**
 	* Called via input to turn at a given rate.
