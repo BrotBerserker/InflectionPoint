@@ -59,6 +59,8 @@ ABaseCharacter::ABaseCharacter() {
 	// Initialize MortalityProvider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
 	MortalityProvider->SetIsReplicated(true);
+	MortalityProvider->StartHealth = 100;
+	MortalityProvider->StartShield = 50;
 
 	// Initialize Materialize Timeline (wtf aber ok, siehe https://wiki.unrealengine.com/Timeline_in_c%2B%2B)
 	MaterializeTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimeline"));

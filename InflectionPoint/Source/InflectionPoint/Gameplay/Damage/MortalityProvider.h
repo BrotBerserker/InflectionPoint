@@ -25,6 +25,22 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0))
 		int StartHealth = 100;
 
+	/* The shield to start with */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0))
+		int StartShield = 0;
+
+	/* Length of regeneration intervals */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0))
+		float ShieldRegenerationInterval = 0.1f;
+
+	/* How much shield gets regenerated in each interval */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0))
+		int ShieldRegenerationAmount = 1;
+
+	/* How much shield gets regenerated in each interval */
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, meta = (ClampMin = 0))
+		float RegenerationDelayAfterDamageTaken = 3.f;
+
 	/* When health reaches 0, this is the time the MortalityProvider will wait before destroying its owner. */
 	UPROPERTY(EditAnywhere)
 		float SecondsToLiveBeforeDestruction = 0.f;
@@ -37,6 +53,9 @@ public:
 	UPROPERTY(Replicated, BlueprintReadOnly)
 		int CurrentHealth;
 
+	UPROPERTY(Replicated, BlueprintReadOnly)
+		int CurrentShield;
+
 public:
 	/* ------------- */
 	/*   Functions   */
@@ -47,6 +66,8 @@ public:
 
 	/** BeginPlay, initializes health */
 	virtual void BeginPlay() override;
+	
+	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) override;
 
 	/** Needed for replication of currentHealth */
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
@@ -65,4 +86,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		bool IsAlive();
+private:
+	float timeSinceLastRegeneration;
+	float timeSinceLastDamageTaken;
 };
