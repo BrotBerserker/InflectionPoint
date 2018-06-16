@@ -23,8 +23,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
 		TArray<ALevelSequenceActor*> SpawnCinematicLevelSequences;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint")
+		class ACameraActor* SpawnCinematicCamera;
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")
 		void OnPrePlaySequence();	
+
+	UFUNCTION()
+		void ReturnCameraToPlayer();
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")
 		void OnPostPlaySequence();
