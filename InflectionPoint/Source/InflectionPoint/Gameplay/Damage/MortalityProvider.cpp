@@ -15,6 +15,8 @@ void UMortalityProvider::BeginPlay() {
 }
 
 void UMortalityProvider::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
+	if(!IsAlive())
+		return;
 	if(GetOwner() && !GetOwner()->HasAuthority())
 		return;
 
