@@ -14,7 +14,7 @@ struct FCharacterInfo {
 		FString PlayerName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int Team;
+		int Team = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool IsReplay = false;
