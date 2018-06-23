@@ -22,7 +22,7 @@ public:
 		int CurrentRound = 0;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
-		int MaxRoundNum = 1;
+		int MaxRoundNum = 3;
 
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
 		int CurrentPhase = 0;
@@ -45,4 +45,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		int GetTeamScore(int team);
+
+	UFUNCTION()
+		void ResetPlayerScores();
 };

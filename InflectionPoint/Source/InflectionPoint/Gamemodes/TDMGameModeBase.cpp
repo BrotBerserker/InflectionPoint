@@ -79,24 +79,52 @@ void ATDMGameModeBase::StartMatch() {
 	GetGameState()->MaxPhaseNum = CharacterSpawner->GetSpawnPointCount() / MaxPlayers;
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 	ScoreHandler->ResetPlayerScores();
-	StartTimer(this, GetWorld(), "StartNextPhase", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
+	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
 }
 
 void ATDMGameModeBase::EndCurrentPhase() {
 	SaveRecordingsFromRemainingPlayers();
-	StartNextPhase();
+	if(GetGameState()->CurrentPhase == GetGameState()->MaxPhaseNum) {
+		EndCurrentRound();
+	} else {
+		StartNextPhase();
+	}	
 }
 
 void ATDMGameModeBase::StartNextPhase() {
 	int phase = GetGameState()->CurrentPhase + 1;
-	if(phase > GetGameState()->MaxPhaseNum)
-		phase = 1; // restart 
+	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
+		return;
 	GetGameState()->CurrentPhase = phase;
 	ClearMap();
 	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
 	SendPhaseStartedToPlayers(phase);
 	StartCountdown();
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
+}
+
+
+void ATDMGameModeBase::EndCurrentRound() {
+	ScoreHandler->SelectWinnerTeamForRound();
+	if(GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum) {
+		// TODO: @Roman do your shit here ...
+		StartMatch();
+		return;
+	}
+	StartNextRound();
+}
+
+void ATDMGameModeBase::StartNextRound() {
+	UE_LOG(LogTemp, Warning, TEXT("WTF LOG - 01"));
+	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
+		return;
+	UE_LOG(LogTemp, Warning, TEXT("WTF LOG - 02"));
+	ScoreHandler->ResetPlayerScores();
+	UE_LOG(LogTemp, Warning, TEXT("WTF LOG - 03"));
+	GetGameState()->CurrentPhase = 0;
+	GetGameState()->CurrentRound++;
+	StartNextPhase();
+	UE_LOG(LogTemp, Warning, TEXT("WTF LOG - 04"));
 }
 
 void ATDMGameModeBase::StartSpawnCinematics() {

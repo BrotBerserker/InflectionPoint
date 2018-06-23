@@ -49,6 +49,14 @@ public:
 	UFUNCTION()
 		void StartNextPhase();
 
+	/** starts the next round */
+	UFUNCTION()
+		void StartNextRound();
+
+	/** ends the current round */
+	UFUNCTION()
+		void EndCurrentRound();
+
 	/** Starts the countdown at the beginning of a new phase */
 	UFUNCTION()
 		void StartCountdown();
@@ -117,6 +125,7 @@ private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
 
 private:
+
 
 	/** Check current phase's status */
 	bool IsWinnerFound();

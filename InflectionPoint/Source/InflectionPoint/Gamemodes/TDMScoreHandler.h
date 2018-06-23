@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Gamemodes/TDMGameStateBase.h" 
 #include "TDMScoreHandler.generated.h"
 
 
@@ -38,6 +39,9 @@ public:
 	UFUNCTION()
 		void ResetPlayerScores();
 
+	UFUNCTION()
+		void SelectWinnerTeamForRound();
+
 private:
 	UFUNCTION()
 		void UpdatePlayerScoreAfterKill(AController * KilledPlayer, AController* KillingPlayer);
@@ -46,4 +50,6 @@ private:
 
 	UFUNCTION()
 		bool IsTeamKill(UCharacterInfoProvider* killedInfo, UCharacterInfoProvider* killerInfo);
+
+	ATDMGameStateBase* GetGameState();
 };

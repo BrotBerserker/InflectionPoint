@@ -11,15 +11,23 @@ void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ATDMGameStateBase, CurrentRound);
 	DOREPLIFETIME(ATDMGameStateBase, MaxRoundNum);
 	DOREPLIFETIME(ATDMGameStateBase, CurrentPhase);
+	DOREPLIFETIME(ATDMGameStateBase, MaxPhaseNum);
 	DOREPLIFETIME(ATDMGameStateBase, TeamWins);
 }
 
 int ATDMGameStateBase::GetTeamScore(int team) {
 	double teamScore = 0;
-	for(auto playerState : PlayerArray) {
-		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(playerState);
-		if(tdmPlayerState->Team == team)
+	for(int i = 0; i < PlayerArray.Num(); i++) {
+		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
+		if(tdmPlayerState && tdmPlayerState->Team == team)
 			teamScore += tdmPlayerState->Score;
 	}
 	return teamScore;
+}
+
+void ATDMGameStateBase::ResetPlayerScores() {
+	for(int i = 0; i < PlayerArray.Num(); i++) {
+		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
+		tdmPlayerState->ResetScore();
+	}
 }

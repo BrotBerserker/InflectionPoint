@@ -50,5 +50,4 @@ public:
 	virtual void SetPlayerName(const FString& S) override;
 
 	virtual FString GetPlayerNameCustom() const override;
-
 };

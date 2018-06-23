@@ -2,7 +2,6 @@
 
 #include "InflectionPoint.h"
 #include "Gameplay/CharacterInfoProvider.h"
-#include "Gamemodes/TDMGameStateBase.h" 
 #include "Gamemodes/TDMPlayerStateBase.h" 
 #include "TDMScoreHandler.h"
 
@@ -81,10 +80,24 @@ bool UTDMScoreHandler::IsTeamKill(UCharacterInfoProvider* killedInfo, UCharacter
 }
 
 void UTDMScoreHandler::ResetPlayerScores() {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		Cast<ATDMPlayerStateBase>(playerController->PlayerState)->ResetScore();
-	}
+	GetGameState()->ResetPlayerScores();
 }
 
+void UTDMScoreHandler::SelectWinnerTeamForRound() {
+	int bestScore = -1;
+	int bestTeam = 0;
+	for(int team = 1; team <= GetGameState()->TeamCount; team++) {
+		int score = GetGameState()->GetTeamScore(team);
+		if(score > bestScore) {
+			bestScore = score;
+			bestTeam = team;
+		}
+	}
+	GetGameState()->TeamWins[bestTeam] ++;
+}
 
+ATDMGameStateBase* UTDMScoreHandler::GetGameState() {
+	auto gameState = GetWorld()->GetGameState<ATDMGameStateBase>();
+	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__);
+	return gameState;
+}
