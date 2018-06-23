@@ -264,11 +264,11 @@ public:
 		void MulticastWeaponChanged(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon);
 
 	/** Starts sprinting via RPC */
-	UFUNCTION(Reliable, Server, WithValidation)
+	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable)
 		void ServerStartSprinting();
 
 	/** Stops sprinting via RPC */
-	UFUNCTION(Reliable, Server, WithValidation)
+	UFUNCTION(Reliable, Server, WithValidation, BlueprintCallable)
 		void ServerStopSprinting();
 
 	/** Plays a death animation, disables input and collisions */

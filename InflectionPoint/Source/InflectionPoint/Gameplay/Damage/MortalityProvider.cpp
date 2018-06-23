@@ -27,7 +27,7 @@ void UMortalityProvider::TickComponent(float DeltaTime, enum ELevelTick TickType
 	timeSinceLastRegeneration += DeltaTime;
 	if(timeSinceLastRegeneration > ShieldRegenerationInterval) {
 		timeSinceLastRegeneration -= ShieldRegenerationInterval;
-		CurrentShield = CurrentShield + ShieldRegenerationAmount > StartShield ? StartShield : CurrentShield + ShieldRegenerationAmount;
+		CurrentShield = FMath::Min(CurrentShield + ShieldRegenerationAmount, StartShield);
 	}
 }
 
