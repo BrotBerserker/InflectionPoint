@@ -333,12 +333,22 @@ void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {
 	EquipWeapon(WeaponInventory->GetPreviousWeapon(CurrentWeapon), CurrentWeapon);
 }
 
-
 bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {
 	return true;
 }
 
 void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(int index) {
+	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
+	if(newWeapon && CurrentWeapon != newWeapon)
+		EquipWeapon(newWeapon, CurrentWeapon);
+}
+
+bool ABaseCharacter::ServerEquipRandomWeapon_Validate() {
+	return true;
+}
+
+void ABaseCharacter::ServerEquipRandomWeapon_Implementation() {
+	int32 index = FMath::RandHelper(WeaponInventory->GetWeaponNum());
 	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
 	if(newWeapon && CurrentWeapon != newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
@@ -391,6 +401,10 @@ void ABaseCharacter::MulticastOnDeath_Implementation() {
 	DisableComponentsSimulatePhysics();
 
 	GetCapsuleComponent()->SetCollisionProfileName(FName("DeadCharacter"));
+}
+
+void ABaseCharacter::MulticastPlay3PAnimation_Implementation(UAnimationAsset* animation) {
+	Mesh3P->PlayAnimation(animation, false);
 }
 
 void ABaseCharacter::ClientOnDeath_Implementation() {

@@ -260,6 +260,9 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
 		void ServerEquipSpecificWeapon(int index);
 
+	UFUNCTION(Server, Reliable, WithValidation)
+		void ServerEquipRandomWeapon();
+
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastWeaponChanged(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon);
 
@@ -274,6 +277,10 @@ public:
 	/** Plays a death animation, disables input and collisions */
 	UFUNCTION(Reliable, NetMulticast, BlueprintCallable)
 		void MulticastOnDeath();
+
+	/** Plays an animation on the Mesh3P */
+	UFUNCTION(Reliable, NetMulticast, BlueprintCallable)
+		void MulticastPlay3PAnimation(UAnimationAsset* animation);
 
 	/** Hides Mesh1P and shows Mesh3P for the death camera */
 	UFUNCTION(Reliable, Client, BlueprintCallable)

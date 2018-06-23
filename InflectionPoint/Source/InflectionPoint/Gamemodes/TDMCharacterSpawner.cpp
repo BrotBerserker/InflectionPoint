@@ -32,7 +32,7 @@ void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerC
 	auto spawnPoint = FindSpawnForPlayer(playerController, CurrentPhase);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 
-	auto character = SpawnCharacter<APlayerCharacterBase>(PlayerCharacters[GetTeam(playerController)], playerController, spawnPoint);
+	auto character = SpawnCharacter<APlayerCharacterBase>(PlayerCharacters[GetTeam(playerController)], spawnPoint);
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
@@ -43,7 +43,7 @@ void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerCo
 	auto spawnPoint = FindSpawnForPlayer(playerController, CurrentPhase);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 
-	auto character = SpawnCharacter<AReplayCharacterBase>(ReplayCharacters[GetTeam(playerController)], playerController, spawnPoint);
+	auto character = SpawnCharacter<AReplayCharacterBase>(ReplayCharacters[GetTeam(playerController)], spawnPoint);
 
 	AssertTrue(PlayerRecordings.Contains(playerController), GetWorld(), __FILE__, __LINE__, "Could not find replay for controller");
 	AssertTrue(PlayerRecordings[playerController].Contains(CurrentPhase), GetWorld(), __FILE__, __LINE__, "Could not find replay for current phase");
@@ -53,7 +53,7 @@ void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerCo
 }
 
 template <typename CharacterType>
-CharacterType* UTDMCharacterSpawner::SpawnCharacter(UClass* spawnClass, APlayerControllerBase * playerController, AActor* playerStart) {
+CharacterType* UTDMCharacterSpawner::SpawnCharacter(UClass* spawnClass, AActor* playerStart) {
 	FVector loc = playerStart->GetTransform().GetLocation();
 	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
 

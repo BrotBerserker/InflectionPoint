@@ -53,5 +53,5 @@ private:
 	int GetTeam(APlayerControllerBase* playerController);
 
 	template <typename CharacterType>
-	CharacterType* SpawnCharacter(UClass* spawnClass, APlayerControllerBase * playerController, AActor* playerStart);
+	CharacterType* SpawnCharacter(UClass* spawnClass, AActor* playerStart);
 };
