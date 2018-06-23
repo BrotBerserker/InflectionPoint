@@ -33,8 +33,8 @@ void APlayerControllerBase::ClientSetControlRotation_Implementation(FRotator rot
 	SetControlRotation(rotation);
 }
 
-void APlayerControllerBase::ClientRoundStarted_Implementation(int Round) {
-	OnRoundStarted(Round);
+void APlayerControllerBase::ClientPhaseStarted_Implementation(int Phase) {
+	OnPhaseStarted(Phase);
 }
 
 void APlayerControllerBase::ClientShowKillInfo_Implementation(FCharacterInfo KilledInfo, float killedScoreChange, FCharacterInfo KillerInfo, float killerScoreChange, UTexture2D* WeaponImage) {

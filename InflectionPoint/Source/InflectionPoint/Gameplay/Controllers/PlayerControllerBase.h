@@ -24,10 +24,10 @@ public:
 		void ClientSetControlRotation(FRotator rotation);
 
 	UFUNCTION(Client, Reliable)
-		void ClientRoundStarted(int Round);
+		void ClientPhaseStarted(int Phase);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnRoundStarted(int Round);
+		void OnPhaseStarted(int Phase);
 
 	UFUNCTION(Client, Reliable)
 		void ClientShowKillInfo(FCharacterInfo KilledInfo, float killedScoreChange, FCharacterInfo KillerInfo, float killerScoreChange, UTexture2D* WeaponImage);

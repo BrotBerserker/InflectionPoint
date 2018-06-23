@@ -73,26 +73,28 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 }
 
 void ATDMGameModeBase::StartMatch() {
+	GetGameState()->TeamWins.Init(0, GetGameState()->TeamCount + 1); // +1 because teams start with 1
 	GetGameState()->CurrentRound = 0;
-	GetGameState()->MaxRoundNum = CharacterSpawner->GetSpawnPointCount() / MaxPlayers;
+	GetGameState()->CurrentPhase = 0;
+	GetGameState()->MaxPhaseNum = CharacterSpawner->GetSpawnPointCount() / MaxPlayers;
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 	ScoreHandler->ResetPlayerScores();
-	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
+	StartTimer(this, GetWorld(), "StartNextPhase", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
 }
 
-void ATDMGameModeBase::EndCurrentRound() {
+void ATDMGameModeBase::EndCurrentPhase() {
 	SaveRecordingsFromRemainingPlayers();
-	StartNextRound();
+	StartNextPhase();
 }
 
-void ATDMGameModeBase::StartNextRound() {
-	int round = GetGameState()->CurrentRound + 1;
-	if(round > GetGameState()->MaxRoundNum)
-		round = 1; // restart 
-	GetGameState()->CurrentRound = round;
+void ATDMGameModeBase::StartNextPhase() {
+	int phase = GetGameState()->CurrentPhase + 1;
+	if(phase > GetGameState()->MaxPhaseNum)
+		phase = 1; // restart 
+	GetGameState()->CurrentPhase = phase;
 	ClearMap();
-	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentRound, PlayerRecordings);
-	SendRoundStartedToPlayers(round);
+	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
+	SendPhaseStartedToPlayers(phase);
 	StartCountdown();
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
@@ -113,20 +115,20 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 	if(KilledPlayer->IsA(APlayerController::StaticClass()))
 		Cast<ATDMPlayerStateBase>(KilledPlayer->PlayerState)->IsAlive = false;
 
-	if(GetGameState()->CurrentRound > 0)
+	if(GetGameState()->CurrentPhase > 0)
 		ScoreHandler->AddKill(KilledPlayer, KillingPlayer);
 
 	APlayerControllerBase* playerController = Cast<APlayerControllerBase>(KilledPlayer);
 	if(!playerController)
 		return;
 
-	if(GetGameState()->CurrentRound > 0)
+	if(GetGameState()->CurrentPhase > 0)
 		SavePlayerRecordings(playerController);
 
-	if(GetGameState()->CurrentRound == 0) {
+	if(GetGameState()->CurrentPhase == 0) {
 		CharacterSpawner->SpawnAndPossessPlayer(playerController, 0);
 	} else if(IsWinnerFound()) {
-		StartTimer(this, GetWorld(), "EndCurrentRound", RoundEndDelay + 0.00001f, false); // 0 does not work o.O
+		StartTimer(this, GetWorld(), "EndCurrentPhase", PhaseEndDelay + 0.00001f, false); // 0 does not work o.O
 	}
 }
 
@@ -136,18 +138,18 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
-		float killedScoreChange = GetGameState()->CurrentRound == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
-		float killerScoreChange = GetGameState()->CurrentRound == 0 ? 0 : ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer);
+		float killedScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
+		float killerScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer);
 		auto weapon = Cast<ABaseWeapon>(DamageCauser);
 		controller->ClientShowKillInfo(killedInfo, killedScoreChange, killerInfo, killerScoreChange, weapon ? weapon->WeaponTexture : NULL);
 	}
 }
 
-void ATDMGameModeBase::SendRoundStartedToPlayers(int Round) {
+void ATDMGameModeBase::SendPhaseStartedToPlayers(int Phase) {
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
-		controller->ClientRoundStarted(Round);
+		controller->ClientPhaseStarted(Phase);
 	}
 }
 
@@ -221,7 +223,7 @@ void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerContro
 			TMap<int, TArray<FRecordedPlayerState>> map;
 			PlayerRecordings.Add(playerController, map);
 		}
-		PlayerRecordings[playerController].Add(GetGameState()->CurrentRound, playerStateRecorder->RecordedPlayerStates);
+		PlayerRecordings[playerController].Add(GetGameState()->CurrentPhase, playerStateRecorder->RecordedPlayerStates);
 	}
 }
 

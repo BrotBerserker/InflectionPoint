@@ -35,21 +35,21 @@ public:
 	/** Assigns each player a team and a start group which is used to determine the spawn position */
 	void AssignTeamsAndPlayerStartGroups();
 
-	/** Spawns all players and replays for the given round */
-	void SpawnPlayersAndReplays(int CurrentRound, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings);
+	/** Spawns all players and replays for the given phase */
+	void SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings);
 
-	/** Spawns a player for the given round and lets the given controller possess it */
-	void SpawnAndPossessPlayer(APlayerControllerBase* playerController, int CurrentRound);
+	/** Spawns a player for the given phase and lets the given controller possess it */
+	void SpawnAndPossessPlayer(APlayerControllerBase* playerController, int CurrentPhase);
 
-	/** Spawns a replay for the given round and initializes it using the given controller and replay data */
-	void SpawnAndPrepareReplay(APlayerControllerBase* controller, int round, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings);
+	/** Spawns a replay for the given phase and initializes it using the given controller and replay data */
+	void SpawnAndPrepareReplay(APlayerControllerBase* controller, int phase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings);
 
 private:
 	class ATDMGameModeBase* gameMode;
 
 private:
-	FString GetSpawnTag(APlayerControllerBase*  playerController, int round);
-	AActor* FindSpawnForPlayer(APlayerControllerBase* playerController, int round);
+	FString GetSpawnTag(APlayerControllerBase*  playerController, int phase);
+	AActor* FindSpawnForPlayer(APlayerControllerBase* playerController, int phase);
 	int GetTeam(APlayerControllerBase* playerController);
 
 	template <typename CharacterType>

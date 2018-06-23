@@ -37,19 +37,19 @@ public:
 	/** Constructor */
 	ATDMGameModeBase();
 
-	/** Starts the match by starting round 1 */
+	/** Starts the match by starting phase 1 round 1 */
 	UFUNCTION()
 		void StartMatch();
 
-	/** Saves the current round's replays and starts the next round */
+	/** Saves the current phase's replays and starts the next phase */
 	UFUNCTION()
-		void EndCurrentRound();
+		void EndCurrentPhase();
 
 	/** Respawns players and replays, start the countdown */
 	UFUNCTION()
-		void StartNextRound();
+		void StartNextPhase();
 
-	/** Starts the countdown at the beginning of a new round */
+	/** Starts the countdown at the beginning of a new phase */
 	UFUNCTION()
 		void StartCountdown();
 
@@ -57,7 +57,7 @@ public:
 	UFUNCTION()
 		void UpdateCountdown(TArray<AActor*> controllers, int number);
 
-	/** Switches to a cinematic camera at the beginning of a new round */
+	/** Switches to a cinematic camera at the beginning of a new phase */
 	UFUNCTION()
 		void StartSpawnCinematics();
 
@@ -86,9 +86,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MatchStartDelay = 1.0f;
 
-	/** Seconds to wait before a round is ended after the winner has been decided */
+	/** Seconds to wait before a phase is ended after the winner has been decided */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float RoundEndDelay = 2.0f;
+		float PhaseEndDelay = 2.0f;
 
 	/** MaxPlayers is set to this value when playing in editor or offline */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
@@ -118,12 +118,12 @@ private:
 
 private:
 
-	/** Check current round's status */
+	/** Check current phase's status */
 	bool IsWinnerFound();
 	TArray<int> GetTeamsAlive();
 	bool IsPlayerAlive(APlayerControllerBase* playerController);
 
-	/** Start/end rounds */
+	/** Start/end phases */
 	void SaveRecordingsFromRemainingPlayers();
 	void SavePlayerRecordings(APlayerControllerBase * playerController);
 
@@ -133,5 +133,5 @@ private:
 
 	/** Inform players about kill etc. */
 	void SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
-	void SendRoundStartedToPlayers(int Round);
+	void SendPhaseStartedToPlayers(int Phase);
 };
