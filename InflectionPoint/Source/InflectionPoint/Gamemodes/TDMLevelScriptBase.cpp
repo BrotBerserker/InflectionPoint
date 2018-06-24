@@ -12,27 +12,35 @@ void ATDMLevelScriptBase::MulticastStartSpawnCinematic_Implementation() {
 		return;
 	}
 	OnPrePlaySpawnCinematic();
-	PlaySequence(SpawnCinematicCamera, SpawnCinematicLevelSequences[GetTeam()]);
+	PrepareAndStartSequence(SpawnCinematicCamera, SpawnCinematicLevelSequences[GetTeam()], 0.3f);
 }
 
-void ATDMLevelScriptBase::StartEndMatchSequence(TSubclassOf<AActor> WinningActor, TSubclassOf<AActor> LosingActor) {
+void ATDMLevelScriptBase::StartEndMatchSequence(TSubclassOf<AActor> WinningActor, TSubclassOf<AActor> LosingActor, FString WinnerName, FString LoserName) {
 	if(SoftAssertTrue(WinningPlayerLocation != nullptr && LosingPlayerLocation != nullptr, GetWorld(), __FILE__, __LINE__, "No locations for winning/losing player provided!")) {
 		AActor* winner = SpawnActorForEndMatchSequence(WinningActor, WinningPlayerLocation);
 		AActor* loser = SpawnActorForEndMatchSequence(LosingActor, LosingPlayerLocation);
-		PlayEndMatchSequenceAnimation(winner, WinningPlayerAnimation);
-		PlayEndMatchSequenceAnimation(loser, LosingPlayerAnimation);
+		PrepareActorForEndMatchSequence(winner, WinningPlayerAnimation);
+		PrepareActorForEndMatchSequence(loser, LosingPlayerAnimation);
 	}
-	MulticastStartEndMatchSequence();
+	MulticastStartEndMatchSequence(WinnerName, LoserName);
 }
 
-void ATDMLevelScriptBase::MulticastStartEndMatchSequence_Implementation() {
-	PlaySequence(MatchEndCamera, MatchEndLevelSequence);
+void ATDMLevelScriptBase::MulticastStartEndMatchSequence_Implementation(const FString& winnerName, const FString& loserName) {
+	UpdateNameTag(WinningPlayerLocation, winnerName);
+	UpdateNameTag(LosingPlayerLocation, loserName);
+	PrepareAndStartSequence(MatchEndCamera, MatchEndLevelSequence, 1.f);
 }
 
-void ATDMLevelScriptBase::PlaySequence(ACameraActor* camera, ALevelSequenceActor* sequenceActor) {
+void ATDMLevelScriptBase::PrepareAndStartSequence(ACameraActor* camera, ALevelSequenceActor* sequenceActor, float fadeTime) {
 	if(!SoftAssertTrue(sequenceActor != nullptr, GetWorld(), __FILE__, __LINE__, "No level sequence provided!"))
 		return;
 	APlayerController* controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	controller->ClientSetCameraFade(true, FColor::Black, FVector2D(0, 1), fadeTime + 0.1f);
+	StartTimer(this, GetWorld(), "StartSequence", fadeTime, false, controller, camera, sequenceActor, fadeTime);
+}
+
+void ATDMLevelScriptBase::StartSequence(APlayerController* controller, ACameraActor* camera, ALevelSequenceActor* sequenceActor, float fadeTime) {
+	controller->ClientSetCameraFade(true, FColor::Black, FVector2D(1, 0), fadeTime);
 	controller->SetViewTargetWithBlend(camera);
 	sequenceActor->SequencePlayer->SetPlaybackPosition(0);
 	sequenceActor->SequencePlayer->Play();
@@ -49,13 +57,22 @@ AActor* ATDMLevelScriptBase::SpawnActorForEndMatchSequence(TSubclassOf<AActor> a
 	return GetWorld()->SpawnActor<AActor>(actorToSpawn, loc, rot, ActorSpawnParams);
 }
 
-void ATDMLevelScriptBase::PlayEndMatchSequenceAnimation(AActor * spawnedActor, UAnimationAsset* animation) {
+void ATDMLevelScriptBase::PrepareActorForEndMatchSequence(AActor * spawnedActor, UAnimationAsset* animation) {
 	ABaseCharacter* baseCharacter = Cast<ABaseCharacter>(spawnedActor);
-	if(!baseCharacter) {
+	if(baseCharacter) {
+		baseCharacter->ServerEquipRandomWeapon();
+		baseCharacter->MulticastPlay3PAnimation(animation);
+	}
+}
+
+void ATDMLevelScriptBase::UpdateNameTag(AActor* location, FString name) {
+	if(!location) {
 		return;
 	}
-	baseCharacter->ServerEquipRandomWeapon();
-	baseCharacter->MulticastPlay3PAnimation(animation);
+	UTextRenderComponent* textRender = location->FindComponentByClass<UTextRenderComponent>();
+	if(textRender) {
+		textRender->SetText(FText::FromString(name));
+	}
 }
 
 int ATDMLevelScriptBase::GetTeam() {

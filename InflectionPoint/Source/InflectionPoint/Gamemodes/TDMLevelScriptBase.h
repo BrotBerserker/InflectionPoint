@@ -36,10 +36,10 @@ public:
 	/*    Match end    */
 	/* --------------- */
 	UFUNCTION(BlueprintCallable) // TODO blueprintcallable weg
-		void StartEndMatchSequence(TSubclassOf<AActor> WinningActor, TSubclassOf<AActor> LosingActor);
+		void StartEndMatchSequence(TSubclassOf<AActor> WinningActor, TSubclassOf<AActor> LosingActor, FString WinnerName, FString LoserName);
 
 	UFUNCTION(Reliable, NetMulticast)
-		void MulticastStartEndMatchSequence();
+		void MulticastStartEndMatchSequence(const FString& winnerName, const FString& loserName);
 
 	/** Sequence to play after a match has ended */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Match End")
@@ -64,11 +64,16 @@ public:
 		UAnimationAsset* LosingPlayerAnimation;
 
 private:
-	void PlaySequence(ACameraActor* camera, ALevelSequenceActor* sequenceActor);
-
 	AActor* SpawnActorForEndMatchSequence(TSubclassOf<AActor> actorToSpawn, AActor* location);
 
-	void PlayEndMatchSequenceAnimation(AActor * spawnedActor, UAnimationAsset* animation);
+	void PrepareActorForEndMatchSequence(AActor * spawnedActor, UAnimationAsset* animation);
+
+	void UpdateNameTag(AActor* location, FString name);
+
+	void PrepareAndStartSequence(ACameraActor* camera, ALevelSequenceActor* sequenceActor, float fadeTime);
+
+	UFUNCTION()
+		void StartSequence(APlayerController* controller, ACameraActor* camera, ALevelSequenceActor* sequenceActor, float fadeTime);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint")
 		int GetTeam();
