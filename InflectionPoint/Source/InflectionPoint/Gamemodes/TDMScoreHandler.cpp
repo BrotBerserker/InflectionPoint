@@ -101,3 +101,29 @@ ATDMGameStateBase* UTDMScoreHandler::GetGameState() {
 	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__);
 	return gameState;
 }
+
+int UTDMScoreHandler::GetWinningTeam() {
+	int winningTeam = 1;
+	int maxWins = 0;
+	for(int team = 1; team <= GetGameState()->TeamCount; team++) {
+		int wins = GetGameState()->TeamWins[team];
+		if(wins > maxWins) {
+			maxWins = wins;
+			winningTeam = team;
+		}
+	}
+	return winningTeam;
+}
+
+int UTDMScoreHandler::GetLosingTeam() {
+	int losingTeam = 1;
+	int minWins = 1000;
+	for(int team = 1; team <= GetGameState()->TeamCount; team++) {
+		int wins = GetGameState()->TeamWins[team];
+		if(wins <= minWins) {
+			minWins = wins;
+			losingTeam = team;
+		}
+	}
+	return losingTeam;
+}

@@ -88,7 +88,7 @@ void ATDMGameModeBase::EndCurrentPhase() {
 		EndCurrentRound();
 	} else {
 		StartNextPhase();
-	}	
+	}
 }
 
 void ATDMGameModeBase::StartNextPhase() {
@@ -103,12 +103,21 @@ void ATDMGameModeBase::StartNextPhase() {
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
 
-
 void ATDMGameModeBase::EndCurrentRound() {
 	ScoreHandler->SelectWinnerTeamForRound();
 	if(GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum) {
 		// TODO: @Roman do your shit here ...
-		StartMatch();
+		ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
+		if(!levelScript) {
+			return;
+		}
+		ClearMap();
+		int winningTeam = ScoreHandler->GetWinningTeam();
+		int losingTeam = ScoreHandler->GetLosingTeam();
+		FString winnerName = GetAnyPlayerControllerInTeam(winningTeam) ? GetAnyPlayerControllerInTeam(winningTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
+		FString loserName = GetAnyPlayerControllerInTeam(losingTeam) ? GetAnyPlayerControllerInTeam(losingTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
+		levelScript->StartEndMatchSequence(CharacterSpawner->PlayerCharacters[winningTeam], CharacterSpawner->PlayerCharacters[losingTeam], winnerName, loserName);
+		StartTimer(this, GetWorld(), "StartMatch", 5.0f, false);
 		return;
 	}
 	StartNextRound();
@@ -274,4 +283,15 @@ void ATDMGameModeBase::DestroyAllActorsWithTag(FName tag) {
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), tag, foundActors);
 	for(auto& item : foundActors)
 		item->Destroy();
+}
+
+APlayerController* ATDMGameModeBase::GetAnyPlayerControllerInTeam(int team) {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
+		if(playerState && playerState->Team == team) {
+			return playerController;
+		}
+	}
+	return nullptr;
 }

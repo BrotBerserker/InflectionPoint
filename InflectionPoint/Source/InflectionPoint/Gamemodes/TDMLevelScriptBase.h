@@ -79,5 +79,5 @@ private:
 		int GetTeam();
 
 	UFUNCTION()
-		void ReturnCameraToPlayer();
+		void CleanUpAfterSequence();
 };

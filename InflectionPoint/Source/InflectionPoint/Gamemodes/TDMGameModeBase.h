@@ -125,8 +125,6 @@ private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
 
 private:
-
-
 	/** Check current phase's status */
 	bool IsWinnerFound();
 	TArray<int> GetTeamsAlive();
@@ -143,4 +141,6 @@ private:
 	/** Inform players about kill etc. */
 	void SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
 	void SendPhaseStartedToPlayers(int Phase);
+
+	APlayerController* GetAnyPlayerControllerInTeam(int team);
 };

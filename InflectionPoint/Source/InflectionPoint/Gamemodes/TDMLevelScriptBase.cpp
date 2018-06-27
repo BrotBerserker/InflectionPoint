@@ -26,6 +26,7 @@ void ATDMLevelScriptBase::StartEndMatchSequence(TSubclassOf<AActor> WinningActor
 }
 
 void ATDMLevelScriptBase::MulticastStartEndMatchSequence_Implementation(const FString& winnerName, const FString& loserName) {
+	// TODO disable HUD
 	UpdateNameTag(WinningPlayerLocation, winnerName);
 	UpdateNameTag(LosingPlayerLocation, loserName);
 	PrepareAndStartSequence(MatchEndCamera, MatchEndLevelSequence, 1.f);
@@ -44,7 +45,7 @@ void ATDMLevelScriptBase::StartSequence(APlayerController* controller, ACameraAc
 	controller->SetViewTargetWithBlend(camera);
 	sequenceActor->SequencePlayer->SetPlaybackPosition(0);
 	sequenceActor->SequencePlayer->Play();
-	sequenceActor->SequencePlayer->OnStop.AddDynamic(this, &ATDMLevelScriptBase::ReturnCameraToPlayer);
+	sequenceActor->SequencePlayer->OnStop.AddDynamic(this, &ATDMLevelScriptBase::CleanUpAfterSequence);
 }
 
 AActor* ATDMLevelScriptBase::SpawnActorForEndMatchSequence(TSubclassOf<AActor> actorToSpawn, AActor* location) {
@@ -80,7 +81,9 @@ int ATDMLevelScriptBase::GetTeam() {
 	return Cast<ATDMPlayerStateBase>(state)->Team;
 }
 
-void ATDMLevelScriptBase::ReturnCameraToPlayer() {
+void ATDMLevelScriptBase::CleanUpAfterSequence() {
 	APlayerController* controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	controller->SetViewTargetWithBlend(controller->GetCharacter());
+	UpdateNameTag(WinningPlayerLocation, "");
+	UpdateNameTag(LosingPlayerLocation, "");
 }

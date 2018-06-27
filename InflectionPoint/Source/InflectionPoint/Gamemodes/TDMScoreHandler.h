@@ -42,6 +42,9 @@ public:
 	UFUNCTION()
 		void SelectWinnerTeamForRound();
 
+	int GetWinningTeam();
+	int GetLosingTeam();
+
 private:
 	UFUNCTION()
 		void UpdatePlayerScoreAfterKill(AController * KilledPlayer, AController* KillingPlayer);
