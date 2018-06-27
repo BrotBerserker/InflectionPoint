@@ -41,6 +41,10 @@ public:
 	UFUNCTION()
 		void StartMatch();
 
+	/** Restarts the match by spawning all players and going to phase 0 round 0 */
+	UFUNCTION()
+		void ReStartMatch();
+
 	/** Saves the current phase's replays and starts the next phase */
 	UFUNCTION()
 		void EndCurrentPhase();
@@ -69,6 +73,10 @@ public:
 	UFUNCTION()
 		void StartSpawnCinematics();
 
+	/** Switches to a different camera to display the matches winner and loser */
+	UFUNCTION()
+		void StartEndMatchSequence();
+
 	/** Starts all spawned replays */
 	UFUNCTION()
 		void StartReplays();
@@ -93,6 +101,10 @@ public:
 	/** Seconds to wait before starting the match after enough players have joined */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MatchStartDelay = 1.0f;
+
+	/** Seconds to wait before restarting the match after the last one has ended */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float MatchReStartDelay = 10.0f;
 
 	/** Seconds to wait before a phase is ended after the winner has been decided */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -143,4 +155,6 @@ private:
 	void SendPhaseStartedToPlayers(int Phase);
 
 	APlayerController* GetAnyPlayerControllerInTeam(int team);
+
+	void ResetGameState();
 };

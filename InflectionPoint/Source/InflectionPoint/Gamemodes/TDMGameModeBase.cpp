@@ -73,13 +73,30 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 }
 
 void ATDMGameModeBase::StartMatch() {
+	ResetGameState();
+	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
+	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
+}
+
+void ATDMGameModeBase::ReStartMatch() {
+	ResetGameState();
+	ClearMap();
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
+		controller->ClientPhaseStarted(0);
+		CharacterSpawner->SpawnAndPossessPlayer(controller, 0);
+	}
+	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
+	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
+}
+
+void ATDMGameModeBase::ResetGameState() {
 	GetGameState()->TeamWins.Init(0, GetGameState()->TeamCount + 1); // +1 because teams start with 1
 	GetGameState()->CurrentRound = 0;
 	GetGameState()->CurrentPhase = 0;
 	GetGameState()->MaxPhaseNum = CharacterSpawner->GetSpawnPointCount() / MaxPlayers;
-	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 	ScoreHandler->ResetPlayerScores();
-	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
 }
 
 void ATDMGameModeBase::EndCurrentPhase() {
@@ -106,21 +123,25 @@ void ATDMGameModeBase::StartNextPhase() {
 void ATDMGameModeBase::EndCurrentRound() {
 	ScoreHandler->SelectWinnerTeamForRound();
 	if(GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum) {
-		// TODO: @Roman do your shit here ...
-		ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
-		if(!levelScript) {
-			return;
-		}
-		ClearMap();
-		int winningTeam = ScoreHandler->GetWinningTeam();
-		int losingTeam = ScoreHandler->GetLosingTeam();
-		FString winnerName = GetAnyPlayerControllerInTeam(winningTeam) ? GetAnyPlayerControllerInTeam(winningTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
-		FString loserName = GetAnyPlayerControllerInTeam(losingTeam) ? GetAnyPlayerControllerInTeam(losingTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
-		levelScript->StartEndMatchSequence(CharacterSpawner->PlayerCharacters[winningTeam], CharacterSpawner->PlayerCharacters[losingTeam], winnerName, loserName);
-		StartTimer(this, GetWorld(), "StartMatch", 5.0f, false);
+		StartEndMatchSequence();
 		return;
 	}
 	StartNextRound();
+}
+
+void ATDMGameModeBase::StartEndMatchSequence() {
+	StartTimer(this, GetWorld(), "ReStartMatch", MatchReStartDelay, false); 
+	// if no levelscript is provided, just restart the match without playing an end match sequence
+	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
+	if(!levelScript) {
+		return;
+	}
+	ClearMap();
+	int winningTeam = ScoreHandler->GetWinningTeam();
+	int losingTeam = ScoreHandler->GetLosingTeam();
+	FString winnerName = GetAnyPlayerControllerInTeam(winningTeam) ? GetAnyPlayerControllerInTeam(winningTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
+	FString loserName = GetAnyPlayerControllerInTeam(losingTeam) ? GetAnyPlayerControllerInTeam(losingTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
+	levelScript->StartEndMatchSequence(CharacterSpawner->PlayerCharacters[winningTeam], CharacterSpawner->PlayerCharacters[losingTeam], winnerName, loserName);
 }
 
 void ATDMGameModeBase::StartNextRound() {
