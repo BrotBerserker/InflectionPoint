@@ -24,13 +24,13 @@ public:
 
 	/** Start a new server for a multiplayer match */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Networking")
-		void HostServer(int playerAmount, bool lan, FString serverName, FString levelToOpen);
+		void HostServer(int playerAmount, bool lan, FString serverName, FString levelToOpen, int rounds);
 
 	/** Create a new session */
-	bool HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers);
+	bool HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers, int32 Rounds);
 
 	/** Sets up a bunch of settings for the next session to be created */
-	void SetupSessionSettings(bool bIsLAN, bool bIsPresence, const int32 &MaxNumPlayers, FName &SessionName);
+	void SetupSessionSettings(bool bIsLAN, bool bIsPresence, const int32 &MaxNumPlayers, FName &SessionName, int Rounds);
 
 	/** Gets the SessionInterface using the current OnlineSubsystem (Steam) */
 	IOnlineSessionPtr GetSessionInterface();

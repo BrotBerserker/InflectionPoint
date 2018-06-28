@@ -8,12 +8,12 @@ UHostMenuBase::UHostMenuBase() : Super() {
 	OnStartSessionCompleteDelegate = FOnStartSessionCompleteDelegate::CreateUObject(this, &UHostMenuBase::OnStartOnlineGameComplete);
 }
 
-void UHostMenuBase::HostServer(int playerAmount, bool isLan, FString serverName, FString levelToOpen) {
+void UHostMenuBase::HostServer(int playerAmount, bool isLan, FString serverName, FString levelToOpen, int rounds) {
 	this->LevelToOpen = levelToOpen;
 
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
 
-	HostSession(Player->GetPreferredUniqueNetId(), FName(*serverName), isLan, true, playerAmount);
+	HostSession(Player->GetPreferredUniqueNetId(), FName(*serverName), isLan, true, playerAmount, rounds);
 }
 
 IOnlineSessionPtr UHostMenuBase::GetSessionInterface() {
@@ -24,11 +24,11 @@ IOnlineSessionPtr UHostMenuBase::GetSessionInterface() {
 	return OnlineSub->GetSessionInterface();
 }
 
-bool UHostMenuBase::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers) {
+bool UHostMenuBase::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers, int32 Rounds) {
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
 	if(Sessions.IsValid() && UserId.IsValid()) {
-		SetupSessionSettings(bIsLAN, bIsPresence, MaxNumPlayers, SessionName);
+		SetupSessionSettings(bIsLAN, bIsPresence, MaxNumPlayers, SessionName, Rounds);
 
 		OnCreateSessionCompleteDelegateHandle = Sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
 
@@ -38,7 +38,7 @@ bool UHostMenuBase::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName Ses
 	return false;
 }
 
-void UHostMenuBase::SetupSessionSettings(bool bIsLAN, bool bIsPresence, const int32 &MaxNumPlayers, FName &SessionName) {
+void UHostMenuBase::SetupSessionSettings(bool bIsLAN, bool bIsPresence, const int32 &MaxNumPlayers, FName &SessionName, int Rounds) {
 	SessionSettings = MakeShareable(new FOnlineSessionSettings());
 
 	SessionSettings->bIsLANMatch = bIsLAN;
@@ -53,6 +53,7 @@ void UHostMenuBase::SetupSessionSettings(bool bIsLAN, bool bIsPresence, const in
 
 	SessionSettings->Set(SETTING_MAPNAME, LevelToOpen, EOnlineDataAdvertisementType::ViaOnlineService);
 	SessionSettings->Set(FName("SessionName"), SessionName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	SessionSettings->Set(FName("Rounds"), Rounds, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 }
 
 void UHostMenuBase::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful) {

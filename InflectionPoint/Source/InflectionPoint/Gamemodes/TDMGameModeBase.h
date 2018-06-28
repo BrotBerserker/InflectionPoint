@@ -19,7 +19,7 @@ public:
 
 	/** Updates the max number of players using the given session */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
-		void UpdateMaxPlayers(FName SessioName);
+		void InitializeSettings(FName SessioName);
 
 	/** Updates the current number of players using the given session */
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|GameMode")
@@ -113,6 +113,10 @@ public:
 	/** MaxPlayers is set to this value when playing in editor or offline */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		int OfflineMaxPlayers = 2;
+
+	/** MaxRoundNum is set to this value when playing in editor or offline */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		int OfflineMaxRoundNum = 3;
 
 public:
 	/* ---------------------- */

@@ -52,14 +52,16 @@ void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address
 	}
 }
 
-void ATDMGameModeBase::UpdateMaxPlayers(FName SessionName) {
+void ATDMGameModeBase::InitializeSettings(FName SessionName) {
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
 	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
 	if(sessionSettings) {
 		MaxPlayers = sessionSettings->NumPublicConnections;
+		sessionSettings->Get(FName("Rounds"), GetGameState()->MaxRoundNum);
 	} else {
-		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, setting MaxPlayers to %d."), OfflineMaxPlayers);
+		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, using offline settings."));
 		MaxPlayers = OfflineMaxPlayers;
+		GetGameState()->MaxRoundNum = OfflineMaxRoundNum;
 	}
 }
 
@@ -130,7 +132,7 @@ void ATDMGameModeBase::EndCurrentRound() {
 }
 
 void ATDMGameModeBase::StartEndMatchSequence() {
-	StartTimer(this, GetWorld(), "ReStartMatch", MatchReStartDelay, false); 
+	StartTimer(this, GetWorld(), "ReStartMatch", MatchReStartDelay, false);
 	// if no levelscript is provided, just restart the match without playing an end match sequence
 	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
 	if(!levelScript) {
