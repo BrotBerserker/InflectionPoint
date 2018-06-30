@@ -80,6 +80,10 @@ public:
 	UFUNCTION()
 		void StartEndMatchSequence();
 
+	/** Informs all players about the next countdown number */
+	UFUNCTION()
+		void NotifyControllerOfEndMatch(int winnerTeam);
+
 	/** Starts all spawned replays */
 	UFUNCTION()
 		void StartReplays();

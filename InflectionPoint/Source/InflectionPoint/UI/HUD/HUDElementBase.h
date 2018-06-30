@@ -14,6 +14,7 @@ enum class EHUDElementView : uint8 {
 	CountdownView,
 	DeathView,
 	SpectatorView,
+	MatchEndView,
 }; 
 ENUM_CLASS_FLAGS(EHUDElementView);
 

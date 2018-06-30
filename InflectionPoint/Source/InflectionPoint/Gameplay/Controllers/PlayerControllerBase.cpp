@@ -57,6 +57,10 @@ void APlayerControllerBase::ClientSetIgnoreInput_Implementation(bool ignore) {
 
 }
 
+void APlayerControllerBase::ClientShowMatchEnd_Implementation(int winnerTeam) {
+	OnShowMatchEnd(winnerTeam);
+}
+
 bool APlayerControllerBase::ServerSwitchSpectatedCharacter_Validate() {
 	return true;
 }

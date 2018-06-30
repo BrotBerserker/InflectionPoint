@@ -36,6 +36,12 @@ public:
 		void OnKillInfoAdded(FCharacterInfo KilledInfo, float killedScoreChange, FCharacterInfo KillerInfo, float killerScoreChange, UTexture2D* WeaponImage);
 
 	UFUNCTION(Client, Reliable)
+		void ClientShowMatchEnd(int winningTeam);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnShowMatchEnd(int winningTeam);
+
+	UFUNCTION(Client, Reliable)
 		void ClientShowCountdownNumber(int number);
 
 	UFUNCTION(BlueprintImplementableEvent)

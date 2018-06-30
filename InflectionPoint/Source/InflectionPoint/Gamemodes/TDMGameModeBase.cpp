@@ -168,6 +168,16 @@ void ATDMGameModeBase::StartEndMatchSequence() {
 	FString winnerName = GetAnyPlayerControllerInTeam(winningTeam) ? GetAnyPlayerControllerInTeam(winningTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
 	FString loserName = GetAnyPlayerControllerInTeam(losingTeam) ? GetAnyPlayerControllerInTeam(losingTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
 	levelScript->StartEndMatchSequence(CharacterSpawner->PlayerCharacters[winningTeam], CharacterSpawner->PlayerCharacters[losingTeam], winnerName, loserName);
+	NotifyControllerOfEndMatch(winningTeam);
+}
+
+void ATDMGameModeBase::NotifyControllerOfEndMatch(int winnerTeam) {
+	TArray<AActor*> controllers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
+	for(auto& controller : controllers) {
+		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
+		playerController->ClientShowMatchEnd(winnerTeam);
+	}
 }
 
 void ATDMGameModeBase::StartNextRound() {
