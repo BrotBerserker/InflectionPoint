@@ -86,6 +86,8 @@ public:
 
 	virtual void PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) override;
 
+	virtual void Logout(AController* Exiting) override;
+
 	/** Returns the GameState as TDMGameStateBase */
 	FORCEINLINE class ATDMGameStateBase* GetGameState() const { return Cast<ATDMGameStateBase>(GetWorld()->GetGameState()); };
 
@@ -134,8 +136,8 @@ private:
 
 private:
 	/** Check current phase's status */
-	bool IsWinnerFound();
-	TArray<int> GetTeamsAlive();
+	bool IsWinnerFound(AController* controllerToIgnore = nullptr);
+	TArray<int> GetTeamsAlive(AController* controllerToIgnore = nullptr);
 	bool IsPlayerAlive(APlayerControllerBase* playerController);
 
 	/** Start/end phases */

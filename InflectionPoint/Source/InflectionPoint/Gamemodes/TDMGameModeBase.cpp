@@ -54,6 +54,15 @@ void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address
 	}
 }
 
+void ATDMGameModeBase::Logout(AController* Exiting) {
+	Super::Logout(Exiting);
+	NumPlayers--;
+	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
+	if(IsWinnerFound(Exiting)) {
+		StartEndMatchSequence();
+	}
+}
+
 void ATDMGameModeBase::InitializeSettings(FName SessionName) {
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
 	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
@@ -88,7 +97,7 @@ void ATDMGameModeBase::ReStartMatch() {
 	ClearMap();
 	CharacterSpawner->SpawnAllPlayersForWarmupRound();
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
-	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); 
+	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false);
 }
 
 void ATDMGameModeBase::ResetGameState() {
@@ -207,25 +216,24 @@ void ATDMGameModeBase::SendPhaseStartedToPlayers(int Phase) {
 	}
 }
 
-bool ATDMGameModeBase::IsWinnerFound() {
-	return (GetTeamsAlive().Num() == 1);
+bool ATDMGameModeBase::IsWinnerFound(AController* controllerToIgnore) {
+	return (GetTeamsAlive(controllerToIgnore).Num() == 1);
 }
 
-TArray<int> ATDMGameModeBase::GetTeamsAlive() {
+TArray<int> ATDMGameModeBase::GetTeamsAlive(AController* controllerToIgnore) {
 	TArray<int> teamsAlive;
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
 		auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
-
-		if(teamsAlive.Contains(playerState->Team))
+		
+		if(ipPlayerController == controllerToIgnore || teamsAlive.Contains(playerState->Team))
 			continue;
 		if(IsPlayerAlive(ipPlayerController))
 			teamsAlive.Add(playerState->Team);
 	}
 	return teamsAlive;
 }
-
 
 bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
 	return Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive;
