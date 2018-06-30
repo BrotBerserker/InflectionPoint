@@ -82,7 +82,7 @@ public:
 
 	/** Informs all players about the next countdown number */
 	UFUNCTION()
-		void NotifyControllerOfEndMatch(int winnerTeam);
+		void NotifyControllersOfEndMatch(int winnerTeam);
 
 	/** Starts all spawned replays */
 	UFUNCTION()
@@ -169,4 +169,6 @@ private:
 	APlayerController* GetAnyPlayerControllerInTeam(int team);
 
 	void ResetGameState();
+	void UpdateTimeUntilMatchStart(float DeltaSeconds);
+	void UpdateTimeUntilNextCountdownUpdate(float DeltaSeconds);
 };

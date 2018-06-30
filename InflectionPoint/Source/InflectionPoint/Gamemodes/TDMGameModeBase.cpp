@@ -37,29 +37,34 @@ ATDMGameModeBase::ATDMGameModeBase()
 void ATDMGameModeBase::Tick(float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
 
-	// match start countdown
-	if(GetGameState()->CurrentRound == 0) {
-		if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
-			timeUntilMatchStart -= DeltaSeconds;
-		} else {
-			timeUntilMatchStart = MatchStartDelay;
-		}
-		UE_LOG(LogTemp, Warning, TEXT("The value of 'timeUntilMatchStart' is: %f"), timeUntilMatchStart);
-		if(timeUntilMatchStart <= 0) {
-			timeUntilMatchStart = MatchStartDelay;
-			StartMatch();
-		}
-	}
+	UpdateTimeUntilMatchStart(DeltaSeconds);
 
-	// phase start countdown
+	UpdateTimeUntilNextCountdownUpdate(DeltaSeconds);
+}
+
+void ATDMGameModeBase::UpdateTimeUntilNextCountdownUpdate(float DeltaSeconds) {
+	if(GetGameState()->CurrentRound == 0 || nextCountdownNumber < 0) {
+		return;
+	}
+	timeUntilNextCountdownUpdate -= DeltaSeconds;
+	if(timeUntilNextCountdownUpdate <= 0) {
+		timeUntilNextCountdownUpdate = 1.f;
+		UpdateCountdown(nextCountdownNumber--);
+	}
+}
+
+void ATDMGameModeBase::UpdateTimeUntilMatchStart(float DeltaSeconds) {
 	if(GetGameState()->CurrentRound > 0) {
-		if(nextCountdownNumber >= 0) {
-			timeUntilNextCountdownUpdate -= DeltaSeconds;
-			if(timeUntilNextCountdownUpdate <= 0) {
-				UpdateCountdown(nextCountdownNumber--);
-				timeUntilNextCountdownUpdate = 1.f;
-			}
-		}
+		return;
+	}
+	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
+		timeUntilMatchStart -= DeltaSeconds;
+	} else {
+		timeUntilMatchStart = MatchStartDelay;
+	}
+	if(timeUntilMatchStart <= 0) {
+		timeUntilMatchStart = MatchStartDelay;
+		StartMatch();
 	}
 }
 
@@ -168,22 +173,23 @@ void ATDMGameModeBase::EndCurrentRound() {
 
 void ATDMGameModeBase::StartEndMatchSequence() {
 	isPlayingEndMatchSequence = true;
+	int winningTeam = ScoreHandler->GetWinningTeam();
+	int losingTeam = ScoreHandler->GetLosingTeam();
+	NotifyControllersOfEndMatch(winningTeam);
 	StartTimer(this, GetWorld(), "ReStartMatch", MatchReStartDelay, false);
+
 	// if no levelscript is provided, just restart the match without playing an end match sequence
 	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
 	if(!levelScript) {
 		return;
 	}
 	ClearMap();
-	int winningTeam = ScoreHandler->GetWinningTeam();
-	int losingTeam = ScoreHandler->GetLosingTeam();
 	FString winnerName = GetAnyPlayerControllerInTeam(winningTeam) ? GetAnyPlayerControllerInTeam(winningTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
 	FString loserName = GetAnyPlayerControllerInTeam(losingTeam) ? GetAnyPlayerControllerInTeam(losingTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
 	levelScript->StartEndMatchSequence(CharacterSpawner->PlayerCharacters[winningTeam], CharacterSpawner->PlayerCharacters[losingTeam], winnerName, loserName);
-	NotifyControllerOfEndMatch(winningTeam);
 }
 
-void ATDMGameModeBase::NotifyControllerOfEndMatch(int winnerTeam) {
+void ATDMGameModeBase::NotifyControllersOfEndMatch(int winnerTeam) {
 	TArray<AActor*> controllers;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
 	for(auto& controller : controllers) {
@@ -294,10 +300,9 @@ void ATDMGameModeBase::UpdateCountdown(int number) {
 		}
 	}
 	if(number == 0) {
+		StartReplays();
 		if(IsWinnerFound()) {
-			StartEndMatchSequence();
-		} else {
-			StartReplays();
+			StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
 		}
 	}
 }
