@@ -50,6 +50,17 @@ void ATDMGameModeBase::Tick(float DeltaSeconds) {
 			StartMatch();
 		}
 	}
+
+	// phase start countdown
+	if(GetGameState()->CurrentRound > 0) {
+		if(nextCountdownNumber >= 0) {
+			timeUntilNextCountdownUpdate -= DeltaSeconds;
+			if(timeUntilNextCountdownUpdate <= 0) {
+				UpdateCountdown(nextCountdownNumber--);
+				timeUntilNextCountdownUpdate = 1.f;
+			}
+		}
+	}
 }
 
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
@@ -61,7 +72,6 @@ void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	}
 	GetGameState()->NumPlayers++;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	APlayerControllerBase* controller = Cast<APlayerControllerBase>(NewPlayer);
 }
 
 void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
@@ -76,7 +86,7 @@ void ATDMGameModeBase::Logout(AController* Exiting) {
 	Super::Logout(Exiting);
 	GetGameState()->NumPlayers--;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	if(GetGameState()->CurrentRound > 0 && IsWinnerFound(Exiting)) {
+	if(GetGameState()->CurrentRound > 0 && nextCountdownNumber < 0 && IsWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
 		StartEndMatchSequence();
 	}
 }
@@ -111,6 +121,7 @@ void ATDMGameModeBase::StartMatch() {
 }
 
 void ATDMGameModeBase::ReStartMatch() {
+	isPlayingEndMatchSequence = false;
 	ResetGameState();
 	ClearMap();
 	CharacterSpawner->SpawnAllPlayersForWarmupRound();
@@ -156,6 +167,7 @@ void ATDMGameModeBase::EndCurrentRound() {
 }
 
 void ATDMGameModeBase::StartEndMatchSequence() {
+	isPlayingEndMatchSequence = true;
 	StartTimer(this, GetWorld(), "ReStartMatch", MatchReStartDelay, false);
 	// if no levelscript is provided, just restart the match without playing an end match sequence
 	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
@@ -267,23 +279,26 @@ bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
 }
 
 void ATDMGameModeBase::StartCountdown() {
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), foundActors);
-	for(int i = CountDownDuration; i >= 0; i--) {
-		StartTimer(this, GetWorld(), "UpdateCountdown", (CountDownDuration - i + 1), false, foundActors, i);
-	}
+	nextCountdownNumber = CountDownDuration;
+	timeUntilNextCountdownUpdate = 1.f;
 }
 
-void ATDMGameModeBase::UpdateCountdown(TArray<AActor*> controllers, int number) {
+void ATDMGameModeBase::UpdateCountdown(int number) {
+	TArray<AActor*> controllers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
 	for(auto& controller : controllers) {
 		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
 		playerController->ClientShowCountdownNumber(number);
-		if(number == 0) {
+		if(number == 0 && playerController->GetCharacter()) {
 			playerController->GetCharacter()->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
 		}
 	}
 	if(number == 0) {
-		StartReplays();
+		if(IsWinnerFound()) {
+			StartEndMatchSequence();
+		} else {
+			StartReplays();
+		}
 	}
 }
 

@@ -70,7 +70,7 @@ public:
 
 	/** Informs all players about the next countdown number */
 	UFUNCTION()
-		void UpdateCountdown(TArray<AActor*> controllers, int number);
+		void UpdateCountdown(int number);
 
 	/** Switches to a cinematic camera at the beginning of a new phase */
 	UFUNCTION()
@@ -143,6 +143,10 @@ private:
 
 	// thai ming
 	float timeUntilMatchStart = 10.f;
+	int nextCountdownNumber = -1;
+	float timeUntilNextCountdownUpdate = 1.f;
+
+	bool isPlayingEndMatchSequence = false;
 
 private:
 	/** Check current phase's status */
