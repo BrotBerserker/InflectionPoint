@@ -8,7 +8,7 @@
 
 
 void ATDMLevelScriptBase::MulticastStartSpawnCinematic_Implementation() {
-	if(!SoftAssertTrue(SpawnCinematicLevelSequences.Num() > GetTeam(), GetWorld(), __FILE__, __LINE__, "No matching SpawnSequence found in the LevelScript")) {
+	if(!SoftAssertTrue(SpawnCinematicLevelSequences.Num() > GetTeam() && GetTeam() >= 0, GetWorld(), __FILE__, __LINE__, "SpawnSequence could not be played!")) {
 		return;
 	}
 	OnPrePlaySpawnCinematic();
@@ -77,8 +77,15 @@ void ATDMLevelScriptBase::UpdateNameTag(AActor* location, FString name) {
 }
 
 int ATDMLevelScriptBase::GetTeam() {
-	auto state = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerState;
-	return Cast<ATDMPlayerStateBase>(state)->Team;
+	auto controller = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if(!controller) {
+		return -1;
+	}
+	auto state = Cast<ATDMPlayerStateBase>(controller->PlayerState);
+	if(!state) {
+		return -1;
+	}
+	return state->Team;
 }
 
 void ATDMLevelScriptBase::CleanUpAfterSequence() {

@@ -100,7 +100,7 @@ public:
 
 	/** Seconds to wait before starting the match after enough players have joined */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float MatchStartDelay = 1.0f;
+		float MatchStartDelay = 10.0f;
 
 	/** Seconds to wait before restarting the match after the last one has ended */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
