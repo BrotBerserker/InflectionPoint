@@ -34,20 +34,22 @@ ATDMGameModeBase::ATDMGameModeBase()
 
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
-	if(NumPlayers >= MaxPlayers) {
+	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
+	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
 		GameSession->KickPlayer(NewPlayer, FText::FromString("Server is already full!"));
 		return;
 	}
-	NumPlayers++;
+	GetGameState()->NumPlayers++;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
 	APlayerControllerBase* controller = Cast<APlayerControllerBase>(NewPlayer);
-	if(NumPlayers == MaxPlayers)
+	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers)
 		StartMatch();
 }
 
 void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
 	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
-	if(NumPlayers >= MaxPlayers) {
+	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
+	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
 		ErrorMessage = "Server is already full!";
 	}
 }
@@ -55,12 +57,13 @@ void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address
 void ATDMGameModeBase::InitializeSettings(FName SessionName) {
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
 	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
+	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
 	if(sessionSettings) {
-		MaxPlayers = sessionSettings->NumPublicConnections;
+		GetGameState()->MaxPlayers = sessionSettings->NumPublicConnections;
 		sessionSettings->Get(FName("Rounds"), GetGameState()->MaxRoundNum);
 	} else {
 		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, using offline settings."));
-		MaxPlayers = OfflineMaxPlayers;
+		GetGameState()->MaxPlayers = OfflineMaxPlayers;
 		GetGameState()->MaxRoundNum = OfflineMaxRoundNum;
 	}
 }
@@ -69,7 +72,7 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
 	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
 	if(sessionSettings) {
-		sessionSettings->Set(FName("CurrentPlayers"), NumPlayers, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+		sessionSettings->Set(FName("CurrentPlayers"), GetGameState()->NumPlayers, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 		session->UpdateSession(SessionName, *sessionSettings);
 	}
 }
@@ -92,7 +95,7 @@ void ATDMGameModeBase::ResetGameState() {
 	GetGameState()->TeamWins.Init(0, GetGameState()->TeamCount + 1); // +1 because teams start with 1
 	GetGameState()->CurrentRound = 0;
 	GetGameState()->CurrentPhase = 0;
-	GetGameState()->MaxPhaseNum = CharacterSpawner->GetSpawnPointCount() / MaxPlayers;
+	GetGameState()->MaxPhaseNum = CharacterSpawner->GetSpawnPointCount() / GetGameState()->MaxPlayers;
 	ScoreHandler->ResetPlayerScores();
 }
 

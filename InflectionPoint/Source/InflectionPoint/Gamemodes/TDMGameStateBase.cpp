@@ -13,6 +13,8 @@ void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ATDMGameStateBase, CurrentPhase);
 	DOREPLIFETIME(ATDMGameStateBase, MaxPhaseNum);
 	DOREPLIFETIME(ATDMGameStateBase, TeamWins);
+	DOREPLIFETIME(ATDMGameStateBase, MaxPlayers);
+	DOREPLIFETIME(ATDMGameStateBase, NumPlayers);
 }
 
 int ATDMGameStateBase::GetTeamScore(int team) {

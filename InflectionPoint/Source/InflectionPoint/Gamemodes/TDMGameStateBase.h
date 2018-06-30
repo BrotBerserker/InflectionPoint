@@ -14,6 +14,14 @@ class INFLECTIONPOINT_API ATDMGameStateBase : public AGameStateBase {
 	GENERATED_BODY()
 
 public:
+	/** Max number of connected players and number of players required to start a match */
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
+		int MaxPlayers = 2;
+
+	/** Current number of connected players */
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
+		int NumPlayers = 0;
+
 	// Number of Teams there are
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
 		int TeamCount = 2;

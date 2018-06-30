@@ -87,7 +87,7 @@ public:
 	virtual void PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) override;
 
 	/** Returns the GameState as TDMGameStateBase */
-	FORCEINLINE class ATDMGameStateBase* GetGameState() const { return (ATDMGameStateBase*)GameState; };
+	FORCEINLINE class ATDMGameStateBase* GetGameState() const { return Cast<ATDMGameStateBase>(GetWorld()->GetGameState()); };
 
 public:
 	/* ---------------------- */
@@ -122,14 +122,6 @@ public:
 	/* ---------------------- */
 	/*    Public variables    */
 	/* ---------------------- */
-
-	/** Max number of connected players and number of players required to start a match */
-	UPROPERTY(BlueprintReadWrite)
-		int MaxPlayers = OfflineMaxPlayers;
-
-	/** Current number of connected players */
-	UPROPERTY(BlueprintReadWrite)
-		int NumPlayers = 0;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite)
 		UTDMScoreHandler* ScoreHandler;

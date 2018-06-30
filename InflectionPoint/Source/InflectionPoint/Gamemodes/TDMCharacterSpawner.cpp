@@ -80,7 +80,7 @@ AActor* UTDMCharacterSpawner::FindSpawnForPlayer(APlayerControllerBase * playerC
 FString UTDMCharacterSpawner::GetSpawnTag(APlayerControllerBase*  playerController, int phase) {
 	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
 	int teams = gameMode->GetGameState()->TeamCount;//2;
-	int playersPerTeam = (gameMode->MaxPlayers / teams);
+	int playersPerTeam = (gameMode->GetGameState()->MaxPlayers / teams);
 	int spawnsPerTeam = GetSpawnPointCount() / teams;
 	int spawnsPerPlayer = spawnsPerTeam / playersPerTeam;
 	int spawnIndex = playerState->PlayerStartGroup * spawnsPerPlayer + phase;
