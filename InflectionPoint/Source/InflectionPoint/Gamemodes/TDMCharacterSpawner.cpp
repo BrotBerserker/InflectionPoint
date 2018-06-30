@@ -106,3 +106,12 @@ void UTDMCharacterSpawner::AssignTeamsAndPlayerStartGroups() {
 		playerState->PlayerStartGroup = iterator.GetIndex() / 2; // TODO: solve this for != 2 teams
 	}
 }
+
+void UTDMCharacterSpawner::SpawnAllPlayersForWarmupRound() {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
+		controller->ClientPhaseStarted(0);
+		SpawnAndPossessPlayer(controller, 0);
+	}
+}

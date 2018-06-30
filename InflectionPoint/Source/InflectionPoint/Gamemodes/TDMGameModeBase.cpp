@@ -83,14 +83,9 @@ void ATDMGameModeBase::StartMatch() {
 void ATDMGameModeBase::ReStartMatch() {
 	ResetGameState();
 	ClearMap();
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
-		controller->ClientPhaseStarted(0);
-		CharacterSpawner->SpawnAndPossessPlayer(controller, 0);
-	}
+	CharacterSpawner->SpawnAllPlayersForWarmupRound();
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
-	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
+	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); 
 }
 
 void ATDMGameModeBase::ResetGameState() {
@@ -147,16 +142,12 @@ void ATDMGameModeBase::StartEndMatchSequence() {
 }
 
 void ATDMGameModeBase::StartNextRound() {
-	UE_LOG(LogTemp, Warning, TEXT("WTF LOG - 01"));
 	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
 		return;
-	UE_LOG(LogTemp, Warning, TEXT("WTF LOG - 02"));
 	ScoreHandler->ResetPlayerScores();
-	UE_LOG(LogTemp, Warning, TEXT("WTF LOG - 03"));
 	GetGameState()->CurrentPhase = 0;
 	GetGameState()->CurrentRound++;
 	StartNextPhase();
-	UE_LOG(LogTemp, Warning, TEXT("WTF LOG - 04"));
 }
 
 void ATDMGameModeBase::StartSpawnCinematics() {

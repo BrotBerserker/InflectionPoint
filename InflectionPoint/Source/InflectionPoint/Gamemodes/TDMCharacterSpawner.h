@@ -44,6 +44,8 @@ public:
 	/** Spawns a replay for the given phase and initializes it using the given controller and replay data */
 	void SpawnAndPrepareReplay(APlayerControllerBase* controller, int phase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings);
 
+	void SpawnAllPlayersForWarmupRound();
+
 private:
 	class ATDMGameModeBase* gameMode;
 

@@ -35,7 +35,7 @@ public:
 	/* --------------- */
 	/*    Match end    */
 	/* --------------- */
-	UFUNCTION(BlueprintCallable) // TODO blueprintcallable weg
+	UFUNCTION()
 		void StartEndMatchSequence(TSubclassOf<AActor> WinningActor, TSubclassOf<AActor> LosingActor, FString WinnerName, FString LoserName);
 
 	UFUNCTION(Reliable, NetMulticast)
