@@ -13,6 +13,9 @@ class ATDMGameModeBase : public AGameModeBase {
 	GENERATED_BODY()
 
 public:
+	void Tick(float DeltaSeconds) override;
+
+public:
 	/* ---------------------- */
 	/*   Blueprint functions  */
 	/* ---------------------- */
@@ -133,6 +136,9 @@ public:
 
 private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
+
+	// thai ming
+	float timeUntilMatchStart = 10.f;
 
 private:
 	/** Check current phase's status */

@@ -16,6 +16,8 @@
 
 ATDMGameModeBase::ATDMGameModeBase()
 	: Super() {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// set default pawn class to our Blueprinted character
 	static ConstructorHelpers::FClassFinder<APawn> PlayerPawnClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Characters/PlayerCharacter"));
 	static ConstructorHelpers::FClassFinder<APlayerController> PlayerControllerClassFinder(TEXT("/Game/InflectionPoint/Blueprints/Controllers/PlayerController"));
@@ -32,6 +34,24 @@ ATDMGameModeBase::ATDMGameModeBase()
 	CharacterSpawner = CreateDefaultSubobject<UTDMCharacterSpawner>(TEXT("CharacterSpawner"));
 }
 
+void ATDMGameModeBase::Tick(float DeltaSeconds) {
+	Super::Tick(DeltaSeconds);
+
+	// match start countdown
+	if(GetGameState()->CurrentRound == 0) {
+		if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
+			timeUntilMatchStart -= DeltaSeconds;
+		} else {
+			timeUntilMatchStart = MatchStartDelay;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("The value of 'timeUntilMatchStart' is: %f"), timeUntilMatchStart);
+		if(timeUntilMatchStart <= 0) {
+			timeUntilMatchStart = MatchStartDelay;
+			StartMatch();
+		}
+	}
+}
+
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
 	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
@@ -42,8 +62,6 @@ void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	GetGameState()->NumPlayers++;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
 	APlayerControllerBase* controller = Cast<APlayerControllerBase>(NewPlayer);
-	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers)
-		StartMatch();
 }
 
 void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
@@ -56,9 +74,9 @@ void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address
 
 void ATDMGameModeBase::Logout(AController* Exiting) {
 	Super::Logout(Exiting);
-	NumPlayers--;
+	GetGameState()->NumPlayers--;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	if(IsWinnerFound(Exiting)) {
+	if(GetGameState()->CurrentRound > 0 && IsWinnerFound(Exiting)) {
 		StartEndMatchSequence();
 	}
 }
@@ -89,7 +107,7 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 void ATDMGameModeBase::StartMatch() {
 	ResetGameState();
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
-	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false); // we can't call "StartMatch" with a timer because that way the teams will not be replicated to the client before the characters are spawned 
+	StartNextRound();
 }
 
 void ATDMGameModeBase::ReStartMatch() {
@@ -97,7 +115,6 @@ void ATDMGameModeBase::ReStartMatch() {
 	ClearMap();
 	CharacterSpawner->SpawnAllPlayersForWarmupRound();
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
-	StartTimer(this, GetWorld(), "StartNextRound", MatchStartDelay + 0.00001f, false);
 }
 
 void ATDMGameModeBase::ResetGameState() {
@@ -226,7 +243,7 @@ TArray<int> ATDMGameModeBase::GetTeamsAlive(AController* controllerToIgnore) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
 		auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
-		
+
 		if(ipPlayerController == controllerToIgnore || teamsAlive.Contains(playerState->Team))
 			continue;
 		if(IsPlayerAlive(ipPlayerController))
