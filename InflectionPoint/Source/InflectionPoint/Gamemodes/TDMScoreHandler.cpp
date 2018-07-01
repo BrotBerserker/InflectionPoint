@@ -79,8 +79,19 @@ bool UTDMScoreHandler::IsTeamKill(UCharacterInfoProvider* killedInfo, UCharacter
 	return Cast<ATDMPlayerStateBase>(killedInfo->PlayerState)->Team == Cast<ATDMPlayerStateBase>(killerInfo->PlayerState)->Team;
 }
 
-void UTDMScoreHandler::ResetPlayerScores() {
-	GetGameState()->ResetPlayerScores();
+void UTDMScoreHandler::UpdateScoresForNextRound() {
+	for(int i = 0; i < GetGameState()->PlayerArray.Num(); i++) {
+		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(GetGameState()->PlayerArray[i]);
+		tdmPlayerState->AddScoreToTotalScore();
+		tdmPlayerState->ResetScore();
+	}
+}
+
+void UTDMScoreHandler::SetCurrentScoresToTotalScore() {
+	for(int i = 0; i < GetGameState()->PlayerArray.Num(); i++) {
+		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(GetGameState()->PlayerArray[i]);
+		tdmPlayerState->SetCurrentScoreToTotalScore();
+	}
 }
 
 void UTDMScoreHandler::SelectWinnerTeamForRound() {

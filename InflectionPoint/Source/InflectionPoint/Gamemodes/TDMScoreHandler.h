@@ -37,10 +37,13 @@ public:
 		void AddKill(AController * KilledPlayer, AController* KillingPlayer);
 
 	UFUNCTION()
-		void ResetPlayerScores();
+		void UpdateScoresForNextRound();
 
 	UFUNCTION()
 		void SelectWinnerTeamForRound();
+
+	UFUNCTION()
+		void SetCurrentScoresToTotalScore();
 
 	int GetWinningTeam();
 	int GetLosingTeam();

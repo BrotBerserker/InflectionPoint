@@ -138,7 +138,8 @@ void ATDMGameModeBase::ResetGameState() {
 	GetGameState()->CurrentRound = 0;
 	GetGameState()->CurrentPhase = 0;
 	GetGameState()->MaxPhaseNum = CharacterSpawner->GetSpawnPointCount() / GetGameState()->MaxPlayers;
-	ScoreHandler->ResetPlayerScores();
+	GetGameState()->ResetPlayerScores();
+	GetGameState()->ResetTotalPlayerScores();
 }
 
 void ATDMGameModeBase::EndCurrentPhase() {
@@ -164,6 +165,7 @@ void ATDMGameModeBase::StartNextPhase() {
 
 void ATDMGameModeBase::EndCurrentRound() {
 	ScoreHandler->SelectWinnerTeamForRound();
+	ScoreHandler->UpdateScoresForNextRound();
 	if(GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum) {
 		StartEndMatchSequence();
 		return;
@@ -172,6 +174,8 @@ void ATDMGameModeBase::EndCurrentRound() {
 }
 
 void ATDMGameModeBase::StartEndMatchSequence() {
+	GetGameState()->ResetPlayerScores(); // so all players appear alive
+	ScoreHandler->SetCurrentScoresToTotalScore();
 	isPlayingEndMatchSequence = true;
 	int winningTeam = ScoreHandler->GetWinningTeam();
 	int losingTeam = ScoreHandler->GetLosingTeam();
@@ -201,7 +205,7 @@ void ATDMGameModeBase::NotifyControllersOfEndMatch(int winnerTeam) {
 void ATDMGameModeBase::StartNextRound() {
 	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
 		return;
-	ScoreHandler->ResetPlayerScores();
+	GetGameState()->ResetPlayerScores();
 	GetGameState()->CurrentPhase = 0;
 	GetGameState()->CurrentRound++;
 	StartNextPhase();

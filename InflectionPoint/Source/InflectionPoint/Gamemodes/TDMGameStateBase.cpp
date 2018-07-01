@@ -21,6 +21,7 @@ int ATDMGameStateBase::GetTeamScore(int team) {
 	double teamScore = 0;
 	for(int i = 0; i < PlayerArray.Num(); i++) {
 		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
+		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
 		if(tdmPlayerState && tdmPlayerState->Team == team)
 			teamScore += tdmPlayerState->Score;
 	}
@@ -30,6 +31,15 @@ int ATDMGameStateBase::GetTeamScore(int team) {
 void ATDMGameStateBase::ResetPlayerScores() {
 	for(int i = 0; i < PlayerArray.Num(); i++) {
 		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
+		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
 		tdmPlayerState->ResetScore();
+	}
+}
+
+void ATDMGameStateBase::ResetTotalPlayerScores() {
+	for(int i = 0; i < PlayerArray.Num(); i++) {
+		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
+		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
+		tdmPlayerState->ResetTotalScore();
 	}
 }

@@ -56,4 +56,6 @@ public:
 
 	UFUNCTION()
 		void ResetPlayerScores();
+	UFUNCTION()
+		void ResetTotalPlayerScores();
 };

@@ -29,16 +29,33 @@ public:
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+		void AddScoreToTotalScore();
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+		void SetCurrentScoreToTotalScore();
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		void ResetScore();
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+		void ResetTotalScore();
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		float TotalScore = 0;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int PlayerKills = 0;
 	UPROPERTY(Replicated, BlueprintReadWrite)
+		int TotalPlayerKills = 0;
+	UPROPERTY(Replicated, BlueprintReadWrite)
 		int ReplayKills = 0;
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		int TotalReplayKills = 0;
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int Deaths = 0;
 	UPROPERTY(Replicated, BlueprintReadWrite)
+		int TotalDeaths = 0;
+	UPROPERTY(Replicated, BlueprintReadWrite)
 		int TeamKills = 0;
+	UPROPERTY(Replicated, BlueprintReadWrite)
+		int TotalTeamKills = 0;
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		bool IsAlive = 1;
 
