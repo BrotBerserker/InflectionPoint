@@ -2,8 +2,8 @@
 
 #include "InflectionPoint.h"
 #include "DebugTools/InflectionPointCheatManager.h"
+#include "DamageTypes/DefaultDamageType.h"
 #include "RadialDamageDealer.h"
-
 
 // Sets default values for this component's properties
 URadialDamageDealer::URadialDamageDealer() {
@@ -113,12 +113,12 @@ TArray<AActor*> URadialDamageDealer::DealDamage(const FVector & origin, TMap<AAc
 	TArray<AActor*> DamagedActorList = TArray<AActor*>();
 
 	FRadialDamageEvent DmgEvent;
-	DmgEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : UDamageType::StaticClass();
+	DmgEvent.DamageTypeClass = DamageTypeClass ? DamageTypeClass : (TSubclassOf<UDamageType>)UDefaultDamageType::StaticClass();
 	DmgEvent.Origin = origin;
 	DmgEvent.Params = FRadialDamageParams(BaseDamage, MinimumDamage, DamageInnerRadius, DamageOuterRadius, Falloff);
 
 	// call damage function on each affected actors
-	for(TMap<AActor*, TArray<FHitResult> >::TIterator It(damagableActors); It; ++It) {
+	for(TMap<AActor*, TArray<FHitResult>>::TIterator It(damagableActors); It; ++It) {
 		AActor* const victim = It.Key();
 		TArray<FHitResult> const& hitResults = It.Value();
 

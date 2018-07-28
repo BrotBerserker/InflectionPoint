@@ -72,7 +72,7 @@ public:
 	void PostExecuteFire() override;
 
 	/* Perform a line trace to retrieve hit info */
-	FHitResult AInstantWeapon::WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
+	FHitResult WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
 
 	/* Deals Damage if Character was hit*/
 	void DealDamage(const FHitResult hitResult, const FVector& ShootDir);

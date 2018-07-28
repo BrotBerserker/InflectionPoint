@@ -85,3 +85,13 @@
 InflectionPoint/Content/Paragon*
 
 InflectionPoint/Content/GTFreeMaterials/
+
+# XCode, VS Code
+\.DS_Store
+InflectionPoint/\.vscode/
+InflectionPoint/InflectionPoint\.code-workspace
+InflectionPoint/InflectionPoint\.xcworkspace/contents\.xcworkspacedata
+InflectionPoint/InflectionPoint\.xcworkspace/xcshareddata/IDEWorkspaceChecks\.plist
+InflectionPoint/InflectionPoint\.xcworkspace/xcuserdata/romsch\.xcuserdatad/UserInterfaceState\.xcuserstate
+InflectionPoint/InflectionPoint\.xcworkspace/xcuserdata/romsch\.xcuserdatad/WorkspaceSettings\.xcsettings
+InflectionPoint/Source/InflectionPoint/\.vscode/c_cpp_properties\.json
