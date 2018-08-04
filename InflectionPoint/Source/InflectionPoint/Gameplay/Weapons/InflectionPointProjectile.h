@@ -2,6 +2,7 @@
 #pragma once
 #include "GameFramework/Actor.h"
 #include "Gameplay/Damage/CollisionDamageDealer.h"
+#include "Gameplay/Damage/MortalityProvider.h"
 #include "DebugTools/DebugLineDrawer.h"
 #include "InflectionPointProjectile.generated.h"
 
