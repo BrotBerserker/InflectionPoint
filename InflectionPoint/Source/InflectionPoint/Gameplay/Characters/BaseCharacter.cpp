@@ -18,7 +18,7 @@
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
-void ABaseCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {DebugPrint(__FILE__, __LINE__);
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ABaseCharacter, CurrentWeapon);
@@ -27,7 +27,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & Ou
 //////////////////////////////////////////////////////////////////////////
 // ABaseCharacter
 
-ABaseCharacter::ABaseCharacter() {
+ABaseCharacter::ABaseCharacter() {DebugPrint(__FILE__, __LINE__);
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 89.f);
 
@@ -80,7 +80,7 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterNameTag->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
 }
 
-void ABaseCharacter::BeginPlay() {
+void ABaseCharacter::BeginPlay() {DebugPrint(__FILE__, __LINE__);
 	// Call the base class  
 	Super::BeginPlay();
 
@@ -93,25 +93,25 @@ void ABaseCharacter::BeginPlay() {
 	//Mesh1P->SetMaterial(0, DynamicBodyMaterial);
 }
 
-bool ABaseCharacter::IsReadyForInitialization() {
+bool ABaseCharacter::IsReadyForInitialization() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::Initialize() {
-	if(IsLocallyControlled()) {
+void ABaseCharacter::Initialize() {DebugPrint(__FILE__, __LINE__);
+	if(IsLocallyControlled()) {DebugPrint(__FILE__, __LINE__);
 		ServerEquipSpecificWeapon(0);
 	}
 }
 
-void ABaseCharacter::Restart() {
+void ABaseCharacter::Restart() {DebugPrint(__FILE__, __LINE__);
 	Super::Restart();
 	OnRestart();
 }
 
-void ABaseCharacter::Tick(float DeltaTime) {
+void ABaseCharacter::Tick(float DeltaTime) {DebugPrint(__FILE__, __LINE__);
 	Super::Tick(DeltaTime);
 
-	if(!initialized && IsReadyForInitialization()) {
+	if(!initialized && IsReadyForInitialization()) {DebugPrint(__FILE__, __LINE__);
 		Initialize();
 		OnInitialized();
 		initialized = true;
@@ -121,21 +121,21 @@ void ABaseCharacter::Tick(float DeltaTime) {
 	UpdateCharacterNameTag();
 }
 
-void ABaseCharacter::Destroyed() {
+void ABaseCharacter::Destroyed() {DebugPrint(__FILE__, __LINE__);
 	Super::Destroyed();
 	WeaponInventory->Destroy();
 }
 
-void ABaseCharacter::UpdateFieldOfView(float DeltaTime) {
+void ABaseCharacter::UpdateFieldOfView(float DeltaTime) {DebugPrint(__FILE__, __LINE__);
 	float targetFoV = IsAiming && CurrentWeapon ? CurrentWeapon->AimFieldOfView : 90.f;
 	FirstPersonCameraComponent->SetFieldOfView(FMath::FInterpTo(FirstPersonCameraComponent->FieldOfView, targetFoV, DeltaTime, 14.f));
 }
 
-bool ABaseCharacter::IsAReplay() {
+bool ABaseCharacter::IsAReplay() {DebugPrint(__FILE__, __LINE__);
 	return this->IsA(AReplayCharacterBase::StaticClass());
 }
 
-void ABaseCharacter::ApplyTeamColor(ATDMPlayerStateBase* playerState) {
+void ABaseCharacter::ApplyTeamColor(ATDMPlayerStateBase* playerState) {DebugPrint(__FILE__, __LINE__);
 	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
 	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__, TEXT("GameState is null!"));
 
@@ -145,9 +145,9 @@ void ABaseCharacter::ApplyTeamColor(ATDMPlayerStateBase* playerState) {
 }
 
 
-void ABaseCharacter::ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color) {
+void ABaseCharacter::ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color) {DebugPrint(__FILE__, __LINE__);
 	auto unusedColor = FLinearColor(); // only needed for checking the vecorParameter
-	for(int i = 0; i < mesh->GetMaterials().Num(); i++) {
+	for(int i = 0; i < mesh->GetMaterials().Num(); i++) {DebugPrint(__FILE__, __LINE__);
 		bool check = mesh->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, unusedColor);
 		if(!check)
 			continue;
@@ -157,34 +157,34 @@ void ABaseCharacter::ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor co
 	}
 }
 
-void ABaseCharacter::MulticastApplyTeamColor_Implementation(ATDMPlayerStateBase* playerState) {
+void ABaseCharacter::MulticastApplyTeamColor_Implementation(ATDMPlayerStateBase* playerState) {DebugPrint(__FILE__, __LINE__);
 	ApplyTeamColor(playerState);
 }
 
-void ABaseCharacter::ShowSpawnAnimation() {
+void ABaseCharacter::ShowSpawnAnimation() {DebugPrint(__FILE__, __LINE__);
 	if(!SoftAssertTrue(MaterializeCurve != nullptr, GetWorld(), __FILE__, __LINE__, TEXT("No materialize curve has been set!")))
 		return;
 
 	// add curve to timeline
 	FOnTimelineFloat callback{};
-	callback.BindUFunction(this, FName{ TEXT("MaterializeCallback") });
-	MaterializeTimeline->AddInterpFloat(MaterializeCurve, callback, FName{ TEXT("MaterializeTimelineAnimation") });
+	callback.BindUFunction(this, FName{TEXT("MaterializeCallback") });
+	MaterializeTimeline->AddInterpFloat(MaterializeCurve, callback, FName{TEXT("MaterializeTimelineAnimation") });
 
 	// set timeline finish callback
 	FOnTimelineEvent finishCallback{};
-	finishCallback.BindUFunction(this, FName{ TEXT("MaterializeFinishCallback") });
+	finishCallback.BindUFunction(this, FName{TEXT("MaterializeFinishCallback") });
 	MaterializeTimeline->SetTimelineFinishedFunc(finishCallback);
 
 	MaterializeTimeline->Play();
 }
 
-void ABaseCharacter::MaterializeCallback(float value) {
+void ABaseCharacter::MaterializeCallback(float value) {DebugPrint(__FILE__, __LINE__);
 	DynamicBodyMaterial->SetScalarParameterValue("Materialize Amount", value);
 }
 
-void ABaseCharacter::MaterializeFinishCallback() {
+void ABaseCharacter::MaterializeFinishCallback() {DebugPrint(__FILE__, __LINE__);
 	// Switch to materials without materialize effect to save a lot of performance
-	if(!BodyMaterialAfterMaterialize) {
+	if(!BodyMaterialAfterMaterialize) {DebugPrint(__FILE__, __LINE__);
 		return;
 	}
 	UMaterialInstanceDynamic* dynamicMaterialWithoutMaterialize = UMaterialInstanceDynamic::Create(BodyMaterialAfterMaterialize, Mesh3P);
@@ -195,14 +195,14 @@ void ABaseCharacter::MaterializeFinishCallback() {
 	Mesh1P->SetMaterial(0, dynamicMaterialWithoutMaterialize);
 }
 
-void ABaseCharacter::MulticastShowSpawnAnimation_Implementation() {
+void ABaseCharacter::MulticastShowSpawnAnimation_Implementation() {DebugPrint(__FILE__, __LINE__);
 	ShowSpawnAnimation();
 }
 
-float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
+float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {DebugPrint(__FILE__, __LINE__);
 	const float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	MortalityProvider->TakeDamage(actualDamage, EventInstigator, DamageCauser);
-	if(EventInstigator && EventInstigator->GetCharacter()) {
+	if(EventInstigator && EventInstigator->GetCharacter()) {DebugPrint(__FILE__, __LINE__);
 		FVector directionVector = (EventInstigator->GetCharacter()->GetActorLocation() - GetActorLocation());
 		directionVector.Normalize();
 		OnDirectionalDamageReceived(directionVector, actualDamage, DamageEvent.DamageTypeClass);
@@ -210,49 +210,49 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 	return actualDamage;
 }
 
-void ABaseCharacter::StartFire() {
+void ABaseCharacter::StartFire() {DebugPrint(__FILE__, __LINE__);
 	DisableSprint();
 	sprintAllowed = false;
 	ServerStartFire();
 }
 
-bool ABaseCharacter::ServerFireOnce_Validate() {
+bool ABaseCharacter::ServerFireOnce_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerFireOnce_Implementation() {
+void ABaseCharacter::ServerFireOnce_Implementation() {DebugPrint(__FILE__, __LINE__);
 	DrawDebugArrow();
 	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
 		return;
 	CurrentWeapon->FireOnce();
 }
 
-bool ABaseCharacter::ServerStartFire_Validate() {
+bool ABaseCharacter::ServerStartFire_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerStartFire_Implementation() {
+void ABaseCharacter::ServerStartFire_Implementation() {DebugPrint(__FILE__, __LINE__);
 	DrawDebugArrow();
 	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
 		return;
 	CurrentWeapon->StartFire();
 }
 
-void ABaseCharacter::StopFire() {
+void ABaseCharacter::StopFire() {DebugPrint(__FILE__, __LINE__);
 	sprintAllowed = true;
 	ServerStopFire();
 }
 
-bool ABaseCharacter::ServerStopFire_Validate() {
+bool ABaseCharacter::ServerStopFire_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerStopFire_Implementation() {
+void ABaseCharacter::ServerStopFire_Implementation() {DebugPrint(__FILE__, __LINE__);
 	if(CurrentWeapon)
 		CurrentWeapon->StopFire();
 }
 
-void ABaseCharacter::StartAiming() {
+void ABaseCharacter::StartAiming() {DebugPrint(__FILE__, __LINE__);
 	IsAiming = true;
 	CurrentWeapon->StartAiming();
 	auto controller = Cast<APlayerControllerBase>(GetController());
@@ -261,25 +261,25 @@ void ABaseCharacter::StartAiming() {
 	ServerStartAiming();
 }
 
-bool ABaseCharacter::ServerStartAiming_Validate() {
+bool ABaseCharacter::ServerStartAiming_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerStartAiming_Implementation() {
+void ABaseCharacter::ServerStartAiming_Implementation() {DebugPrint(__FILE__, __LINE__);
 	IsAiming = true;
 	MulticastStartAiming();
 }
 
-void ABaseCharacter::MulticastStartAiming_Implementation() {
+void ABaseCharacter::MulticastStartAiming_Implementation() {DebugPrint(__FILE__, __LINE__);
 	IsAiming = true;
 	CurrentWeapon->StartAiming();
 	auto controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
-	if(controller && controller->SpectatedCharacter == this) {
+	if(controller && controller->SpectatedCharacter == this) {DebugPrint(__FILE__, __LINE__);
 		controller->OnStartAiming(CurrentWeapon);
 	}
 }
 
-void ABaseCharacter::StopAiming() {
+void ABaseCharacter::StopAiming() {DebugPrint(__FILE__, __LINE__);
 	IsAiming = false;
 	if(CurrentWeapon)
 		CurrentWeapon->StopAiming();
@@ -289,16 +289,16 @@ void ABaseCharacter::StopAiming() {
 	ServerStopAiming();
 }
 
-bool ABaseCharacter::ServerStopAiming_Validate() {
+bool ABaseCharacter::ServerStopAiming_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerStopAiming_Implementation() {
+void ABaseCharacter::ServerStopAiming_Implementation() {DebugPrint(__FILE__, __LINE__);
 	IsAiming = false;
 	MulticastStopAiming();
 }
 
-void ABaseCharacter::MulticastStopAiming_Implementation() {
+void ABaseCharacter::MulticastStopAiming_Implementation() {DebugPrint(__FILE__, __LINE__);
 	IsAiming = false;
 	if(CurrentWeapon)
 		CurrentWeapon->StopAiming();
@@ -307,58 +307,58 @@ void ABaseCharacter::MulticastStopAiming_Implementation() {
 		controller->OnStopAiming(CurrentWeapon);
 }
 
-bool ABaseCharacter::ServerReload_Validate() {
+bool ABaseCharacter::ServerReload_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerReload_Implementation() {
+void ABaseCharacter::ServerReload_Implementation() {DebugPrint(__FILE__, __LINE__);
 	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
 		return;
 	CurrentWeapon->Reload();
 }
 
-bool ABaseCharacter::ServerEquipNextWeapon_Validate() {
+bool ABaseCharacter::ServerEquipNextWeapon_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerEquipNextWeapon_Implementation() {
+void ABaseCharacter::ServerEquipNextWeapon_Implementation() {DebugPrint(__FILE__, __LINE__);
 	EquipWeapon(WeaponInventory->GetNextWeapon(CurrentWeapon), CurrentWeapon);
 }
 
-bool ABaseCharacter::ServerEquipPreviousWeapon_Validate() {
+bool ABaseCharacter::ServerEquipPreviousWeapon_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {
+void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {DebugPrint(__FILE__, __LINE__);
 	EquipWeapon(WeaponInventory->GetPreviousWeapon(CurrentWeapon), CurrentWeapon);
 }
 
-bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {
+bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(int index) {
+void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(int index) {DebugPrint(__FILE__, __LINE__);
 	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
 	if(newWeapon && CurrentWeapon != newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
 }
 
-bool ABaseCharacter::ServerEquipRandomWeapon_Validate() {
+bool ABaseCharacter::ServerEquipRandomWeapon_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerEquipRandomWeapon_Implementation() {
+void ABaseCharacter::ServerEquipRandomWeapon_Implementation() {DebugPrint(__FILE__, __LINE__);
 	int32 index = FMath::RandHelper(WeaponInventory->GetWeaponNum());
 	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
 	if(newWeapon && CurrentWeapon != newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
 }
 
-void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
+void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {DebugPrint(__FILE__, __LINE__);
 	EquipWeapon(CurrentWeapon, OldWeapon);
 }
 
-void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {
+void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {DebugPrint(__FILE__, __LINE__);
 	CurrentWeapon = NewWeapon;
 
 	if(OldWeapon)
@@ -368,7 +368,7 @@ void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon)
 	MulticastWeaponChanged(NewWeapon, OldWeapon);
 }
 
-void ABaseCharacter::MulticastWeaponChanged_Implementation(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon) {
+void ABaseCharacter::MulticastWeaponChanged_Implementation(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon) {DebugPrint(__FILE__, __LINE__);
 	auto controller = Cast<APlayerControllerBase>(GetController());
 	if(controller)
 		controller->OnWeaponChanged(newWeapon, oldWeapon);
@@ -377,9 +377,9 @@ void ABaseCharacter::MulticastWeaponChanged_Implementation(ABaseWeapon* newWeapo
 		controller->OnWeaponChanged(newWeapon, oldWeapon);
 }
 
-void ABaseCharacter::DrawDebugArrow() {
+void ABaseCharacter::DrawDebugArrow() {DebugPrint(__FILE__, __LINE__);
 	if(Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager) &&
-		Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager)->IsCharacterDebugArrowsEnabled) {
+		Cast<UInflectionPointCheatManager>(GetWorld()->GetFirstPlayerController()->CheatManager)->IsCharacterDebugArrowsEnabled) {DebugPrint(__FILE__, __LINE__);
 		FRotator cameraRot = FirstPersonCameraComponent->GetComponentRotation();
 		FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetTransform().GetLocation();
 
@@ -387,11 +387,11 @@ void ABaseCharacter::DrawDebugArrow() {
 	}
 }
 
-void ABaseCharacter::MulticastOnDeath_Implementation() {
+void ABaseCharacter::MulticastOnDeath_Implementation() {DebugPrint(__FILE__, __LINE__);
 	// Play random Death Animation
-	if(DeathAnimations.Num() == 0) {
+	if(DeathAnimations.Num() == 0) {DebugPrint(__FILE__, __LINE__);
 		UE_LOG(LogTemp, Warning, TEXT("Warning: No Death Animations set for this character!"));
-	} else {
+	} else {DebugPrint(__FILE__, __LINE__);
 		int index = FMath::RandRange(0, DeathAnimations.Num() - 1);
 		Mesh3P->PlayAnimation(DeathAnimations[index], false);
 	}
@@ -403,11 +403,11 @@ void ABaseCharacter::MulticastOnDeath_Implementation() {
 	GetCapsuleComponent()->SetCollisionProfileName(FName("DeadCharacter"));
 }
 
-void ABaseCharacter::MulticastPlay3PAnimation_Implementation(UAnimationAsset* animation) {
+void ABaseCharacter::MulticastPlay3PAnimation_Implementation(UAnimationAsset* animation) {DebugPrint(__FILE__, __LINE__);
 	Mesh3P->PlayAnimation(animation, false);
 }
 
-void ABaseCharacter::ClientOnDeath_Implementation() {
+void ABaseCharacter::ClientOnDeath_Implementation() {DebugPrint(__FILE__, __LINE__);
 	Mesh3P->SetOwnerNoSee(false);
 	Mesh1P->SetVisibility(false, true);
 	if(!AssertNotNull(GetController(), GetWorld(), __FILE__, __LINE__))
@@ -416,43 +416,43 @@ void ABaseCharacter::ClientOnDeath_Implementation() {
 	GetController()->SetControlRotation(FRotator(-30, rot.Yaw, rot.Roll));
 }
 
-void ABaseCharacter::MoveForward(float value) {
-	if(value != 0.0f) {
+void ABaseCharacter::MoveForward(float value) {DebugPrint(__FILE__, __LINE__);
+	if(value != 0.0f) {DebugPrint(__FILE__, __LINE__);
 		AddMovementInput(GetActorForwardVector(), value);
 	}
 
-	if(ShouldStartSprinting(value)) {
+	if(ShouldStartSprinting(value)) {DebugPrint(__FILE__, __LINE__);
 		StartSprinting();
 		ServerStartSprinting();
-	} else if(ShouldStopSprinting(value)) {
+	} else if(ShouldStopSprinting(value)) {DebugPrint(__FILE__, __LINE__);
 		StopSprinting();
 		ServerStopSprinting();
 	}
 }
 
-void ABaseCharacter::MoveRight(float value) {
-	if(value != 0.0f) {
+void ABaseCharacter::MoveRight(float value) {DebugPrint(__FILE__, __LINE__);
+	if(value != 0.0f) {DebugPrint(__FILE__, __LINE__);
 		AddMovementInput(GetActorRightVector(), value);
 	}
 }
 
-void ABaseCharacter::TurnAtRate(float rate) {
+void ABaseCharacter::TurnAtRate(float rate) {DebugPrint(__FILE__, __LINE__);
 	// calculate delta for this frame from the rate information
 	AddControllerYawInput(rate);
 }
 
-void ABaseCharacter::LookUpAtRate(float rate) {
+void ABaseCharacter::LookUpAtRate(float rate) {DebugPrint(__FILE__, __LINE__);
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(rate);
 	ServerUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
 	MulticastUpdateCameraPitch(FirstPersonCameraComponent->GetComponentRotation().Pitch);
 }
 
-bool ABaseCharacter::ServerUpdateCameraPitch_Validate(float pitch) {
+bool ABaseCharacter::ServerUpdateCameraPitch_Validate(float pitch) {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerUpdateCameraPitch_Implementation(float pitch) {
+void ABaseCharacter::ServerUpdateCameraPitch_Implementation(float pitch) {DebugPrint(__FILE__, __LINE__);
 	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
 	currentRot.Pitch = pitch;
 	currentRot.Roll = 0;
@@ -460,7 +460,7 @@ void ABaseCharacter::ServerUpdateCameraPitch_Implementation(float pitch) {
 	FirstPersonCameraComponent->SetRelativeRotation(currentRot);
 }
 
-void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {
+void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {DebugPrint(__FILE__, __LINE__);
 	auto currentRot = FirstPersonCameraComponent->GetComponentRotation();
 	currentRot.Pitch = pitch;
 	currentRot.Roll = 0;
@@ -468,54 +468,54 @@ void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {
 	FirstPersonCameraComponent->SetRelativeRotation(currentRot);
 }
 
-void ABaseCharacter::EnableSprint() {
+void ABaseCharacter::EnableSprint() {DebugPrint(__FILE__, __LINE__);
 	sprintEnabled = true;
 }
 
-void ABaseCharacter::DisableSprint() {
+void ABaseCharacter::DisableSprint() {DebugPrint(__FILE__, __LINE__);
 	sprintEnabled = false;
 }
 
-bool ABaseCharacter::ShouldStartSprinting(float ForwardMovement) {
+bool ABaseCharacter::ShouldStartSprinting(float ForwardMovement) {DebugPrint(__FILE__, __LINE__);
 	return sprintAllowed && sprintEnabled && ForwardMovement > 0 && GetVelocity().Size() <= WalkSpeed;
 }
 
-bool ABaseCharacter::ShouldStopSprinting(float ForwardMovement) {
-	if(GetVelocity().Size() <= WalkSpeed) {
+bool ABaseCharacter::ShouldStopSprinting(float ForwardMovement) {DebugPrint(__FILE__, __LINE__);
+	if(GetVelocity().Size() <= WalkSpeed) {DebugPrint(__FILE__, __LINE__);
 		return false;
 	}
 	return !sprintAllowed || !sprintEnabled || ForwardMovement <= 0;
 }
 
-void ABaseCharacter::StartSprinting() {
+void ABaseCharacter::StartSprinting() {DebugPrint(__FILE__, __LINE__);
 	GetCharacterMovement()->MaxWalkSpeed = SprintSpeed;
 }
 
-void ABaseCharacter::StopSprinting() {
+void ABaseCharacter::StopSprinting() {DebugPrint(__FILE__, __LINE__);
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
-bool ABaseCharacter::ServerStartSprinting_Validate() {
+bool ABaseCharacter::ServerStartSprinting_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerStartSprinting_Implementation() {
+void ABaseCharacter::ServerStartSprinting_Implementation() {DebugPrint(__FILE__, __LINE__);
 	StartSprinting();
 }
 
-bool ABaseCharacter::ServerStopSprinting_Validate() {
+bool ABaseCharacter::ServerStopSprinting_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void ABaseCharacter::ServerStopSprinting_Implementation() {
+void ABaseCharacter::ServerStopSprinting_Implementation() {DebugPrint(__FILE__, __LINE__);
 	StopSprinting();
 }
 
-bool ABaseCharacter::IsAlive() {
+bool ABaseCharacter::IsAlive() {DebugPrint(__FILE__, __LINE__);
 	return MortalityProvider && MortalityProvider->IsAlive();
 }
 
-bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
+bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {DebugPrint(__FILE__, __LINE__);
 	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
 	if(!localPlayerState)
 		return false;
@@ -524,8 +524,8 @@ bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 
 
 
-void ABaseCharacter::UpdateCharacterNameTag() {
-	if(!GetWorld()->GetFirstPlayerController()->PlayerState || !IsInSameTeamAsLocalPlayer() || !IsAlive()) {
+void ABaseCharacter::UpdateCharacterNameTag() {DebugPrint(__FILE__, __LINE__);
+	if(!GetWorld()->GetFirstPlayerController()->PlayerState || !IsInSameTeamAsLocalPlayer() || !IsAlive()) {DebugPrint(__FILE__, __LINE__);
 		CharacterNameTag->SetVisibility(false);
 		return;
 	}

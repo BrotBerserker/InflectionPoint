@@ -5,7 +5,7 @@
 #include "TDMGameStateBase.h"
 
 
-void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
+void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {DebugPrint(__FILE__, __LINE__);
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(ATDMGameStateBase, CurrentRound);
@@ -17,9 +17,9 @@ void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ATDMGameStateBase, NumPlayers);
 }
 
-int ATDMGameStateBase::GetTeamScore(int team) {
+int ATDMGameStateBase::GetTeamScore(int team) {DebugPrint(__FILE__, __LINE__);
 	double teamScore = 0;
-	for(int i = 0; i < PlayerArray.Num(); i++) {
+	for(int i = 0; i < PlayerArray.Num(); i++) {DebugPrint(__FILE__, __LINE__);
 		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
 		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
 		if(tdmPlayerState && tdmPlayerState->Team == team)
@@ -28,16 +28,16 @@ int ATDMGameStateBase::GetTeamScore(int team) {
 	return teamScore;
 }
 
-void ATDMGameStateBase::ResetPlayerScores() {
-	for(int i = 0; i < PlayerArray.Num(); i++) {
+void ATDMGameStateBase::ResetPlayerScores() {DebugPrint(__FILE__, __LINE__);
+	for(int i = 0; i < PlayerArray.Num(); i++) {DebugPrint(__FILE__, __LINE__);
 		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
 		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
 		tdmPlayerState->ResetScore();
 	}
 }
 
-void ATDMGameStateBase::ResetTotalPlayerScores() {
-	for(int i = 0; i < PlayerArray.Num(); i++) {
+void ATDMGameStateBase::ResetTotalPlayerScores() {DebugPrint(__FILE__, __LINE__);
+	for(int i = 0; i < PlayerArray.Num(); i++) {DebugPrint(__FILE__, __LINE__);
 		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
 		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
 		tdmPlayerState->ResetTotalScore();

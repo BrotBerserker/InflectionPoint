@@ -6,7 +6,7 @@
 #include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 
-AInflectionPointProjectile::AInflectionPointProjectile() {
+AInflectionPointProjectile::AInflectionPointProjectile() {DebugPrint(__FILE__, __LINE__);
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
@@ -40,7 +40,7 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 	InitialLifeSpan = 5.0f;
 }
 
-void AInflectionPointProjectile::BeginPlay() {
+void AInflectionPointProjectile::BeginPlay() {DebugPrint(__FILE__, __LINE__);
 	Super::BeginPlay();
 
 	startPos = GetActorLocation();
@@ -55,7 +55,7 @@ void AInflectionPointProjectile::BeginPlay() {
 	CollisionDamageDealer->DamageCauser = GetOwner();
 
 	// instigator is null if the character has already died when the shot is spawned
-	if(Instigator == nullptr) {
+	if(Instigator == nullptr) {DebugPrint(__FILE__, __LINE__);
 		return;
 	}
 
@@ -64,30 +64,30 @@ void AInflectionPointProjectile::BeginPlay() {
 	CollisionComp->IgnoreActorWhenMoving(Instigator, true);
 }
 
-void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
-	if(firstHit) {
+void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {DebugPrint(__FILE__, __LINE__);
+	if(firstHit) {DebugPrint(__FILE__, __LINE__);
 		DebugLineDrawer->DrawDebugLineTrace(startPos, Hit.Location);
 		firstHit = false;
 	}
 }
 
-void AInflectionPointProjectile::OnDamageHit(float Damage, const FHitResult& Hit) {
-	if(CollisionDamageDealer->DestroyOnDamageDealt) {
+void AInflectionPointProjectile::OnDamageHit(float Damage, const FHitResult& Hit) {DebugPrint(__FILE__, __LINE__);
+	if(CollisionDamageDealer->DestroyOnDamageDealt) {DebugPrint(__FILE__, __LINE__);
 		MulticastSpawnHitEffect();
 	}
 	APlayerControllerBase* playerController = Cast<APlayerControllerBase>(Instigator->GetController());
-	if(playerController) {
+	if(playerController) {DebugPrint(__FILE__, __LINE__);
 		playerController->DamageDealt();
 	}
 }
 
-void AInflectionPointProjectile::OnHarmlessHit(const FHitResult& Hit) {
-	if(CollisionDamageDealer->DestroyOnHarmlessHit) {
+void AInflectionPointProjectile::OnHarmlessHit(const FHitResult& Hit) {DebugPrint(__FILE__, __LINE__);
+	if(CollisionDamageDealer->DestroyOnHarmlessHit) {DebugPrint(__FILE__, __LINE__);
 		MulticastSpawnHitEffect();
 	}
 }
 
-void AInflectionPointProjectile::MulticastSpawnHitEffect_Implementation() {
+void AInflectionPointProjectile::MulticastSpawnHitEffect_Implementation() {DebugPrint(__FILE__, __LINE__);
 	if(HitEffectClass == NULL)
 		return;
 
@@ -104,13 +104,13 @@ void AInflectionPointProjectile::MulticastSpawnHitEffect_Implementation() {
 	GetWorld()->SpawnActor<AActor>(HitEffectClass, GetActorTransform(), ActorSpawnParams);
 }
 
-float AInflectionPointProjectile::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
+float AInflectionPointProjectile::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {DebugPrint(__FILE__, __LINE__);
 	const float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 	MortalityProvider->TakeDamage(actualDamage, EventInstigator, DamageCauser);
 	return actualDamage;
 }
 
-void AInflectionPointProjectile::DestroyProjectile(AController* KillingPlayer, AActor* DamageCauser) {
+void AInflectionPointProjectile::DestroyProjectile(AController* KillingPlayer, AActor* DamageCauser) {DebugPrint(__FILE__, __LINE__);
 	MulticastSpawnHitEffect();
 	SetLifeSpan(0.0000001);
 }

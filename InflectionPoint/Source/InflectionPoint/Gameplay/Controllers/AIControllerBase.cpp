@@ -7,10 +7,10 @@
 
 
 AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer) :
-	Super(ObjectInitializer) {
+	Super(ObjectInitializer) {DebugPrint(__FILE__, __LINE__);
 }
 
-void AAIControllerBase::Initialize(APlayerController* OwningController) {
+void AAIControllerBase::Initialize(APlayerController* OwningController) {DebugPrint(__FILE__, __LINE__);
 	OwningPlayerController = OwningController;
 
 	AssertNotNull(OwningPlayerController, GetWorld(), __FILE__, __LINE__);

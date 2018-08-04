@@ -7,7 +7,7 @@
 #include "InstantWeapon.h"
 
 
-AInstantWeapon::AInstantWeapon() {
+AInstantWeapon::AInstantWeapon() {DebugPrint(__FILE__, __LINE__);
 	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
 
 	// set default values
@@ -15,11 +15,11 @@ AInstantWeapon::AInstantWeapon() {
 	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(Range >= 100 ? Range : 100, 0);
 }
 
-void AInstantWeapon::PreExecuteFire() {
+void AInstantWeapon::PreExecuteFire() {DebugPrint(__FILE__, __LINE__);
 	damageWasDealt = false;
 }
 
-void AInstantWeapon::ExecuteFire() {
+void AInstantWeapon::ExecuteFire() {DebugPrint(__FILE__, __LINE__);
 	float spread = (OwningCharacter && OwningCharacter->IsAiming) ? AimSpread : Spread;
 	const float ConeHalfAngle = FMath::DegreesToRadians(spread * 0.5f);
 
@@ -31,19 +31,19 @@ void AInstantWeapon::ExecuteFire() {
 	FHitResult hitResult = WeaponTrace(StartTrace, EndTrace);
 	MulticastSpawnInstantWeaponFX(hitResult);
 
-	if(hitResult.bBlockingHit) {
+	if(hitResult.bBlockingHit) {DebugPrint(__FILE__, __LINE__);
 		DebugLineDrawer->DrawDebugLineTrace(GetFPMuzzleLocation(), hitResult.ImpactPoint);
 	}
 	DealDamage(hitResult, ShootDir);
 }
 
-void AInstantWeapon::PostExecuteFire() {
+void AInstantWeapon::PostExecuteFire() {DebugPrint(__FILE__, __LINE__);
 	auto controller = Cast<APlayerControllerBase>(OwningCharacter->Controller);
 	if(controller && damageWasDealt)
 		controller->DamageDealt();
 }
 
-FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector& endTrace) {
+FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector& endTrace) {DebugPrint(__FILE__, __LINE__);
 	static FName WeaponFireTag = FName(TEXT("WeaponTrace"));
 
 	// Perform trace to retrieve hit info
@@ -56,7 +56,7 @@ FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector&
 	return Hit;
 }
 
-void AInstantWeapon::DealDamage(const FHitResult hitResult,const FVector& ShootDir) {
+void AInstantWeapon::DealDamage(const FHitResult hitResult,const FVector& ShootDir) {DebugPrint(__FILE__, __LINE__);
 	if(!hitResult.Actor.IsValid())
 		return;
 
@@ -73,17 +73,17 @@ void AInstantWeapon::DealDamage(const FHitResult hitResult,const FVector& ShootD
 	hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
 }
 
-void AInstantWeapon::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {
+void AInstantWeapon::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {DebugPrint(__FILE__, __LINE__);
 	SpawnTrailFX(hitResult);
 	SpawnImpactFX(hitResult);
 }
 
-void AInstantWeapon::SpawnTrailFX(const FHitResult hitResult) {
+void AInstantWeapon::SpawnTrailFX(const FHitResult hitResult) {DebugPrint(__FILE__, __LINE__);
 	if(!TrailFX)
 		return;
 	auto endPoint = hitResult.bBlockingHit ? hitResult.ImpactPoint : hitResult.TraceEnd;
 	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh3P, NAME_None);
-	if(tpTrail) {
+	if(tpTrail) {DebugPrint(__FILE__, __LINE__);
 		tpTrail->bOwnerNoSee = true;
 		tpTrail->bOnlyOwnerSee = false;
 		tpTrail->SetVectorParameter(TrailSourceParamName, GetTPMuzzleLocation());
@@ -91,7 +91,7 @@ void AInstantWeapon::SpawnTrailFX(const FHitResult hitResult) {
 	}
 
 	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh1P, NAME_None);
-	if(fpTrail) {
+	if(fpTrail) {DebugPrint(__FILE__, __LINE__);
 		fpTrail->bOwnerNoSee = false;
 		fpTrail->bOnlyOwnerSee = true;
 		fpTrail->SetVectorParameter(TrailSourceParamName, GetFPMuzzleLocation());
@@ -99,7 +99,7 @@ void AInstantWeapon::SpawnTrailFX(const FHitResult hitResult) {
 	}
 }
 
-void AInstantWeapon::SpawnImpactFX(const FHitResult hitResult) {
+void AInstantWeapon::SpawnImpactFX(const FHitResult hitResult) {DebugPrint(__FILE__, __LINE__);
 	if(!hitResult.bBlockingHit)
 		return;
 	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAtLocation(this, ImpactFX, hitResult.ImpactPoint);
@@ -107,13 +107,13 @@ void AInstantWeapon::SpawnImpactFX(const FHitResult hitResult) {
 		tpTrail->SetWorldRotation(hitResult.ImpactNormal.ToOrientationRotator());
 }
 
-void AInstantWeapon::OnEquip() {
+void AInstantWeapon::OnEquip() {DebugPrint(__FILE__, __LINE__);
 	Super::OnEquip();
 	// always start with a new RandomStream for replay Precision
 	WeaponRandomStream = FRandomStream(0);
 }
 
-float AInstantWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) {
+float AInstantWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) {DebugPrint(__FILE__, __LINE__);
 	float suitability = Super::GetAIWeaponSuitability(shooter, victim);
 	if(shooter && victim && (shooter->GetActorLocation() - victim->GetActorLocation()).Size() > Range)
 		return 0;

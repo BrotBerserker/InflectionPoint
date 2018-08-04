@@ -7,28 +7,28 @@
 #include "JoinMenuBase.h"
 
 
-UJoinMenuBase::UJoinMenuBase() : Super() {
+UJoinMenuBase::UJoinMenuBase() : Super() {DebugPrint(__FILE__, __LINE__);
 	OnFindSessionsCompleteDelegate = FOnFindSessionsCompleteDelegate::CreateUObject(this, &UJoinMenuBase::OnFindSessionsComplete);
 	static ConstructorHelpers::FObjectFinder<UClass> SessionSearchResult(TEXT("Class'/Game/InflectionPoint/UI/Menus/Widgets/SessionSearchResult.SessionSearchResult_C'"));
-	if(SessionSearchResult.Object != NULL) {
+	if(SessionSearchResult.Object != NULL) {DebugPrint(__FILE__, __LINE__);
 		SessionSearchResultType = SessionSearchResult.Object;
 	}
 }
 
-void UJoinMenuBase::FindOnlineGames(bool isLan) {
+void UJoinMenuBase::FindOnlineGames(bool isLan) {DebugPrint(__FILE__, __LINE__);
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
 	FindSessions(Player->GetPreferredUniqueNetId(), GameSessionName, isLan, true);
 }
 
-void UJoinMenuBase::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence) {
+void UJoinMenuBase::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence) {DebugPrint(__FILE__, __LINE__);
 	IOnlineSessionPtr Sessions = GetSessionInterface();
-	if(Sessions.IsValid() && UserId.IsValid()) {
+	if(Sessions.IsValid() && UserId.IsValid()) {DebugPrint(__FILE__, __LINE__);
 		SessionSearch = MakeShareable(new FOnlineSessionSearch());
 		SessionSearch->bIsLanQuery = bIsLAN;
 		SessionSearch->MaxSearchResults = 9001;
 		SessionSearch->PingBucketSize = 50;
 
-		if(bIsPresence) {
+		if(bIsPresence) {DebugPrint(__FILE__, __LINE__);
 			SessionSearch->QuerySettings.Set(SEARCH_PRESENCE, bIsPresence, EOnlineComparisonOp::Equals);
 		}
 
@@ -38,27 +38,27 @@ void UJoinMenuBase::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName Se
 	}
 }
 
-void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
+void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {DebugPrint(__FILE__, __LINE__);
 	OnSessionSearchComplete();
 
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
-	if(Sessions.IsValid()) {
+	if(Sessions.IsValid()) {DebugPrint(__FILE__, __LINE__);
 		// Clear the Delegate handle
 		Sessions->ClearOnFindSessionsCompleteDelegate_Handle(OnFindSessionsCompleteDelegateHandle);
 		// Create Widgets for the Server-List
 		CreateSessionSearchResultWidgets(Player->GetPreferredUniqueNetId());
 
-		if(SessionSearchResultWidgets.Num() > 0) {
+		if(SessionSearchResultWidgets.Num() > 0) {DebugPrint(__FILE__, __LINE__);
 			OnSessionFound();
 		}
 	}
 }
 
-void UJoinMenuBase::CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId) {
+void UJoinMenuBase::CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId) {DebugPrint(__FILE__, __LINE__);
 	SessionSearchResultWidgets = TArray<USessionSearchResultBase*>();
-	for(auto &searchResult : SessionSearch->SearchResults) {
+	for(auto &searchResult : SessionSearch->SearchResults) {DebugPrint(__FILE__, __LINE__);
 		if(searchResult.Session.OwningUserId == currentUniqueNetId)
 			continue;
 
@@ -66,7 +66,7 @@ void UJoinMenuBase::CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNet
 	}
 }
 
-USessionSearchResultBase * UJoinMenuBase::CreateSessionSearchResultWidget(FOnlineSessionSearchResult searchResult) {
+USessionSearchResultBase * UJoinMenuBase::CreateSessionSearchResultWidget(FOnlineSessionSearchResult searchResult) {DebugPrint(__FILE__, __LINE__);
 	FString sessionName;
 	searchResult.Session.SessionSettings.Get(FName("SessionName"), sessionName);
 
@@ -76,7 +76,7 @@ USessionSearchResultBase * UJoinMenuBase::CreateSessionSearchResultWidget(FOnlin
 	return SessionSearchResultWidget;
 }
 
-IOnlineSessionPtr UJoinMenuBase::GetSessionInterface() {
+IOnlineSessionPtr UJoinMenuBase::GetSessionInterface() {DebugPrint(__FILE__, __LINE__);
 	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
 
 	if(!AssertNotNull(OnlineSub, GetWorld(), __FILE__, __LINE__))

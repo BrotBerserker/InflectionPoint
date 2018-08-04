@@ -6,7 +6,7 @@
 
 
 // Sets default values
-AExplosion::AExplosion() {
+AExplosion::AExplosion() {DebugPrint(__FILE__, __LINE__);
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
@@ -16,7 +16,7 @@ AExplosion::AExplosion() {
 }
 
 // Called when the game starts or when spawned
-void AExplosion::BeginPlay() {
+void AExplosion::BeginPlay() {DebugPrint(__FILE__, __LINE__);
 	Super::BeginPlay();
 	// Set the Weapon as DamageDealer
 	RadialDamageDealer->DamageCauser = GetOwner();

@@ -15,7 +15,7 @@
 #include "Gameplay/InflectionPointGameInstanceBase.h"
 
 ATDMGameModeBase::ATDMGameModeBase()
-	: Super() {
+	: Super() {DebugPrint(__FILE__, __LINE__);
 	PrimaryActorTick.bCanEverTick = true;
 
 	// set default pawn class to our Blueprinted character
@@ -34,7 +34,7 @@ ATDMGameModeBase::ATDMGameModeBase()
 	CharacterSpawner = CreateDefaultSubobject<UTDMCharacterSpawner>(TEXT("CharacterSpawner"));
 }
 
-void ATDMGameModeBase::Tick(float DeltaSeconds) {
+void ATDMGameModeBase::Tick(float DeltaSeconds) {DebugPrint(__FILE__, __LINE__);
 	Super::Tick(DeltaSeconds);
 
 	UpdateTimeUntilMatchStart(DeltaSeconds);
@@ -42,36 +42,36 @@ void ATDMGameModeBase::Tick(float DeltaSeconds) {
 	UpdateTimeUntilNextCountdownUpdate(DeltaSeconds);
 }
 
-void ATDMGameModeBase::UpdateTimeUntilNextCountdownUpdate(float DeltaSeconds) {
-	if(GetGameState()->CurrentRound == 0 || nextCountdownNumber < 0) {
+void ATDMGameModeBase::UpdateTimeUntilNextCountdownUpdate(float DeltaSeconds) {DebugPrint(__FILE__, __LINE__);
+	if(GetGameState()->CurrentRound == 0 || nextCountdownNumber < 0) {DebugPrint(__FILE__, __LINE__);
 		return;
 	}
 	timeUntilNextCountdownUpdate -= DeltaSeconds;
-	if(timeUntilNextCountdownUpdate <= 0) {
+	if(timeUntilNextCountdownUpdate <= 0) {DebugPrint(__FILE__, __LINE__);
 		timeUntilNextCountdownUpdate = 1.f;
 		UpdateCountdown(nextCountdownNumber--);
 	}
 }
 
-void ATDMGameModeBase::UpdateTimeUntilMatchStart(float DeltaSeconds) {
-	if(GetGameState()->CurrentRound > 0) {
+void ATDMGameModeBase::UpdateTimeUntilMatchStart(float DeltaSeconds) {DebugPrint(__FILE__, __LINE__);
+	if(GetGameState()->CurrentRound > 0) {DebugPrint(__FILE__, __LINE__);
 		return;
 	}
-	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
+	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {DebugPrint(__FILE__, __LINE__);
 		timeUntilMatchStart -= DeltaSeconds;
-	} else {
+	} else {DebugPrint(__FILE__, __LINE__);
 		timeUntilMatchStart = MatchStartDelay;
 	}
-	if(timeUntilMatchStart <= 0) {
+	if(timeUntilMatchStart <= 0) {DebugPrint(__FILE__, __LINE__);
 		timeUntilMatchStart = MatchStartDelay;
 		StartMatch();
 	}
 }
 
-void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
+void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {DebugPrint(__FILE__, __LINE__);
 	Super::PostLogin(NewPlayer);
 	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
-	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
+	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {DebugPrint(__FILE__, __LINE__);
 		GameSession->KickPlayer(NewPlayer, FText::FromString("Server is already full!"));
 		return;
 	}
@@ -79,53 +79,53 @@ void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
 }
 
-void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
+void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {DebugPrint(__FILE__, __LINE__);
 	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
 	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
-	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
+	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {DebugPrint(__FILE__, __LINE__);
 		ErrorMessage = "Server is already full!";
 	}
 }
 
-void ATDMGameModeBase::Logout(AController* Exiting) {
+void ATDMGameModeBase::Logout(AController* Exiting) {DebugPrint(__FILE__, __LINE__);
 	Super::Logout(Exiting);
 	GetGameState()->NumPlayers--;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	if(GetGameState()->CurrentRound > 0 && nextCountdownNumber < 0 && IsWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
+	if(GetGameState()->CurrentRound > 0 && nextCountdownNumber < 0 && IsWinnerFound(Exiting) && !isPlayingEndMatchSequence) {DebugPrint(__FILE__, __LINE__);
 		StartEndMatchSequence();
 	}
 }
 
-void ATDMGameModeBase::InitializeSettings(FName SessionName) {
+void ATDMGameModeBase::InitializeSettings(FName SessionName) {DebugPrint(__FILE__, __LINE__);
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
 	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
 	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
-	if(sessionSettings) {
+	if(sessionSettings) {DebugPrint(__FILE__, __LINE__);
 		GetGameState()->MaxPlayers = sessionSettings->NumPublicConnections;
 		sessionSettings->Get(FName("Rounds"), GetGameState()->MaxRoundNum);
-	} else {
+	} else {DebugPrint(__FILE__, __LINE__);
 		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, using offline settings."));
 		GetGameState()->MaxPlayers = OfflineMaxPlayers;
 		GetGameState()->MaxRoundNum = OfflineMaxRoundNum;
 	}
 }
 
-void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
+void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {DebugPrint(__FILE__, __LINE__);
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
 	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
-	if(sessionSettings) {
+	if(sessionSettings) {DebugPrint(__FILE__, __LINE__);
 		sessionSettings->Set(FName("CurrentPlayers"), GetGameState()->NumPlayers, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 		session->UpdateSession(SessionName, *sessionSettings);
 	}
 }
 
-void ATDMGameModeBase::StartMatch() {
+void ATDMGameModeBase::StartMatch() {DebugPrint(__FILE__, __LINE__);
 	ResetGameState();
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 	StartNextRound();
 }
 
-void ATDMGameModeBase::ReStartMatch() {
+void ATDMGameModeBase::ReStartMatch() {DebugPrint(__FILE__, __LINE__);
 	isPlayingEndMatchSequence = false;
 	ResetGameState();
 	ClearMap();
@@ -133,7 +133,7 @@ void ATDMGameModeBase::ReStartMatch() {
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 }
 
-void ATDMGameModeBase::ResetGameState() {
+void ATDMGameModeBase::ResetGameState() {DebugPrint(__FILE__, __LINE__);
 	GetGameState()->TeamWins.Init(0, GetGameState()->TeamCount + 1); // +1 because teams start with 1
 	GetGameState()->CurrentRound = 0;
 	GetGameState()->CurrentPhase = 0;
@@ -142,16 +142,16 @@ void ATDMGameModeBase::ResetGameState() {
 	GetGameState()->ResetTotalPlayerScores();
 }
 
-void ATDMGameModeBase::EndCurrentPhase() {
+void ATDMGameModeBase::EndCurrentPhase() {DebugPrint(__FILE__, __LINE__);
 	SaveRecordingsFromRemainingPlayers();
-	if(GetGameState()->CurrentPhase == GetGameState()->MaxPhaseNum) {
+	if(GetGameState()->CurrentPhase == GetGameState()->MaxPhaseNum) {DebugPrint(__FILE__, __LINE__);
 		EndCurrentRound();
-	} else {
+	} else {DebugPrint(__FILE__, __LINE__);
 		StartNextPhase();
 	}
 }
 
-void ATDMGameModeBase::StartNextPhase() {
+void ATDMGameModeBase::StartNextPhase() {DebugPrint(__FILE__, __LINE__);
 	int phase = GetGameState()->CurrentPhase + 1;
 	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
 		return;
@@ -163,17 +163,17 @@ void ATDMGameModeBase::StartNextPhase() {
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
 
-void ATDMGameModeBase::EndCurrentRound() {
+void ATDMGameModeBase::EndCurrentRound() {DebugPrint(__FILE__, __LINE__);
 	ScoreHandler->SelectWinnerTeamForRound();
 	ScoreHandler->UpdateScoresForNextRound();
-	if(GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum) {
+	if(GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum) {DebugPrint(__FILE__, __LINE__);
 		StartEndMatchSequence();
 		return;
 	}
 	StartNextRound();
 }
 
-void ATDMGameModeBase::StartEndMatchSequence() {
+void ATDMGameModeBase::StartEndMatchSequence() {DebugPrint(__FILE__, __LINE__);
 	GetGameState()->ResetPlayerScores(); // so all players appear alive
 	ScoreHandler->SetCurrentScoresToTotalScore();
 	isPlayingEndMatchSequence = true;
@@ -184,7 +184,7 @@ void ATDMGameModeBase::StartEndMatchSequence() {
 
 	// if no levelscript is provided, just restart the match without playing an end match sequence
 	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
-	if(!levelScript) {
+	if(!levelScript) {DebugPrint(__FILE__, __LINE__);
 		return;
 	}
 	ClearMap();
@@ -193,16 +193,16 @@ void ATDMGameModeBase::StartEndMatchSequence() {
 	levelScript->StartEndMatchSequence(CharacterSpawner->PlayerCharacters[winningTeam], CharacterSpawner->PlayerCharacters[losingTeam], winnerName, loserName);
 }
 
-void ATDMGameModeBase::NotifyControllersOfEndMatch(int winnerTeam) {
+void ATDMGameModeBase::NotifyControllersOfEndMatch(int winnerTeam) {DebugPrint(__FILE__, __LINE__);
 	TArray<AActor*> controllers;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
-	for(auto& controller : controllers) {
+	for(auto& controller : controllers) {DebugPrint(__FILE__, __LINE__);
 		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
 		playerController->ClientShowMatchEnd(winnerTeam);
 	}
 }
 
-void ATDMGameModeBase::StartNextRound() {
+void ATDMGameModeBase::StartNextRound() {DebugPrint(__FILE__, __LINE__);
 	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
 		return;
 	GetGameState()->ResetPlayerScores();
@@ -211,15 +211,15 @@ void ATDMGameModeBase::StartNextRound() {
 	StartNextPhase();
 }
 
-void ATDMGameModeBase::StartSpawnCinematics() {
+void ATDMGameModeBase::StartSpawnCinematics() {DebugPrint(__FILE__, __LINE__);
 	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
-	if(!levelScript) {
+	if(!levelScript) {DebugPrint(__FILE__, __LINE__);
 		return;
 	}
 	levelScript->MulticastStartSpawnCinematic();
 }
 
-void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
+void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {DebugPrint(__FILE__, __LINE__);
 	if(!AssertNotNull(KilledPlayer, GetWorld(), __FILE__, __LINE__))
 		return;
 	SendKillInfoToPlayers(KilledPlayer, KillingPlayer, DamageCauser);
@@ -237,17 +237,17 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 	if(GetGameState()->CurrentPhase > 0)
 		SavePlayerRecordings(playerController);
 
-	if(GetGameState()->CurrentPhase == 0) {
+	if(GetGameState()->CurrentPhase == 0) {DebugPrint(__FILE__, __LINE__);
 		CharacterSpawner->SpawnAndPossessPlayer(playerController, 0);
-	} else if(IsWinnerFound()) {
+	} else if(IsWinnerFound()) {DebugPrint(__FILE__, __LINE__);
 		StartTimer(this, GetWorld(), "EndCurrentPhase", PhaseEndDelay + 0.00001f, false); // 0 does not work o.O
 	}
 }
 
-void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
+void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {DebugPrint(__FILE__, __LINE__);
 	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo() : FCharacterInfo();
 	FCharacterInfo killedInfo = KilledPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {DebugPrint(__FILE__, __LINE__);
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
 		float killedScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
@@ -257,21 +257,21 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 	}
 }
 
-void ATDMGameModeBase::SendPhaseStartedToPlayers(int Phase) {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+void ATDMGameModeBase::SendPhaseStartedToPlayers(int Phase) {DebugPrint(__FILE__, __LINE__);
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {DebugPrint(__FILE__, __LINE__);
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
 		controller->ClientPhaseStarted(Phase);
 	}
 }
 
-bool ATDMGameModeBase::IsWinnerFound(AController* controllerToIgnore) {
+bool ATDMGameModeBase::IsWinnerFound(AController* controllerToIgnore) {DebugPrint(__FILE__, __LINE__);
 	return (GetTeamsAlive(controllerToIgnore).Num() == 1);
 }
 
-TArray<int> ATDMGameModeBase::GetTeamsAlive(AController* controllerToIgnore) {
+TArray<int> ATDMGameModeBase::GetTeamsAlive(AController* controllerToIgnore) {DebugPrint(__FILE__, __LINE__);
 	TArray<int> teamsAlive;
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {DebugPrint(__FILE__, __LINE__);
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
 		auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
@@ -284,42 +284,42 @@ TArray<int> ATDMGameModeBase::GetTeamsAlive(AController* controllerToIgnore) {
 	return teamsAlive;
 }
 
-bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
+bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {DebugPrint(__FILE__, __LINE__);
 	return Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive;
 }
 
-void ATDMGameModeBase::StartCountdown() {
+void ATDMGameModeBase::StartCountdown() {DebugPrint(__FILE__, __LINE__);
 	nextCountdownNumber = CountDownDuration;
 	timeUntilNextCountdownUpdate = 1.f;
 }
 
-void ATDMGameModeBase::UpdateCountdown(int number) {
+void ATDMGameModeBase::UpdateCountdown(int number) {DebugPrint(__FILE__, __LINE__);
 	TArray<AActor*> controllers;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
-	for(auto& controller : controllers) {
+	for(auto& controller : controllers) {DebugPrint(__FILE__, __LINE__);
 		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
 		playerController->ClientShowCountdownNumber(number);
-		if(number == 0 && playerController->GetCharacter()) {
+		if(number == 0 && playerController->GetCharacter()) {DebugPrint(__FILE__, __LINE__);
 			playerController->GetCharacter()->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
 		}
 	}
-	if(number == 0) {
+	if(number == 0) {DebugPrint(__FILE__, __LINE__);
 		StartReplays();
-		if(IsWinnerFound()) {
+		if(IsWinnerFound()) {DebugPrint(__FILE__, __LINE__);
 			StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
 		}
 	}
 }
 
-void ATDMGameModeBase::StartReplays() {
+void ATDMGameModeBase::StartReplays() {DebugPrint(__FILE__, __LINE__);
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AReplayCharacterBase::StaticClass(), foundActors);
 	for(auto& item : foundActors)
 		Cast<AReplayCharacterBase>(item)->StartReplay();
 }
 
-void ATDMGameModeBase::SaveRecordingsFromRemainingPlayers() {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+void ATDMGameModeBase::SaveRecordingsFromRemainingPlayers() {DebugPrint(__FILE__, __LINE__);
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {DebugPrint(__FILE__, __LINE__);
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
 		if(IsPlayerAlive(ipPlayerController))
@@ -327,12 +327,12 @@ void ATDMGameModeBase::SaveRecordingsFromRemainingPlayers() {
 	}
 }
 
-void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerController) {
+void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerController) {DebugPrint(__FILE__, __LINE__);
 	auto pawn = playerController->GetPawn();
-	if(AssertNotNull(pawn, GetWorld(), __FILE__, __LINE__)) {
+	if(AssertNotNull(pawn, GetWorld(), __FILE__, __LINE__)) {DebugPrint(__FILE__, __LINE__);
 		auto playerStateRecorder = pawn->FindComponentByClass<UPlayerStateRecorder>();
 		AssertNotNull(playerStateRecorder, GetWorld(), __FILE__, __LINE__);
-		if(!PlayerRecordings.Contains(playerController)) {
+		if(!PlayerRecordings.Contains(playerController)) {DebugPrint(__FILE__, __LINE__);
 			TMap<int, TArray<FRecordedPlayerState>> map;
 			PlayerRecordings.Add(playerController, map);
 		}
@@ -340,32 +340,32 @@ void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerContro
 	}
 }
 
-void ATDMGameModeBase::ClearMap() {
+void ATDMGameModeBase::ClearMap() {DebugPrint(__FILE__, __LINE__);
 	DestroyAllActors(AReplayCharacterBase::StaticClass());
 	DestroyAllActors(APlayerCharacterBase::StaticClass());
 	DestroyAllActors(AInflectionPointProjectile::StaticClass());
 	DestroyAllActorsWithTag(FName("DeleteOnClearMap"));
 }
 
-void ATDMGameModeBase::DestroyAllActors(TSubclassOf<AActor> actorClass) {
+void ATDMGameModeBase::DestroyAllActors(TSubclassOf<AActor> actorClass) {DebugPrint(__FILE__, __LINE__);
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), actorClass, foundActors);
 	for(auto& item : foundActors)
 		item->Destroy();
 }
 
-void ATDMGameModeBase::DestroyAllActorsWithTag(FName tag) {
+void ATDMGameModeBase::DestroyAllActorsWithTag(FName tag) {DebugPrint(__FILE__, __LINE__);
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), tag, foundActors);
 	for(auto& item : foundActors)
 		item->Destroy();
 }
 
-APlayerController* ATDMGameModeBase::GetAnyPlayerControllerInTeam(int team) {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+APlayerController* ATDMGameModeBase::GetAnyPlayerControllerInTeam(int team) {DebugPrint(__FILE__, __LINE__);
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {DebugPrint(__FILE__, __LINE__);
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
-		if(playerState && playerState->Team == team) {
+		if(playerState && playerState->Team == team) {DebugPrint(__FILE__, __LINE__);
 			return playerController;
 		}
 	}

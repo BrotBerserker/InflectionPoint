@@ -3,12 +3,12 @@
 #include "InflectionPoint.h"
 #include "TDMPlayerStateBase.h"
 
-ATDMPlayerStateBase::ATDMPlayerStateBase() {
+ATDMPlayerStateBase::ATDMPlayerStateBase() {DebugPrint(__FILE__, __LINE__);
 	bUseCustomPlayerNames = true;
 }
 
 
-void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {DebugPrint(__FILE__, __LINE__);
 	DOREPLIFETIME(ATDMPlayerStateBase, Team);
 	DOREPLIFETIME(ATDMPlayerStateBase, PlayerStartGroup);
 	DOREPLIFETIME(ATDMPlayerStateBase, PlayerKills);
@@ -26,7 +26,7 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ATDMPlayerStateBase, ReplicatedPlayerName);
 }
 
-void ATDMPlayerStateBase::AddScoreToTotalScore() {
+void ATDMPlayerStateBase::AddScoreToTotalScore() {DebugPrint(__FILE__, __LINE__);
 	TotalDeaths += Deaths;
 	TotalPlayerKills += PlayerKills;
 	TotalReplayKills += ReplayKills;
@@ -34,7 +34,7 @@ void ATDMPlayerStateBase::AddScoreToTotalScore() {
 	TotalScore += Score;
 }
 
-void ATDMPlayerStateBase::SetCurrentScoreToTotalScore() {
+void ATDMPlayerStateBase::SetCurrentScoreToTotalScore() {DebugPrint(__FILE__, __LINE__);
 	Deaths = TotalDeaths;
 	PlayerKills = TotalPlayerKills;
 	ReplayKills = TotalReplayKills;
@@ -42,7 +42,7 @@ void ATDMPlayerStateBase::SetCurrentScoreToTotalScore() {
 	Score = TotalScore;
 }
 
-void ATDMPlayerStateBase::ResetScore() {
+void ATDMPlayerStateBase::ResetScore() {DebugPrint(__FILE__, __LINE__);
 	Deaths = 0;
 	PlayerKills = 0;
 	ReplayKills = 0;
@@ -51,7 +51,7 @@ void ATDMPlayerStateBase::ResetScore() {
 	IsAlive = 1;
 }
 
-void ATDMPlayerStateBase::ResetTotalScore() {
+void ATDMPlayerStateBase::ResetTotalScore() {DebugPrint(__FILE__, __LINE__);
 	TotalDeaths = 0;
 	TotalPlayerKills = 0;
 	TotalReplayKills = 0;
@@ -59,11 +59,11 @@ void ATDMPlayerStateBase::ResetTotalScore() {
 	TotalScore = 0;
 }
 
-void ATDMPlayerStateBase::SetPlayerName(const FString& S) {
+void ATDMPlayerStateBase::SetPlayerName(const FString& S) {DebugPrint(__FILE__, __LINE__);
 	Super::SetPlayerName(S);
 	ReplicatedPlayerName = S;
 }
 
-FString ATDMPlayerStateBase::GetPlayerNameCustom() const {
+FString ATDMPlayerStateBase::GetPlayerNameCustom() const {DebugPrint(__FILE__, __LINE__);
 	return ReplicatedPlayerName;
 }

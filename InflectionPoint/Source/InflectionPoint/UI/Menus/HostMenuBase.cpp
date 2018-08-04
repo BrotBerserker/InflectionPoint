@@ -3,12 +3,12 @@
 #include "InflectionPoint.h"
 #include "HostMenuBase.h"
 
-UHostMenuBase::UHostMenuBase() : Super() {
+UHostMenuBase::UHostMenuBase() : Super() {DebugPrint(__FILE__, __LINE__);
 	OnCreateSessionCompleteDelegate = FOnCreateSessionCompleteDelegate::CreateUObject(this, &UHostMenuBase::OnCreateSessionComplete);
 	OnStartSessionCompleteDelegate = FOnStartSessionCompleteDelegate::CreateUObject(this, &UHostMenuBase::OnStartOnlineGameComplete);
 }
 
-void UHostMenuBase::HostServer(int playerAmount, bool isLan, FString serverName, FString levelToOpen, int rounds) {
+void UHostMenuBase::HostServer(int playerAmount, bool isLan, FString serverName, FString levelToOpen, int rounds) {DebugPrint(__FILE__, __LINE__);
 	this->LevelToOpen = levelToOpen;
 
 	ULocalPlayer* const Player = GetWorld()->GetFirstLocalPlayerFromController();
@@ -16,7 +16,7 @@ void UHostMenuBase::HostServer(int playerAmount, bool isLan, FString serverName,
 	HostSession(Player->GetPreferredUniqueNetId(), FName(*serverName), isLan, true, playerAmount, rounds);
 }
 
-IOnlineSessionPtr UHostMenuBase::GetSessionInterface() {
+IOnlineSessionPtr UHostMenuBase::GetSessionInterface() {DebugPrint(__FILE__, __LINE__);
 	IOnlineSubsystem* const OnlineSub = IOnlineSubsystem::Get();
 
 	AssertNotNull(OnlineSub, GetWorld(), __FILE__, __LINE__);
@@ -24,10 +24,10 @@ IOnlineSessionPtr UHostMenuBase::GetSessionInterface() {
 	return OnlineSub->GetSessionInterface();
 }
 
-bool UHostMenuBase::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers, int32 Rounds) {
+bool UHostMenuBase::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers, int32 Rounds) {DebugPrint(__FILE__, __LINE__);
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
-	if(Sessions.IsValid() && UserId.IsValid()) {
+	if(Sessions.IsValid() && UserId.IsValid()) {DebugPrint(__FILE__, __LINE__);
 		SetupSessionSettings(bIsLAN, bIsPresence, MaxNumPlayers, SessionName, Rounds);
 
 		OnCreateSessionCompleteDelegateHandle = Sessions->AddOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegate);
@@ -38,7 +38,7 @@ bool UHostMenuBase::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName Ses
 	return false;
 }
 
-void UHostMenuBase::SetupSessionSettings(bool bIsLAN, bool bIsPresence, const int32 &MaxNumPlayers, FName &SessionName, int Rounds) {
+void UHostMenuBase::SetupSessionSettings(bool bIsLAN, bool bIsPresence, const int32 &MaxNumPlayers, FName &SessionName, int Rounds) {DebugPrint(__FILE__, __LINE__);
 	SessionSettings = MakeShareable(new FOnlineSessionSettings());
 
 	SessionSettings->bIsLANMatch = bIsLAN;
@@ -56,12 +56,12 @@ void UHostMenuBase::SetupSessionSettings(bool bIsLAN, bool bIsPresence, const in
 	SessionSettings->Set(FName("Rounds"), Rounds, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 }
 
-void UHostMenuBase::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful) {
+void UHostMenuBase::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful) {DebugPrint(__FILE__, __LINE__);
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
-	if(Sessions.IsValid()) {
+	if(Sessions.IsValid()) {DebugPrint(__FILE__, __LINE__);
 		Sessions->ClearOnCreateSessionCompleteDelegate_Handle(OnCreateSessionCompleteDelegateHandle);
-		if(bWasSuccessful) {
+		if(bWasSuccessful) {DebugPrint(__FILE__, __LINE__);
 			OnStartSessionCompleteDelegateHandle = Sessions->AddOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegate);
 
 			Sessions->StartSession(SessionName);
@@ -70,13 +70,13 @@ void UHostMenuBase::OnCreateSessionComplete(FName SessionName, bool bWasSuccessf
 
 }
 
-void UHostMenuBase::OnStartOnlineGameComplete(FName SessionName, bool bWasSuccessful) {
+void UHostMenuBase::OnStartOnlineGameComplete(FName SessionName, bool bWasSuccessful) {DebugPrint(__FILE__, __LINE__);
 	IOnlineSessionPtr Sessions = GetSessionInterface();
-	if(Sessions.IsValid()) {
+	if(Sessions.IsValid()) {DebugPrint(__FILE__, __LINE__);
 		Sessions->ClearOnStartSessionCompleteDelegate_Handle(OnStartSessionCompleteDelegateHandle);
 	}
 
-	if(bWasSuccessful) {
+	if(bWasSuccessful) {DebugPrint(__FILE__, __LINE__);
 		UGameplayStatics::OpenLevel(GetWorld(), *LevelToOpen, true, "listen");
 	}
 }

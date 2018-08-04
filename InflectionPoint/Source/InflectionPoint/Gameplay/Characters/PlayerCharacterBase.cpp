@@ -7,14 +7,14 @@
 #include "Gameplay/Controllers/AIControllerBase.h"
 #include "Utils/CheckFunctions.h"
 
-bool APlayerCharacterBase::IsReadyForInitialization() {
-	if(!PlayerState) {
+bool APlayerCharacterBase::IsReadyForInitialization() {DebugPrint(__FILE__, __LINE__);
+	if(!PlayerState) {DebugPrint(__FILE__, __LINE__);
 		return false;
 	}
 	return true;
 }
 
-void APlayerCharacterBase::Initialize() {
+void APlayerCharacterBase::Initialize() {DebugPrint(__FILE__, __LINE__);
 	Super::Initialize();
 	ApplyTeamColor(Cast<ATDMPlayerStateBase>(PlayerState));
 	//ShowSpawnAnimation();
@@ -24,7 +24,7 @@ void APlayerCharacterBase::Initialize() {
 //////////////////////////////////////////////////////////////////////////
 // Input
 
-void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {
+void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) {DebugPrint(__FILE__, __LINE__);
 	// set up gameplay key bindings
 	check(PlayerInputComponent);
 
@@ -69,21 +69,21 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 }
 
 template<int32 Index>
-void APlayerCharacterBase::EquipSpecificWeapon() {
+void APlayerCharacterBase::EquipSpecificWeapon() {DebugPrint(__FILE__, __LINE__);
 	ServerEquipSpecificWeapon(Index);
 }
 
-bool APlayerCharacterBase::DEBUG_ServerSpawnReplay_Validate() {
+bool APlayerCharacterBase::DEBUG_ServerSpawnReplay_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void APlayerCharacterBase::DEBUG_ServerSpawnReplay_Implementation() {
+void APlayerCharacterBase::DEBUG_ServerSpawnReplay_Implementation() {DebugPrint(__FILE__, __LINE__);
 	FActorSpawnParameters spawnParams;
 	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	// Spawn ReplayCharacter
 	AReplayCharacterBase* newPlayer = GetWorld()->SpawnActor<AReplayCharacterBase>(ReplayCharacter, DEBUG_position, DEBUG_rotation, spawnParams);
-	if(!AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__, "Could not spawn replay character!")) {
+	if(!AssertNotNull(newPlayer, GetWorld(), __FILE__, __LINE__, "Could not spawn replay character!")) {DebugPrint(__FILE__, __LINE__);
 		return;
 	}
 
@@ -96,25 +96,25 @@ void APlayerCharacterBase::DEBUG_ServerSpawnReplay_Implementation() {
 	newPlayer->StartReplay();
 }
 
-void APlayerCharacterBase::DEBUG_StartRecording() {
+void APlayerCharacterBase::DEBUG_StartRecording() {DebugPrint(__FILE__, __LINE__);
 	DEBUG_ServerSavePosition();
 	PlayerStateRecorder->ServerStartRecording();
 }
 
-bool APlayerCharacterBase::DEBUG_ServerSavePosition_Validate() {
+bool APlayerCharacterBase::DEBUG_ServerSavePosition_Validate() {DebugPrint(__FILE__, __LINE__);
 	return true;
 }
 
-void APlayerCharacterBase::DEBUG_ServerSavePosition_Implementation() {
+void APlayerCharacterBase::DEBUG_ServerSavePosition_Implementation() {DebugPrint(__FILE__, __LINE__);
 	DEBUG_position = GetActorLocation();
 	DEBUG_rotation = GetActorRotation();
 }
 
-void APlayerCharacterBase::ClientStartRecording_Implementation() {
+void APlayerCharacterBase::ClientStartRecording_Implementation() {DebugPrint(__FILE__, __LINE__);
 	PlayerStateRecorder->ServerStartRecording();
 }
 
-void APlayerCharacterBase::ServerStartFire_Implementation() {
+void APlayerCharacterBase::ServerStartFire_Implementation() {DebugPrint(__FILE__, __LINE__);
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
@@ -123,7 +123,7 @@ void APlayerCharacterBase::ServerStartFire_Implementation() {
 	Super::ServerStartFire_Implementation();
 }
 
-void APlayerCharacterBase::ServerStopFire_Implementation() {
+void APlayerCharacterBase::ServerStopFire_Implementation() {DebugPrint(__FILE__, __LINE__);
 	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
 	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 

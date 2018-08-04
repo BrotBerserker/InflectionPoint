@@ -8,18 +8,18 @@
 #include "TDMGameModeBase.h"
 #include "TDMCharacterSpawner.h"
 
-UTDMCharacterSpawner::UTDMCharacterSpawner() {
+UTDMCharacterSpawner::UTDMCharacterSpawner() {DebugPrint(__FILE__, __LINE__);
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void UTDMCharacterSpawner::BeginPlay() {
+void UTDMCharacterSpawner::BeginPlay() {DebugPrint(__FILE__, __LINE__);
 	Super::BeginPlay();
 
 	gameMode = Cast<ATDMGameModeBase>(GetOwner());
 }
 
-void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings) {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings) {DebugPrint(__FILE__, __LINE__);
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {DebugPrint(__FILE__, __LINE__);
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
 		SpawnAndPossessPlayer(ipPlayerController, CurrentPhase);
@@ -28,7 +28,7 @@ void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayer
 	}
 }
 
-void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerController, int CurrentPhase) {
+void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerController, int CurrentPhase) {DebugPrint(__FILE__, __LINE__);
 	auto spawnPoint = FindSpawnForPlayer(playerController, CurrentPhase);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 
@@ -39,7 +39,7 @@ void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerC
 	Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive = true;
 }
 
-void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerController, int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings) {
+void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerController, int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings) {DebugPrint(__FILE__, __LINE__);
 	auto spawnPoint = FindSpawnForPlayer(playerController, CurrentPhase);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 
@@ -53,7 +53,7 @@ void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerCo
 }
 
 template <typename CharacterType>
-CharacterType* UTDMCharacterSpawner::SpawnCharacter(UClass* spawnClass, AActor* playerStart) {
+CharacterType* UTDMCharacterSpawner::SpawnCharacter(UClass* spawnClass, AActor* playerStart) {DebugPrint(__FILE__, __LINE__);
 	FVector loc = playerStart->GetTransform().GetLocation();
 	FRotator rot = FRotator(playerStart->GetTransform().GetRotation());
 
@@ -65,19 +65,19 @@ CharacterType* UTDMCharacterSpawner::SpawnCharacter(UClass* spawnClass, AActor* 
 	return newCharacter;
 }
 
-int UTDMCharacterSpawner::GetTeam(APlayerControllerBase* playerController) {
+int UTDMCharacterSpawner::GetTeam(APlayerControllerBase* playerController) {DebugPrint(__FILE__, __LINE__);
 	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
 	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
 	return playerState->Team;
 }
 
-AActor* UTDMCharacterSpawner::FindSpawnForPlayer(APlayerControllerBase * playerController, int phase) {
+AActor* UTDMCharacterSpawner::FindSpawnForPlayer(APlayerControllerBase * playerController, int phase) {DebugPrint(__FILE__, __LINE__);
 	if(phase == 0)
 		return gameMode->FindPlayerStart(playerController);
 	return gameMode->FindPlayerStart(playerController, GetSpawnTag(playerController, phase));
 }
 
-FString UTDMCharacterSpawner::GetSpawnTag(APlayerControllerBase*  playerController, int phase) {
+FString UTDMCharacterSpawner::GetSpawnTag(APlayerControllerBase*  playerController, int phase) {DebugPrint(__FILE__, __LINE__);
 	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
 	int teams = gameMode->GetGameState()->TeamCount;//2;
 	int playersPerTeam = (gameMode->GetGameState()->MaxPlayers / teams);
@@ -88,16 +88,16 @@ FString UTDMCharacterSpawner::GetSpawnTag(APlayerControllerBase*  playerControll
 	return spawnTag;
 }
 
-int UTDMCharacterSpawner::GetSpawnPointCount() {
+int UTDMCharacterSpawner::GetSpawnPointCount() {DebugPrint(__FILE__, __LINE__);
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerStart::StaticClass(), foundActors);
 	return foundActors.Num();
 }
 
-void UTDMCharacterSpawner::AssignTeamsAndPlayerStartGroups() {
+void UTDMCharacterSpawner::AssignTeamsAndPlayerStartGroups() {DebugPrint(__FILE__, __LINE__);
 	UWorld* world = GetWorld();
 
-	for(auto iterator = world->GetPlayerControllerIterator(); iterator; ++iterator) {
+	for(auto iterator = world->GetPlayerControllerIterator(); iterator; ++iterator) {DebugPrint(__FILE__, __LINE__);
 		APlayerControllerBase* controller = (APlayerControllerBase*)UGameplayStatics::GetPlayerController(world, iterator.GetIndex());
 		ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
 		AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
@@ -107,8 +107,8 @@ void UTDMCharacterSpawner::AssignTeamsAndPlayerStartGroups() {
 	}
 }
 
-void UTDMCharacterSpawner::SpawnAllPlayersForWarmupRound() {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+void UTDMCharacterSpawner::SpawnAllPlayersForWarmupRound() {DebugPrint(__FILE__, __LINE__);
+	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {DebugPrint(__FILE__, __LINE__);
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
 		controller->ClientPhaseStarted(0);
