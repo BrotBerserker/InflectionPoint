@@ -38,6 +38,15 @@ void UWeaponInventory::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
+bool UWeaponInventory::IsReadyForInitialization() {
+	for(ABaseWeapon* weapon : weapons) {
+		if(!weapon->IsReadyForInitialization()) {
+			return false;
+		}
+	}
+	return true;
+}
+
 void UWeaponInventory::AddWeapon(ABaseWeapon* Weapon) {DebugPrint(__FILE__, __LINE__);
 	weapons.AddUnique(Weapon);
 }

@@ -94,7 +94,7 @@ void ABaseCharacter::BeginPlay() {DebugPrint(__FILE__, __LINE__);
 }
 
 bool ABaseCharacter::IsReadyForInitialization() {DebugPrint(__FILE__, __LINE__);
-	return true;
+	return WeaponInventory->IsReadyForInitialization();
 }
 
 void ABaseCharacter::Initialize() {DebugPrint(__FILE__, __LINE__);
