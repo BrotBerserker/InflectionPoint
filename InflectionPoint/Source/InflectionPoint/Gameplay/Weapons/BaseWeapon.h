@@ -192,7 +192,9 @@ public:
 	/** Initializes variables and attachments */
 	virtual void BeginPlay() override;
 
-	void Initialize();
+	void SetupReferences();
+
+	virtual bool IsReadyForInitialization();
 
 	/** Called when the Instigator is set */
 	void OnRep_Instigator() override;

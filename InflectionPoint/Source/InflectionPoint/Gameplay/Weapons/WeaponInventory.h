@@ -24,6 +24,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	virtual bool IsReadyForInitialization();
+
 	UPROPERTY(EditDefaultsOnly, Category = Weapons)
 		TArray<TSubclassOf<ABaseWeapon>> DefaultWeaponClasses;
 

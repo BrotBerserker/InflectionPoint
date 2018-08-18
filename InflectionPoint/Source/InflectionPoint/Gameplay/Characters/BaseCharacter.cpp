@@ -94,7 +94,7 @@ void ABaseCharacter::BeginPlay() {
 }
 
 bool ABaseCharacter::IsReadyForInitialization() {
-	return true;
+	return WeaponInventory->IsReadyForInitialization();
 }
 
 void ABaseCharacter::Initialize() {

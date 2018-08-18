@@ -64,19 +64,23 @@ void ABaseWeapon::BeginPlay() {
 	if(!HasAuthority())
 		return; // On Client the Instigator is not set yet
 
-	Initialize();
+	SetupReferences();
 }
 
 void ABaseWeapon::OnRep_Instigator() {
-	Initialize();
+	SetupReferences();
 }
 
-void ABaseWeapon::Initialize() {
+void ABaseWeapon::SetupReferences() {
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
 	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
 	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
 	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.7f, false);
+}
+
+bool ABaseWeapon::IsReadyForInitialization() {
+	return OwningCharacter != nullptr;
 }
 
 void ABaseWeapon::ReattachMuzzleLocation() {
