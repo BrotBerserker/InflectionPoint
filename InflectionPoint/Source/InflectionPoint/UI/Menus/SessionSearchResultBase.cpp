@@ -41,7 +41,7 @@ void USessionSearchResultBase::JoinOnlineGame() {
 	}
 }
 
-bool USessionSearchResultBase::JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult) {
+bool USessionSearchResultBase::JoinSession(FUniqueNetIdRepl UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult) {
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
 	if(Sessions.IsValid() && UserId.IsValid()) {

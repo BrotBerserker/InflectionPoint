@@ -20,7 +20,7 @@ void UJoinMenuBase::FindOnlineGames(bool isLan) {
 	FindSessions(Player->GetPreferredUniqueNetId(), GameSessionName, isLan, true);
 }
 
-void UJoinMenuBase::FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence) {
+void UJoinMenuBase::FindSessions(FUniqueNetIdRepl UserId, FName SessionName, bool bIsLAN, bool bIsPresence) {
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 	if(Sessions.IsValid() && UserId.IsValid()) {
 		SessionSearch = MakeShareable(new FOnlineSessionSearch());
@@ -56,7 +56,7 @@ void UJoinMenuBase::OnFindSessionsComplete(bool bWasSuccessful) {
 	}
 }
 
-void UJoinMenuBase::CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId) {
+void UJoinMenuBase::CreateSessionSearchResultWidgets(FUniqueNetIdRepl currentUniqueNetId) {
 	SessionSearchResultWidgets = TArray<USessionSearchResultBase*>();
 	for(auto &searchResult : SessionSearch->SearchResults) {
 		if(searchResult.Session.OwningUserId == currentUniqueNetId)

@@ -27,7 +27,7 @@ public:
 		void HostServer(int playerAmount, bool lan, FString serverName, FString levelToOpen, int rounds);
 
 	/** Create a new session */
-	bool HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers, int32 Rounds);
+	bool HostSession(FUniqueNetIdRepl UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers, int32 Rounds);
 
 	/** Sets up a bunch of settings for the next session to be created */
 	void SetupSessionSettings(bool bIsLAN, bool bIsPresence, const int32 &MaxNumPlayers, FName &SessionName, int Rounds);

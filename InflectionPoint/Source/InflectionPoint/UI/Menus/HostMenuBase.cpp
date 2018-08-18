@@ -24,7 +24,7 @@ IOnlineSessionPtr UHostMenuBase::GetSessionInterface() {
 	return OnlineSub->GetSessionInterface();
 }
 
-bool UHostMenuBase::HostSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers, int32 Rounds) {
+bool UHostMenuBase::HostSession(FUniqueNetIdRepl UserId, FName SessionName, bool bIsLAN, bool bIsPresence, int32 MaxNumPlayers, int32 Rounds) {
 	IOnlineSessionPtr Sessions = GetSessionInterface();
 
 	if(Sessions.IsValid() && UserId.IsValid()) {

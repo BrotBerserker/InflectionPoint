@@ -46,7 +46,7 @@ public:
 	FOnlineSessionSearchResult OnlineSessionSearchResult;
 
 private:
-	bool JoinSession(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult);
+	bool JoinSession(FUniqueNetIdRepl UserId, FName SessionName, const FOnlineSessionSearchResult& SearchResult);
 	IOnlineSessionPtr GetSessionInterface();
 
 private:

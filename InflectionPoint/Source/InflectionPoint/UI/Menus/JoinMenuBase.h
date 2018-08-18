@@ -46,9 +46,9 @@ public:
 private:
 	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
 
-	void FindSessions(TSharedPtr<const FUniqueNetId> UserId, FName SessionName, bool bIsLAN, bool bIsPresence);
+	void FindSessions(FUniqueNetIdRepl UserId, FName SessionName, bool bIsLAN, bool bIsPresence);
 	
-	void CreateSessionSearchResultWidgets(TSharedPtr<const FUniqueNetId> currentUniqueNetId);
+	void CreateSessionSearchResultWidgets(FUniqueNetIdRepl currentUniqueNetId);
 
 	USessionSearchResultBase* CreateSessionSearchResultWidget(FOnlineSessionSearchResult session);
 
