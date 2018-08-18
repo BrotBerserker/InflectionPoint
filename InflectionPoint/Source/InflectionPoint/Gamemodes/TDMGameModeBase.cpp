@@ -73,7 +73,7 @@ void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
 	GetGameState()->NumPlayers++;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
+	if(GetGameState()->NumPlayers > GetGameState()->MaxPlayers) {
 		GameSession->KickPlayer(NewPlayer, FText::FromString("Server is already full!"));
 		return;
 	}
