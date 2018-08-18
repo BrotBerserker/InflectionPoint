@@ -38,8 +38,14 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientShowMatchEnd(int winningTeam);
 
+	UFUNCTION(Client, Reliable)
+		void ClientShowRoundEnd(int winningTeam);
+
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnShowMatchEnd(int winningTeam);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnShowRoundEnd(int winningTeam);
 
 	UFUNCTION(Client, Reliable)
 		void ClientShowCountdownNumber(int number);

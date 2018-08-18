@@ -39,8 +39,9 @@ public:
 	UFUNCTION()
 		void UpdateScoresForNextRound();
 
+	/** Finds winner of round, increases TeamWins and returns the winner index */
 	UFUNCTION()
-		void SelectWinnerTeamForRound();
+		int SelectWinnerTeamForRound();
 
 	UFUNCTION()
 		void SetCurrentScoresToTotalScore();

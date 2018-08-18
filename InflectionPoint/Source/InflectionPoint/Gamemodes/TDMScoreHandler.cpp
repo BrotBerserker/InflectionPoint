@@ -94,7 +94,7 @@ void UTDMScoreHandler::SetCurrentScoresToTotalScore() {
 	}
 }
 
-void UTDMScoreHandler::SelectWinnerTeamForRound() {
+int UTDMScoreHandler::SelectWinnerTeamForRound() {
 	int bestScore = -1;
 	int bestTeam = 0;
 	for(int team = 1; team <= GetGameState()->TeamCount; team++) {
@@ -105,6 +105,7 @@ void UTDMScoreHandler::SelectWinnerTeamForRound() {
 		}
 	}
 	GetGameState()->TeamWins[bestTeam] ++;
+	return bestTeam;
 }
 
 ATDMGameStateBase* UTDMScoreHandler::GetGameState() {

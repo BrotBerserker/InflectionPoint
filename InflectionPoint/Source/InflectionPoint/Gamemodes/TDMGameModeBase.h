@@ -80,10 +80,14 @@ public:
 	UFUNCTION()
 		void StartEndMatchSequence();
 
-	/** Informs all players about the next countdown number */
+	/** Informs all players about the end of match */
 	UFUNCTION()
 		void NotifyControllersOfEndMatch(int winnerTeam);
 
+	/** Informs all players about the end of round */
+	UFUNCTION()
+		void NotifyControllersOfEndRound(int winnerTeam);
+	
 	/** Starts all spawned replays */
 	UFUNCTION()
 		void StartReplays();
@@ -118,6 +122,10 @@ public:
 	/** Seconds to wait before a phase is ended after the winner has been decided */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float PhaseEndDelay = 2.0f;
+
+	/** Seconds to wait before a phase is ended after the winner has been decided */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float RoundEndDelay = 3.0f;
 
 	/** MaxPlayers is set to this value when playing in editor or offline */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)

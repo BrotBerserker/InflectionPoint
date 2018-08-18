@@ -61,6 +61,10 @@ void APlayerControllerBase::ClientShowMatchEnd_Implementation(int winnerTeam) {
 	OnShowMatchEnd(winnerTeam);
 }
 
+void APlayerControllerBase::ClientShowRoundEnd_Implementation(int winnerTeam) {
+	OnShowRoundEnd(winnerTeam);
+}
+
 bool APlayerControllerBase::ServerSwitchSpectatedCharacter_Validate() {
 	return true;
 }

@@ -164,13 +164,14 @@ void ATDMGameModeBase::StartNextPhase() {
 }
 
 void ATDMGameModeBase::EndCurrentRound() {
-	ScoreHandler->SelectWinnerTeamForRound();
+	int winnerTeam = ScoreHandler->SelectWinnerTeamForRound();
 	ScoreHandler->UpdateScoresForNextRound();
 	if(GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum) {
 		StartEndMatchSequence();
 		return;
 	}
-	StartNextRound();
+	NotifyControllersOfEndRound(winnerTeam);
+	StartTimer(this, GetWorld(), "StartNextRound", RoundEndDelay, false);
 }
 
 void ATDMGameModeBase::StartEndMatchSequence() {
@@ -199,6 +200,15 @@ void ATDMGameModeBase::NotifyControllersOfEndMatch(int winnerTeam) {
 	for(auto& controller : controllers) {
 		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
 		playerController->ClientShowMatchEnd(winnerTeam);
+	}
+}
+
+void ATDMGameModeBase::NotifyControllersOfEndRound(int winnerTeam) {
+	TArray<AActor*> controllers;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
+	for(auto& controller : controllers) {
+		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
+		playerController->ClientShowRoundEnd(winnerTeam);
 	}
 }
 
