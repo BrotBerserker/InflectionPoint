@@ -91,7 +91,7 @@ void ATDMGameModeBase::Logout(AController* Exiting) {
 	Super::Logout(Exiting);
 	GetGameState()->NumPlayers--;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	if(GetGameState()->CurrentRound > 0 && nextCountdownNumber < 0 && IsWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
+	if(GetGameState()->CurrentRound > 0 && nextCountdownNumber < 0 && IsPhaseWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
 		StartEndMatchSequence();
 	}
 }
@@ -166,7 +166,7 @@ void ATDMGameModeBase::StartNextPhase() {
 void ATDMGameModeBase::EndCurrentRound() {
 	int winnerTeam = ScoreHandler->SelectWinnerTeamForRound();
 	ScoreHandler->UpdateScoresForNextRound();
-	if(GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum) {
+	if(IsMatchWinnerFound()) {
 		StartEndMatchSequence();
 		return;
 	}
@@ -249,7 +249,7 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 
 	if(GetGameState()->CurrentPhase == 0) {
 		CharacterSpawner->SpawnAndPossessPlayer(playerController, 0);
-	} else if(IsWinnerFound()) {
+	} else if(IsPhaseWinnerFound()) {
 		StartTimer(this, GetWorld(), "EndCurrentPhase", PhaseEndDelay + 0.00001f, false); // 0 does not work o.O
 	}
 }
@@ -275,8 +275,13 @@ void ATDMGameModeBase::SendPhaseStartedToPlayers(int Phase) {
 	}
 }
 
-bool ATDMGameModeBase::IsWinnerFound(AController* controllerToIgnore) {
+bool ATDMGameModeBase::IsPhaseWinnerFound(AController* controllerToIgnore) {
 	return (GetTeamsAlive(controllerToIgnore).Num() == 1);
+}
+
+bool ATDMGameModeBase::IsMatchWinnerFound() {
+	return GetGameState()->CurrentRound >= GetGameState()->MaxRoundNum
+		|| GetGameState()->TeamWins[ScoreHandler->GetWinningTeam()] > GetGameState()->MaxRoundNum / 2;
 }
 
 TArray<int> ATDMGameModeBase::GetTeamsAlive(AController* controllerToIgnore) {
@@ -315,7 +320,7 @@ void ATDMGameModeBase::UpdateCountdown(int number) {
 	}
 	if(number == 0) {
 		StartReplays();
-		if(IsWinnerFound()) {
+		if(IsPhaseWinnerFound()) {
 			StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
 		}
 	}

@@ -158,7 +158,8 @@ private:
 
 private:
 	/** Check current phase's status */
-	bool IsWinnerFound(AController* controllerToIgnore = nullptr);
+	bool IsPhaseWinnerFound(AController* controllerToIgnore = nullptr);
+	bool IsMatchWinnerFound();
 	TArray<int> GetTeamsAlive(AController* controllerToIgnore = nullptr);
 	bool IsPlayerAlive(APlayerControllerBase* playerController);
 
