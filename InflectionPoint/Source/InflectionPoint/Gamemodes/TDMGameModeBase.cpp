@@ -71,12 +71,12 @@ void ATDMGameModeBase::UpdateTimeUntilMatchStart(float DeltaSeconds) {
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
 	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
+	GetGameState()->NumPlayers++;
+	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
 	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
 		GameSession->KickPlayer(NewPlayer, FText::FromString("Server is already full!"));
 		return;
 	}
-	GetGameState()->NumPlayers++;
-	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
 }
 
 void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
