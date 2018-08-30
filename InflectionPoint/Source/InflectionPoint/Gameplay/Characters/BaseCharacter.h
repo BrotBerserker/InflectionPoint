@@ -216,7 +216,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool IsInSameTeamAsLocalPlayer();
 
-	virtual void InitCharacterHeadDisplay();
+	UFUNCTION(BlueprintCallable)
+		void InitCharacterHeadDisplay();
 public:
 	/* --------------- */
 	/*  RPC Functions  */

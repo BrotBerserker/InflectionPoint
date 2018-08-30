@@ -89,7 +89,7 @@ void ABaseCharacter::BeginPlay() {
 
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
-
+	InitCharacterHeadDisplay();
 	//// Create dynamic materials for materialize animation
 	//DynamicBodyMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
 	//Mesh3P->SetMaterial(0, DynamicBodyMaterial);
@@ -103,17 +103,14 @@ bool ABaseCharacter::IsReadyForInitialization() {
 void ABaseCharacter::Initialize() {
 	if(IsLocallyControlled()) {
 		ServerEquipSpecificWeapon(0);
-	}
-	InitCharacterHeadDisplay();
-	
+	}	
 }
 
 void ABaseCharacter::InitCharacterHeadDisplay() {
 	CharacterHeadDisplay->AttachToComponent(GetCapsuleComponent(),FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
 	CharacterHeadDisplay->InitWidget();
 	auto headDisplayWidget = Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
-	headDisplayWidget->Character = this;
-	headDisplayWidget->CharacterInfoProvider = CharacterInfoProvider;
+	headDisplayWidget->OwningCharacter = this;
 }
 
 void ABaseCharacter::Restart() {
@@ -540,7 +537,7 @@ bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 
 
 void ABaseCharacter::UpdateCharacterHeadDisplay() {
-	if(!GetWorld()->GetFirstPlayerController()->PlayerState || !IsInSameTeamAsLocalPlayer() || !IsAlive() || !GetWorld()->GetFirstPlayerController()->GetCharacter()) {
+	if(!GetWorld()->GetFirstPlayerController()->PlayerState || !IsAlive() || !GetWorld()->GetFirstPlayerController()->GetCharacter()) {
 		CharacterHeadDisplay->SetVisibility(false);
 		return;
 	}
@@ -549,4 +546,5 @@ void ABaseCharacter::UpdateCharacterHeadDisplay() {
 	auto playerLocation = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetActorLocation();
 	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), playerLocation);
 	CharacterHeadDisplay->SetWorldRotation(FRotator(PlayerRot.Pitch, PlayerRot.Yaw, 0));
+	auto headDisplayWidget = Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
 }

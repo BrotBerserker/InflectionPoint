@@ -19,13 +19,5 @@ class INFLECTIONPOINT_API UCharacterHeadDisplayBase : public UUserWidget {
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UCharacterInfoProvider* CharacterInfoProvider;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		ABaseCharacter* Character;
-
-	UFUNCTION(BlueprintCallable)
-		FORCEINLINE class APlayerCharacterBase* GetCharacterAsPlayer() const { return Cast<APlayerCharacterBase>(Character); };
-	UFUNCTION(BlueprintCallable)
-		FORCEINLINE class AReplayCharacterBase* GetCharacterAsReplay() const { return Cast<AReplayCharacterBase>(Character); };
+		ABaseCharacter* OwningCharacter;
 };
