@@ -14,6 +14,8 @@
 #include "Utils/CheckFunctions.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
 #include "DebugTools/InflectionPointCheatManager.h"
+#include "UI/HUD/CharacterHeadDisplayBase.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Gamemodes/TDMGameStateBase.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
@@ -70,14 +72,15 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
 	CharacterInfoProvider->SetIsReplicated(true);
 
-	CharacterNameTag = CreateDefaultSubobject<UTextRenderComponent>(TEXT("CharacterNameTag"));
-	CharacterNameTag->SetCastShadow(false);
-	CharacterNameTag->SetupAttachment(GetCapsuleComponent());
-	CharacterNameTag->SetOwnerNoSee(true);
-	CharacterNameTag->bCastDynamicShadow = false;
-	CharacterNameTag->bAffectDynamicIndirectLighting = false;
-	CharacterNameTag->SetRelativeLocation(FVector(0, 0, 90));
-	CharacterNameTag->SetHorizontalAlignment(EHorizTextAligment::EHTA_Center);
+	CharacterHeadDisplay = CreateDefaultSubobject<UWidgetComponent>(TEXT("CharacterHeadDisplay"));
+	CharacterHeadDisplay->SetupAttachment(GetCapsuleComponent());
+	CharacterHeadDisplay->SetOwnerNoSee(true);
+	CharacterHeadDisplay->SetRelativeLocation(FVector(0.f, 0.f, 130.f));
+	CharacterHeadDisplay->SetRelativeScale3D(FVector(0.1, 0.1, 0.1));
+	CharacterHeadDisplay->SetWidgetSpace(EWidgetSpace::Screen);
+	CharacterHeadDisplay->SetDrawSize(FVector2D(1280, 720));
+	CharacterHeadDisplay->SetVisibility(true);
+	CharacterHeadDisplay->RegisterComponent();
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -101,6 +104,16 @@ void ABaseCharacter::Initialize() {
 	if(IsLocallyControlled()) {
 		ServerEquipSpecificWeapon(0);
 	}
+	InitCharacterHeadDisplay();
+	
+}
+
+void ABaseCharacter::InitCharacterHeadDisplay() {
+	CharacterHeadDisplay->AttachToComponent(GetCapsuleComponent(),FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
+	CharacterHeadDisplay->InitWidget();
+	auto headDisplayWidget = Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
+	headDisplayWidget->Character = this;
+	headDisplayWidget->CharacterInfoProvider = CharacterInfoProvider;
 }
 
 void ABaseCharacter::Restart() {
@@ -118,7 +131,7 @@ void ABaseCharacter::Tick(float DeltaTime) {
 	}
 
 	UpdateFieldOfView(DeltaTime);
-	UpdateCharacterNameTag();
+	UpdateCharacterHeadDisplay();
 }
 
 void ABaseCharacter::Destroyed() {
@@ -148,6 +161,8 @@ void ABaseCharacter::ApplyTeamColor(ATDMPlayerStateBase* playerState) {
 void ABaseCharacter::ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color) {
 	auto unusedColor = FLinearColor(); // only needed for checking the vecorParameter
 	for(int i = 0; i < mesh->GetMaterials().Num(); i++) {
+		if(!mesh->GetMaterial(i))
+			continue;
 		bool check = mesh->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, unusedColor);
 		if(!check)
 			continue;
@@ -524,12 +539,14 @@ bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 
 
 
-void ABaseCharacter::UpdateCharacterNameTag() {
-	if(!GetWorld()->GetFirstPlayerController()->PlayerState || !IsInSameTeamAsLocalPlayer() || !IsAlive()) {
-		CharacterNameTag->SetVisibility(false);
+void ABaseCharacter::UpdateCharacterHeadDisplay() {
+	if(!GetWorld()->GetFirstPlayerController()->PlayerState || !IsInSameTeamAsLocalPlayer() || !IsAlive() || !GetWorld()->GetFirstPlayerController()->GetCharacter()) {
+		CharacterHeadDisplay->SetVisibility(false);
 		return;
 	}
-	CharacterNameTag->SetVisibility(true);
-	CharacterNameTag->SetWorldRotation(FRotator(0, 0, 0));
-	CharacterNameTag->SetText(FText::FromString(CharacterInfoProvider->GetCharacterInfo().PlayerName));
+	CharacterHeadDisplay->SetVisibility(true);
+	AssertNotNull(GetWorld()->GetFirstPlayerController()->GetCharacter(), GetWorld(), __FILE__, __LINE__);
+	auto playerLocation = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetActorLocation();
+	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), playerLocation);
+	CharacterHeadDisplay->SetWorldRotation(FRotator(PlayerRot.Pitch, PlayerRot.Yaw, 0));
 }
