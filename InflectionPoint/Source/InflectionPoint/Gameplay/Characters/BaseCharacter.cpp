@@ -103,11 +103,11 @@ bool ABaseCharacter::IsReadyForInitialization() {
 void ABaseCharacter::Initialize() {
 	if(IsLocallyControlled()) {
 		ServerEquipSpecificWeapon(0);
-	}	
+	}
 }
 
 void ABaseCharacter::InitCharacterHeadDisplay() {
-	CharacterHeadDisplay->AttachToComponent(GetCapsuleComponent(),FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
+	CharacterHeadDisplay->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
 	CharacterHeadDisplay->InitWidget();
 	auto headDisplayWidget = Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
 	headDisplayWidget->OwningCharacter = this;
@@ -537,7 +537,7 @@ bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 
 
 void ABaseCharacter::UpdateCharacterHeadDisplay() {
-	if(!GetWorld()->GetFirstPlayerController()->PlayerState || !IsAlive() || !GetWorld()->GetFirstPlayerController()->GetCharacter()) {
+	if((Controller == GetWorld()->GetFirstPlayerController()) || !GetWorld()->GetFirstPlayerController()->PlayerState || !IsAlive() || !GetWorld()->GetFirstPlayerController()->GetCharacter()) {
 		CharacterHeadDisplay->SetVisibility(false);
 		return;
 	}
