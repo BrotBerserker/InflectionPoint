@@ -15,11 +15,43 @@ void APlayerControllerBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty
 
 APlayerControllerBase::APlayerControllerBase(const FObjectInitializer& ObjectInitializer) :
 	Super(ObjectInitializer) {
+	PrimaryActorTick.bCanEverTick = true;
 	CheatClass = UInflectionPointCheatManager::StaticClass();
 }
 
 void APlayerControllerBase::BeginPlay() {
 	Super::BeginPlay();
+}
+
+void APlayerControllerBase::Tick(float DeltaTime) {
+	UpdateCharactersInLineOfSight();
+}
+
+void APlayerControllerBase::UpdateCharactersInLineOfSight() {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ABaseCharacter::StaticClass(), foundActors);
+	TArray<ABaseCharacter*> newArray;
+	for(auto& item : foundActors) {
+		auto character = Cast<ABaseCharacter>(item);
+		if(character && character->Controller != this && IsLookingAtActor(character))
+			newArray.Add(character);		
+	}
+	CharactersInLineOfSight = newArray;
+}
+
+ABaseCharacter* APlayerControllerBase::GetNearestAliveCharacterInLineOfSight() {
+	if(CharactersInLineOfSight.Num() <= 0 || !PlayerCameraManager)
+		return nullptr;
+	ABaseCharacter* nearestCharacter = NULL;
+	float bestDistance = FLT_MAX;
+	for(auto& item : CharactersInLineOfSight) {
+		float dist = (item->GetActorLocation() - PlayerCameraManager->GetCameraLocation()).Size();
+		if(!item->IsAlive() || dist >= bestDistance)
+			continue;
+		bestDistance = dist;
+		nearestCharacter = item;
+	}
+	return nearestCharacter;
 }
 
 void APlayerControllerBase::Possess(APawn* InPawn) {
@@ -91,7 +123,7 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 		AssertNotNull(otherCharacter, GetWorld(), __FILE__, __LINE__);
 		if(character && otherCharacter->GetName().Equals(character->GetName())) {
 			continue;
-		}		
+		}
 
 		// Don't switch to current viewtarget
 		if(otherCharacter->GetName().Equals(GetViewTarget()->GetName())) {
@@ -122,4 +154,15 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 	}
 
 	return false;
+}
+
+bool APlayerControllerBase::IsLookingAtActor(AActor* actor, float distance) {
+	if(!actor || !PlayerCameraManager || !GetCharacter() || !this->LineOfSightTo(actor))
+		return false;
+	FVector b = PlayerCameraManager->GetActorForwardVector(); // looking direction
+	FVector a = actor->GetActorLocation() - GetCharacter()->GetActorLocation();
+	// p = (<a,b> / <b,b>) * b
+	FVector p = (FVector::DotProduct(a, b) / FVector::DotProduct(b, b)) * b;
+	float d = (a - p).Size();
+	return d <= distance;
 }

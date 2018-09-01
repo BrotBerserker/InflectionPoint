@@ -32,3 +32,10 @@ bool UCharacterInfoProvider::IsAReplay() {
 	ABaseCharacter* owner = Cast<ABaseCharacter>(GetOwner());
 	return owner->IsAReplay();
 }
+
+
+bool UCharacterInfoProvider::IsInSameTeam(ABaseCharacter* character) {
+	if(character == NULL)
+		return false;
+	return character->CharacterInfoProvider->GetCharacterInfo().Team == GetCharacterInfo().Team;
+}

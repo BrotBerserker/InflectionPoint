@@ -218,6 +218,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void InitCharacterHeadDisplay();
+
+	UFUNCTION(BlueprintCallable)
+		class UCharacterHeadDisplayBase* GetCharacterHeadDisplay();
 public:
 	/* --------------- */
 	/*  RPC Functions  */

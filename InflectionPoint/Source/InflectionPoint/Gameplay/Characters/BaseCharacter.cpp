@@ -530,3 +530,7 @@ bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 		return false;
 	return localPlayerState->Team == CharacterInfoProvider->GetCharacterInfo().Team;
 }
+
+UCharacterHeadDisplayBase* ABaseCharacter::GetCharacterHeadDisplay() {
+	return Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
+}

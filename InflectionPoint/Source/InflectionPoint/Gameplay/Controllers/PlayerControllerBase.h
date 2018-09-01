@@ -18,6 +18,13 @@ public:
 
 	void BeginPlay() override;
 
+	void Tick(float DeltaTime) override;
+
+	void UpdateCharactersInLineOfSight();
+
+	UFUNCTION(BlueprintCallable)
+		class ABaseCharacter* GetNearestAliveCharacterInLineOfSight();
+
 	void Possess(APawn* InPawn) override;
 
 	UFUNCTION(Client, Reliable)
@@ -61,12 +68,12 @@ public:
 
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)
-		void ServerSwitchSpectatedCharacter();	
+		void ServerSwitchSpectatedCharacter();
 
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintImplementableEvent)
 		void SpectatedCharacterSwitched(ABaseCharacter* newCharacter, FCharacterInfo newCharacterInfo);
-	
+
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnStartAiming(ABaseWeapon* weapon);
 
@@ -75,10 +82,15 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnWeaponChanged(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon);
+
+	UFUNCTION()
+		bool IsLookingAtActor(AActor* actor, float distance = 130);
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		class ABaseCharacter* SpectatedCharacter;
 
+	UPROPERTY(BlueprintReadOnly)
+		TArray<ABaseCharacter*> CharactersInLineOfSight;
 private:
 	/** Searches the given array for an actor that can be spectated. If one is found, switches the camera to spectate him and returns true */
 	bool SpectateNextActorInRange(TArray<AActor*> actors, int32 beginIndex, int32 endIndex);

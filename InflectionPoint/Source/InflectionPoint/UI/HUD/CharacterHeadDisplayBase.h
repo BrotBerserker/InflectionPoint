@@ -8,13 +8,14 @@
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Characters/PlayerCharacterBase.h"
 #include "Gameplay/Characters/ReplayCharacterBase.h"
+#include "UI/HUD/HUDElementBase.h"
 #include "CharacterHeadDisplayBase.generated.h"
 
 /**
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API UCharacterHeadDisplayBase : public UUserWidget {
+class INFLECTIONPOINT_API UCharacterHeadDisplayBase : public UHUDElementBase {
 	GENERATED_BODY()
 
 public:
