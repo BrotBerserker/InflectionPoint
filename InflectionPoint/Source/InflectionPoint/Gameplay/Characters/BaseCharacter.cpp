@@ -76,9 +76,7 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterHeadDisplay->SetupAttachment(GetCapsuleComponent());
 	CharacterHeadDisplay->SetOwnerNoSee(true);
 	CharacterHeadDisplay->SetRelativeLocation(FVector(0.f, 0.f, 130.f));
-	CharacterHeadDisplay->SetRelativeScale3D(FVector(0.1, 0.1, 0.1));
 	CharacterHeadDisplay->SetWidgetSpace(EWidgetSpace::Screen);
-	CharacterHeadDisplay->SetDrawSize(FVector2D(1280, 720));
 	CharacterHeadDisplay->SetVisibility(true);
 	CharacterHeadDisplay->RegisterComponent();
 }
@@ -128,7 +126,6 @@ void ABaseCharacter::Tick(float DeltaTime) {
 	}
 
 	UpdateFieldOfView(DeltaTime);
-	UpdateCharacterHeadDisplay();
 }
 
 void ABaseCharacter::Destroyed() {
@@ -532,19 +529,4 @@ bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 	if(!localPlayerState)
 		return false;
 	return localPlayerState->Team == CharacterInfoProvider->GetCharacterInfo().Team;
-}
-
-
-
-void ABaseCharacter::UpdateCharacterHeadDisplay() {
-	if((Controller == GetWorld()->GetFirstPlayerController()) || !GetWorld()->GetFirstPlayerController()->PlayerState || !IsAlive() || !GetWorld()->GetFirstPlayerController()->GetCharacter()) {
-		CharacterHeadDisplay->SetVisibility(false);
-		return;
-	}
-	CharacterHeadDisplay->SetVisibility(true);
-	AssertNotNull(GetWorld()->GetFirstPlayerController()->GetCharacter(), GetWorld(), __FILE__, __LINE__);
-	auto playerLocation = GetWorld()->GetFirstPlayerController()->GetCharacter()->GetActorLocation();
-	FRotator PlayerRot = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), playerLocation);
-	CharacterHeadDisplay->SetWorldRotation(FRotator(PlayerRot.Pitch, PlayerRot.Yaw, 0));
-	auto headDisplayWidget = Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
 }

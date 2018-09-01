@@ -314,7 +314,6 @@ private:
 
 	void ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color);
 
-	void UpdateCharacterHeadDisplay();
 private:
 	bool initialized = false;
 
