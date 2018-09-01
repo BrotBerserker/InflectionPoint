@@ -5,6 +5,7 @@
 #include "Gameplay/CharacterInfoProvider.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h"
+#include "WidgetComponent.h"
 #include "BaseCharacter.generated.h"
 
 
@@ -45,8 +46,8 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		class UCharacterInfoProvider* CharacterInfoProvider;
 
-	UPROPERTY(VisibleDefaultsOnly)
-		class UTextRenderComponent* CharacterNameTag;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+		class UWidgetComponent* CharacterHeadDisplay;
 public:
 	/* ---------------------- */
 	/*    Editor Settings     */
@@ -214,6 +215,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		bool IsInSameTeamAsLocalPlayer();
+
+	UFUNCTION(BlueprintCallable)
+		void InitCharacterHeadDisplay();
 public:
 	/* --------------- */
 	/*  RPC Functions  */
@@ -310,7 +314,7 @@ private:
 
 	void ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color);
 
-	void UpdateCharacterNameTag();
+	void UpdateCharacterHeadDisplay();
 private:
 	bool initialized = false;
 
