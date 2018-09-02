@@ -34,7 +34,7 @@ bool UCharacterInfoProvider::IsAReplay() {
 }
 
 
-bool UCharacterInfoProvider::IsInSameTeam(ABaseCharacter* character) {
+bool UCharacterInfoProvider::IsInSameTeamAs(ABaseCharacter* character) {
 	if(character == NULL)
 		return false;
 	return character->CharacterInfoProvider->GetCharacterInfo().Team == GetCharacterInfo().Team;

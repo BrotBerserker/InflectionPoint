@@ -209,6 +209,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool IsAReplay();
 
+	UFUNCTION(BlueprintCallable)
+		bool IsInSameTeamAs(class ABaseCharacter* character);
+
 	/** If this Character is alive or not */
 	UFUNCTION(BlueprintCallable)
 		bool IsAlive();

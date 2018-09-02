@@ -39,21 +39,6 @@ void APlayerControllerBase::UpdateCharactersInLineOfSight() {
 	CharactersInLineOfSight = newArray;
 }
 
-ABaseCharacter* APlayerControllerBase::GetNearestAliveCharacterInLineOfSight() {
-	if(CharactersInLineOfSight.Num() <= 0 || !PlayerCameraManager)
-		return nullptr;
-	ABaseCharacter* nearestCharacter = NULL;
-	float bestDistance = FLT_MAX;
-	for(auto& item : CharactersInLineOfSight) {
-		float dist = (item->GetActorLocation() - PlayerCameraManager->GetCameraLocation()).Size();
-		if(!item->IsAlive() || dist >= bestDistance)
-			continue;
-		bestDistance = dist;
-		nearestCharacter = item;
-	}
-	return nearestCharacter;
-}
-
 void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
 	SpectatedCharacter = nullptr;

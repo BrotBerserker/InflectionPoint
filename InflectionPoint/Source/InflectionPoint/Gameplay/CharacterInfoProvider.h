@@ -54,5 +54,5 @@ public:
 		bool IsAReplay();
 
 	UFUNCTION(BlueprintCallable)
-		bool IsInSameTeam(class ABaseCharacter* character);
+		bool IsInSameTeamAs(class ABaseCharacter* character);
 };

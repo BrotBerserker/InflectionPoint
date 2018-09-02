@@ -22,9 +22,6 @@ public:
 
 	void UpdateCharactersInLineOfSight();
 
-	UFUNCTION(BlueprintCallable)
-		class ABaseCharacter* GetNearestAliveCharacterInLineOfSight();
-
 	void Possess(APawn* InPawn) override;
 
 	UFUNCTION(Client, Reliable)
@@ -89,7 +86,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		class ABaseCharacter* SpectatedCharacter;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
 		TArray<ABaseCharacter*> CharactersInLineOfSight;
 private:
 	/** Searches the given array for an actor that can be spectated. If one is found, switches the camera to spectate him and returns true */

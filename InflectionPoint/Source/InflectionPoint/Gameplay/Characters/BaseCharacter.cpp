@@ -105,6 +105,10 @@ void ABaseCharacter::Initialize() {
 }
 
 void ABaseCharacter::InitCharacterHeadDisplay() {
+	if(IsLocallyControlled() && !IsAReplay()) {
+		CharacterHeadDisplay->SetVisibility(false);
+		return;
+	}
 	CharacterHeadDisplay->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
 	CharacterHeadDisplay->InitWidget();
 	auto headDisplayWidget = Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
@@ -140,6 +144,10 @@ void ABaseCharacter::UpdateFieldOfView(float DeltaTime) {
 
 bool ABaseCharacter::IsAReplay() {
 	return this->IsA(AReplayCharacterBase::StaticClass());
+}
+
+bool ABaseCharacter::IsInSameTeamAs(class ABaseCharacter* character) {
+	return CharacterInfoProvider->IsInSameTeamAs(character);
 }
 
 void ABaseCharacter::ApplyTeamColor(ATDMPlayerStateBase* playerState) {
