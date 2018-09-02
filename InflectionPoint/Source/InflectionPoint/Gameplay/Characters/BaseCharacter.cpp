@@ -75,7 +75,7 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterHeadDisplay = CreateDefaultSubobject<UWidgetComponent>(TEXT("CharacterHeadDisplay"));
 	CharacterHeadDisplay->SetupAttachment(GetCapsuleComponent());
 	CharacterHeadDisplay->SetOwnerNoSee(true);
-	CharacterHeadDisplay->SetRelativeLocation(FVector(0.f, 0.f, 130.f));
+	CharacterHeadDisplay->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
 	CharacterHeadDisplay->SetWidgetSpace(EWidgetSpace::Screen);
 	CharacterHeadDisplay->SetVisibility(true);
 	CharacterHeadDisplay->RegisterComponent();
