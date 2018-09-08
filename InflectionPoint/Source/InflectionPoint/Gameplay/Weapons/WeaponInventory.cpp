@@ -47,28 +47,28 @@ bool UWeaponInventory::IsReadyForInitialization() {
 	return true;
 }
 
-ABaseWeapon* UWeaponInventory::GetNextWeapon(ABaseWeapon* CurrentWeapon) {
+ABaseWeapon* UWeaponInventory::GetNextUsableWeapon(ABaseWeapon* CurrentWeapon) {
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
 	for(int i = 1; i < weapons.Num(); i++) {
 		auto weapon = weapons[(index + i) % weapons.Num()];
-		if(!IsWeaponDisabled(weapon->GetClass()))
+		if(IsWeaponUsable(weapon->GetClass()))
 			return weapon;
 	}
 	return CurrentWeapon;
 }
 
-ABaseWeapon* UWeaponInventory::GetPreviousWeapon(ABaseWeapon* CurrentWeapon) {
+ABaseWeapon* UWeaponInventory::GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapon) {
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
 	for(int i = 1; i < weapons.Num(); i++) {
 		auto weapon = weapons[(index - i + weapons.Num()) % weapons.Num()];
-		if(!IsWeaponDisabled(weapon->GetClass()))
+		if(IsWeaponUsable(weapon->GetClass()))
 			return weapon;
 	}
 	return CurrentWeapon;
 }
 
 ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
-	if(index < 0 || index >= weapons.Num() || IsWeaponDisabled(weapons[index]->GetClass()))
+	if(index < 0 || index >= weapons.Num())
 		return NULL;
 	return weapons[index];
 }
@@ -77,7 +77,7 @@ ABaseWeapon* UWeaponInventory::GetRandomWeapon() {
 	int32 index = FMath::RandHelper(weapons.Num());
 	for(int i = 1; i < weapons.Num(); i++) {
 		auto weapon = weapons[(index + i ) % weapons.Num()];
-		if(!IsWeaponDisabled(weapon->GetClass()))
+		if(IsWeaponUsable(weapon->GetClass()))
 			return weapon;
 	}
 	return NULL;
@@ -94,13 +94,13 @@ ABaseWeapon* UWeaponInventory::GetWeaponByClass(UClass* weaponClass) {
 	return NULL;
 }
 
-bool UWeaponInventory::IsWeaponDisabled(UClass* weaponClass) {
-	return DisabledWeapons.Contains(weaponClass);
+bool UWeaponInventory::IsWeaponUsable(UClass* weaponClass) {
+	return UsableWeapons.Contains(weaponClass);
 }
 
-void UWeaponInventory::SetWeaponDisableStatus(UClass* weaponClass, bool disabled) {
-	if(disabled && !IsWeaponDisabled(weaponClass))
-		DisabledWeapons.Add(weaponClass);
-	if(!disabled && IsWeaponDisabled(weaponClass))
-		DisabledWeapons.Remove(weaponClass);
+void UWeaponInventory::SetWeaponUsabilityStatus(UClass* weaponClass, bool usable) {
+	if(usable && !IsWeaponUsable(weaponClass))
+		UsableWeapons.Add(weaponClass);
+	if(!usable && IsWeaponUsable(weaponClass))
+		UsableWeapons.Remove(weaponClass);
 }

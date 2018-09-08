@@ -339,7 +339,7 @@ bool ABaseCharacter::ServerEquipNextWeapon_Validate() {
 }
 
 void ABaseCharacter::ServerEquipNextWeapon_Implementation() {
-	EquipWeapon(WeaponInventory->GetNextWeapon(CurrentWeapon), CurrentWeapon);
+	EquipWeapon(WeaponInventory->GetNextUsableWeapon(CurrentWeapon), CurrentWeapon);
 }
 
 bool ABaseCharacter::ServerEquipPreviousWeapon_Validate() {
@@ -347,7 +347,7 @@ bool ABaseCharacter::ServerEquipPreviousWeapon_Validate() {
 }
 
 void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {
-	EquipWeapon(WeaponInventory->GetPreviousWeapon(CurrentWeapon), CurrentWeapon);
+	EquipWeapon(WeaponInventory->GetPreviousUsableWeapon(CurrentWeapon), CurrentWeapon);
 }
 
 bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {
@@ -356,7 +356,7 @@ bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {
 
 void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(int index) {
 	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
-	if(newWeapon && CurrentWeapon != newWeapon)
+	if(newWeapon && CurrentWeapon != newWeapon && WeaponInventory->IsWeaponUsable(newWeapon->GetClass()))
 		EquipWeapon(newWeapon, CurrentWeapon);
 }
 
@@ -375,7 +375,9 @@ bool ABaseCharacter::ServerPickWeaponUp_Validate(UClass* weapon) {
 }
 
 void ABaseCharacter::ServerPickWeaponUp_Implementation(UClass* weapon) {
-	WeaponInventory->SetWeaponDisableStatus(weapon, false);
+	if(WeaponInventory->IsWeaponUsable(weapon))
+		return;
+	WeaponInventory->SetWeaponUsabilityStatus(weapon, true);
 	auto newWeapon = WeaponInventory->GetWeaponByClass(weapon);
 	if(newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
