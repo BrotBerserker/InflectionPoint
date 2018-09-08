@@ -131,6 +131,10 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		int CurrentAmmo = -1;
 
+	/** Max amount of munition (with CurrentAmmoInClip included) */
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
+		int MaxAmmo = -1;
+
 	/** Whether automatic fire should be enabled for this weapon */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		bool AutoFire = true;
@@ -240,6 +244,9 @@ public:
 	/** Plays the reload animation on all clients */
 	UFUNCTION(NetMulticast, Reliable)
 		virtual void MulticastPlayReloadAnimation();
+	
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+	virtual void ServerIncreaseCurrentAmmo(int amount);
 
 	/** Called when this weapon is equipped. Sets up attachment, plays equip animation etc. */
 	virtual void OnEquip();

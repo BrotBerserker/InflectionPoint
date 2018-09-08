@@ -40,6 +40,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 		int GetWeaponNum();
+	
+	UFUNCTION(BlueprintCallable)
+		ABaseWeapon* GetWeaponByClass(UClass* weaponClass);
 
 	ABaseWeapon* GetNextWeapon(ABaseWeapon* CurrentWeapon);
 

@@ -74,3 +74,10 @@ ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
 int UWeaponInventory::GetWeaponNum() {
 	return weapons.Num();
 }
+
+ABaseWeapon* UWeaponInventory::GetWeaponByClass(UClass* weaponClass) {
+	for(ABaseWeapon* weapon : weapons)
+		if(weapon->IsA(weaponClass))
+			return weapon;
+	return NULL;
+}

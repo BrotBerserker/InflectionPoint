@@ -113,7 +113,7 @@ void ABaseWeapon::Tick(float DeltaTime) {
 
 	timeSinceLastShot += DeltaTime;
 
-	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING 
+	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
 		&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= ReloadDelay) {
 		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
@@ -147,7 +147,7 @@ void ABaseWeapon::Fire() {
 		RecordKeyReleaseNextTick = true;
 		Recorder->ServerRecordKeyPressed("WeaponFired");
 	}
-	if(CurrentAmmoInClip <= 0) 
+	if(CurrentAmmoInClip <= 0)
 		return;
 	timeSinceLastShot = 0;
 	PreExecuteFire();
@@ -171,7 +171,7 @@ void ABaseWeapon::OnEquip() {
 
 	UpdateEquippedState(true);
 
-	StartTimer(this, GetWorld(), "ChangeWeaponState", EquipDelay+0.001f, false, EWeaponState::IDLE);
+	StartTimer(this, GetWorld(), "ChangeWeaponState", EquipDelay + 0.001f, false, EWeaponState::IDLE);
 
 	if(OwningCharacter->IsAiming) {
 		StartAiming();
@@ -333,8 +333,22 @@ float ABaseWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victi
 	float distance = 1000;
 	if(shooter && victim)
 		distance = (shooter->GetActorLocation() - victim->GetActorLocation()).Size();
-	return AISuitabilityWeaponRangeCurve.GetRichCurveConst()->Eval(distance,0);
+	return AISuitabilityWeaponRangeCurve.GetRichCurveConst()->Eval(distance, 0);
 	//return 1.0;
+}
+
+bool ABaseWeapon::ServerIncreaseCurrentAmmo_Validate(int amount) {
+	return true;
+}
+
+void ABaseWeapon::ServerIncreaseCurrentAmmo_Implementation(int amount) {
+	if(MaxAmmo >= 0 && CurrentAmmo + amount > MaxAmmo) {
+		CurrentAmmo = MaxAmmo;
+		return;
+	}
+	if(CurrentAmmo <= -1)
+		return;
+	CurrentAmmo += amount;
 }
 
 void ABaseWeapon::PreExecuteFire() {}
