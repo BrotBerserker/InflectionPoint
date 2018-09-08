@@ -17,13 +17,13 @@ void UWeaponInventory::BeginPlay() {
 		return;
 	}
 
-	for(TSubclassOf<ABaseWeapon> weaponClass : DefaultWeaponClasses) {
+	for(auto item : DefaultWeaponClasses) {
 		FActorSpawnParameters spawnParams;
 		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 		spawnParams.Instigator = (APawn*) GetOwner();
 		spawnParams.Owner = GetOwner();
-		ABaseWeapon* spawnedWeapon = GetWorld()->SpawnActor<ABaseWeapon>(weaponClass, spawnParams);
-		AddWeapon(spawnedWeapon);
+		ABaseWeapon* spawnedWeapon = GetWorld()->SpawnActor<ABaseWeapon>(item, spawnParams);
+		weapons.AddUnique(spawnedWeapon);
 	}
 }
 
@@ -47,28 +47,40 @@ bool UWeaponInventory::IsReadyForInitialization() {
 	return true;
 }
 
-void UWeaponInventory::AddWeapon(ABaseWeapon* Weapon) {
-	weapons.AddUnique(Weapon);
-}
-
-void UWeaponInventory::RemoveWeapon(ABaseWeapon* Weapon) {
-	weapons.Remove(Weapon);
-}
-
 ABaseWeapon* UWeaponInventory::GetNextWeapon(ABaseWeapon* CurrentWeapon) {
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
-	return weapons[(index + 1) % weapons.Num()];
+	for(int i = 1; i < weapons.Num(); i++) {
+		auto weapon = weapons[(index + i) % weapons.Num()];
+		if(!IsWeaponDisabled(weapon->GetClass()))
+			return weapon;
+	}
+	return CurrentWeapon;
 }
 
 ABaseWeapon* UWeaponInventory::GetPreviousWeapon(ABaseWeapon* CurrentWeapon) {
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
-	return weapons[(index - 1 + weapons.Num()) % weapons.Num()];
+	for(int i = 1; i < weapons.Num(); i++) {
+		auto weapon = weapons[(index - i + weapons.Num()) % weapons.Num()];
+		if(!IsWeaponDisabled(weapon->GetClass()))
+			return weapon;
+	}
+	return CurrentWeapon;
 }
 
 ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
-	if(index < 0 || index >= weapons.Num())
+	if(index < 0 || index >= weapons.Num() || IsWeaponDisabled(weapons[index]->GetClass()))
 		return NULL;
 	return weapons[index];
+}
+
+ABaseWeapon* UWeaponInventory::GetRandomWeapon() {
+	int32 index = FMath::RandHelper(weapons.Num());
+	for(int i = 1; i < weapons.Num(); i++) {
+		auto weapon = weapons[(index + i ) % weapons.Num()];
+		if(!IsWeaponDisabled(weapon->GetClass()))
+			return weapon;
+	}
+	return NULL;
 }
 
 int UWeaponInventory::GetWeaponNum() {
@@ -80,4 +92,15 @@ ABaseWeapon* UWeaponInventory::GetWeaponByClass(UClass* weaponClass) {
 		if(weapon->IsA(weaponClass))
 			return weapon;
 	return NULL;
+}
+
+bool UWeaponInventory::IsWeaponDisabled(UClass* weaponClass) {
+	return DisabledWeapons.Contains(weaponClass);
+}
+
+void UWeaponInventory::SetWeaponDisableStatus(UClass* weaponClass, bool disabled) {
+	if(disabled && !IsWeaponDisabled(weaponClass))
+		DisabledWeapons.Add(weaponClass);
+	if(!disabled && IsWeaponDisabled(weaponClass))
+		DisabledWeapons.Remove(weaponClass);
 }

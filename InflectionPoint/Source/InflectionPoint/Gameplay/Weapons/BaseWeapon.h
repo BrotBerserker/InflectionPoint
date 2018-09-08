@@ -175,7 +175,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		TSubclassOf<UUserWidget> CrosshairDisplayWidget;
 
-
 	/** The FieldOfView when Aiming with the Weapon (for a zoom effect) */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "WeaponConfig|AI")
 		FRuntimeFloatCurve AISuitabilityWeaponRangeCurve;

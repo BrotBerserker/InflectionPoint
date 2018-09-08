@@ -365,9 +365,19 @@ bool ABaseCharacter::ServerEquipRandomWeapon_Validate() {
 }
 
 void ABaseCharacter::ServerEquipRandomWeapon_Implementation() {
-	int32 index = FMath::RandHelper(WeaponInventory->GetWeaponNum());
-	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
+	ABaseWeapon* newWeapon = WeaponInventory->GetRandomWeapon();
 	if(newWeapon && CurrentWeapon != newWeapon)
+		EquipWeapon(newWeapon, CurrentWeapon);
+}
+
+bool ABaseCharacter::ServerPickWeaponUp_Validate(UClass* weapon) {
+	return true;
+}
+
+void ABaseCharacter::ServerPickWeaponUp_Implementation(UClass* weapon) {
+	WeaponInventory->SetWeaponDisableStatus(weapon, false);
+	auto newWeapon = WeaponInventory->GetWeaponByClass(weapon);
+	if(newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
 }
 

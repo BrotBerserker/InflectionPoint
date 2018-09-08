@@ -273,6 +273,9 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerEquipRandomWeapon();
 
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+		void ServerPickWeaponUp(UClass* weapon);
+
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastWeaponChanged(ABaseWeapon* newWeapon, ABaseWeapon* oldWeapon);
 
