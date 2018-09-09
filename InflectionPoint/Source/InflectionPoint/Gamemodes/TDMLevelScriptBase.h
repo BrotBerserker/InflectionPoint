@@ -31,6 +31,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint|Spawn Cinematic")
 		void OnPrePlaySpawnCinematic();
 
+	UFUNCTION()
+		void ResetLevel();
 public:
 	/* --------------- */
 	/*    Match end    */
@@ -80,4 +82,10 @@ private:
 
 	UFUNCTION()
 		void CleanUpAfterSequence();
+
+	void ResetAllLevelActors();
+
+	void DestroyAllActors(TSubclassOf<AActor> actorClass);
+
+	void DestroyAllActorsWithTag(FName tag);
 };

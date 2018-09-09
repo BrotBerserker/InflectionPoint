@@ -128,7 +128,7 @@ void ATDMGameModeBase::StartMatch() {
 void ATDMGameModeBase::ReStartMatch() {
 	isPlayingEndMatchSequence = false;
 	ResetGameState();
-	ClearMap();
+	ResetLevel();
 	CharacterSpawner->SpawnAllPlayersForWarmupRound();
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 }
@@ -156,7 +156,7 @@ void ATDMGameModeBase::StartNextPhase() {
 	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
 		return;
 	GetGameState()->CurrentPhase = phase;
-	ClearMap();
+	ResetLevel();
 	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
 	SendPhaseStartedToPlayers(phase);
 	StartCountdown();
@@ -188,7 +188,7 @@ void ATDMGameModeBase::StartEndMatchSequence() {
 	if(!levelScript) {
 		return;
 	}
-	ClearMap();
+	ResetLevel();
 	FString winnerName = GetAnyPlayerControllerInTeam(winningTeam) ? GetAnyPlayerControllerInTeam(winningTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
 	FString loserName = GetAnyPlayerControllerInTeam(losingTeam) ? GetAnyPlayerControllerInTeam(losingTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
 	levelScript->StartEndMatchSequence(CharacterSpawner->PlayerCharacters[winningTeam], CharacterSpawner->PlayerCharacters[losingTeam], winnerName, loserName);
@@ -355,27 +355,6 @@ void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerContro
 	}
 }
 
-void ATDMGameModeBase::ClearMap() {
-	DestroyAllActors(AReplayCharacterBase::StaticClass());
-	DestroyAllActors(APlayerCharacterBase::StaticClass());
-	DestroyAllActors(AInflectionPointProjectile::StaticClass());
-	DestroyAllActorsWithTag(FName("DeleteOnClearMap"));
-}
-
-void ATDMGameModeBase::DestroyAllActors(TSubclassOf<AActor> actorClass) {
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), actorClass, foundActors);
-	for(auto& item : foundActors)
-		item->Destroy();
-}
-
-void ATDMGameModeBase::DestroyAllActorsWithTag(FName tag) {
-	TArray<AActor*> foundActors;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), tag, foundActors);
-	for(auto& item : foundActors)
-		item->Destroy();
-}
-
 APlayerController* ATDMGameModeBase::GetAnyPlayerControllerInTeam(int team) {
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
@@ -385,4 +364,10 @@ APlayerController* ATDMGameModeBase::GetAnyPlayerControllerInTeam(int team) {
 		}
 	}
 	return nullptr;
+}
+
+void ATDMGameModeBase::ResetLevel() {
+	ATDMLevelScriptBase* levelScript = Cast<ATDMLevelScriptBase>(GetWorld()->GetLevelScriptActor(GetLevel()));
+	if(levelScript)
+		levelScript->ResetLevel();
 }

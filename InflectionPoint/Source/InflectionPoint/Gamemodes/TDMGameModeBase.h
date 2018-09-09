@@ -167,9 +167,7 @@ private:
 	void SaveRecordingsFromRemainingPlayers();
 	void SavePlayerRecordings(APlayerControllerBase * playerController);
 
-	void ClearMap();
-	void DestroyAllActors(TSubclassOf<AActor> actorClass);
-	void DestroyAllActorsWithTag(FName tag);
+	void ResetLevel();
 
 	/** Inform players about kill etc. */
 	void SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);

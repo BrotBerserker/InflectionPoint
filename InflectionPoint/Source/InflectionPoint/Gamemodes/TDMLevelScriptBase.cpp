@@ -4,6 +4,9 @@
 #include "TDMLevelScriptBase.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Runtime/LevelSequence/Public/LevelSequenceActor.h"
+#include "Gameplay/Characters/PlayerCharacterBase.h"
+#include "Gameplay/Characters/ReplayCharacterBase.h"
+#include "Level/ResettableLevelActor.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
 
 
@@ -92,4 +95,33 @@ void ATDMLevelScriptBase::CleanUpAfterSequence() {
 	controller->SetViewTargetWithBlend(controller->GetCharacter());
 	UpdateNameTag(WinningPlayerLocation, "");
 	UpdateNameTag(LosingPlayerLocation, "");
+}
+
+void ATDMLevelScriptBase::ResetLevel() {
+	DestroyAllActors(AReplayCharacterBase::StaticClass());
+	DestroyAllActors(APlayerCharacterBase::StaticClass());
+	DestroyAllActors(AInflectionPointProjectile::StaticClass());
+	DestroyAllActorsWithTag(FName("DeleteOnClearMap"));
+	ResetAllLevelActors();
+}
+
+void ATDMLevelScriptBase::ResetAllLevelActors() {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AResettableLevelActor::StaticClass(), foundActors);
+	for(auto& item : foundActors)
+		Cast<AResettableLevelActor>(item)->ResetLevelActor();
+}
+
+void ATDMLevelScriptBase::DestroyAllActors(TSubclassOf<AActor> actorClass) {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), actorClass, foundActors);
+	for(auto& item : foundActors)
+		item->Destroy();
+}
+
+void ATDMLevelScriptBase::DestroyAllActorsWithTag(FName tag) {
+	TArray<AActor*> foundActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), tag, foundActors);
+	for(auto& item : foundActors)
+		item->Destroy();
 }
