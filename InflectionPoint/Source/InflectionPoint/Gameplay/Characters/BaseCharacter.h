@@ -88,6 +88,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Material)
 		FName TeamColorMaterialParameterName = FName("BodyMetalColor");
 
+	/** Sound to play when dying */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
+		class USoundBase* DeathSound;
+
+	/** Sound to play on suicide */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
+		class USoundBase* SuicideSound;
 public:
 	/* Fired when this character receives damage from a certain direction */
 	UFUNCTION(BlueprintImplementableEvent, Category = "InflectionPoint")
@@ -224,6 +231,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		class UCharacterHeadDisplayBase* GetCharacterHeadDisplay();
+
+	UFUNCTION()
+		void PlayDeathSound(bool suicide);
 public:
 	/* --------------- */
 	/*  RPC Functions  */
@@ -289,7 +299,7 @@ public:
 
 	/** Plays a death animation, disables input and collisions */
 	UFUNCTION(Reliable, NetMulticast, BlueprintCallable)
-		void MulticastOnDeath();
+		void MulticastOnDeath(bool suicide);
 
 	/** Plays an animation on the Mesh3P */
 	UFUNCTION(Reliable, NetMulticast, BlueprintCallable)

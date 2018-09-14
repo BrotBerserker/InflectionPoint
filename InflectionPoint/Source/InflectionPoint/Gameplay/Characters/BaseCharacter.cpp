@@ -416,7 +416,7 @@ void ABaseCharacter::DrawDebugArrow() {
 	}
 }
 
-void ABaseCharacter::MulticastOnDeath_Implementation() {
+void ABaseCharacter::MulticastOnDeath_Implementation(bool suicide) {
 	// Play random Death Animation
 	if(DeathAnimations.Num() == 0) {
 		UE_LOG(LogTemp, Warning, TEXT("Warning: No Death Animations set for this character!"));
@@ -430,6 +430,7 @@ void ABaseCharacter::MulticastOnDeath_Implementation() {
 	DisableComponentsSimulatePhysics();
 
 	GetCapsuleComponent()->SetCollisionProfileName(FName("DeadCharacter"));
+	PlayDeathSound(suicide);
 }
 
 void ABaseCharacter::MulticastPlay3PAnimation_Implementation(UAnimationAsset* animation) {
@@ -553,4 +554,11 @@ bool ABaseCharacter::IsInSameTeamAsLocalPlayer() {
 
 UCharacterHeadDisplayBase* ABaseCharacter::GetCharacterHeadDisplay() {
 	return Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
+}
+
+
+void ABaseCharacter::PlayDeathSound(bool suicide) {
+	auto audio = suicide ? SuicideSound : DeathSound;
+	if(audio)
+		UGameplayStatics::SpawnSoundAttached(audio, Mesh3P);
 }
