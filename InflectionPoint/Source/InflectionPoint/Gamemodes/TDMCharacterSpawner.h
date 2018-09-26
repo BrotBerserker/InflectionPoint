@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Gameplay/Controllers/PlayerControllerBase.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "TDMCharacterSpawner.generated.h"
 
 
