@@ -37,12 +37,12 @@ public:
 	/** Returns NULL if the weapon is disabled */
 	UFUNCTION(BlueprintCallable)
 		ABaseWeapon* GetWeapon(int index);
-	
+
 	ABaseWeapon* GetRandomWeapon();
-	
+
 	UFUNCTION(BlueprintCallable)
 		int GetWeaponNum();
-	
+
 	UFUNCTION(BlueprintCallable)
 		ABaseWeapon* GetWeaponByClass(UClass* weaponClass);
 
@@ -50,7 +50,8 @@ public:
 
 	ABaseWeapon* GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapon);
 
-	bool IsWeaponUsable(UClass* weaponClass);
+	UFUNCTION(BlueprintCallable)
+		bool IsWeaponUsable(UClass* weaponClass);
 
 	void SetWeaponUsabilityStatus(UClass* weaponClass, bool disabled);
 private:
