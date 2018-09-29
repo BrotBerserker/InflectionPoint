@@ -54,7 +54,9 @@ public:
 		bool IsWeaponUsable(UClass* weaponClass);
 
 	void SetWeaponUsabilityStatus(UClass* weaponClass, bool disabled);
+
 private:
-	TArray<ABaseWeapon*> weapons;
+	UPROPERTY(Replicated)
+		TArray<ABaseWeapon*> weapons;
 
 };

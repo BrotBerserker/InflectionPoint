@@ -7,6 +7,12 @@
 // Sets default values for this component's properties
 UWeaponInventory::UWeaponInventory() {
 	PrimaryComponentTick.bCanEverTick = false;
+	bReplicates = true;
+}
+
+void UWeaponInventory::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(UWeaponInventory, weapons);
 }
 
 // Called when the game starts
