@@ -57,7 +57,7 @@ ABaseWeapon* UWeaponInventory::GetNextUsableWeapon(ABaseWeapon* CurrentWeapon) {
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
 	for(int i = 1; i < weapons.Num(); i++) {
 		auto weapon = weapons[(index + i) % weapons.Num()];
-		if(IsWeaponUsable(weapon->GetClass()))
+		if(IsWeaponUsable(weapon->GetClass()) && weapon->CurrentAmmo != 0)
 			return weapon;
 	}
 	return CurrentWeapon;
@@ -67,7 +67,7 @@ ABaseWeapon* UWeaponInventory::GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapo
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
 	for(int i = 1; i < weapons.Num(); i++) {
 		auto weapon = weapons[(index - i + weapons.Num()) % weapons.Num()];
-		if(IsWeaponUsable(weapon->GetClass()))
+		if(IsWeaponUsable(weapon->GetClass()) && weapon->CurrentAmmo != 0)
 			return weapon;
 	}
 	return CurrentWeapon;
