@@ -356,7 +356,7 @@ bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {
 
 void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(int index) {
 	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
-	if(newWeapon && CurrentWeapon != newWeapon && WeaponInventory->IsWeaponUsable(newWeapon->GetClass()))
+	if(newWeapon && CurrentWeapon != newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
 }
 
@@ -375,9 +375,9 @@ bool ABaseCharacter::ServerPickWeaponUp_Validate(UClass* weapon) {
 }
 
 void ABaseCharacter::ServerPickWeaponUp_Implementation(UClass* weapon) {
-	if(WeaponInventory->IsWeaponUsable(weapon))
-		return;
-	WeaponInventory->SetWeaponUsabilityStatus(weapon, true);
+	//if(WeaponInventory->IsWeaponUsable(weapon))
+	//	return;
+	//WeaponInventory->SetWeaponUsabilityStatus(weapon, true);
 	auto newWeapon = WeaponInventory->GetWeaponByClass(weapon);
 	if(newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);

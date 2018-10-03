@@ -29,16 +29,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Weapons)
 		TArray<TSubclassOf<ABaseWeapon>> DefaultWeaponClasses;
 
-	UPROPERTY(EditDefaultsOnly, Category = Weapons)
-		TArray<TSubclassOf<ABaseWeapon>> UsableWeapons;
-
 	void Destroy();
 
-	/** Returns NULL if the weapon is disabled */
+	void AddWeapon(ABaseWeapon* Weapon);
+
+	void RemoveWeapon(ABaseWeapon* Weapon);
+
 	UFUNCTION(BlueprintCallable)
 		ABaseWeapon* GetWeapon(int index);
-
-	ABaseWeapon* GetRandomWeapon();
 
 	UFUNCTION(BlueprintCallable)
 		int GetWeaponNum();
@@ -46,17 +44,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 		ABaseWeapon* GetWeaponByClass(UClass* weaponClass);
 
+	ABaseWeapon* GetRandomWeapon();
+
+	ABaseWeapon* GetNextWeapon(ABaseWeapon* CurrentWeapon);
+
 	ABaseWeapon* GetNextUsableWeapon(ABaseWeapon* CurrentWeapon);
+
+	ABaseWeapon* GetPreviousWeapon(ABaseWeapon* CurrentWeapon);
 
 	ABaseWeapon* GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapon);
 
-	UFUNCTION(BlueprintCallable)
-		bool IsWeaponUsable(UClass* weaponClass);
-
-	void SetWeaponUsabilityStatus(UClass* weaponClass, bool disabled);
-
 private:
-	UPROPERTY(Replicated)
+	//UPROPERTY(Replicated)
 		TArray<ABaseWeapon*> weapons;
 
 };

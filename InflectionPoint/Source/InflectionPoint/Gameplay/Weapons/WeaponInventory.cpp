@@ -7,12 +7,6 @@
 // Sets default values for this component's properties
 UWeaponInventory::UWeaponInventory() {
 	PrimaryComponentTick.bCanEverTick = false;
-	bReplicates = true;
-}
-
-void UWeaponInventory::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	DOREPLIFETIME(UWeaponInventory, weapons);
 }
 
 // Called when the game starts
@@ -23,13 +17,13 @@ void UWeaponInventory::BeginPlay() {
 		return;
 	}
 
-	for(auto item : DefaultWeaponClasses) {
+	for(TSubclassOf<ABaseWeapon> weaponClass : DefaultWeaponClasses) {
 		FActorSpawnParameters spawnParams;
 		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		spawnParams.Instigator = (APawn*) GetOwner();
+		spawnParams.Instigator = (APawn*)GetOwner();
 		spawnParams.Owner = GetOwner();
-		ABaseWeapon* spawnedWeapon = GetWorld()->SpawnActor<ABaseWeapon>(item, spawnParams);
-		weapons.AddUnique(spawnedWeapon);
+		ABaseWeapon* spawnedWeapon = GetWorld()->SpawnActor<ABaseWeapon>(weaponClass, spawnParams);
+		AddWeapon(spawnedWeapon);
 	}
 }
 
@@ -53,11 +47,29 @@ bool UWeaponInventory::IsReadyForInitialization() {
 	return true;
 }
 
+void UWeaponInventory::AddWeapon(ABaseWeapon* Weapon) {
+	weapons.AddUnique(Weapon);
+}
+
+void UWeaponInventory::RemoveWeapon(ABaseWeapon* Weapon) {
+	weapons.Remove(Weapon);
+}
+
+ABaseWeapon* UWeaponInventory::GetNextWeapon(ABaseWeapon* CurrentWeapon) {
+	int32 index = weapons.IndexOfByKey(CurrentWeapon);
+	return weapons[(index + 1) % weapons.Num()];
+}
+
+ABaseWeapon* UWeaponInventory::GetPreviousWeapon(ABaseWeapon* CurrentWeapon) {
+	int32 index = weapons.IndexOfByKey(CurrentWeapon);
+	return weapons[(index - 1 + weapons.Num()) % weapons.Num()];
+}
+
 ABaseWeapon* UWeaponInventory::GetNextUsableWeapon(ABaseWeapon* CurrentWeapon) {
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
 	for(int i = 1; i < weapons.Num(); i++) {
 		auto weapon = weapons[(index + i) % weapons.Num()];
-		if(IsWeaponUsable(weapon->GetClass()) && weapon->CurrentAmmo != 0)
+		if(weapon->CurrentAmmo != 0)
 			return weapon;
 	}
 	return CurrentWeapon;
@@ -67,27 +79,25 @@ ABaseWeapon* UWeaponInventory::GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapo
 	int32 index = weapons.IndexOfByKey(CurrentWeapon);
 	for(int i = 1; i < weapons.Num(); i++) {
 		auto weapon = weapons[(index - i + weapons.Num()) % weapons.Num()];
-		if(IsWeaponUsable(weapon->GetClass()) && weapon->CurrentAmmo != 0)
+		if(weapon->CurrentAmmo != 0)
 			return weapon;
 	}
 	return CurrentWeapon;
 }
 
-ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
-	GetOwner()->ForceNetUpdate();
-	if(index < 0 || index >= weapons.Num())
-		return NULL;
-	return weapons[index];
-}
-
 ABaseWeapon* UWeaponInventory::GetRandomWeapon() {
 	int32 index = FMath::RandHelper(weapons.Num());
 	for(int i = 1; i < weapons.Num(); i++) {
-		auto weapon = weapons[(index + i ) % weapons.Num()];
-		if(IsWeaponUsable(weapon->GetClass()))
-			return weapon;
+		auto weapon = weapons[(index + i) % weapons.Num()];
+		return weapon;
 	}
 	return NULL;
+}
+
+ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
+	if(index < 0 || index >= weapons.Num())
+		return NULL;
+	return weapons[index];
 }
 
 int UWeaponInventory::GetWeaponNum() {
@@ -99,15 +109,4 @@ ABaseWeapon* UWeaponInventory::GetWeaponByClass(UClass* weaponClass) {
 		if(weapon->IsA(weaponClass))
 			return weapon;
 	return NULL;
-}
-
-bool UWeaponInventory::IsWeaponUsable(UClass* weaponClass) {
-	return UsableWeapons.Contains(weaponClass);
-}
-
-void UWeaponInventory::SetWeaponUsabilityStatus(UClass* weaponClass, bool usable) {
-	if(usable && !IsWeaponUsable(weaponClass))
-		UsableWeapons.Add(weaponClass);
-	if(!usable && IsWeaponUsable(weaponClass))
-		UsableWeapons.Remove(weaponClass);
 }
