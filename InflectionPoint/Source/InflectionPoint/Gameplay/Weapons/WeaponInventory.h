@@ -26,7 +26,7 @@ public:
 
 	virtual bool IsReadyForInitialization();
 
-	UPROPERTY(EditDefaultsOnly, Category = Weapons)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapons)
 		TArray<TSubclassOf<ABaseWeapon>> DefaultWeaponClasses;
 
 	void Destroy();
