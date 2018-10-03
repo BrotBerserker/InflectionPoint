@@ -74,6 +74,7 @@ ABaseWeapon* UWeaponInventory::GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapo
 }
 
 ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
+	GetOwner()->ForceNetUpdate();
 	if(index < 0 || index >= weapons.Num())
 		return NULL;
 	return weapons[index];
