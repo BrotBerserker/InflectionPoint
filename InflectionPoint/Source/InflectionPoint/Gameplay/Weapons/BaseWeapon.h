@@ -310,6 +310,10 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmoInClip;
 
+public:
+		FScriptDelegate AnimationNotifyDelegate;
+		FScriptDelegate AnimationEndDelegate;
+
 protected:
 	UPROPERTY(Replicated)
 		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE;
@@ -318,8 +322,6 @@ protected:
 
 	float timeSinceLastShot = 0.f;
 
-	FScriptDelegate AnimationNotifyDelegate;
-	FScriptDelegate AnimationEndDelegate;
 
 	bool equipped = false;
 	bool RecordKeyReleaseNextTick = false;

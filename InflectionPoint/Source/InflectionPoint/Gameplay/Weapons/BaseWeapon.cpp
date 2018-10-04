@@ -166,29 +166,15 @@ void ABaseWeapon::OnEquip() {
 	timeSinceLastShot = FireInterval; // so you can fire after EquipDelay
 	ChangeWeaponState(EWeaponState::EQUIPPING);
 
-	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(EquipAnimation1P);
-	OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(EquipAnimation3P);
-
 	UpdateEquippedState(true);
 
 	StartTimer(this, GetWorld(), "ChangeWeaponState", EquipDelay + 0.001f, false, EWeaponState::IDLE);
-
-	if(OwningCharacter->IsAiming) {
-		StartAiming();
-	}
 }
 
 void ABaseWeapon::OnUnequip() {
-	if(OwningCharacter->IsAiming) {
-		StopAiming();
-	}
+
 
 	UpdateEquippedState(false);
-
-	OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(AnimationNotifyDelegate);
-	OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.Remove(AnimationEndDelegate);
-
-	OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Stop(0, ReloadAnimation1P);
 }
 
 void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
