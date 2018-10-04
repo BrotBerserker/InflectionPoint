@@ -100,7 +100,9 @@ void ABaseWeapon::DetachFromOwner() {
 
 void ABaseWeapon::AttachToOwner() {
 	DetachFromOwner();
-
+	if(!OwningCharacter) {
+		return;
+	}
 	Mesh1P->AttachToComponent(OwningCharacter->Mesh1P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 	Mesh3P->AttachToComponent(OwningCharacter->Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true), TEXT("GripPoint"));
 }
