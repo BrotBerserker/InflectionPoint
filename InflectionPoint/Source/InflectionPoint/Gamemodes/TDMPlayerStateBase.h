@@ -60,6 +60,12 @@ public:
 		bool IsAlive = 1;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
+		int IPPoints = 3;
+
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite)
+		TArray<TSubclassOf<class UBaseShopItem>> PurchasedShopItems;
+
+	UPROPERTY(Replicated, BlueprintReadWrite)
 		FString ReplicatedPlayerName;
 
 public:
@@ -67,4 +73,7 @@ public:
 	virtual void SetPlayerName(const FString& S) override;
 
 	virtual FString GetPlayerNameCustom() const override;
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerPurchaseShopItem(TSubclassOf<class UBaseShopItem> itemClass);
 };

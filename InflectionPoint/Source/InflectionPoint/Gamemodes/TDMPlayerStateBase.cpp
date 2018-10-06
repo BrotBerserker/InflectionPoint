@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
+#include "Gameplay/Shop/BaseShopItem.h"
 #include "TDMPlayerStateBase.h"
 
 ATDMPlayerStateBase::ATDMPlayerStateBase() {
@@ -24,6 +25,8 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ATDMPlayerStateBase, IsAlive);
 	DOREPLIFETIME(ATDMPlayerStateBase, Ping);
 	DOREPLIFETIME(ATDMPlayerStateBase, ReplicatedPlayerName);
+	DOREPLIFETIME(ATDMPlayerStateBase, IPPoints);
+	DOREPLIFETIME(ATDMPlayerStateBase, PurchasedShopItems);
 }
 
 void ATDMPlayerStateBase::AddScoreToTotalScore() {
@@ -66,4 +69,17 @@ void ATDMPlayerStateBase::SetPlayerName(const FString& S) {
 
 FString ATDMPlayerStateBase::GetPlayerNameCustom() const {
 	return ReplicatedPlayerName;
+}
+
+bool ATDMPlayerStateBase::ServerPurchaseShopItem_Validate(TSubclassOf<class UBaseShopItem> itemClass) {
+	return true;
+}
+
+void ATDMPlayerStateBase::ServerPurchaseShopItem_Implementation(TSubclassOf<class UBaseShopItem> itemClass) {
+	auto item = itemClass.GetDefaultObject();
+	AssertNotNull(item, GetWorld(), __FILE__, __LINE__);
+	if(!item->IsAffordableForPlayer(this))
+		return;
+	IPPoints -= item->IPPrice;
+	PurchasedShopItems.Add(item->GetClass());
 }
