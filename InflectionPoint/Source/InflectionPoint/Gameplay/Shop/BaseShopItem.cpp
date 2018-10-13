@@ -5,6 +5,8 @@
 #include "BaseShopItem.h"
 
 bool UBaseShopItem::IsAffordableForLocalPlayer() {
+	if(!GetWorld()->GetFirstPlayerController())
+		return false;
 	auto playerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
 	return IsAffordableForPlayer(playerState);
 }
@@ -12,6 +14,7 @@ bool UBaseShopItem::IsAffordableForLocalPlayer() {
 
 
 bool UBaseShopItem::IsAffordableForPlayer(ATDMPlayerStateBase* playerState) {
-	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	if(!playerState)
+		return false;
 	return playerState->IPPoints >= IPPrice;
 }
