@@ -43,6 +43,22 @@ public:
 	/** If the AI takes ofer the controll after replay is finished */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = General)
 		bool AITakeoverAfterReplayEnd = true;
+
+	/** Material to use when transforming the replay to an IP */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materialize|Dematerialize")
+		UMaterialInstance* DematerializeMaterial;
+
+	/** Curve to use when dematerializing the replay */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materialize|Dematerialize")
+		UCurveFloat* DematerializeCurve;
+
+	/** InflectionPoint class to spawn */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materialize|Dematerialize")
+		TSubclassOf<AActor> InflectionPoint;
+
+	/** This material will not be set to DematerializeMaterial (prevent our "Transparent Material" from being overriden) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materialize|Dematerialize")
+		UMaterial* MaterialToIgnore;
 public:
 	/* ------------- */
 	/*   Functions   */
@@ -96,6 +112,9 @@ public:
 	UFUNCTION()
 		bool HasFinishedReplaying();
 
+	UFUNCTION()
+		void DematerializeCallback(float value);
+
 public:
 	/* ------------- */
 	/*    Events     */
@@ -136,4 +155,13 @@ private:
 	bool CurrentPositionIsInCorrectionRadius(float radius);
 
 	void DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected);
+
+	void ShowDematerializeAnimation();
+
+	void OverrideMaterials(USkeletalMeshComponent* Mesh, UMaterialInterface* Material);
+
+	UFUNCTION()
+		void TransformToInflectionPoint();
+
+	UMaterialInstanceDynamic* dematerializeInstanceDynamic;
 };
