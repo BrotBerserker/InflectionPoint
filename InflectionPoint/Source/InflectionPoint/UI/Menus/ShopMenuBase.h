@@ -41,9 +41,6 @@ public:
 		bool IsShopItemPurchased(class UBaseShopItem* item);
 
 	UFUNCTION(BlueprintCallable)
-		void CommitPurchasesToServer();
-
-	UFUNCTION(BlueprintCallable)
 		class UBaseShopItem* GetEquippedItem(FString slotName);
 
 	UFUNCTION(BlueprintCallable)

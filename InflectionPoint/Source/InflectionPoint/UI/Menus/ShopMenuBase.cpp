@@ -20,8 +20,11 @@ void UShopMenuBase::SyncShopWithPlayerState() {
 void UShopMenuBase::PurchaseShopItem(UBaseShopItem* item) {
 	if(!IsShopItemAffordable(item))
 		return;
+	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
+	AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__);
 	InflectionPoints -= item->IPPrice;
 	PurchasedShopItems.Add(item->GetClass());
+	localPlayerState->ServerPurchaseShopItem(item->GetClass());
 }
 
 bool UShopMenuBase::IsShopItemAffordable(UBaseShopItem* item) {
@@ -30,16 +33,6 @@ bool UShopMenuBase::IsShopItemAffordable(UBaseShopItem* item) {
 
 bool UShopMenuBase::IsShopItemPurchased(UBaseShopItem* item) {
 	return PurchasedShopItems.Contains(item->GetClass());
-}
-
-void UShopMenuBase::CommitPurchasesToServer() {
-	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
-	AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__);
-	for(auto& item : PurchasedShopItems) {
-		if(localPlayerState->PurchasedShopItems.Contains(item))
-			continue;
-		localPlayerState->ServerPurchaseShopItem(item);
-	}
 }
 
 UBaseShopItem* UShopMenuBase::GetEquippedItem(FString slotName) {
