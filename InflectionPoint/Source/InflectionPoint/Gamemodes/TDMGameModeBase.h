@@ -6,6 +6,7 @@
 #include "Gamemodes/TDMGameStateBase.h" 
 #include "Gamemodes/TDMScoreHandler.h"
 #include "Gamemodes/TDMCharacterSpawner.h"
+#include "Gamemodes/Countdown.h"
 #include "TDMGameModeBase.generated.h"
 
 UCLASS(minimalapi)
@@ -33,6 +34,9 @@ public:
 		void CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
 
 public:
+	//UFUNCTION()
+	void Test(int asd);
+
 	/* --------------- */
 	/*    Functions    */
 	/* --------------- */
@@ -52,7 +56,11 @@ public:
 	UFUNCTION()
 		void EndCurrentPhase();
 
-	/** Respawns players and replays, start the countdown */
+	/** Respawns players and replays, starts the phase countdown */
+	UFUNCTION()
+		void PrepareNextPhase();
+
+	/** Starts the replays, ends the match if a player has left during the countdown */
 	UFUNCTION()
 		void StartNextPhase();
 
@@ -63,10 +71,6 @@ public:
 	/** ends the current round */
 	UFUNCTION()
 		void EndCurrentRound();
-
-	/** Starts the countdown at the beginning of a new phase */
-	UFUNCTION()
-		void StartCountdown();
 
 	/** Informs all players about the next countdown number */
 	UFUNCTION()
@@ -87,7 +91,7 @@ public:
 	/** Informs all players about the end of round */
 	UFUNCTION()
 		void NotifyControllersOfEndRound(int winnerTeam);
-	
+
 	/** Starts all spawned replays */
 	UFUNCTION()
 		void StartReplays();
@@ -107,7 +111,7 @@ public:
 	/*    Editor Settings     */
 	/* ---------------------- */
 
-	/** Countdown duration in seconds */
+	/** MatchStartCountdown duration in seconds */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int CountDownDuration = 3;
 
@@ -146,14 +150,16 @@ public:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UTDMCharacterSpawner* CharacterSpawner;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCountdown* MatchStartCountdown;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCountdown* PhaseStartCountdown;
+
 private:
 	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
 
 	// thai ming
-	float timeUntilMatchStart = 10.f;
-	int nextCountdownNumber = -1;
-	float timeUntilNextCountdownUpdate = 1.f;
-
 	bool isPlayingEndMatchSequence = false;
 
 private:
@@ -176,6 +182,4 @@ private:
 	APlayerController* GetAnyPlayerControllerInTeam(int team);
 
 	void ResetGameState();
-	void UpdateTimeUntilMatchStart(float DeltaSeconds);
-	void UpdateTimeUntilNextCountdownUpdate(float DeltaSeconds);
 };

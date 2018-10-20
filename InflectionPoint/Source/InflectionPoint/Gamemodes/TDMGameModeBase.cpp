@@ -32,40 +32,16 @@ ATDMGameModeBase::ATDMGameModeBase()
 
 	ScoreHandler = CreateDefaultSubobject<UTDMScoreHandler>(TEXT("ScoreHandler"));
 	CharacterSpawner = CreateDefaultSubobject<UTDMCharacterSpawner>(TEXT("CharacterSpawner"));
+
+	MatchStartCountdown = CreateDefaultSubobject<UCountdown>(TEXT("MatchStartCountdown"));
+	MatchStartCountdown->Setup(this, &ATDMGameModeBase::Test, &ATDMGameModeBase::StartMatch, MatchStartDelay);
+
+	PhaseStartCountdown = CreateDefaultSubobject<UCountdown>(TEXT("PhaseStartCountdown"));
+	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdateCountdown, &ATDMGameModeBase::StartNextPhase, CountDownDuration);
 }
 
 void ATDMGameModeBase::Tick(float DeltaSeconds) {
 	Super::Tick(DeltaSeconds);
-
-	UpdateTimeUntilMatchStart(DeltaSeconds);
-
-	UpdateTimeUntilNextCountdownUpdate(DeltaSeconds);
-}
-
-void ATDMGameModeBase::UpdateTimeUntilNextCountdownUpdate(float DeltaSeconds) {
-	if(GetGameState()->CurrentRound == 0 || nextCountdownNumber < 0) {
-		return;
-	}
-	timeUntilNextCountdownUpdate -= DeltaSeconds;
-	if(timeUntilNextCountdownUpdate <= 0) {
-		timeUntilNextCountdownUpdate = 1.f;
-		UpdateCountdown(nextCountdownNumber--);
-	}
-}
-
-void ATDMGameModeBase::UpdateTimeUntilMatchStart(float DeltaSeconds) {
-	if(GetGameState()->CurrentRound > 0) {
-		return;
-	}
-	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
-		timeUntilMatchStart -= DeltaSeconds;
-	} else {
-		timeUntilMatchStart = MatchStartDelay;
-	}
-	if(timeUntilMatchStart <= 0) {
-		timeUntilMatchStart = MatchStartDelay;
-		StartMatch();
-	}
 }
 
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
@@ -76,6 +52,9 @@ void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	if(GetGameState()->NumPlayers > GetGameState()->MaxPlayers) {
 		GameSession->KickPlayer(NewPlayer, FText::FromString("Server is already full!"));
 		return;
+	}
+	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
+		MatchStartCountdown->Start();
 	}
 }
 
@@ -91,7 +70,9 @@ void ATDMGameModeBase::Logout(AController* Exiting) {
 	Super::Logout(Exiting);
 	GetGameState()->NumPlayers--;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	if(GetGameState()->CurrentRound > 0 && nextCountdownNumber < 0 && IsPhaseWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
+	MatchStartCountdown->Stop();
+	PhaseStartCountdown->Stop();
+	if(GetGameState()->CurrentRound > 0 && IsPhaseWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
 		StartEndMatchSequence();
 	}
 }
@@ -125,12 +106,19 @@ void ATDMGameModeBase::StartMatch() {
 	StartNextRound();
 }
 
+void ATDMGameModeBase::Test(int asd) {
+	UE_LOG(LogTemp, Warning, TEXT("voll geil alter %d"), asd);
+}
+
 void ATDMGameModeBase::ReStartMatch() {
 	isPlayingEndMatchSequence = false;
 	ResetGameState();
 	ResetLevel();
 	CharacterSpawner->SpawnAllPlayersForWarmupRound();
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
+	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
+		MatchStartCountdown->Start();
+	}
 }
 
 void ATDMGameModeBase::ResetGameState() {
@@ -147,11 +135,11 @@ void ATDMGameModeBase::EndCurrentPhase() {
 	if(GetGameState()->CurrentPhase == GetGameState()->MaxPhaseNum) {
 		EndCurrentRound();
 	} else {
-		StartNextPhase();
+		PrepareNextPhase();
 	}
 }
 
-void ATDMGameModeBase::StartNextPhase() {
+void ATDMGameModeBase::PrepareNextPhase() {
 	int phase = GetGameState()->CurrentPhase + 1;
 	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
 		return;
@@ -159,7 +147,7 @@ void ATDMGameModeBase::StartNextPhase() {
 	ResetLevel();
 	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
 	SendPhaseStartedToPlayers(phase);
-	StartCountdown();
+	PhaseStartCountdown->Start();
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
 
@@ -218,7 +206,7 @@ void ATDMGameModeBase::StartNextRound() {
 	GetGameState()->ResetPlayerScores();
 	GetGameState()->CurrentPhase = 0;
 	GetGameState()->CurrentRound++;
-	StartNextPhase();
+	PrepareNextPhase();
 }
 
 void ATDMGameModeBase::StartSpawnCinematics() {
@@ -303,11 +291,6 @@ bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
 	return Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive;
 }
 
-void ATDMGameModeBase::StartCountdown() {
-	nextCountdownNumber = CountDownDuration;
-	timeUntilNextCountdownUpdate = 1.f;
-}
-
 void ATDMGameModeBase::UpdateCountdown(int number) {
 	TArray<AActor*> controllers;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
@@ -318,11 +301,12 @@ void ATDMGameModeBase::UpdateCountdown(int number) {
 			playerController->GetCharacter()->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
 		}
 	}
-	if(number == 0) {
-		StartReplays();
-		if(IsPhaseWinnerFound()) {
-			StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
-		}
+}
+
+void ATDMGameModeBase::StartNextPhase() {
+	StartReplays();
+	if(IsPhaseWinnerFound()) {
+		StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
 	}
 }
 
