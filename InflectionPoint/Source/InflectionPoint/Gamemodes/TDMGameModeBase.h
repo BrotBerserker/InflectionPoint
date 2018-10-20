@@ -182,4 +182,13 @@ private:
 	APlayerController* GetAnyPlayerControllerInTeam(int team);
 
 	void ResetGameState();
+
+	template <typename F>
+	void DoShitForAllPlayerControllers(F shit) {
+		for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
+			auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
+			auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
+			shit(ipPlayerController);
+		}
+	}
 };

@@ -183,21 +183,15 @@ void ATDMGameModeBase::StartEndMatchSequence() {
 }
 
 void ATDMGameModeBase::NotifyControllersOfEndMatch(int winnerTeam) {
-	TArray<AActor*> controllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
-	for(auto& controller : controllers) {
-		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
-		playerController->ClientShowMatchEnd(winnerTeam);
-	}
+	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+		controller->ClientShowMatchEnd(winnerTeam);
+	});
 }
 
 void ATDMGameModeBase::NotifyControllersOfEndRound(int winnerTeam) {
-	TArray<AActor*> controllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
-	for(auto& controller : controllers) {
-		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
-		playerController->ClientShowRoundEnd(winnerTeam);
-	}
+	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+		controller->ClientShowRoundEnd(winnerTeam);
+	});
 }
 
 void ATDMGameModeBase::StartNextRound() {
@@ -245,22 +239,18 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
 	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo() : FCharacterInfo();
 	FCharacterInfo killedInfo = KilledPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
+	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
 		float killedScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
 		float killerScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer);
 		auto weapon = Cast<ABaseWeapon>(DamageCauser);
 		controller->ClientShowKillInfo(killedInfo, killedScoreChange, killerInfo, killerScoreChange, weapon ? weapon->WeaponTexture : NULL);
-	}
+	});
 }
 
 void ATDMGameModeBase::SendPhaseStartedToPlayers(int Phase) {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
+	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
 		controller->ClientPhaseStarted(Phase);
-	}
+	});
 }
 
 bool ATDMGameModeBase::IsPhaseWinnerFound(AController* controllerToIgnore) {
@@ -292,15 +282,12 @@ bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
 }
 
 void ATDMGameModeBase::UpdateCountdown(int number) {
-	TArray<AActor*> controllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
-	for(auto& controller : controllers) {
-		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
-		playerController->ClientShowCountdownNumber(number);
-		if(number == 0 && playerController->GetCharacter()) {
-			playerController->GetCharacter()->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
+	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+		controller->ClientShowCountdownNumber(number);
+		if(number == 0 && controller->GetCharacter()) {
+			controller->GetCharacter()->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
 		}
-	}
+	});
 }
 
 void ATDMGameModeBase::StartNextPhase() {
@@ -318,12 +305,11 @@ void ATDMGameModeBase::StartReplays() {
 }
 
 void ATDMGameModeBase::SaveRecordingsFromRemainingPlayers() {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
-		if(IsPlayerAlive(ipPlayerController))
-			SavePlayerRecordings(ipPlayerController);
-	}
+	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+		if(IsPlayerAlive(controller)) {
+			SavePlayerRecordings(controller);
+		}
+	});
 }
 
 void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerController) {
