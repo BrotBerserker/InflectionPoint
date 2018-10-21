@@ -7,6 +7,27 @@
 #include "BaseWeapon.h"
 #include "WeaponInventory.generated.h"
 
+UENUM(Blueprintable)
+enum class EInventorySlotType : uint8 {
+	Weapon1 = 0,
+	Weapon2,
+	Weapon3,
+	// change weaponSlotNum also
+};
+
+USTRUCT(BlueprintType)
+struct FInventoryWeaponSlot {
+	GENERATED_BODY()
+
+		UPROPERTY(EditAnywhere, BlueprintReadonly)
+		EInventorySlotType SlotType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		TSubclassOf<ABaseWeapon> DefaultWeapon;
+
+	UPROPERTY(BlueprintReadonly)
+		ABaseWeapon* Weapon;
+};
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UWeaponInventory : public UActorComponent {
@@ -26,17 +47,15 @@ public:
 
 	virtual bool IsReadyForInitialization();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Weapons)
-		TArray<TSubclassOf<ABaseWeapon>> DefaultWeaponClasses;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = Weapons)
+		TArray<FInventoryWeaponSlot> WeaponSlots;
 
 	void Destroy();
 
-	void AddWeapon(ABaseWeapon* Weapon);
-
-	void RemoveWeapon(ABaseWeapon* Weapon);
-
+	void AddWeapon(EInventorySlotType slot, TSubclassOf<ABaseWeapon> weaponClass);
+	
 	UFUNCTION(BlueprintCallable)
-		ABaseWeapon* GetWeapon(int index);
+		ABaseWeapon* GetWeapon(EInventorySlotType slot);
 
 	UFUNCTION(BlueprintCallable)
 		int GetWeaponNum();
@@ -53,9 +72,15 @@ public:
 	ABaseWeapon* GetPreviousWeapon(ABaseWeapon* CurrentWeapon);
 
 	ABaseWeapon* GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapon);
-
 private:
-	//UPROPERTY(Replicated)
-		TArray<ABaseWeapon*> weapons;
 
+	ABaseWeapon* GetNextWeaponInDirection(ABaseWeapon* CurrentWeapon, bool isDirectionForward);
+	int GetWeaponSlotIndex(ABaseWeapon* weapon);
+	int GetWeaponSlotIndex(EInventorySlotType type);
+
+	void ClearWeaponSlot(FInventoryWeaponSlot slot);
+
+	ABaseWeapon* SpawnWeapon(TSubclassOf<ABaseWeapon> weapon);
+
+	void InitDefaultWeapons();
 };

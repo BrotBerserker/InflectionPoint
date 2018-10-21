@@ -5,6 +5,7 @@
 #include "BaseCharacter.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "PlayerCharacterBase.generated.h"
 
 
@@ -54,6 +55,6 @@ public:
 	void ServerStopFire_Implementation() override;	
 	
 	/* Is Called from the Binding to swich to a specific weapon*/
-	template<int32 Index> 
+	template<EInventorySlotType slot>
 	void EquipSpecificWeapon();
 };

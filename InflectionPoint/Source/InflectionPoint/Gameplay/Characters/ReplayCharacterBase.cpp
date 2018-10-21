@@ -79,7 +79,8 @@ void AReplayCharacterBase::TransformToInflectionPoint() {
 void AReplayCharacterBase::ShowDematerializeAnimation() {
 	dematerializeInstanceDynamic = UMaterialInstanceDynamic::Create(DematerializeMaterial, Mesh3P);
 	OverrideMaterials(Mesh3P, dematerializeInstanceDynamic);
-	OverrideMaterials(CurrentWeapon->Mesh3P, dematerializeInstanceDynamic);
+	if(CurrentWeapon)
+		OverrideMaterials(CurrentWeapon->Mesh3P, dematerializeInstanceDynamic);
 
 	FOnTimelineFloat callback{};
 	callback.BindUFunction(this, FName{ TEXT("DematerializeCallback") });
@@ -187,7 +188,7 @@ void AReplayCharacterBase::PressKey(FString key) {
 		auto str = FString(key); // to not alter string
 		str.RemoveFromStart("EquipSpecificWeapon");
 		int index = FCString::Atoi(*str);
-		ServerEquipSpecificWeapon(index);
+		ServerEquipSpecificWeapon((EInventorySlotType)index); // TODO: Change this when implementing Skills
 	}
 }
 
