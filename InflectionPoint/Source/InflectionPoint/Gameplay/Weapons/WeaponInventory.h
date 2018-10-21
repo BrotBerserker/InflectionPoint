@@ -12,6 +12,10 @@ enum class EInventorySlotType : uint8 {
 	Weapon1 = 0,
 	Weapon2,
 	Weapon3,
+	// ======
+	Skill1,
+	Skill2,
+	Skill3,
 	// change weaponSlotNum also
 };
 
@@ -52,8 +56,9 @@ public:
 
 	void Destroy();
 
-	void AddWeapon(EInventorySlotType slot, TSubclassOf<ABaseWeapon> weaponClass);
-	
+	UFUNCTION(BlueprintCallable)
+		void AddWeapon(EInventorySlotType slot, TSubclassOf<ABaseWeapon> weaponClass);
+
 	UFUNCTION(BlueprintCallable)
 		ABaseWeapon* GetWeapon(EInventorySlotType slot);
 

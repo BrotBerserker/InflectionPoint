@@ -64,6 +64,7 @@ bool UWeaponInventory::IsReadyForInitialization() {
 }
 
 void UWeaponInventory::AddWeapon(EInventorySlotType slot, TSubclassOf<ABaseWeapon> weaponClass) {
+	AssertTrue(GetOwner()->HasAuthority(), GetWorld(), __FILE__, __LINE__, "Only call on server");
 	int index = GetWeaponSlotIndex(slot);
 	AssertTrue(index >= 0, GetWorld(), __FILE__, __LINE__, "Inventory Slot dose not exist!");
 	if(WeaponSlots[index].Weapon)

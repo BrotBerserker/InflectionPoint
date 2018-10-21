@@ -35,27 +35,27 @@ bool UShopMenuBase::IsShopItemPurchased(UBaseShopItem* item) {
 	return PurchasedShopItems.Contains(item->GetClass());
 }
 
-UBaseShopItem* UShopMenuBase::GetEquippedItem(FString slotName) {
-	if(!EquippedItems.Contains(slotName))
+UBaseShopItem* UShopMenuBase::GetEquippedItem(EInventorySlotType inventorySlot) {
+	if(!EquippedItems.Contains(inventorySlot))
 		return nullptr;
-	return EquippedItems[slotName].GetDefaultObject();
+	return EquippedItems[inventorySlot].GetDefaultObject();
 }
 
-void UShopMenuBase::EquippItem(FString slotName, UBaseShopItem* item) {
+void UShopMenuBase::EquippItem(EInventorySlotType inventorySlot, UBaseShopItem* item) {
 	if(!item) {
-		UnequippItemFromSlot(slotName);
+		UnequippItemFromSlot(inventorySlot);
 		return;
 	}
-	auto newEquippMap = TMap<FString, TSubclassOf<class UBaseShopItem>>();
+	auto newEquippMap = TMap<EInventorySlotType, TSubclassOf<class UBaseShopItem>>();
 	for(auto& slot : EquippedItems) {
-		if(slot.Key != slotName && slot.Value != item->GetClass())
+		if(slot.Key != inventorySlot && slot.Value != item->GetClass())
 			newEquippMap.Add(slot.Key, slot.Value);
 	}
-	newEquippMap.Add(slotName, item->GetClass());
+	newEquippMap.Add(inventorySlot, item->GetClass());
 	EquippedItems = newEquippMap;
 }
 
-void UShopMenuBase::UnequippItemFromSlot(FString slotName) {
-	if(EquippedItems.Contains(slotName))
-		EquippedItems.Remove(slotName);
+void UShopMenuBase::UnequippItemFromSlot(EInventorySlotType slot) {
+	if(EquippedItems.Contains(slot))
+		EquippedItems.Remove(slot);
 }

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "SubMenuTemplate.h"
 #include "Blueprint/UserWidget.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "ShopMenuBase.generated.h"
 
 /**
@@ -20,7 +21,7 @@ public:
 
 	TArray<TSubclassOf<class UBaseShopItem>> PurchasedShopItems;
 
-	TMap<FString, TSubclassOf<class UBaseShopItem>> EquippedItems;
+	TMap<EInventorySlotType, TSubclassOf<class UBaseShopItem>> EquippedItems;
 public:
 
 	UFUNCTION(BlueprintCallable)
@@ -41,11 +42,11 @@ public:
 		bool IsShopItemPurchased(class UBaseShopItem* item);
 
 	UFUNCTION(BlueprintCallable)
-		class UBaseShopItem* GetEquippedItem(FString slotName);
+		class UBaseShopItem* GetEquippedItem(EInventorySlotType slotName);
 
 	UFUNCTION(BlueprintCallable)
-		void EquippItem(FString slotName, class UBaseShopItem* item);
+		void EquippItem(EInventorySlotType inventorySlot, class UBaseShopItem* item);
 
 	UFUNCTION(BlueprintCallable)
-		void UnequippItemFromSlot(FString slotName);
+		void UnequippItemFromSlot(EInventorySlotType inventorySlot);
 };
