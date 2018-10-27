@@ -8,7 +8,7 @@
 #include "WeaponInventory.generated.h"
 
 UENUM(Blueprintable)
-enum class EInventorySlotType : uint8 {
+enum class EInventorySlot : uint8 {
 	Weapon1 = 0,
 	Weapon2,
 	Weapon3,
@@ -24,7 +24,7 @@ struct FInventoryWeaponSlot {
 	GENERATED_BODY()
 
 		UPROPERTY(EditAnywhere, BlueprintReadonly)
-		EInventorySlotType SlotType;
+		EInventorySlot SlotType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadonly)
 		TSubclassOf<ABaseWeapon> DefaultWeapon;
@@ -57,10 +57,10 @@ public:
 	void Destroy();
 
 	UFUNCTION(BlueprintCallable)
-		void AddWeapon(EInventorySlotType slot, TSubclassOf<ABaseWeapon> weaponClass);
+		void AddWeapon(EInventorySlot slot, TSubclassOf<ABaseWeapon> weaponClass);
 
 	UFUNCTION(BlueprintCallable)
-		ABaseWeapon* GetWeapon(EInventorySlotType slot);
+		ABaseWeapon* GetWeapon(EInventorySlot slot);
 
 	UFUNCTION(BlueprintCallable)
 		int GetWeaponNum();
@@ -81,7 +81,7 @@ private:
 
 	ABaseWeapon* GetNextWeaponInDirection(ABaseWeapon* CurrentWeapon, bool isDirectionForward);
 	int GetWeaponSlotIndex(ABaseWeapon* weapon);
-	int GetWeaponSlotIndex(EInventorySlotType type);
+	int GetWeaponSlotIndex(EInventorySlot type);
 
 	void ClearWeaponSlot(FInventoryWeaponSlot slot);
 

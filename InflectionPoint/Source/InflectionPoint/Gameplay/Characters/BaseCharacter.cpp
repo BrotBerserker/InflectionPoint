@@ -100,7 +100,7 @@ bool ABaseCharacter::IsReadyForInitialization() {
 
 void ABaseCharacter::Initialize() {
 	if(IsLocallyControlled()) {
-		ServerEquipSpecificWeapon(EInventorySlotType::Weapon1);
+		ServerEquipSpecificWeapon(EInventorySlot::Weapon1);
 	}
 }
 
@@ -350,11 +350,11 @@ void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {
 	EquipWeapon(WeaponInventory->GetPreviousUsableWeapon(CurrentWeapon), CurrentWeapon);
 }
 
-bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(EInventorySlotType slot) {
+bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(EInventorySlot slot) {
 	return true;
 }
 
-void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(EInventorySlotType slot) {
+void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(EInventorySlot slot) {
 	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(slot);
 	if(newWeapon && CurrentWeapon != newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);

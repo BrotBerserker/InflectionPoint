@@ -4,7 +4,31 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "Gameplay/Shop/BaseShopItem.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "TDMPlayerStateBase.generated.h"
+
+USTRUCT(BlueprintType)
+struct FTDMEqippSlot {
+	GENERATED_BODY()
+
+		UPROPERTY(EditAnywhere, BlueprintReadonly)
+		EInventorySlot Slot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		TSubclassOf<class UBaseShopItem> ShopItemClass;
+
+	bool operator==(const FTDMEqippSlot& str) {
+		return Slot == str.Slot;
+	}
+
+	FTDMEqippSlot() {}
+
+	FTDMEqippSlot(EInventorySlot slot, TSubclassOf<class UBaseShopItem> shopItem) {
+		Slot = slot;
+		ShopItemClass = shopItem;
+	}
+};
 
 /**
  *
@@ -65,6 +89,9 @@ public:
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite)
 		TArray<TSubclassOf<class UBaseShopItem>> PurchasedShopItems;
 
+	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite)
+		TArray<FTDMEqippSlot> EquippedItems; // because TMap has no repilcate
+
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		FString ReplicatedPlayerName;
 
@@ -76,4 +103,10 @@ public:
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerPurchaseShopItem(TSubclassOf<class UBaseShopItem> itemClass);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerEquippItem(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUnequippItemFromSlot(EInventorySlot slot);
 };

@@ -27,6 +27,7 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ATDMPlayerStateBase, ReplicatedPlayerName);
 	DOREPLIFETIME(ATDMPlayerStateBase, IPPoints);
 	DOREPLIFETIME(ATDMPlayerStateBase, PurchasedShopItems);
+	DOREPLIFETIME(ATDMPlayerStateBase, EquippedItems);
 }
 
 void ATDMPlayerStateBase::AddScoreToTotalScore() {
@@ -82,4 +83,25 @@ void ATDMPlayerStateBase::ServerPurchaseShopItem_Implementation(TSubclassOf<clas
 		return;
 	IPPoints -= item->IPPrice;
 	PurchasedShopItems.Add(item->GetClass());
+}
+
+bool ATDMPlayerStateBase::ServerEquippItem_Validate(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+	return AssertTrue(PurchasedShopItems.Contains(item), GetWorld(), __FILE__, __LINE__, "Client tries to equipp a Shopitem that is not purchased");
+}
+
+void ATDMPlayerStateBase::ServerEquippItem_Implementation(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+	EquippedItems.Add(FTDMEqippSlot(inventorySlot, item));
+}
+
+bool ATDMPlayerStateBase::ServerUnequippItemFromSlot_Validate(EInventorySlot slot) {
+	return true;
+}
+
+void ATDMPlayerStateBase::ServerUnequippItemFromSlot_Implementation(EInventorySlot slot) {
+	for(int i = 0; i < EquippedItems.Num(); i++) {
+		if(EquippedItems[i].Slot == slot) {
+			EquippedItems.RemoveAt(i);
+			return;
+		}
+	}
 }

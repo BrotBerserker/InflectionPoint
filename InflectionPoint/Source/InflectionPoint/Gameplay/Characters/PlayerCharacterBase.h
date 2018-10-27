@@ -55,6 +55,6 @@ public:
 	void ServerStopFire_Implementation() override;	
 	
 	/* Is Called from the Binding to swich to a specific weapon*/
-	template<EInventorySlotType slot>
+	template<EInventorySlot slot>
 	void EquipSpecificWeapon();
 };

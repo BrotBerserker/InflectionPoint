@@ -15,6 +15,10 @@ void UShopMenuBase::SyncShopWithPlayerState() {
 	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
 	InflectionPoints = localPlayerState->IPPoints;
 	PurchasedShopItems = localPlayerState->PurchasedShopItems;
+	EquippedItems.Reset();
+	for(auto& item : localPlayerState->EquippedItems)
+		EquippedItems.Add(item.Slot, item.ShopItemClass);
+	UE_LOG(LogTemp, Warning, TEXT("The value of 'variable' is: %i"), EquippedItems.Num());
 }
 
 void UShopMenuBase::PurchaseShopItem(UBaseShopItem* item) {
@@ -35,27 +39,33 @@ bool UShopMenuBase::IsShopItemPurchased(UBaseShopItem* item) {
 	return PurchasedShopItems.Contains(item->GetClass());
 }
 
-UBaseShopItem* UShopMenuBase::GetEquippedItem(EInventorySlotType inventorySlot) {
+UBaseShopItem* UShopMenuBase::GetEquippedItem(EInventorySlot inventorySlot) {
 	if(!EquippedItems.Contains(inventorySlot))
 		return nullptr;
 	return EquippedItems[inventorySlot].GetDefaultObject();
 }
 
-void UShopMenuBase::EquippItem(EInventorySlotType inventorySlot, UBaseShopItem* item) {
-	if(!item) {
-		UnequippItemFromSlot(inventorySlot);
+void UShopMenuBase::EquippItem(EInventorySlot inventorySlot, UBaseShopItem* item) {
+	UnequippItemFromSlot(inventorySlot);
+	if(!item) 
 		return;
-	}
-	auto newEquippMap = TMap<EInventorySlotType, TSubclassOf<class UBaseShopItem>>();
+
 	for(auto& slot : EquippedItems) {
-		if(slot.Key != inventorySlot && slot.Value != item->GetClass())
-			newEquippMap.Add(slot.Key, slot.Value);
+		if(slot.Value == item->GetClass())
+			UnequippItemFromSlot(slot.Key);
 	}
-	newEquippMap.Add(inventorySlot, item->GetClass());
-	EquippedItems = newEquippMap;
+
+	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
+	AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__);
+	EquippedItems.Add(inventorySlot, item->GetClass());
+	localPlayerState->ServerEquippItem(inventorySlot, item->GetClass());
 }
 
-void UShopMenuBase::UnequippItemFromSlot(EInventorySlotType slot) {
-	if(EquippedItems.Contains(slot))
-		EquippedItems.Remove(slot);
+void UShopMenuBase::UnequippItemFromSlot(EInventorySlot slot) {
+	if(!EquippedItems.Contains(slot))
+		return;
+	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
+	AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__);	 
+	EquippedItems.Remove(slot);
+	localPlayerState->ServerUnequippItemFromSlot(slot);
 }

@@ -21,7 +21,7 @@ public:
 
 	TArray<TSubclassOf<class UBaseShopItem>> PurchasedShopItems;
 
-	TMap<EInventorySlotType, TSubclassOf<class UBaseShopItem>> EquippedItems;
+	TMap<EInventorySlot, TSubclassOf<class UBaseShopItem>> EquippedItems;
 public:
 
 	UFUNCTION(BlueprintCallable)
@@ -42,11 +42,11 @@ public:
 		bool IsShopItemPurchased(class UBaseShopItem* item);
 
 	UFUNCTION(BlueprintCallable)
-		class UBaseShopItem* GetEquippedItem(EInventorySlotType slotName);
+		class UBaseShopItem* GetEquippedItem(EInventorySlot slotName);
 
 	UFUNCTION(BlueprintCallable)
-		void EquippItem(EInventorySlotType inventorySlot, class UBaseShopItem* item);
+		void EquippItem(EInventorySlot inventorySlot, class UBaseShopItem* item);
 
 	UFUNCTION(BlueprintCallable)
-		void UnequippItemFromSlot(EInventorySlotType inventorySlot);
+		void UnequippItemFromSlot(EInventorySlot inventorySlot);
 };

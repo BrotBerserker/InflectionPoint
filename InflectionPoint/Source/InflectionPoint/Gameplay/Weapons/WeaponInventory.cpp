@@ -63,7 +63,7 @@ bool UWeaponInventory::IsReadyForInitialization() {
 	return true;
 }
 
-void UWeaponInventory::AddWeapon(EInventorySlotType slot, TSubclassOf<ABaseWeapon> weaponClass) {
+void UWeaponInventory::AddWeapon(EInventorySlot slot, TSubclassOf<ABaseWeapon> weaponClass) {
 	AssertTrue(GetOwner()->HasAuthority(), GetWorld(), __FILE__, __LINE__, "Only call on server");
 	int index = GetWeaponSlotIndex(slot);
 	AssertTrue(index >= 0, GetWorld(), __FILE__, __LINE__, "Inventory Slot dose not exist!");
@@ -133,7 +133,7 @@ ABaseWeapon* UWeaponInventory::GetRandomWeapon() {
 	return NULL;
 }
 
-ABaseWeapon* UWeaponInventory::GetWeapon(EInventorySlotType slot) {
+ABaseWeapon* UWeaponInventory::GetWeapon(EInventorySlot slot) {
 	int index = GetWeaponSlotIndex(slot);
 	if(index < 0)
 		return NULL;
@@ -159,7 +159,7 @@ int UWeaponInventory::GetWeaponSlotIndex(ABaseWeapon* weapon) {
 	return -1;
 }
 
-int UWeaponInventory::GetWeaponSlotIndex(EInventorySlotType type) {
+int UWeaponInventory::GetWeaponSlotIndex(EInventorySlot type) {
 	for(int i = 0; i < WeaponSlots.Num(); i++) {
 		if(WeaponSlots[i].SlotType == type)
 			return i;

@@ -188,7 +188,7 @@ void AReplayCharacterBase::PressKey(FString key) {
 		auto str = FString(key); // to not alter string
 		str.RemoveFromStart("EquipSpecificWeapon");
 		int index = FCString::Atoi(*str);
-		ServerEquipSpecificWeapon((EInventorySlotType)index); // TODO: Change this when implementing Skills
+		ServerEquipSpecificWeapon((EInventorySlot)index); // TODO: Change this when implementing Skills
 	}
 }
 
