@@ -156,7 +156,8 @@ private:
 
 	void DrawDebugSphereAtCurrentPosition(bool positionHasBeenCorrected);
 
-	void ShowDematerializeAnimation();
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastShowDematerializeAnimation();
 
 	void OverrideMaterials(USkeletalMeshComponent* Mesh, UMaterialInterface* Material);
 

@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "ReplayCharacterBase.h"
 #include "Gameplay/Controllers/AIControllerBase.h"
+#include "Gamemodes/TDMGameStateBase.h"
 #include "Utils/TimerFunctions.h"
 
 
@@ -73,12 +74,16 @@ void AReplayCharacterBase::TransformToInflectionPoint() {
 	ActorSpawnParams.Instigator = this;
 	GetWorld()->SpawnActor<AActor>(InflectionPoint, GetTransform().GetLocation(), FRotator(GetTransform().GetRotation()), ActorSpawnParams);
 
-	ShowDematerializeAnimation();
+	MulticastShowDematerializeAnimation();
 }
 
-void AReplayCharacterBase::ShowDematerializeAnimation() {
+void AReplayCharacterBase::MulticastShowDematerializeAnimation_Implementation() {
 	dematerializeInstanceDynamic = UMaterialInstanceDynamic::Create(DematerializeMaterial, Mesh3P);
 	OverrideMaterials(Mesh3P, dematerializeInstanceDynamic);
+	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(CharacterInfoProvider->PlayerState);
+	
+	dematerializeInstanceDynamic->SetVectorParameterValue("BaseColor", gameState->TeamColors[playerState->Team]);
 	if(CurrentWeapon)
 		OverrideMaterials(CurrentWeapon->Mesh3P, dematerializeInstanceDynamic);
 
