@@ -34,10 +34,13 @@ ATDMGameModeBase::ATDMGameModeBase()
 	CharacterSpawner = CreateDefaultSubobject<UTDMCharacterSpawner>(TEXT("CharacterSpawner"));
 
 	MatchStartCountdown = CreateDefaultSubobject<UCountdown>(TEXT("MatchStartCountdown"));
-	MatchStartCountdown->Setup(this, &ATDMGameModeBase::Test, &ATDMGameModeBase::StartMatch, MatchStartDelay);
-
 	PhaseStartCountdown = CreateDefaultSubobject<UCountdown>(TEXT("PhaseStartCountdown"));
-	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdateCountdown, &ATDMGameModeBase::StartNextPhase, CountDownDuration);
+}
+
+void ATDMGameModeBase::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	MatchStartCountdown->Setup(this, &ATDMGameModeBase::Test, &ATDMGameModeBase::StartMatch, MatchStartDelay);
+	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdateCountdown, &ATDMGameModeBase::StartNextPhase, PhaseStartDelay);
 }
 
 void ATDMGameModeBase::Tick(float DeltaSeconds) {

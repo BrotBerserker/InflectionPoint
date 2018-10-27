@@ -16,6 +16,8 @@ class ATDMGameModeBase : public AGameModeBase {
 public:
 	void Tick(float DeltaSeconds) override;
 
+	void PostInitializeComponents() override;
+
 public:
 	/* ---------------------- */
 	/*   Blueprint functions  */
@@ -111,9 +113,9 @@ public:
 	/*    Editor Settings     */
 	/* ---------------------- */
 
-	/** MatchStartCountdown duration in seconds */
+	/** Duration of the phase start countdown */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int CountDownDuration = 3;
+		int PhaseStartDelay = 3;
 
 	/** Seconds to wait before starting the match after enough players have joined */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
