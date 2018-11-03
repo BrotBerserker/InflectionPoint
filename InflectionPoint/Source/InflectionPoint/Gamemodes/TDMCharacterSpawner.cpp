@@ -20,16 +20,10 @@ void UTDMCharacterSpawner::BeginPlay() {
 }
 
 void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings) {	
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
-		SpawnAndPossessPlayer(ipPlayerController, CurrentPhase);
-		for(int i = 0; PlayerRecordings.Num() > 0 && i < PlayerRecordings[playerController].Num(); i++) {
-			auto data = PlayerRecordings[playerController][i];
-			AssertTrue(data.Phase < CurrentPhase, GetWorld(), __FILE__, __LINE__, "Replay data mismatch");
-			SpawnAndPrepareReplay(ipPlayerController, data);
-		}
-	}
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		SpawnAndPossessPlayer(controller, CurrentPhase);
+		SpawnAndPrepareReplays(controller, CurrentPhase, PlayerRecordings);
+	});
 }
 
 void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerController, int CurrentPhase) {
@@ -44,6 +38,16 @@ void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerC
 	playerController->Possess(character);
 	EquippShopItems(character, playerState->EquippedItems);
 	Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive = true;
+}
+
+void UTDMCharacterSpawner::SpawnAndPrepareReplays(APlayerControllerBase* controller, int CurrentPhase, TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings) {
+	if(PlayerRecordings.Num() == 0)
+		return;
+	for(int i = 0; i < PlayerRecordings[controller].Num(); i++) {
+		auto data = PlayerRecordings[controller][i];
+		AssertTrue(data.Phase < CurrentPhase, GetWorld(), __FILE__, __LINE__, "Replay data mismatch");
+		SpawnAndPrepareReplay(controller, data);
+	}
 }
 
 void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerController, FRecordedPlayerData playerRecordings) {

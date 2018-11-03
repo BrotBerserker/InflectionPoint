@@ -110,7 +110,7 @@ void ATDMGameModeBase::StartMatch() {
 }
 
 void ATDMGameModeBase::UpdateMatchCountdown(int number) {
-	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		controller->ClientShowMatchCountdownNumber(number);
 	});
 }
@@ -188,13 +188,13 @@ void ATDMGameModeBase::StartEndMatchSequence() {
 }
 
 void ATDMGameModeBase::NotifyControllersOfEndMatch(int winnerTeam) {
-	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		controller->ClientShowMatchEnd(winnerTeam);
 	});
 }
 
 void ATDMGameModeBase::NotifyControllersOfEndRound(int winnerTeam) {
-	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		controller->ClientShowRoundEnd(winnerTeam);
 	});
 }
@@ -245,7 +245,7 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
 	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo() : FCharacterInfo();
 	FCharacterInfo killedInfo = KilledPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
-	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		float killedScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
 		float killerScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer);
 		auto weapon = Cast<ABaseWeapon>(DamageCauser);
@@ -254,7 +254,7 @@ void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AContro
 }
 
 void ATDMGameModeBase::SendPhaseStartedToPlayers(int Phase) {
-	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		controller->ClientPhaseStarted(Phase);
 	});
 }
@@ -288,7 +288,7 @@ bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
 }
 
 void ATDMGameModeBase::UpdatePhaseCountdown(int number) {
-	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		controller->ClientShowPhaseCountdownNumber(number);
 	});
 }
@@ -308,7 +308,7 @@ void ATDMGameModeBase::StartReplays() {
 }
 
 void ATDMGameModeBase::SaveRecordingsFromRemainingPlayers() {
-	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		if(IsPlayerAlive(controller)) {
 			SavePlayerRecordings(controller);
 		}

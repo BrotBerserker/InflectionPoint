@@ -43,6 +43,9 @@ public:
 	/** Spawns a player for the given phase and lets the given controller possess it */
 	void SpawnAndPossessPlayer(APlayerControllerBase* playerController, int CurrentPhase);
 
+	/** Spawns all replays for a controller */
+	void SpawnAndPrepareReplays(APlayerControllerBase* controller, int CurrentPhase, TMap<APlayerController*, TArray<struct FRecordedPlayerData>> PlayerRecordings);
+
 	/** Spawns a replay for the given phase and initializes it using the given controller and replay data */
 	void SpawnAndPrepareReplay(APlayerControllerBase* controller, FRecordedPlayerData PlayerRecordings);
 
