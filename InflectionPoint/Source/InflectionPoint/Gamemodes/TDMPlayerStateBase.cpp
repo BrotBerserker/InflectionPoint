@@ -71,37 +71,3 @@ void ATDMPlayerStateBase::SetPlayerName(const FString& S) {
 FString ATDMPlayerStateBase::GetPlayerNameCustom() const {
 	return ReplicatedPlayerName;
 }
-
-bool ATDMPlayerStateBase::ServerPurchaseShopItem_Validate(TSubclassOf<class UBaseShopItem> itemClass) {
-	return true;
-}
-
-void ATDMPlayerStateBase::ServerPurchaseShopItem_Implementation(TSubclassOf<class UBaseShopItem> itemClass) {
-	auto item = itemClass.GetDefaultObject();
-	AssertNotNull(item, GetWorld(), __FILE__, __LINE__);
-	if(!item->IsAffordableForPlayer(this))
-		return;
-	IPPoints -= item->IPPrice;
-	PurchasedShopItems.Add(item->GetClass());
-}
-
-bool ATDMPlayerStateBase::ServerEquippItem_Validate(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
-	return AssertTrue(PurchasedShopItems.Contains(item), GetWorld(), __FILE__, __LINE__, "Client tries to equipp a Shopitem that is not purchased");
-}
-
-void ATDMPlayerStateBase::ServerEquippItem_Implementation(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
-	EquippedItems.Add(FTDMEqippSlot(inventorySlot, item));
-}
-
-bool ATDMPlayerStateBase::ServerUnequippItemFromSlot_Validate(EInventorySlot slot) {
-	return true;
-}
-
-void ATDMPlayerStateBase::ServerUnequippItemFromSlot_Implementation(EInventorySlot slot) {
-	for(int i = 0; i < EquippedItems.Num(); i++) {
-		if(EquippedItems[i].Slot == slot) {
-			EquippedItems.RemoveAt(i);
-			return;
-		}
-	}
-}

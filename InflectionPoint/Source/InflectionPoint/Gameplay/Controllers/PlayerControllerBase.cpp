@@ -109,7 +109,7 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 		if(character && otherCharacter->GetName().Equals(character->GetName())) {
 			continue;
 		}
-
+		
 		// Don't switch to current viewtarget
 		if(otherCharacter->GetName().Equals(GetViewTarget()->GetName())) {
 			continue;
@@ -150,4 +150,47 @@ bool APlayerControllerBase::IsLookingAtActor(AActor* actor, float distance) {
 	FVector p = (FVector::DotProduct(a, b) / FVector::DotProduct(b, b)) * b;
 	float d = (a - p).Size();
 	return d <= distance;
+}
+
+
+bool APlayerControllerBase::ServerPurchaseShopItem_Validate(TSubclassOf<class UBaseShopItem> itemClass) {
+	return true;
+}
+
+void APlayerControllerBase::ServerPurchaseShopItem_Implementation(TSubclassOf<class UBaseShopItem> itemClass) {
+	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	auto item = itemClass.GetDefaultObject();
+	AssertNotNull(item, GetWorld(), __FILE__, __LINE__);
+	if(!item->IsAffordableForPlayer(playerState))
+		return;
+	playerState->IPPoints -= item->IPPrice;
+	playerState->PurchasedShopItems.Add(item->GetClass());
+}
+
+bool APlayerControllerBase::ServerEquippShopItem_Validate(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	return AssertTrue(playerState->PurchasedShopItems.Contains(item), GetWorld(), __FILE__, __LINE__, "Client tries to equipp a Shopitem that is not purchased");
+}
+
+void APlayerControllerBase::ServerEquippShopItem_Implementation(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	playerState->EquippedItems.Add(FTDMEqippSlot(inventorySlot, item));
+}
+
+bool APlayerControllerBase::ServerUnequippShopItemFromSlot_Validate(EInventorySlot slot) {
+	return true;
+}
+
+void APlayerControllerBase::ServerUnequippShopItemFromSlot_Implementation(EInventorySlot slot) {
+	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	for(int i = 0; i < playerState->EquippedItems.Num(); i++) {
+		if(playerState->EquippedItems[i].Slot == slot) {
+			playerState->EquippedItems.RemoveAt(i);
+			return;
+		}
+	}
 }

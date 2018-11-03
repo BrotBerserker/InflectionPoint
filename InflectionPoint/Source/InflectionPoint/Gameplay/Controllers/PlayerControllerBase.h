@@ -4,6 +4,8 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Shop/BaseShopItem.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "PlayerControllerBase.generated.h"
 
@@ -82,6 +84,16 @@ public:
 
 	UFUNCTION()
 		bool IsLookingAtActor(AActor* actor, float distance = 130);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerPurchaseShopItem(TSubclassOf<class UBaseShopItem> itemClass);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerEquippShopItem(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUnequippShopItemFromSlot(EInventorySlot slot);
+
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		class ABaseCharacter* SpectatedCharacter;

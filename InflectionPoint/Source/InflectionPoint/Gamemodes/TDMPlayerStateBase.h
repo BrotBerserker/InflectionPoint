@@ -100,13 +100,4 @@ public:
 	virtual void SetPlayerName(const FString& S) override;
 
 	virtual FString GetPlayerNameCustom() const override;
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerPurchaseShopItem(TSubclassOf<class UBaseShopItem> itemClass);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerEquippItem(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item);
-
-	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUnequippItemFromSlot(EInventorySlot slot);
 };

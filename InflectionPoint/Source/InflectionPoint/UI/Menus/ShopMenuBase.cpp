@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "Gameplay/Shop/BaseShopItem.h"
 #include "Gamemodes/TDMPlayerStateBase.h" 
+#include "Gameplay/Characters/PlayerCharacterBase.h"
 #include "ShopMenuBase.h"
 
 void UShopMenuBase::SetVisibility(ESlateVisibility InVisibility) {	
@@ -24,11 +25,11 @@ void UShopMenuBase::SyncShopWithPlayerState() {
 void UShopMenuBase::PurchaseShopItem(UBaseShopItem* item) {
 	if(!IsShopItemAffordable(item))
 		return;
-	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
-	AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__);
+	auto localController = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
+	AssertNotNull(localController, GetWorld(), __FILE__, __LINE__);
 	InflectionPoints -= item->IPPrice;
 	PurchasedShopItems.Add(item->GetClass());
-	localPlayerState->ServerPurchaseShopItem(item->GetClass());
+	localController->ServerPurchaseShopItem(item->GetClass());
 }
 
 bool UShopMenuBase::IsShopItemAffordable(UBaseShopItem* item) {
@@ -54,18 +55,18 @@ void UShopMenuBase::EquippItem(EInventorySlot inventorySlot, UBaseShopItem* item
 		if(slot.Value == item->GetClass())
 			UnequippItemFromSlot(slot.Key);
 	}
-
-	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
-	AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__);
+	
+	auto localController = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
+	AssertNotNull(localController, GetWorld(), __FILE__, __LINE__);
 	EquippedItems.Add(inventorySlot, item->GetClass());
-	localPlayerState->ServerEquippItem(inventorySlot, item->GetClass());
+	localController->ServerEquippShopItem(inventorySlot, item->GetClass());
 }
 
 void UShopMenuBase::UnequippItemFromSlot(EInventorySlot slot) {
 	if(!EquippedItems.Contains(slot))
 		return;
-	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
-	AssertNotNull(localPlayerState, GetWorld(), __FILE__, __LINE__);	 
+	auto localController = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
+	AssertNotNull(localController, GetWorld(), __FILE__, __LINE__);
 	EquippedItems.Remove(slot);
-	localPlayerState->ServerUnequippItemFromSlot(slot);
+	localController->ServerUnequippShopItemFromSlot(slot);
 }
