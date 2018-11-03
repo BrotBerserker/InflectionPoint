@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "BaseShopItem.generated.h"
 
 UENUM(Blueprintable, Meta = (Bitflags))
@@ -40,6 +41,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool IsAffordableForPlayer(class ATDMPlayerStateBase* playerState);
 
-	virtual void ApplyToCharacter(class ABaseCharacter* character) PURE_VIRTUAL(UBaseShopItem::ApplyToCharacter, ;);
+	virtual void ApplyToCharacter(class ABaseCharacter* character, enum EInventorySlot slot) PURE_VIRTUAL(UBaseShopItem::ApplyToCharacter, ;);
 
 };

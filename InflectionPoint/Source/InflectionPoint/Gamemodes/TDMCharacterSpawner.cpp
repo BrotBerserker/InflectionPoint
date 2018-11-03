@@ -29,6 +29,8 @@ void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayer
 }
 
 void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerController, int CurrentPhase) {
+	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__, "No spawn found");
 	auto spawnPoint = FindSpawnForPlayer(playerController, CurrentPhase);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 
@@ -36,6 +38,7 @@ void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerC
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
+	EquippShopItems(character, playerState->EquippedItems);
 	Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive = true;
 }
 
@@ -49,6 +52,7 @@ void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerCo
 	AssertTrue(PlayerRecordings[playerController].Contains(CurrentPhase), GetWorld(), __FILE__, __LINE__, "Could not find replay for current phase");
 	character->SetReplayData(PlayerRecordings[playerController][CurrentPhase]);
 	character->ReplayIndex = CurrentPhase;
+	// TODO: call EquippShopItems
 	Cast<AAIControllerBase>(character->GetController())->Initialize(playerController);
 }
 
@@ -113,5 +117,12 @@ void UTDMCharacterSpawner::SpawnAllPlayersForWarmupRound() {
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
 		controller->ClientPhaseStarted(0);
 		SpawnAndPossessPlayer(controller, 0);
+	}
+}
+
+void UTDMCharacterSpawner::EquippShopItems(ABaseCharacter* character, TArray<FTDMEqippSlot> equippedItems) {
+	for(int i = 0; i < equippedItems.Num(); i++) {
+		auto item = equippedItems[i];
+		item.ShopItemClass.GetDefaultObject()->ApplyToCharacter(character, item.Slot);
 	}
 }

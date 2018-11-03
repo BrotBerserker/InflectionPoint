@@ -52,6 +52,7 @@ private:
 	class ATDMGameModeBase* gameMode;
 
 private:
+	void EquippShopItems(class ABaseCharacter* character, TArray<FTDMEqippSlot> equippedItems);
 	FString GetSpawnTag(APlayerControllerBase*  playerController, int phase);
 	AActor* FindSpawnForPlayer(APlayerControllerBase* playerController, int phase);
 	int GetTeam(APlayerControllerBase* playerController);
