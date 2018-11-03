@@ -37,7 +37,7 @@ public:
 
 public:
 	//UFUNCTION()
-	void Test(int asd);
+	void UpdateMatchCountdown(int asd);
 
 	/* --------------- */
 	/*    Functions    */
@@ -76,7 +76,7 @@ public:
 
 	/** Informs all players about the next countdown number */
 	UFUNCTION()
-		void UpdateCountdown(int number);
+		void UpdatePhaseCountdown(int number);
 
 	/** Switches to a cinematic camera at the beginning of a new phase */
 	UFUNCTION()

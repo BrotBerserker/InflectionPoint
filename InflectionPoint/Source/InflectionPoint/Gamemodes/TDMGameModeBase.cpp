@@ -39,8 +39,8 @@ ATDMGameModeBase::ATDMGameModeBase()
 
 void ATDMGameModeBase::PostInitializeComponents() {
 	Super::PostInitializeComponents();
-	MatchStartCountdown->Setup(this, &ATDMGameModeBase::Test, &ATDMGameModeBase::StartMatch, MatchStartDelay);
-	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdateCountdown, &ATDMGameModeBase::StartNextPhase, PhaseStartDelay);
+	MatchStartCountdown->Setup(this, &ATDMGameModeBase::UpdateMatchCountdown, &ATDMGameModeBase::StartMatch, MatchStartDelay);
+	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdatePhaseCountdown, &ATDMGameModeBase::StartNextPhase, PhaseStartDelay);
 }
 
 void ATDMGameModeBase::Tick(float DeltaSeconds) {
@@ -109,8 +109,10 @@ void ATDMGameModeBase::StartMatch() {
 	StartNextRound();
 }
 
-void ATDMGameModeBase::Test(int asd) {
-	UE_LOG(LogTemp, Warning, TEXT("voll geil alter %d"), asd);
+void ATDMGameModeBase::UpdateMatchCountdown(int number) {
+	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
+		controller->ClientShowMatchCountdownNumber(number);
+	});
 }
 
 void ATDMGameModeBase::ReStartMatch() {
@@ -284,12 +286,9 @@ bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
 	return Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive;
 }
 
-void ATDMGameModeBase::UpdateCountdown(int number) {
+void ATDMGameModeBase::UpdatePhaseCountdown(int number) {
 	DoShitForAllPlayerControllers([&](APlayerControllerBase* controller) {
-		controller->ClientShowCountdownNumber(number);
-		if(number == 0 && controller->GetCharacter()) {
-			controller->GetCharacter()->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
-		}
+		controller->ClientShowPhaseCountdownNumber(number);
 	});
 }
 

@@ -54,10 +54,16 @@ public:
 		void OnShowRoundEnd(int winningTeam);
 
 	UFUNCTION(Client, Reliable)
-		void ClientShowCountdownNumber(int number);
+		void ClientShowPhaseCountdownNumber(int number);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnCountdownUpdate(int number);
+		void OnPhaseCountdownUpdate(int number);
+
+	UFUNCTION(Client, Reliable)
+		void ClientShowMatchCountdownNumber(int number);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnMatchCountdownUpdate(int number);
 
 	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);

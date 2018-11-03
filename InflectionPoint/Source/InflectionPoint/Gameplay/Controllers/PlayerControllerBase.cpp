@@ -58,8 +58,12 @@ void APlayerControllerBase::ClientShowKillInfo_Implementation(FCharacterInfo Kil
 	OnKillInfoAdded(KilledInfo, killedScoreChange, KillerInfo, killerScoreChange, WeaponImage);
 }
 
-void APlayerControllerBase::ClientShowCountdownNumber_Implementation(int number) {
-	OnCountdownUpdate(number);
+void APlayerControllerBase::ClientShowPhaseCountdownNumber_Implementation(int number) {
+	OnPhaseCountdownUpdate(number);
+}
+
+void APlayerControllerBase::ClientShowMatchCountdownNumber_Implementation(int number) {
+	OnMatchCountdownUpdate(number);
 }
 
 void APlayerControllerBase::ClientSetIgnoreInput_Implementation(bool ignore) {
