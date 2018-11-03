@@ -5,6 +5,7 @@
 #include "Gameplay/Characters/ReplayCharacterBase.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "Gameplay/Controllers/AIControllerBase.h"
+#include "Gamemodes/TDMGameModeBase.h"
 #include "TDMGameModeBase.h"
 #include "TDMCharacterSpawner.h"
 
@@ -18,13 +19,16 @@ void UTDMCharacterSpawner::BeginPlay() {
 	gameMode = Cast<ATDMGameModeBase>(GetOwner());
 }
 
-void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings) {
+void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings) {	
 	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
 		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
 		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
 		SpawnAndPossessPlayer(ipPlayerController, CurrentPhase);
-		for(int i = 1; i < CurrentPhase; i++)
-			SpawnAndPrepareReplay(ipPlayerController, i, PlayerRecordings);
+		for(int i = 0; PlayerRecordings.Num() > 0 && i < PlayerRecordings[playerController].Num(); i++) {
+			auto data = PlayerRecordings[playerController][i];
+			AssertTrue(data.Phase < CurrentPhase, GetWorld(), __FILE__, __LINE__, "Replay data mismatch");
+			SpawnAndPrepareReplay(ipPlayerController, data);
+		}
 	}
 }
 
@@ -42,17 +46,15 @@ void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerC
 	Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive = true;
 }
 
-void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerController, int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings) {
-	auto spawnPoint = FindSpawnForPlayer(playerController, CurrentPhase);
+void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerController, FRecordedPlayerData playerRecordings) {
+	auto spawnPoint = FindSpawnForPlayer(playerController, playerRecordings.Phase);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 
 	auto character = SpawnCharacter<AReplayCharacterBase>(ReplayCharacters[GetTeam(playerController)], spawnPoint);
 
-	AssertTrue(PlayerRecordings.Contains(playerController), GetWorld(), __FILE__, __LINE__, "Could not find replay for controller");
-	AssertTrue(PlayerRecordings[playerController].Contains(CurrentPhase), GetWorld(), __FILE__, __LINE__, "Could not find replay for current phase");
-	character->SetReplayData(PlayerRecordings[playerController][CurrentPhase]);
-	character->ReplayIndex = CurrentPhase;
-	// TODO: call EquippShopItems
+	character->SetReplayData(playerRecordings.RecordedPlayerStates);
+	character->ReplayIndex = playerRecordings.Phase;
+	EquippShopItems(character, playerRecordings.EquippedItems);
 	Cast<AAIControllerBase>(character->GetController())->Initialize(playerController);
 }
 

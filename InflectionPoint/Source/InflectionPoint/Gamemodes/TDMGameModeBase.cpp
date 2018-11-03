@@ -205,6 +205,7 @@ void ATDMGameModeBase::StartNextRound() {
 	GetGameState()->ResetPlayerScores();
 	GetGameState()->CurrentPhase = 0;
 	GetGameState()->CurrentRound++;
+	PlayerRecordings.Reset();
 	PrepareNextPhase();
 }
 
@@ -315,15 +316,20 @@ void ATDMGameModeBase::SaveRecordingsFromRemainingPlayers() {
 }
 
 void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerController) {
+	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
 	auto pawn = playerController->GetPawn();
-	if(AssertNotNull(pawn, GetWorld(), __FILE__, __LINE__)) {
+	if(AssertNotNull(pawn, GetWorld(), __FILE__, __LINE__) && AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__)) {
 		auto playerStateRecorder = pawn->FindComponentByClass<UPlayerStateRecorder>();
 		AssertNotNull(playerStateRecorder, GetWorld(), __FILE__, __LINE__);
 		if(!PlayerRecordings.Contains(playerController)) {
-			TMap<int, TArray<FRecordedPlayerState>> map;
-			PlayerRecordings.Add(playerController, map);
+			TArray<FRecordedPlayerData> list;
+			PlayerRecordings.Add(playerController, list);
 		}
-		PlayerRecordings[playerController].Add(GetGameState()->CurrentPhase, playerStateRecorder->RecordedPlayerStates);
+		FRecordedPlayerData data = FRecordedPlayerData();
+		data.EquippedItems = playerState->EquippedItems;
+		data.Phase = GetGameState()->CurrentPhase;
+		data.RecordedPlayerStates = playerStateRecorder->RecordedPlayerStates;
+		PlayerRecordings[playerController].Add(data);
 	}
 }
 
