@@ -79,11 +79,10 @@ void AReplayCharacterBase::TransformToInflectionPoint() {
 
 void AReplayCharacterBase::MulticastShowDematerializeAnimation_Implementation() {
 	dematerializeInstanceDynamic = UMaterialInstanceDynamic::Create(DematerializeMaterial, Mesh3P);
-	OverrideMaterials(Mesh3P, dematerializeInstanceDynamic);
 	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
-	ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(CharacterInfoProvider->PlayerState);
+	dematerializeInstanceDynamic->SetVectorParameterValue("BaseColor", gameState->TeamColors[CharacterInfoProvider->GetCharacterInfo().Team]);
 	
-	dematerializeInstanceDynamic->SetVectorParameterValue("BaseColor", gameState->TeamColors[playerState->Team]);
+	OverrideMaterials(Mesh3P, dematerializeInstanceDynamic);
 	if(CurrentWeapon)
 		OverrideMaterials(CurrentWeapon->Mesh3P, dematerializeInstanceDynamic);
 
