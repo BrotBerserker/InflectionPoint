@@ -6,13 +6,14 @@
 #include "SubMenuTemplate.h"
 #include "Blueprint/UserWidget.h"
 #include "Gameplay/Weapons/WeaponInventory.h"
+#include "UI/HUD/HUDElementBase.h"
 #include "ShopMenuBase.generated.h"
 
 /**
  *
  */
 UCLASS()
-class INFLECTIONPOINT_API UShopMenuBase : public USubMenuTemplate {
+class INFLECTIONPOINT_API UShopMenuBase : public UHUDElementBase {
 	GENERATED_BODY()
 
 public:
@@ -26,9 +27,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void SyncShopWithPlayerState();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void OnPreVisibilityChange(ESlateVisibility NextVisibility);
 
 	virtual void SetVisibility(ESlateVisibility InVisibility) override;
 

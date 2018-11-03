@@ -35,16 +35,14 @@ ATDMGameModeBase::ATDMGameModeBase()
 
 	MatchStartCountdown = CreateDefaultSubobject<UCountdown>(TEXT("MatchStartCountdown"));
 	PhaseStartCountdown = CreateDefaultSubobject<UCountdown>(TEXT("PhaseStartCountdown"));
+	ShopCountdown = CreateDefaultSubobject<UCountdown>(TEXT("ShopCountdown"));
 }
 
 void ATDMGameModeBase::PostInitializeComponents() {
 	Super::PostInitializeComponents();
 	MatchStartCountdown->Setup(this, &ATDMGameModeBase::UpdateMatchCountdown, &ATDMGameModeBase::StartMatch, MatchStartDelay);
 	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdatePhaseCountdown, &ATDMGameModeBase::StartNextPhase, PhaseStartDelay);
-}
-
-void ATDMGameModeBase::Tick(float DeltaSeconds) {
-	Super::Tick(DeltaSeconds);
+	ShopCountdown->Setup(this, &ATDMGameModeBase::UpdateShopCountdown, &ATDMGameModeBase::PrepareNextPhase, 5);
 }
 
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
@@ -104,7 +102,7 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 }
 
 void ATDMGameModeBase::StartMatch() {
-	ResetGameState();
+	GetGameState()->PrepareForMatchStart(CharacterSpawner->GetSpawnPointCount());
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 	StartNextRound();
 }
@@ -115,9 +113,15 @@ void ATDMGameModeBase::UpdateMatchCountdown(int number) {
 	});
 }
 
+void ATDMGameModeBase::UpdateShopCountdown(int number) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowShopCountdownNumber(number);
+	});
+}
+
 void ATDMGameModeBase::ReStartMatch() {
 	isPlayingEndMatchSequence = false;
-	ResetGameState();
+	GetGameState()->PrepareForMatchStart(CharacterSpawner->GetSpawnPointCount());
 	ResetLevel();
 	CharacterSpawner->SpawnAllPlayersForWarmupRound();
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
@@ -126,32 +130,37 @@ void ATDMGameModeBase::ReStartMatch() {
 	}
 }
 
-void ATDMGameModeBase::ResetGameState() {
-	GetGameState()->TeamWins.Init(0, GetGameState()->TeamCount + 1); // +1 because teams start with 1
-	GetGameState()->CurrentRound = 0;
-	GetGameState()->CurrentPhase = 0;
-	GetGameState()->MaxPhaseNum = CharacterSpawner->GetSpawnPointCount() / GetGameState()->MaxPlayers;
-	GetGameState()->ResetPlayerScores();
-	GetGameState()->ResetTotalPlayerScores();
-}
-
 void ATDMGameModeBase::EndCurrentPhase() {
 	SaveRecordingsFromRemainingPlayers();
 	if(GetGameState()->CurrentPhase == GetGameState()->MaxPhaseNum) {
 		EndCurrentRound();
 	} else {
-		PrepareNextPhase();
+		ShowShop();
 	}
 }
 
-void ATDMGameModeBase::PrepareNextPhase() {
+void ATDMGameModeBase::ShowShop() {
 	int phase = GetGameState()->CurrentPhase + 1;
 	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
 		return;
 	GetGameState()->CurrentPhase = phase;
 	ResetLevel();
+	UE_LOG(LogTemp, Warning, TEXT("jetzt kommt der shop"));
+	ShopCountdown->Start();
+	//CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
+	//SendPhaseStartedToPlayers(phase);
+	//PhaseStartCountdown->Start();
+	//StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
+}
+
+void ATDMGameModeBase::PrepareNextPhase() {
+	/*int phase = GetGameState()->CurrentPhase + 1;
+	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
+		return;
+	GetGameState()->CurrentPhase = phase;
+	ResetLevel();*/
 	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
-	SendPhaseStartedToPlayers(phase);
+	SendPhaseStartedToPlayers(GetGameState()->CurrentPhase);
 	PhaseStartCountdown->Start();
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
@@ -206,7 +215,7 @@ void ATDMGameModeBase::StartNextRound() {
 	GetGameState()->CurrentPhase = 0;
 	GetGameState()->CurrentRound++;
 	PlayerRecordings.Reset();
-	PrepareNextPhase();
+	ShowShop();
 }
 
 void ATDMGameModeBase::StartSpawnCinematics() {

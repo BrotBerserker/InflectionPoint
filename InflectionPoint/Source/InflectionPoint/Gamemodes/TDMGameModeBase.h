@@ -14,8 +14,9 @@ USTRUCT(BlueprintType)
 struct FRecordedPlayerData {
 	GENERATED_BODY()
 
-		int Phase;
-	TArray<FRecordedPlayerState> RecordedPlayerStates; 	
+public:
+	int Phase;
+	TArray<FRecordedPlayerState> RecordedPlayerStates;
 	TArray<FTDMEqippSlot> EquippedItems;
 };
 
@@ -25,8 +26,6 @@ class ATDMGameModeBase : public AGameModeBase {
 	GENERATED_BODY()
 
 public:
-	void Tick(float DeltaSeconds) override;
-
 	void PostInitializeComponents() override;
 
 public:
@@ -48,7 +47,7 @@ public:
 
 public:
 	//UFUNCTION()
-	void UpdateMatchCountdown(int asd);
+	void UpdateMatchCountdown(int number);
 
 	/* --------------- */
 	/*    Functions    */
@@ -73,6 +72,9 @@ public:
 	UFUNCTION()
 		void PrepareNextPhase();
 
+	UFUNCTION()
+		void ShowShop();
+
 	/** Starts the replays, ends the match if a player has left during the countdown */
 	UFUNCTION()
 		void StartNextPhase();
@@ -88,6 +90,9 @@ public:
 	/** Informs all players about the next countdown number */
 	UFUNCTION()
 		void UpdatePhaseCountdown(int number);
+
+	UFUNCTION()
+		void UpdateShopCountdown(int number);
 
 	/** Switches to a cinematic camera at the beginning of a new phase */
 	UFUNCTION()
@@ -169,6 +174,9 @@ public:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCountdown* PhaseStartCountdown;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCountdown* ShopCountdown;
+
 private:
 	TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings;
 
@@ -193,6 +201,4 @@ private:
 	void SendPhaseStartedToPlayers(int Phase);
 
 	APlayerController* GetAnyPlayerControllerInTeam(int team);
-
-	void ResetGameState();
 };

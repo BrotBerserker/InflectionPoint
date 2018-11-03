@@ -17,6 +17,15 @@ void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ATDMGameStateBase, NumPlayers);
 }
 
+void ATDMGameStateBase::PrepareForMatchStart(int SpawnPointCount) {
+	TeamWins.Init(0, TeamCount + 1); // +1 because teams start with 1
+	CurrentRound = 0;
+	CurrentPhase = 0;
+	MaxPhaseNum = SpawnPointCount / MaxPlayers;
+	ResetPlayerScores();
+	ResetTotalPlayerScores();
+}
+
 int ATDMGameStateBase::GetTeamScore(int team) {
 	double teamScore = 0;
 	for(int i = 0; i < PlayerArray.Num(); i++) {

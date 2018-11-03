@@ -66,6 +66,10 @@ void APlayerControllerBase::ClientShowMatchCountdownNumber_Implementation(int nu
 	OnMatchCountdownUpdate(number);
 }
 
+void APlayerControllerBase::ClientShowShopCountdownNumber_Implementation(int number) {
+	OnShopCountdownUpdate(number);
+}
+
 void APlayerControllerBase::ClientSetIgnoreInput_Implementation(bool ignore) {
 	ACharacter* character = GetCharacter();
 	AssertNotNull(character, GetWorld(), __FILE__, __LINE__);

@@ -6,9 +6,10 @@
 #include "Gameplay/Characters/PlayerCharacterBase.h"
 #include "ShopMenuBase.h"
 
-void UShopMenuBase::SetVisibility(ESlateVisibility InVisibility) {	
-	SyncShopWithPlayerState(); // automatc sync when visibility changes
-	OnPreVisibilityChange(InVisibility);
+void UShopMenuBase::SetVisibility(ESlateVisibility InVisibility) {
+	if(InVisibility == ESlateVisibility::Visible) {
+		SyncShopWithPlayerState(); // automatc sync when visibility changes
+	}
 	Super::SetVisibility(InVisibility);
 }
 
@@ -48,14 +49,14 @@ UBaseShopItem* UShopMenuBase::GetEquippedItem(EInventorySlot inventorySlot) {
 
 void UShopMenuBase::EquippItem(EInventorySlot inventorySlot, UBaseShopItem* item) {
 	UnequippItemFromSlot(inventorySlot);
-	if(!item) 
+	if(!item)
 		return;
 
 	for(auto& slot : EquippedItems) {
 		if(slot.Value == item->GetClass())
 			UnequippItemFromSlot(slot.Key);
 	}
-	
+
 	auto localController = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
 	AssertNotNull(localController, GetWorld(), __FILE__, __LINE__);
 	EquippedItems.Add(inventorySlot, item->GetClass());
