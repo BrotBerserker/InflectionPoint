@@ -139,6 +139,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MatchStartDelay = 10.0f;
 
+	/** Seconds to wait before closing the shop and starting the phase */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float ShopTime = 5.0f;
+
 	/** Seconds to wait before restarting the match after the last one has ended */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MatchReStartDelay = 10.0f;
