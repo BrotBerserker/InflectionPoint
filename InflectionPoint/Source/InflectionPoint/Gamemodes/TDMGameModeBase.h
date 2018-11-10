@@ -67,14 +67,14 @@ public:
 
 	/** Respawns players and replays, starts the phase countdown */
 	UFUNCTION()
-		void PrepareNextPhase();
+		void PreparePhaseStart();
 
 	UFUNCTION()
-		void ShowShop();
+		void StartNextPhase();
 
 	/** Starts the replays, ends the match if a player has left during the countdown */
 	UFUNCTION()
-		void StartNextPhase();
+		void StartPhase();
 
 	/** starts the next round */
 	UFUNCTION()

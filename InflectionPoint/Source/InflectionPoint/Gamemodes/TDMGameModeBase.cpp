@@ -41,8 +41,8 @@ ATDMGameModeBase::ATDMGameModeBase()
 void ATDMGameModeBase::PostInitializeComponents() {
 	Super::PostInitializeComponents();
 	MatchStartCountdown->Setup(this, &ATDMGameModeBase::UpdateMatchCountdown, &ATDMGameModeBase::StartMatch, MatchStartDelay);
-	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdatePhaseCountdown, &ATDMGameModeBase::StartNextPhase, PhaseStartDelay);
-	ShopCountdown->Setup(this, &ATDMGameModeBase::UpdateShopCountdown, &ATDMGameModeBase::PrepareNextPhase, 5);
+	ShopCountdown->Setup(this, &ATDMGameModeBase::UpdateShopCountdown, &ATDMGameModeBase::PreparePhaseStart, 5);
+	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdatePhaseCountdown, &ATDMGameModeBase::StartPhase, PhaseStartDelay);
 }
 
 void ATDMGameModeBase::InitializeSettings(FName SessionName) {
@@ -112,10 +112,10 @@ void ATDMGameModeBase::StartNextRound() {
 		return;
 	GetGameState()->PrepareForRoundStart();
 	PlayerRecordings.Reset();
-	ShowShop();
+	StartNextPhase();
 }
 
-void ATDMGameModeBase::ShowShop() {
+void ATDMGameModeBase::StartNextPhase() {
 	int phase = GetGameState()->CurrentPhase + 1;
 	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
 		return;
@@ -124,14 +124,14 @@ void ATDMGameModeBase::ShowShop() {
 	ShopCountdown->Start();
 }
 
-void ATDMGameModeBase::PrepareNextPhase() {
+void ATDMGameModeBase::PreparePhaseStart() {
 	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
 	SendPhaseStartedToPlayers(GetGameState()->CurrentPhase);
 	PhaseStartCountdown->Start();
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
 
-void ATDMGameModeBase::StartNextPhase() {
+void ATDMGameModeBase::StartPhase() {
 	StartReplays();
 	if(IsPhaseWinnerFound()) {
 		StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
@@ -143,7 +143,7 @@ void ATDMGameModeBase::EndCurrentPhase() {
 	if(GetGameState()->CurrentPhase == GetGameState()->MaxPhaseNum) {
 		EndCurrentRound();
 	} else {
-		ShowShop();
+		StartNextPhase();
 	}
 }
 
