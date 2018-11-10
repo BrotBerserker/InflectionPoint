@@ -375,9 +375,6 @@ bool ABaseCharacter::ServerPickWeaponUp_Validate(UClass* weapon) {
 }
 
 void ABaseCharacter::ServerPickWeaponUp_Implementation(UClass* weapon) {
-	//if(WeaponInventory->IsWeaponUsable(weapon))
-	//	return;
-	//WeaponInventory->SetWeaponUsabilityStatus(weapon, true);
 	auto newWeapon = WeaponInventory->GetWeaponByClass(weapon);
 	if(newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
@@ -390,8 +387,22 @@ void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
 void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {
 	CurrentWeapon = NewWeapon;
 
-	if(OldWeapon)
+	if(OldWeapon) {
+		if(IsAiming) {
+			OldWeapon->StopAiming();
+		}
+		Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(CurrentWeapon->AnimationNotifyDelegate);
+		Mesh1P->GetAnimInstance()->OnMontageEnded.Remove(CurrentWeapon->AnimationEndDelegate);
+		Mesh1P->GetAnimInstance()->Montage_Stop(0, CurrentWeapon->ReloadAnimation1P);
 		OldWeapon->OnUnequip();
+	}
+	
+	Mesh1P->GetAnimInstance()->Montage_Play(CurrentWeapon->EquipAnimation1P);
+	Mesh3P->GetAnimInstance()->Montage_Play(CurrentWeapon->EquipAnimation3P);
+
+	if(IsAiming) {
+		CurrentWeapon->StartAiming();
+	}
 	CurrentWeapon->OnEquip();
 
 	MulticastWeaponChanged(NewWeapon, OldWeapon);
