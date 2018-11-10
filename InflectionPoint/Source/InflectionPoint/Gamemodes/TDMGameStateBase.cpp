@@ -26,6 +26,12 @@ void ATDMGameStateBase::PrepareForMatchStart(int SpawnPointCount) {
 	ResetTotalPlayerScores();
 }
 
+void ATDMGameStateBase::PrepareForRoundStart() {
+	ResetPlayerScores();
+	CurrentPhase = 0;
+	CurrentRound++;
+}
+
 int ATDMGameStateBase::GetTeamScore(int team) {
 	double teamScore = 0;
 	for(int i = 0; i < PlayerArray.Num(); i++) {

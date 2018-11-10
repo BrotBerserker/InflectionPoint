@@ -145,20 +145,10 @@ void ATDMGameModeBase::ShowShop() {
 		return;
 	GetGameState()->CurrentPhase = phase;
 	ResetLevel();
-	UE_LOG(LogTemp, Warning, TEXT("jetzt kommt der shop"));
 	ShopCountdown->Start();
-	//CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
-	//SendPhaseStartedToPlayers(phase);
-	//PhaseStartCountdown->Start();
-	//StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
 
 void ATDMGameModeBase::PrepareNextPhase() {
-	/*int phase = GetGameState()->CurrentPhase + 1;
-	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
-		return;
-	GetGameState()->CurrentPhase = phase;
-	ResetLevel();*/
 	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
 	SendPhaseStartedToPlayers(GetGameState()->CurrentPhase);
 	PhaseStartCountdown->Start();
@@ -211,9 +201,7 @@ void ATDMGameModeBase::NotifyControllersOfEndRound(int winnerTeam) {
 void ATDMGameModeBase::StartNextRound() {
 	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
 		return;
-	GetGameState()->ResetPlayerScores();
-	GetGameState()->CurrentPhase = 0;
-	GetGameState()->CurrentRound++;
+	GetGameState()->PrepareForRoundStart();
 	PlayerRecordings.Reset();
 	ShowShop();
 }

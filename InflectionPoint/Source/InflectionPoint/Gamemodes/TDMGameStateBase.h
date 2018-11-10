@@ -58,6 +58,9 @@ public:
 		void PrepareForMatchStart(int SpawnPointCount);
 
 	UFUNCTION()
+		void PrepareForRoundStart();
+
+	UFUNCTION()
 		void ResetPlayerScores();
 	UFUNCTION()
 		void ResetTotalPlayerScores();
