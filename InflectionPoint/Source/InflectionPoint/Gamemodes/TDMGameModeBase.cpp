@@ -45,6 +45,28 @@ void ATDMGameModeBase::PostInitializeComponents() {
 	ShopCountdown->Setup(this, &ATDMGameModeBase::UpdateShopCountdown, &ATDMGameModeBase::PrepareNextPhase, 5);
 }
 
+void ATDMGameModeBase::InitializeSettings(FName SessionName) {
+	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
+	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
+	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
+	if(sessionSettings) {
+		GetGameState()->MaxPlayers = sessionSettings->NumPublicConnections;
+		sessionSettings->Get(FName("Rounds"), GetGameState()->MaxRoundNum);
+	} else {
+		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, using offline settings."));
+		GetGameState()->MaxPlayers = OfflineMaxPlayers;
+		GetGameState()->MaxRoundNum = OfflineMaxRoundNum;
+	}
+}
+
+void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
+	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
+	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
+		ErrorMessage = "Server is already full!";
+	}
+}
+
 void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	Super::PostLogin(NewPlayer);
 	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
@@ -59,14 +81,6 @@ void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
 	}
 }
 
-void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
-	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
-	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
-	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
-		ErrorMessage = "Server is already full!";
-	}
-}
-
 void ATDMGameModeBase::Logout(AController* Exiting) {
 	Super::Logout(Exiting);
 	GetGameState()->NumPlayers--;
@@ -75,20 +89,6 @@ void ATDMGameModeBase::Logout(AController* Exiting) {
 	PhaseStartCountdown->Stop();
 	if(GetGameState()->CurrentRound > 0 && IsPhaseWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
 		StartEndMatchSequence();
-	}
-}
-
-void ATDMGameModeBase::InitializeSettings(FName SessionName) {
-	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
-	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
-	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
-	if(sessionSettings) {
-		GetGameState()->MaxPlayers = sessionSettings->NumPublicConnections;
-		sessionSettings->Get(FName("Rounds"), GetGameState()->MaxRoundNum);
-	} else {
-		UE_LOG(LogTemp, Warning, TEXT("Warning: No session settings could be found, using offline settings."));
-		GetGameState()->MaxPlayers = OfflineMaxPlayers;
-		GetGameState()->MaxRoundNum = OfflineMaxRoundNum;
 	}
 }
 
@@ -107,36 +107,12 @@ void ATDMGameModeBase::StartMatch() {
 	StartNextRound();
 }
 
-void ATDMGameModeBase::UpdateMatchCountdown(int number) {
-	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
-		controller->ClientShowMatchCountdownNumber(number);
-	});
-}
-
-void ATDMGameModeBase::UpdateShopCountdown(int number) {
-	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
-		controller->ClientShowShopCountdownNumber(number);
-	});
-}
-
-void ATDMGameModeBase::ReStartMatch() {
-	isPlayingEndMatchSequence = false;
-	GetGameState()->PrepareForMatchStart(CharacterSpawner->GetSpawnPointCount());
-	ResetLevel();
-	CharacterSpawner->SpawnAllPlayersForWarmupRound();
-	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
-	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
-		MatchStartCountdown->Start();
-	}
-}
-
-void ATDMGameModeBase::EndCurrentPhase() {
-	SaveRecordingsFromRemainingPlayers();
-	if(GetGameState()->CurrentPhase == GetGameState()->MaxPhaseNum) {
-		EndCurrentRound();
-	} else {
-		ShowShop();
-	}
+void ATDMGameModeBase::StartNextRound() {
+	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
+		return;
+	GetGameState()->PrepareForRoundStart();
+	PlayerRecordings.Reset();
+	ShowShop();
 }
 
 void ATDMGameModeBase::ShowShop() {
@@ -155,6 +131,22 @@ void ATDMGameModeBase::PrepareNextPhase() {
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
 }
 
+void ATDMGameModeBase::StartNextPhase() {
+	StartReplays();
+	if(IsPhaseWinnerFound()) {
+		StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
+	}
+}
+
+void ATDMGameModeBase::EndCurrentPhase() {
+	SaveRecordingsFromRemainingPlayers();
+	if(GetGameState()->CurrentPhase == GetGameState()->MaxPhaseNum) {
+		EndCurrentRound();
+	} else {
+		ShowShop();
+	}
+}
+
 void ATDMGameModeBase::EndCurrentRound() {
 	int winnerTeam = ScoreHandler->SelectWinnerTeamForRound();
 	ScoreHandler->UpdateScoresForNextRound();
@@ -164,6 +156,35 @@ void ATDMGameModeBase::EndCurrentRound() {
 	}
 	NotifyControllersOfEndRound(winnerTeam);
 	StartTimer(this, GetWorld(), "StartNextRound", RoundEndDelay, false);
+}
+
+void ATDMGameModeBase::ReStartMatch() {
+	isPlayingEndMatchSequence = false;
+	GetGameState()->PrepareForMatchStart(CharacterSpawner->GetSpawnPointCount());
+	ResetLevel();
+	CharacterSpawner->SpawnAllPlayersForWarmupRound();
+	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
+	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
+		MatchStartCountdown->Start();
+	}
+}
+
+void ATDMGameModeBase::UpdateMatchCountdown(int number) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowMatchCountdownNumber(number);
+	});
+}
+
+void ATDMGameModeBase::UpdatePhaseCountdown(int number) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowPhaseCountdownNumber(number);
+	});
+}
+
+void ATDMGameModeBase::UpdateShopCountdown(int number) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowShopCountdownNumber(number);
+	});
 }
 
 void ATDMGameModeBase::StartEndMatchSequence() {
@@ -196,14 +217,6 @@ void ATDMGameModeBase::NotifyControllersOfEndRound(int winnerTeam) {
 	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		controller->ClientShowRoundEnd(winnerTeam);
 	});
-}
-
-void ATDMGameModeBase::StartNextRound() {
-	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
-		return;
-	GetGameState()->PrepareForRoundStart();
-	PlayerRecordings.Reset();
-	ShowShop();
 }
 
 void ATDMGameModeBase::StartSpawnCinematics() {
@@ -282,19 +295,6 @@ TArray<int> ATDMGameModeBase::GetTeamsAlive(AController* controllerToIgnore) {
 
 bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
 	return Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive;
-}
-
-void ATDMGameModeBase::UpdatePhaseCountdown(int number) {
-	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
-		controller->ClientShowPhaseCountdownNumber(number);
-	});
-}
-
-void ATDMGameModeBase::StartNextPhase() {
-	StartReplays();
-	if(IsPhaseWinnerFound()) {
-		StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
-	}
 }
 
 void ATDMGameModeBase::StartReplays() {

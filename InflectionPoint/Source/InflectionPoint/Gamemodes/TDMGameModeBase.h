@@ -46,9 +46,6 @@ public:
 		void CharacterDied(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser);
 
 public:
-	//UFUNCTION()
-	void UpdateMatchCountdown(int number);
-
 	/* --------------- */
 	/*    Functions    */
 	/* --------------- */
@@ -87,10 +84,15 @@ public:
 	UFUNCTION()
 		void EndCurrentRound();
 
-	/** Informs all players about the next countdown number */
+	/** Informs all players about the next match countdown number */
+	UFUNCTION()
+		void UpdateMatchCountdown(int number);
+
+	/** Informs all players about the next phase countdown number */
 	UFUNCTION()
 		void UpdatePhaseCountdown(int number);
 
+	/** Informs all players about the next shop countdown number */
 	UFUNCTION()
 		void UpdateShopCountdown(int number);
 
