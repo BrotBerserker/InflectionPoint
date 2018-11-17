@@ -52,14 +52,11 @@ public:
 		int PlayerStartGroup = 1;
 public:
 
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		void AddScoreToTotalScore();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		void SetCurrentScoreToTotalScore();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		void ResetScore();
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
-		void ResetTotalScore();
+	void AddScoreToTotalScore();
+	void SetCurrentScoreToTotalScore();
+	void PrepareForRoundStart();
+	void ResetScore();
+	void ResetTotalScore();
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		float TotalScore = 0;

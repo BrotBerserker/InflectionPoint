@@ -121,7 +121,15 @@ void ATDMGameModeBase::StartNextPhase() {
 		return;
 	GetGameState()->CurrentPhase = phase;
 	ResetLevel();
+	ShowShops();
 	ShopCountdown->Start();
+}
+
+void ATDMGameModeBase::ShowShops() {
+	bool isFirstPhaseInRound = GetGameState()->CurrentPhase == 1;
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowShop(isFirstPhaseInRound);
+	});
 }
 
 void ATDMGameModeBase::PreparePhaseStart() {

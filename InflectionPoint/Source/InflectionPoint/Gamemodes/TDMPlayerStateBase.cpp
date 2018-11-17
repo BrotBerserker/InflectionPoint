@@ -46,6 +46,13 @@ void ATDMPlayerStateBase::SetCurrentScoreToTotalScore() {
 	Score = TotalScore;
 }
 
+void ATDMPlayerStateBase::PrepareForRoundStart() {
+	PurchasedShopItems.Reset();
+	EquippedShopItems.Reset();
+	IPPoints = 1;
+	ResetScore();
+}
+
 void ATDMPlayerStateBase::ResetScore() {
 	Deaths = 0;
 	PlayerKills = 0;

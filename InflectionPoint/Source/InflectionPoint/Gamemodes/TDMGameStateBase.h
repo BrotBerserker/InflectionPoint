@@ -64,4 +64,6 @@ public:
 		void ResetPlayerScores();
 	UFUNCTION()
 		void ResetTotalPlayerScores();
+
+	void PreparePlayerStatesForRoundStart();
 };

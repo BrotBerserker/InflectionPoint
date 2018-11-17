@@ -4,6 +4,7 @@
 #include "DebugTools/InflectionPointCheatManager.h"
 #include "Gameplay/CharacterInfoProvider.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Shop/BaseShopItem.h"
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "PlayerControllerBase.h"
 
@@ -64,6 +65,12 @@ void APlayerControllerBase::ClientShowPhaseCountdownNumber_Implementation(int nu
 
 void APlayerControllerBase::ClientShowMatchCountdownNumber_Implementation(int number) {
 	OnMatchCountdownUpdate(number);
+}
+
+void APlayerControllerBase::ClientShowShop_Implementation(bool intelligentSmartResetBoolean) {
+	if(intelligentSmartResetBoolean)
+		Cast<ATDMPlayerStateBase>(PlayerState)->PrepareForRoundStart(); // "Dies ist geil" - Roman 17.11.2018
+	OnShowShop(intelligentSmartResetBoolean);
 }
 
 void APlayerControllerBase::ClientShowShopCountdownNumber_Implementation(int number) {

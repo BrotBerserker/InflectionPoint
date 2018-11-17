@@ -27,7 +27,7 @@ void ATDMGameStateBase::PrepareForMatchStart(int SpawnPointCount) {
 }
 
 void ATDMGameStateBase::PrepareForRoundStart() {
-	ResetPlayerScores();
+	PreparePlayerStatesForRoundStart();
 	CurrentPhase = 0;
 	CurrentRound++;
 }
@@ -56,5 +56,13 @@ void ATDMGameStateBase::ResetTotalPlayerScores() {
 		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
 		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
 		tdmPlayerState->ResetTotalScore();
+	}
+}
+
+void ATDMGameStateBase::PreparePlayerStatesForRoundStart() {
+	for(int i = 0; i < PlayerArray.Num(); i++) {
+		auto tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerArray[i]);
+		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
+		tdmPlayerState->PrepareForRoundStart();
 	}
 }

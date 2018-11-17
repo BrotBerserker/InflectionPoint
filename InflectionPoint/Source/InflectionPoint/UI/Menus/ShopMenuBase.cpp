@@ -15,6 +15,7 @@ void UShopMenuBase::SetVisibility(ESlateVisibility InVisibility) {
 
 void UShopMenuBase::UpdateShopState() {
 	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
+	localPlayerState->ForceNetUpdate();
 	InflectionPoints = localPlayerState->IPPoints;
 	PurchasedShopItems = localPlayerState->PurchasedShopItems;
 	EquippedShopItems.Reset();

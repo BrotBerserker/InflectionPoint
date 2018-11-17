@@ -96,6 +96,10 @@ public:
 	UFUNCTION()
 		void UpdateShopCountdown(int number);
 
+	/** Shows the shops for all Clients and gives ShopItems and IPs */
+	UFUNCTION()
+		void ShowShops();
+
 	/** Switches to a cinematic camera at the beginning of a new phase */
 	UFUNCTION()
 		void StartSpawnCinematics();

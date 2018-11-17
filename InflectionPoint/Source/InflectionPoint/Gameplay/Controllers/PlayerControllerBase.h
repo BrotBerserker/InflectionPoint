@@ -6,6 +6,7 @@
 #include "Gameplay/CharacterInfoProvider.h"
 #include "Gameplay/Shop/BaseShopItem.h"
 #include "Gameplay/Weapons/WeaponInventory.h"
+#include "Gamemodes/TDMPlayerStateBase.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "PlayerControllerBase.generated.h"
 
@@ -70,6 +71,12 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnShopCountdownUpdate(int number);
+
+	UFUNCTION(CLient, Reliable)
+		void ClientShowShop(bool intelligentSmartResetBoolean);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnShowShop(bool intelligentSmartResetBoolean);
 
 	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);
