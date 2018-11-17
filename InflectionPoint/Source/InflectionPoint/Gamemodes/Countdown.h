@@ -35,10 +35,11 @@ public:
 	using FPointer = void(clars::*)();
 
 	template <class MegaClass>
-	void Setup(MegaClass* Obj, FPointerInt<MegaClass> UpdateFunction, FPointer<MegaClass> FinishFunction, int CountdownDuration) {
+	void Setup(MegaClass* Obj, FPointerInt<MegaClass> UpdateFunction, FPointer<MegaClass> FinishFunction, int CountdownDuration, bool FirstUpdateInstant = false) {
 		OnUpdate.BindUObject(Obj, UpdateFunction);
 		OnFinish.BindUObject(Obj, FinishFunction);
 		Duration = CountdownDuration;
+		InstantUpdate = FirstUpdateInstant;
 	}
 
 	void Start();
@@ -49,5 +50,6 @@ private:
 	int Duration;
 	int RemainingSeconds = -1;
 	float TimeUntilNextUpdate = 1.f;
+	bool InstantUpdate = false;
 
 };

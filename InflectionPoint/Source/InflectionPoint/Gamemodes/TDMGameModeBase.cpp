@@ -41,7 +41,7 @@ ATDMGameModeBase::ATDMGameModeBase()
 void ATDMGameModeBase::PostInitializeComponents() {
 	Super::PostInitializeComponents();
 	MatchStartCountdown->Setup(this, &ATDMGameModeBase::UpdateMatchCountdown, &ATDMGameModeBase::StartMatch, MatchStartDelay);
-	ShopCountdown->Setup(this, &ATDMGameModeBase::UpdateShopCountdown, &ATDMGameModeBase::PreparePhaseStart, ShopTime);
+	ShopCountdown->Setup(this, &ATDMGameModeBase::UpdateShopCountdown, &ATDMGameModeBase::PreparePhaseStart, ShopTime, true);
 	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdatePhaseCountdown, &ATDMGameModeBase::StartPhase, PhaseStartDelay);
 }
 

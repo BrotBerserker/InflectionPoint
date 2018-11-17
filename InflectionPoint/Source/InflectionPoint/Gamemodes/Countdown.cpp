@@ -34,7 +34,7 @@ void UCountdown::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 
 void UCountdown::Start() {
 	RemainingSeconds = Duration;
-	TimeUntilNextUpdate = 0.f;
+	TimeUntilNextUpdate = InstantUpdate ? 0.f : 1.f;
 }
 
 void UCountdown::Stop() {
