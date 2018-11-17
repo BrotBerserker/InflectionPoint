@@ -41,6 +41,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool IsAffordableForPlayer(class ATDMPlayerStateBase* playerState);
 
-	virtual void ApplyToCharacter(class ABaseCharacter* character, enum EInventorySlot slot) PURE_VIRTUAL(UBaseShopItem::ApplyToCharacter, ;);
+	virtual void ApplyToCharacter(class ABaseCharacter* character, enum EInventorySlotPosition slot) PURE_VIRTUAL(UBaseShopItem::ApplyToCharacter, ;);
 
 };

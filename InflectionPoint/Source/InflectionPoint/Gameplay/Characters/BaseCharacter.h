@@ -279,7 +279,7 @@ public:
 		void ServerEquipPreviousWeapon();
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-		void ServerEquipSpecificWeapon(EInventorySlot slot);
+		void ServerEquipSpecificWeapon(EInventorySlotPosition slot);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerEquipRandomWeapon();

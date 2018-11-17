@@ -13,7 +13,7 @@ struct FTDMEquipSlot {
 	GENERATED_BODY()
 
 		UPROPERTY(EditAnywhere, BlueprintReadonly)
-		EInventorySlot Slot;
+		EInventorySlotPosition Slot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadonly)
 		TSubclassOf<class UBaseShopItem> ShopItemClass;
@@ -24,7 +24,7 @@ struct FTDMEquipSlot {
 
 	FTDMEquipSlot() {}
 
-	FTDMEquipSlot(EInventorySlot slot, TSubclassOf<class UBaseShopItem> shopItem) {
+	FTDMEquipSlot(EInventorySlotPosition slot, TSubclassOf<class UBaseShopItem> shopItem) {
 		Slot = slot;
 		ShopItemClass = shopItem;
 	}

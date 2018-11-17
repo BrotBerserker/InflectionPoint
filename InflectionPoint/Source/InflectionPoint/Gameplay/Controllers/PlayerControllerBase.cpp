@@ -176,23 +176,23 @@ void APlayerControllerBase::ServerPurchaseShopItem_Implementation(TSubclassOf<cl
 	playerState->PurchasedShopItems.Add(item->GetClass());
 }
 
-bool APlayerControllerBase::ServerEquipShopItem_Validate(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+bool APlayerControllerBase::ServerEquipShopItem_Validate(EInventorySlotPosition inventorySlot, TSubclassOf<class UBaseShopItem> item) {
 	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
 	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
 	return AssertTrue(playerState->PurchasedShopItems.Contains(item), GetWorld(), __FILE__, __LINE__, "Client tries to equip a Shopitem that is not purchased");
 }
 
-void APlayerControllerBase::ServerEquipShopItem_Implementation(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+void APlayerControllerBase::ServerEquipShopItem_Implementation(EInventorySlotPosition inventorySlot, TSubclassOf<class UBaseShopItem> item) {
 	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
 	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
 	playerState->EquippedShopItems.Add(FTDMEquipSlot(inventorySlot, item));
 }
 
-bool APlayerControllerBase::ServerUnequipShopItemFromSlot_Validate(EInventorySlot slot) {
+bool APlayerControllerBase::ServerUnequipShopItemFromSlot_Validate(EInventorySlotPosition slot) {
 	return true;
 }
 
-void APlayerControllerBase::ServerUnequipShopItemFromSlot_Implementation(EInventorySlot slot) {
+void APlayerControllerBase::ServerUnequipShopItemFromSlot_Implementation(EInventorySlotPosition slot) {
 	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
 	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
 	for(int i = 0; i < playerState->EquippedShopItems.Num(); i++) {

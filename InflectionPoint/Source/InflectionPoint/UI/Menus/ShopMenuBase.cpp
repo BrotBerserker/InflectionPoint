@@ -40,13 +40,13 @@ bool UShopMenuBase::IsShopItemPurchased(UBaseShopItem* item) {
 	return PurchasedShopItems.Contains(item->GetClass());
 }
 
-UBaseShopItem* UShopMenuBase::GetEquippedItem(EInventorySlot inventorySlot) {
+UBaseShopItem* UShopMenuBase::GetEquippedItem(EInventorySlotPosition inventorySlot) {
 	if(!EquippedShopItems.Contains(inventorySlot))
 		return nullptr;
 	return EquippedShopItems[inventorySlot].GetDefaultObject();
 }
 
-void UShopMenuBase::EquipItem(EInventorySlot inventorySlot, UBaseShopItem* item) {
+void UShopMenuBase::EquipItem(EInventorySlotPosition inventorySlot, UBaseShopItem* item) {
 	UnequipItemFromSlot(inventorySlot);
 	if(!item)
 		return;
@@ -62,7 +62,7 @@ void UShopMenuBase::EquipItem(EInventorySlot inventorySlot, UBaseShopItem* item)
 	localController->ServerEquipShopItem(inventorySlot, item->GetClass());
 }
 
-void UShopMenuBase::UnequipItemFromSlot(EInventorySlot slot) {
+void UShopMenuBase::UnequipItemFromSlot(EInventorySlotPosition slot) {
 	if(!EquippedShopItems.Contains(slot))
 		return;
 	auto localController = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());

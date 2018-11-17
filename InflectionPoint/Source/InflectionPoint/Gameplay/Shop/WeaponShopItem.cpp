@@ -9,6 +9,6 @@ UWeaponShopItem::UWeaponShopItem() {
 	ShopItemType = EShopItemType::Weapon;
 }
 
-void UWeaponShopItem::ApplyToCharacter(ABaseCharacter* character, EInventorySlot slot) {
+void UWeaponShopItem::ApplyToCharacter(ABaseCharacter* character, EInventorySlotPosition slot) {
 	character->WeaponInventory->SetWeaponAtPosition(slot, WeaponClass);
 }

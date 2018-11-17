@@ -18,5 +18,5 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<ABaseWeapon> WeaponClass;
 
-	virtual void ApplyToCharacter(class ABaseCharacter* character, enum EInventorySlot slot) override;
+	virtual void ApplyToCharacter(class ABaseCharacter* character, enum EInventorySlotPosition slot) override;
 };

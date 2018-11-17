@@ -101,10 +101,10 @@ public:
 		void ServerPurchaseShopItem(TSubclassOf<class UBaseShopItem> itemClass);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerEquipShopItem(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item);
+		void ServerEquipShopItem(EInventorySlotPosition inventorySlot, TSubclassOf<class UBaseShopItem> item);
 
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
-		void ServerUnequipShopItemFromSlot(EInventorySlot slot);
+		void ServerUnequipShopItemFromSlot(EInventorySlotPosition slot);
 
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)

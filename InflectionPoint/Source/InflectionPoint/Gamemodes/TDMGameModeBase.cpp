@@ -163,7 +163,6 @@ void ATDMGameModeBase::ReStartMatch() {
 	GetGameState()->PrepareForMatchStart(CharacterSpawner->GetSpawnPointCount());
 	ResetLevel();
 	CharacterSpawner->SpawnAllPlayersForWarmupRound();
-	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
 		MatchStartCountdown->Start();
 	}
