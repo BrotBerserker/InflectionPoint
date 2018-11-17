@@ -84,7 +84,7 @@ public:
 		bool IsAlive = 1;
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
-		int IPPoints = 3;
+		int IPPoints = 1;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite)
 		TArray<TSubclassOf<class UBaseShopItem>> PurchasedShopItems;
