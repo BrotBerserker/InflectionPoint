@@ -69,7 +69,7 @@ void APlayerControllerBase::ClientShowMatchCountdownNumber_Implementation(int nu
 
 void APlayerControllerBase::ClientShowShop_Implementation(bool intelligentSmartResetBoolean) {
 	if(intelligentSmartResetBoolean)
-		Cast<ATDMPlayerStateBase>(PlayerState)->PrepareForRoundStart(); // "Dies ist geil" - Roman 17.11.2018
+		Cast<ATDMPlayerStateBase>(PlayerState)->PrepareForRoundStart(); // "Dies ist geil" - Roman 17.11.2018 nein das stimmt nicht
 	OnShowShop(intelligentSmartResetBoolean);
 }
 
