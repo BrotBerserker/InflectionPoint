@@ -16,7 +16,6 @@ enum class EInventorySlot : uint8 {
 	Skill1,
 	Skill2,
 	Skill3,
-	// change weaponSlotNum also
 };
 
 USTRUCT(BlueprintType)
@@ -46,8 +45,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	virtual bool IsReadyForInitialization();
 
@@ -57,7 +54,7 @@ public:
 	void Destroy();
 
 	UFUNCTION(BlueprintCallable)
-		void AddWeapon(EInventorySlot slot, TSubclassOf<ABaseWeapon> weaponClass);
+		void SetWeaponAtPosition(EInventorySlot slot, TSubclassOf<ABaseWeapon> weaponClass);
 
 	UFUNCTION(BlueprintCallable)
 		ABaseWeapon* GetWeapon(EInventorySlot slot);

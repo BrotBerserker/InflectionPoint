@@ -36,7 +36,7 @@ void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerC
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
-	EquippShopItems(character, playerState->EquippedItems);
+	EquipShopItems(character, playerState->EquippedShopItems);
 	Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive = true;
 }
 
@@ -58,7 +58,7 @@ void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerCo
 
 	character->SetReplayData(playerRecordings.RecordedPlayerStates);
 	character->ReplayIndex = playerRecordings.Phase;
-	EquippShopItems(character, playerRecordings.EquippedItems);
+	EquipShopItems(character, playerRecordings.EquippedShopItems);
 	Cast<AAIControllerBase>(character->GetController())->Initialize(playerController);
 }
 
@@ -126,7 +126,7 @@ void UTDMCharacterSpawner::SpawnAllPlayersForWarmupRound() {
 	}
 }
 
-void UTDMCharacterSpawner::EquippShopItems(ABaseCharacter* character, TArray<FTDMEqippSlot> equippedItems) {
+void UTDMCharacterSpawner::EquipShopItems(ABaseCharacter* character, TArray<FTDMEquipSlot> equippedItems) {
 	for(int i = 0; i < equippedItems.Num(); i++) {
 		auto item = equippedItems[i];
 		item.ShopItemClass.GetDefaultObject()->ApplyToCharacter(character, item.Slot);

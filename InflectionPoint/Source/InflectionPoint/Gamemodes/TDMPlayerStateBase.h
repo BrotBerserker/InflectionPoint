@@ -9,7 +9,7 @@
 #include "TDMPlayerStateBase.generated.h"
 
 USTRUCT(BlueprintType)
-struct FTDMEqippSlot {
+struct FTDMEquipSlot {
 	GENERATED_BODY()
 
 		UPROPERTY(EditAnywhere, BlueprintReadonly)
@@ -18,20 +18,20 @@ struct FTDMEqippSlot {
 	UPROPERTY(EditAnywhere, BlueprintReadonly)
 		TSubclassOf<class UBaseShopItem> ShopItemClass;
 
-	bool operator==(const FTDMEqippSlot& str) {
+	bool operator==(const FTDMEquipSlot& str) {
 		return Slot == str.Slot;
 	}
 
-	FTDMEqippSlot() {}
+	FTDMEquipSlot() {}
 
-	FTDMEqippSlot(EInventorySlot slot, TSubclassOf<class UBaseShopItem> shopItem) {
+	FTDMEquipSlot(EInventorySlot slot, TSubclassOf<class UBaseShopItem> shopItem) {
 		Slot = slot;
 		ShopItemClass = shopItem;
 	}
 };
 
 /**
- *
+ * Seeeehr geil
  */
 UCLASS()
 class INFLECTIONPOINT_API ATDMPlayerStateBase : public APlayerState {
@@ -90,7 +90,7 @@ public:
 		TArray<TSubclassOf<class UBaseShopItem>> PurchasedShopItems;
 
 	UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadWrite)
-		TArray<FTDMEqippSlot> EquippedItems; // because TMap has no repilcate
+		TArray<FTDMEquipSlot> EquippedShopItems; // because TMap has no repilcate
 
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		FString ReplicatedPlayerName;

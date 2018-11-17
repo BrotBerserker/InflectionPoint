@@ -5,7 +5,10 @@
 #include "Gameplay/Weapons/WeaponInventory.h"
 #include "WeaponShopItem.h"
 
+UWeaponShopItem::UWeaponShopItem() {
+	ShopItemType = EShopItemType::Weapon;
+}
 
 void UWeaponShopItem::ApplyToCharacter(ABaseCharacter* character, EInventorySlot slot) {
-	character->WeaponInventory->AddWeapon(slot, WeaponClass);
+	character->WeaponInventory->SetWeaponAtPosition(slot, WeaponClass);
 }

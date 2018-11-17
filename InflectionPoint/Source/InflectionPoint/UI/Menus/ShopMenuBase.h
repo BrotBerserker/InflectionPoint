@@ -22,11 +22,11 @@ public:
 
 	TArray<TSubclassOf<class UBaseShopItem>> PurchasedShopItems;
 
-	TMap<EInventorySlot, TSubclassOf<class UBaseShopItem>> EquippedItems;
+	TMap<EInventorySlot, TSubclassOf<class UBaseShopItem>> EquippedShopItems;
 public:
 
 	UFUNCTION(BlueprintCallable)
-		void SyncShopWithPlayerState();
+		void UpdateShopState();
 
 	virtual void SetVisibility(ESlateVisibility InVisibility) override;
 
@@ -43,8 +43,8 @@ public:
 		class UBaseShopItem* GetEquippedItem(EInventorySlot slotName);
 
 	UFUNCTION(BlueprintCallable)
-		void EquippItem(EInventorySlot inventorySlot, class UBaseShopItem* item);
+		void EquipItem(EInventorySlot inventorySlot, class UBaseShopItem* item);
 
 	UFUNCTION(BlueprintCallable)
-		void UnequippItemFromSlot(EInventorySlot inventorySlot);
+		void UnequipItemFromSlot(EInventorySlot inventorySlot);
 };

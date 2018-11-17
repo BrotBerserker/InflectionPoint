@@ -34,12 +34,12 @@ void UMovementTracer::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	DrawDebugPoint(GetWorld(), GetOwner()->GetTransform().GetLocation(), 10, LineColor, true);
 	FVector directionVector = GetOwner()->GetTransform().GetLocation() + GetOwner()->GetActorForwardVector() * 15;
-	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetTransform().GetLocation(), directionVector, 15, LineColor, true, -1, 0, 0.5f);
+	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetTransform().GetLocation(), directionVector, 15, LineColor, true, 1000, 0, 0.5f);
 	ABaseCharacter* bc = (ABaseCharacter*)GetOwner();
 	FRotator cameraRot = bc->FirstPersonCameraComponent->GetComponentRotation();
 	FVector cameraDirectionVector = cameraRot.Vector() * 15 + GetOwner()->GetTransform().GetLocation(); //cameraRot.RotateVector(directionVector);
 
-	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetTransform().GetLocation(), cameraDirectionVector, 15, LineColor, true, -1, 0, 0.5f);
+	DrawDebugDirectionalArrow(GetWorld(), GetOwner()->GetTransform().GetLocation(), cameraDirectionVector, 15, LineColor, true, 1000, 0, 0.5f);
 
 }
 

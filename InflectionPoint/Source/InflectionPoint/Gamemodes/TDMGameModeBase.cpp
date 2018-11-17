@@ -323,7 +323,7 @@ void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerContro
 			PlayerRecordings.Add(playerController, list);
 		}
 		FRecordedPlayerData data = FRecordedPlayerData();
-		data.EquippedItems = playerState->EquippedItems;
+		data.EquippedShopItems = playerState->EquippedShopItems;
 		data.Phase = GetGameState()->CurrentPhase;
 		data.RecordedPlayerStates = playerStateRecorder->RecordedPlayerStates;
 		PlayerRecordings[playerController].Add(data);

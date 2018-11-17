@@ -32,7 +32,7 @@ void UWeaponInventory::InitDefaultWeapons() {
 	for(auto& slot : WeaponSlots) {
 		if(!slot.DefaultWeapon)
 			continue;
-		AddWeapon(slot.SlotType, slot.DefaultWeapon);
+		SetWeaponAtPosition(slot.SlotType, slot.DefaultWeapon);
 	}
 }
 
@@ -49,11 +49,6 @@ void UWeaponInventory::ClearWeaponSlot(FInventoryWeaponSlot slot) {
 	slot.Weapon = nullptr;
 }
 
-void UWeaponInventory::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-}
-
 bool UWeaponInventory::IsReadyForInitialization() {
 	for(auto& item : WeaponSlots) {
 		if(item.Weapon && !item.Weapon->IsReadyForInitialization()) {
@@ -63,9 +58,9 @@ bool UWeaponInventory::IsReadyForInitialization() {
 	return true;
 }
 
-void UWeaponInventory::AddWeapon(EInventorySlot slot, TSubclassOf<ABaseWeapon> weaponClass) {
+void UWeaponInventory::SetWeaponAtPosition(EInventorySlot position, TSubclassOf<ABaseWeapon> weaponClass) {
 	AssertTrue(GetOwner()->HasAuthority(), GetWorld(), __FILE__, __LINE__, "Only call on server");
-	int index = GetWeaponSlotIndex(slot);
+	int index = GetWeaponSlotIndex(position);
 	AssertTrue(index >= 0, GetWorld(), __FILE__, __LINE__, "Inventory Slot dose not exist!");
 	if(WeaponSlots[index].Weapon)
 		ClearWeaponSlot(WeaponSlots[index]);

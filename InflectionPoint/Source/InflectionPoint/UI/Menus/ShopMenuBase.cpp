@@ -8,19 +8,18 @@
 
 void UShopMenuBase::SetVisibility(ESlateVisibility InVisibility) {
 	if(InVisibility == ESlateVisibility::Visible) {
-		SyncShopWithPlayerState(); // automatc sync when visibility changes
+		UpdateShopState(); // automatc sync when visibility changes
 	}
 	Super::SetVisibility(InVisibility);
 }
 
-void UShopMenuBase::SyncShopWithPlayerState() {
+void UShopMenuBase::UpdateShopState() {
 	auto localPlayerState = Cast<ATDMPlayerStateBase>(GetWorld()->GetFirstPlayerController()->PlayerState);
 	InflectionPoints = localPlayerState->IPPoints;
 	PurchasedShopItems = localPlayerState->PurchasedShopItems;
-	EquippedItems.Reset();
-	for(auto& item : localPlayerState->EquippedItems)
-		EquippedItems.Add(item.Slot, item.ShopItemClass);
-	UE_LOG(LogTemp, Warning, TEXT("The value of 'variable' is: %i"), EquippedItems.Num());
+	EquippedShopItems.Reset();
+	for(auto& item : localPlayerState->EquippedShopItems)
+		EquippedShopItems.Add(item.Slot, item.ShopItemClass);
 }
 
 void UShopMenuBase::PurchaseShopItem(UBaseShopItem* item) {
@@ -42,32 +41,32 @@ bool UShopMenuBase::IsShopItemPurchased(UBaseShopItem* item) {
 }
 
 UBaseShopItem* UShopMenuBase::GetEquippedItem(EInventorySlot inventorySlot) {
-	if(!EquippedItems.Contains(inventorySlot))
+	if(!EquippedShopItems.Contains(inventorySlot))
 		return nullptr;
-	return EquippedItems[inventorySlot].GetDefaultObject();
+	return EquippedShopItems[inventorySlot].GetDefaultObject();
 }
 
-void UShopMenuBase::EquippItem(EInventorySlot inventorySlot, UBaseShopItem* item) {
-	UnequippItemFromSlot(inventorySlot);
+void UShopMenuBase::EquipItem(EInventorySlot inventorySlot, UBaseShopItem* item) {
+	UnequipItemFromSlot(inventorySlot);
 	if(!item)
 		return;
 
-	for(auto& slot : EquippedItems) {
+	for(auto& slot : EquippedShopItems) {
 		if(slot.Value == item->GetClass())
-			UnequippItemFromSlot(slot.Key);
+			UnequipItemFromSlot(slot.Key);
 	}
 
 	auto localController = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
 	AssertNotNull(localController, GetWorld(), __FILE__, __LINE__);
-	EquippedItems.Add(inventorySlot, item->GetClass());
-	localController->ServerEquippShopItem(inventorySlot, item->GetClass());
+	EquippedShopItems.Add(inventorySlot, item->GetClass());
+	localController->ServerEquipShopItem(inventorySlot, item->GetClass());
 }
 
-void UShopMenuBase::UnequippItemFromSlot(EInventorySlot slot) {
-	if(!EquippedItems.Contains(slot))
+void UShopMenuBase::UnequipItemFromSlot(EInventorySlot slot) {
+	if(!EquippedShopItems.Contains(slot))
 		return;
 	auto localController = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
 	AssertNotNull(localController, GetWorld(), __FILE__, __LINE__);
-	EquippedItems.Remove(slot);
-	localController->ServerUnequippShopItemFromSlot(slot);
+	EquippedShopItems.Remove(slot);
+	localController->ServerUnequipShopItemFromSlot(slot);
 }

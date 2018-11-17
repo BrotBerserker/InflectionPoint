@@ -27,7 +27,7 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ATDMPlayerStateBase, ReplicatedPlayerName);
 	DOREPLIFETIME(ATDMPlayerStateBase, IPPoints);
 	DOREPLIFETIME(ATDMPlayerStateBase, PurchasedShopItems);
-	DOREPLIFETIME(ATDMPlayerStateBase, EquippedItems);
+	DOREPLIFETIME(ATDMPlayerStateBase, EquippedShopItems);
 }
 
 void ATDMPlayerStateBase::AddScoreToTotalScore() {

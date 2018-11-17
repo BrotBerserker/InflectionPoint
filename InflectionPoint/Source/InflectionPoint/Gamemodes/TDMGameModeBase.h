@@ -17,7 +17,7 @@ struct FRecordedPlayerData {
 public:
 	int Phase;
 	TArray<FRecordedPlayerState> RecordedPlayerStates;
-	TArray<FTDMEqippSlot> EquippedItems;
+	TArray<FTDMEquipSlot> EquippedShopItems;
 };
 
 

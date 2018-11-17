@@ -176,28 +176,28 @@ void APlayerControllerBase::ServerPurchaseShopItem_Implementation(TSubclassOf<cl
 	playerState->PurchasedShopItems.Add(item->GetClass());
 }
 
-bool APlayerControllerBase::ServerEquippShopItem_Validate(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+bool APlayerControllerBase::ServerEquipShopItem_Validate(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
 	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
 	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
-	return AssertTrue(playerState->PurchasedShopItems.Contains(item), GetWorld(), __FILE__, __LINE__, "Client tries to equipp a Shopitem that is not purchased");
+	return AssertTrue(playerState->PurchasedShopItems.Contains(item), GetWorld(), __FILE__, __LINE__, "Client tries to equip a Shopitem that is not purchased");
 }
 
-void APlayerControllerBase::ServerEquippShopItem_Implementation(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+void APlayerControllerBase::ServerEquipShopItem_Implementation(EInventorySlot inventorySlot, TSubclassOf<class UBaseShopItem> item) {
 	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
 	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
-	playerState->EquippedItems.Add(FTDMEqippSlot(inventorySlot, item));
+	playerState->EquippedShopItems.Add(FTDMEquipSlot(inventorySlot, item));
 }
 
-bool APlayerControllerBase::ServerUnequippShopItemFromSlot_Validate(EInventorySlot slot) {
+bool APlayerControllerBase::ServerUnequipShopItemFromSlot_Validate(EInventorySlot slot) {
 	return true;
 }
 
-void APlayerControllerBase::ServerUnequippShopItemFromSlot_Implementation(EInventorySlot slot) {
+void APlayerControllerBase::ServerUnequipShopItemFromSlot_Implementation(EInventorySlot slot) {
 	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
 	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
-	for(int i = 0; i < playerState->EquippedItems.Num(); i++) {
-		if(playerState->EquippedItems[i].Slot == slot) {
-			playerState->EquippedItems.RemoveAt(i);
+	for(int i = 0; i < playerState->EquippedShopItems.Num(); i++) {
+		if(playerState->EquippedShopItems[i].Slot == slot) {
+			playerState->EquippedShopItems.RemoveAt(i);
 			return;
 		}
 	}

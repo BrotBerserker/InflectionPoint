@@ -13,6 +13,8 @@ UCLASS()
 class INFLECTIONPOINT_API UWeaponShopItem : public UBaseShopItem {
 	GENERATED_BODY()
 public:
+	UWeaponShopItem();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<ABaseWeapon> WeaponClass;
 
