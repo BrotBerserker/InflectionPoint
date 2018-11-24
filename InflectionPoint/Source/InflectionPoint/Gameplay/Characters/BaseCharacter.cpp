@@ -271,7 +271,8 @@ void ABaseCharacter::ServerStopFire_Implementation() {
 
 void ABaseCharacter::StartAiming() {
 	IsAiming = true;
-	CurrentWeapon->StartAiming();
+	if(CurrentWeapon)
+		CurrentWeapon->StartAiming();
 	auto controller = Cast<APlayerControllerBase>(GetController());
 	if(controller)
 		controller->OnStartAiming(CurrentWeapon);
@@ -289,7 +290,8 @@ void ABaseCharacter::ServerStartAiming_Implementation() {
 
 void ABaseCharacter::MulticastStartAiming_Implementation() {
 	IsAiming = true;
-	CurrentWeapon->StartAiming();
+	if(CurrentWeapon)
+		CurrentWeapon->StartAiming();
 	auto controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
 	if(controller && controller->SpectatedCharacter == this) {
 		controller->OnStartAiming(CurrentWeapon);
