@@ -85,9 +85,10 @@ void ATDMGameModeBase::Logout(AController* Exiting) {
 	Super::Logout(Exiting);
 	GetGameState()->NumPlayers--;
 	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	MatchStartCountdown->Stop();
-	PhaseStartCountdown->Stop();
 	if(GetGameState()->CurrentRound > 0 && IsPhaseWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
+		MatchStartCountdown->Stop();
+		PhaseStartCountdown->Stop();
+		ShopCountdown->Stop();
 		StartEndMatchSequence();
 	}
 }
