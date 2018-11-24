@@ -250,7 +250,7 @@ bool ABaseCharacter::ServerStartFire_Validate() {
 
 void ABaseCharacter::ServerStartFire_Implementation() {
 	DrawDebugArrow();
-	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+	if(!CurrentWeapon)
 		return;
 	CurrentWeapon->StartFire();
 }
