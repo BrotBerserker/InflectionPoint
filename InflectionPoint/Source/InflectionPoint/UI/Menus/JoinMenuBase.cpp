@@ -60,8 +60,8 @@ void UJoinMenuBase::CreateSessionSearchResultWidgets(FUniqueNetIdRepl currentUni
 	SessionSearchResultWidgets = TArray<USessionSearchResultBase*>();
 	for(auto &searchResult : SessionSearch->SearchResults) {
 		int connectedPlayers;
-		searchResult.Session.SessionSettings.Get(FName("CurrentPlayers"), connectedPlayers);
-		if(searchResult.Session.OwningUserId == currentUniqueNetId || connectedPlayers < 0)
+		bool check = searchResult.Session.SessionSettings.Get(FName("CurrentPlayers"), connectedPlayers);
+		if(searchResult.Session.OwningUserId == currentUniqueNetId || !check)
 			continue;
 
 		SessionSearchResultWidgets.Add(CreateSessionSearchResultWidget(searchResult));
