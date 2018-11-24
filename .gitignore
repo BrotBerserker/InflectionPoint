@@ -68,6 +68,9 @@
 */Content/SuperGrid/
 */Content/SoulCave/
 */Content/KiteDemo/
+*/Content/MilitaryDrone/
+*/Content/SciFiWeapDark/
+*/Content/Service_Drone/
 
 *.VC.db
 #*/Config/DefaultEngine.ini
