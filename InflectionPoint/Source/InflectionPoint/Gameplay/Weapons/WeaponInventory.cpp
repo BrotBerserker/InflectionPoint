@@ -118,7 +118,7 @@ ABaseWeapon* UWeaponInventory::GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapo
 
 ABaseWeapon* UWeaponInventory::GetRandomWeapon() {
 	int index = FMath::RandHelper(WeaponSlots.Num());
-	for(int i = 1; i < WeaponSlots.Num(); i++) {
+	for(int i = 0; i < WeaponSlots.Num(); i++) {
 		int nextIndex = (index + i) % WeaponSlots.Num();
 		auto slot = WeaponSlots[nextIndex];
 		if(!slot.Weapon || slot.Weapon->CurrentAmmo == 0)
