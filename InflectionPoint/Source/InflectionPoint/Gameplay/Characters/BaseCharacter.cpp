@@ -78,7 +78,7 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterHeadDisplay->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
 	CharacterHeadDisplay->SetWidgetSpace(EWidgetSpace::Screen);
 	CharacterHeadDisplay->SetVisibility(true);
-	CharacterHeadDisplay->RegisterComponent();
+	//CharacterHeadDisplay->RegisterComponent();
 }
 
 void ABaseCharacter::BeginPlay() {
