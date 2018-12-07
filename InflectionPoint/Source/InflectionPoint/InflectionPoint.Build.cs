@@ -7,6 +7,7 @@ public class InflectionPoint : ModuleRules {
     public InflectionPoint(ReadOnlyTargetRules Target) : base(Target) {
         MinFilesUsingPrecompiledHeaderOverride = 1;
         bFasterWithoutUnity = true;
+        PrivatePCHHeaderFile = "InflectionPoint.h";
         PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "UMG", "OnlineSubsystem", "OnlineSubsystemUtils", "LevelSequence", "MovieScene", "SlateCore", "MoviePlayer" });
         PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
         DynamicallyLoadedModuleNames.Add("OnlineSubsystemSteam");

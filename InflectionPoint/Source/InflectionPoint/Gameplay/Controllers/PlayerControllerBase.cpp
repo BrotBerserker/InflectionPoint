@@ -43,8 +43,8 @@ void APlayerControllerBase::UpdateCharactersInLineOfSight() {
 void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
 	SpectatedCharacter = nullptr;
-	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
-	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->PlayerState;
+	AssertNotNull(InPawn->GetPlayerState(), GetWorld(), __FILE__, __LINE__);
+	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->GetPlayerState();
 }
 
 void APlayerControllerBase::ClientSetControlRotation_Implementation(FRotator rotation) {

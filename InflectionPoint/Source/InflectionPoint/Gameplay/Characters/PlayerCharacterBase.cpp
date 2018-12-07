@@ -8,7 +8,7 @@
 #include "Utils/CheckFunctions.h"
 
 bool APlayerCharacterBase::IsReadyForInitialization() {
-	if(!PlayerState) {
+	if(!GetPlayerState()) {
 		return false;
 	}
 	return true;
@@ -16,7 +16,7 @@ bool APlayerCharacterBase::IsReadyForInitialization() {
 
 void APlayerCharacterBase::Initialize() {
 	Super::Initialize();
-	ApplyTeamColor(Cast<ATDMPlayerStateBase>(PlayerState));
+	ApplyTeamColor(Cast<ATDMPlayerStateBase>(GetPlayerState()));
 	//ShowSpawnAnimation();
 }
 
