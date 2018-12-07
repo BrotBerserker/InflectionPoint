@@ -68,6 +68,23 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerStateRecorder->InitializeBindings(PlayerInputComponent);
 }
 
+
+
+void APlayerCharacterBase::Tick(float DeltaTime) {
+	Super::Tick(DeltaTime);
+	UpdateMesh3PRenderCustomDepth();
+}
+
+void APlayerCharacterBase::UpdateMesh3PRenderCustomDepth() {
+	auto controller = GetWorld()->GetFirstPlayerController();
+	if(controller) {
+		bool canSeeCharacter = controller->LineOfSightTo(this);
+		auto playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
+		bool isInSameTeam = playerState ? playerState->Team == CharacterInfoProvider->GetCharacterInfo().Team : false;
+		Mesh3P->SetRenderCustomDepth(isInSameTeam && !canSeeCharacter);
+	}
+}
+
 template<EInventorySlotPosition slot>
 void APlayerCharacterBase::EquipSpecificWeapon() {
 	ServerEquipSpecificWeapon(slot);

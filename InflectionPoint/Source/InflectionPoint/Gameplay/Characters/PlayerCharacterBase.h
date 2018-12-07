@@ -22,6 +22,11 @@ public:
 
 	void Initialize() override;
 
+	virtual void Tick(float DeltaTime) override;
+
+	/** Enable CustomDepth for Characters in same Team when not seen by controller */
+	void UpdateMesh3PRenderCustomDepth();
+
 	/** Override from ACharacter */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 
