@@ -5,6 +5,7 @@
 #include "BaseCharacter.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "PlayerCharacterBase.generated.h"
 
 
@@ -20,6 +21,11 @@ public:
 	bool IsReadyForInitialization() override;
 
 	void Initialize() override;
+
+	virtual void Tick(float DeltaTime) override;
+
+	/** Enable CustomDepth for Characters in same Team when not seen by controller */
+	void UpdateMesh3PRenderCustomDepth();
 
 	/** Override from ACharacter */
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -54,6 +60,6 @@ public:
 	void ServerStopFire_Implementation() override;	
 	
 	/* Is Called from the Binding to swich to a specific weapon*/
-	template<int32 Index> 
+	template<EInventorySlotPosition slot>
 	void EquipSpecificWeapon();
 };

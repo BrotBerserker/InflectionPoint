@@ -5,6 +5,7 @@
 #include "Gameplay/Characters/ReplayCharacterBase.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "Gameplay/Controllers/AIControllerBase.h"
+#include "Gamemodes/TDMGameModeBase.h"
 #include "TDMGameModeBase.h"
 #include "TDMCharacterSpawner.h"
 
@@ -18,17 +19,16 @@ void UTDMCharacterSpawner::BeginPlay() {
 	gameMode = Cast<ATDMGameModeBase>(GetOwner());
 }
 
-void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings) {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
-		SpawnAndPossessPlayer(ipPlayerController, CurrentPhase);
-		for(int i = 1; i < CurrentPhase; i++)
-			SpawnAndPrepareReplay(ipPlayerController, i, PlayerRecordings);
-	}
+void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings) {	
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		SpawnAndPossessPlayer(controller, CurrentPhase);
+		SpawnAndPrepareReplays(controller, CurrentPhase, PlayerRecordings);
+	});
 }
 
 void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerController, int CurrentPhase) {
+	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__, "No spawn found");
 	auto spawnPoint = FindSpawnForPlayer(playerController, CurrentPhase);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 
@@ -36,19 +36,29 @@ void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerC
 
 	playerController->ClientSetControlRotation(FRotator(spawnPoint->GetTransform().GetRotation()));
 	playerController->Possess(character);
+	EquipShopItems(character, playerState->EquippedShopItems);
 	Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive = true;
 }
 
-void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerController, int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings) {
-	auto spawnPoint = FindSpawnForPlayer(playerController, CurrentPhase);
+void UTDMCharacterSpawner::SpawnAndPrepareReplays(APlayerControllerBase* controller, int CurrentPhase, TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings) {
+	if(PlayerRecordings.Num() == 0)
+		return;
+	for(int i = 0; i < PlayerRecordings[controller].Num(); i++) {
+		auto data = PlayerRecordings[controller][i];
+		AssertTrue(data.Phase < CurrentPhase, GetWorld(), __FILE__, __LINE__, "Replay data mismatch");
+		SpawnAndPrepareReplay(controller, data);
+	}
+}
+
+void UTDMCharacterSpawner::SpawnAndPrepareReplay(APlayerControllerBase* playerController, FRecordedPlayerData playerRecordings) {
+	auto spawnPoint = FindSpawnForPlayer(playerController, playerRecordings.Phase);
 	AssertNotNull(spawnPoint, GetWorld(), __FILE__, __LINE__, "No spawn found");
 
 	auto character = SpawnCharacter<AReplayCharacterBase>(ReplayCharacters[GetTeam(playerController)], spawnPoint);
 
-	AssertTrue(PlayerRecordings.Contains(playerController), GetWorld(), __FILE__, __LINE__, "Could not find replay for controller");
-	AssertTrue(PlayerRecordings[playerController].Contains(CurrentPhase), GetWorld(), __FILE__, __LINE__, "Could not find replay for current phase");
-	character->SetReplayData(PlayerRecordings[playerController][CurrentPhase]);
-	character->ReplayIndex = CurrentPhase;
+	character->SetReplayData(playerRecordings.RecordedPlayerStates);
+	character->ReplayIndex = playerRecordings.Phase;
+	EquipShopItems(character, playerRecordings.EquippedShopItems);
 	Cast<AAIControllerBase>(character->GetController())->Initialize(playerController);
 }
 
@@ -113,5 +123,12 @@ void UTDMCharacterSpawner::SpawnAllPlayersForWarmupRound() {
 		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
 		controller->ClientPhaseStarted(0);
 		SpawnAndPossessPlayer(controller, 0);
+	}
+}
+
+void UTDMCharacterSpawner::EquipShopItems(ABaseCharacter* character, TArray<FTDMEquipSlot> equippedItems) {
+	for(int i = 0; i < equippedItems.Num(); i++) {
+		auto item = equippedItems[i];
+		item.ShopItemClass.GetDefaultObject()->ApplyToCharacter(character, item.Slot);
 	}
 }

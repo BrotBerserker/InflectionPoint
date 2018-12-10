@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
+#include "Gameplay/Shop/BaseShopItem.h"
 #include "TDMPlayerStateBase.h"
 
 ATDMPlayerStateBase::ATDMPlayerStateBase() {
@@ -24,6 +25,9 @@ void ATDMPlayerStateBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty >
 	DOREPLIFETIME(ATDMPlayerStateBase, IsAlive);
 	DOREPLIFETIME(ATDMPlayerStateBase, Ping);
 	DOREPLIFETIME(ATDMPlayerStateBase, ReplicatedPlayerName);
+	DOREPLIFETIME(ATDMPlayerStateBase, IPPoints);
+	DOREPLIFETIME(ATDMPlayerStateBase, PurchasedShopItems);
+	DOREPLIFETIME(ATDMPlayerStateBase, EquippedShopItems);
 }
 
 void ATDMPlayerStateBase::AddScoreToTotalScore() {
@@ -40,6 +44,13 @@ void ATDMPlayerStateBase::SetCurrentScoreToTotalScore() {
 	ReplayKills = TotalReplayKills;
 	TeamKills = TotalTeamKills;
 	Score = TotalScore;
+}
+
+void ATDMPlayerStateBase::PrepareForRoundStart() {
+	PurchasedShopItems.Reset();
+	EquippedShopItems.Reset();
+	IPPoints = 1;
+	ResetScore();
 }
 
 void ATDMPlayerStateBase::ResetScore() {

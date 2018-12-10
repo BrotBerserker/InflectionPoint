@@ -4,6 +4,7 @@
 #include "DebugTools/InflectionPointCheatManager.h"
 #include "Gameplay/CharacterInfoProvider.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Shop/BaseShopItem.h"
 #include "Gameplay/Damage/MortalityProvider.h"
 #include "PlayerControllerBase.h"
 
@@ -42,8 +43,8 @@ void APlayerControllerBase::UpdateCharactersInLineOfSight() {
 void APlayerControllerBase::Possess(APawn* InPawn) {
 	Super::Possess(InPawn);
 	SpectatedCharacter = nullptr;
-	AssertNotNull(InPawn->PlayerState, GetWorld(), __FILE__, __LINE__);
-	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->PlayerState;
+	AssertNotNull(InPawn->GetPlayerState(), GetWorld(), __FILE__, __LINE__);
+	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->GetPlayerState();
 }
 
 void APlayerControllerBase::ClientSetControlRotation_Implementation(FRotator rotation) {
@@ -58,8 +59,22 @@ void APlayerControllerBase::ClientShowKillInfo_Implementation(FCharacterInfo Kil
 	OnKillInfoAdded(KilledInfo, killedScoreChange, KillerInfo, killerScoreChange, WeaponImage);
 }
 
-void APlayerControllerBase::ClientShowCountdownNumber_Implementation(int number) {
-	OnCountdownUpdate(number);
+void APlayerControllerBase::ClientShowPhaseCountdownNumber_Implementation(int number) {
+	OnPhaseCountdownUpdate(number);
+}
+
+void APlayerControllerBase::ClientShowMatchCountdownNumber_Implementation(int number) {
+	OnMatchCountdownUpdate(number);
+}
+
+void APlayerControllerBase::ClientShowShop_Implementation(bool intelligentSmartResetBoolean) {
+	if(intelligentSmartResetBoolean)
+		Cast<ATDMPlayerStateBase>(PlayerState)->PrepareForRoundStart(); // "Dies ist geil" - Roman 17.11.2018 nein das stimmt nicht
+	OnShowShop(intelligentSmartResetBoolean);
+}
+
+void APlayerControllerBase::ClientShowShopCountdownNumber_Implementation(int number) {
+	OnShopCountdownUpdate(number);
 }
 
 void APlayerControllerBase::ClientSetIgnoreInput_Implementation(bool ignore) {
@@ -109,7 +124,7 @@ bool APlayerControllerBase::SpectateNextActorInRange(TArray<AActor*> actors, int
 		if(character && otherCharacter->GetName().Equals(character->GetName())) {
 			continue;
 		}
-
+		
 		// Don't switch to current viewtarget
 		if(otherCharacter->GetName().Equals(GetViewTarget()->GetName())) {
 			continue;
@@ -150,4 +165,47 @@ bool APlayerControllerBase::IsLookingAtActor(AActor* actor, float distance) {
 	FVector p = (FVector::DotProduct(a, b) / FVector::DotProduct(b, b)) * b;
 	float d = (a - p).Size();
 	return d <= distance;
+}
+
+
+bool APlayerControllerBase::ServerPurchaseShopItem_Validate(TSubclassOf<class UBaseShopItem> itemClass) {
+	return true;
+}
+
+void APlayerControllerBase::ServerPurchaseShopItem_Implementation(TSubclassOf<class UBaseShopItem> itemClass) {
+	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	auto item = itemClass.GetDefaultObject();
+	AssertNotNull(item, GetWorld(), __FILE__, __LINE__);
+	if(!item->IsAffordableForPlayer(playerState))
+		return;
+	playerState->IPPoints -= item->IPPrice;
+	playerState->PurchasedShopItems.Add(item->GetClass());
+}
+
+bool APlayerControllerBase::ServerEquipShopItem_Validate(EInventorySlotPosition inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	return AssertTrue(playerState->PurchasedShopItems.Contains(item), GetWorld(), __FILE__, __LINE__, "Client tries to equip a Shopitem that is not purchased");
+}
+
+void APlayerControllerBase::ServerEquipShopItem_Implementation(EInventorySlotPosition inventorySlot, TSubclassOf<class UBaseShopItem> item) {
+	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	playerState->EquippedShopItems.Add(FTDMEquipSlot(inventorySlot, item));
+}
+
+bool APlayerControllerBase::ServerUnequipShopItemFromSlot_Validate(EInventorySlotPosition slot) {
+	return true;
+}
+
+void APlayerControllerBase::ServerUnequipShopItemFromSlot_Implementation(EInventorySlotPosition slot) {
+	auto playerState = Cast<ATDMPlayerStateBase>(PlayerState);
+	AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__);
+	for(int i = 0; i < playerState->EquippedShopItems.Num(); i++) {
+		if(playerState->EquippedShopItems[i].Slot == slot) {
+			playerState->EquippedShopItems.RemoveAt(i);
+			return;
+		}
+	}
 }

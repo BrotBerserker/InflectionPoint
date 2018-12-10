@@ -4,6 +4,7 @@
 #include "Gamemodes/TDMPlayerStateBase.h"
 #include "Gameplay/CharacterInfoProvider.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "WidgetComponent.h"
 #include "BaseCharacter.generated.h"
@@ -278,7 +279,7 @@ public:
 		void ServerEquipPreviousWeapon();
 
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-		void ServerEquipSpecificWeapon(int index);
+		void ServerEquipSpecificWeapon(EInventorySlotPosition slot);
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerEquipRandomWeapon();

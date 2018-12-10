@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "ReplayCharacterBase.h"
 #include "Gameplay/Controllers/AIControllerBase.h"
+#include "Gamemodes/TDMGameStateBase.h"
 #include "Utils/TimerFunctions.h"
 
 
@@ -60,6 +61,50 @@ void AReplayCharacterBase::StopReplay() {
 	replayIndex = 0;
 }
 
+void AReplayCharacterBase::TransformToInflectionPoint() {
+	if(!MortalityProvider->IsAlive()) {
+		return;
+	}
+
+	MortalityProvider->Invincible = true;
+	SetLifeSpan(2);
+
+	FActorSpawnParameters ActorSpawnParams;
+	ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	ActorSpawnParams.Instigator = this;
+	GetWorld()->SpawnActor<AActor>(InflectionPoint, GetTransform().GetLocation(), FRotator(GetTransform().GetRotation()), ActorSpawnParams);
+
+	MulticastShowDematerializeAnimation();
+}
+
+void AReplayCharacterBase::MulticastShowDematerializeAnimation_Implementation() {
+	dematerializeInstanceDynamic = UMaterialInstanceDynamic::Create(DematerializeMaterial, Mesh3P);
+	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
+	dematerializeInstanceDynamic->SetVectorParameterValue("BaseColor", gameState->TeamColors[CharacterInfoProvider->GetCharacterInfo().Team]);
+	
+	OverrideMaterials(Mesh3P, dematerializeInstanceDynamic);
+	if(CurrentWeapon)
+		OverrideMaterials(CurrentWeapon->Mesh3P, dematerializeInstanceDynamic);
+
+	FOnTimelineFloat callback{};
+	callback.BindUFunction(this, FName{ TEXT("DematerializeCallback") });
+	MaterializeTimeline->AddInterpFloat(DematerializeCurve, callback, FName{ TEXT("DematerializeTimelineAnimation") });
+
+	MaterializeTimeline->Play();
+}
+
+void AReplayCharacterBase::OverrideMaterials(USkeletalMeshComponent* MeshComponent, UMaterialInterface* Material) {
+	for(int i = 0; i < MeshComponent->GetNumMaterials(); i++) {
+		if(MeshComponent->GetMaterial(i)->GetFullName() != MaterialToIgnore->GetFullName()) {
+			MeshComponent->SetMaterial(i, Material);
+		}
+	}
+}
+
+void AReplayCharacterBase::DematerializeCallback(float value) {
+	dematerializeInstanceDynamic->SetScalarParameterValue("Opacity", value);
+}
+
 void AReplayCharacterBase::Tick(float deltaTime) {
 	Super::Tick(deltaTime);
 	if(!isReplaying)
@@ -87,6 +132,7 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 	if(HasFinishedReplaying() && isReplaying) {
 		OnFinishedReplaying.Broadcast();
 		StopReplay();
+		StartTimer(this, GetWorld(), "TransformToInflectionPoint", 1.f, false);
 	}
 }
 
@@ -146,7 +192,7 @@ void AReplayCharacterBase::PressKey(FString key) {
 		auto str = FString(key); // to not alter string
 		str.RemoveFromStart("EquipSpecificWeapon");
 		int index = FCString::Atoi(*str);
-		ServerEquipSpecificWeapon(index);
+		ServerEquipSpecificWeapon((EInventorySlotPosition)index);
 	}
 }
 

@@ -13,5 +13,6 @@
 #include "Runtime/UMG/Public/Blueprint/UserWidget.h"
 #include "Utils/CheckFunctions.h"
 #include "Utils/TimerFunctions.h"
+#include "Utils/ChickenFunctions.h"
 
 #endif

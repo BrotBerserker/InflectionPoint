@@ -38,13 +38,16 @@ public:
 	void AssignTeamsAndPlayerStartGroups();
 
 	/** Spawns all players and replays for the given phase */
-	void SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings);
+	void SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TArray<struct FRecordedPlayerData>> PlayerRecordings);
 
 	/** Spawns a player for the given phase and lets the given controller possess it */
 	void SpawnAndPossessPlayer(APlayerControllerBase* playerController, int CurrentPhase);
 
+	/** Spawns all replays for a controller */
+	void SpawnAndPrepareReplays(APlayerControllerBase* controller, int CurrentPhase, TMap<APlayerController*, TArray<struct FRecordedPlayerData>> PlayerRecordings);
+
 	/** Spawns a replay for the given phase and initializes it using the given controller and replay data */
-	void SpawnAndPrepareReplay(APlayerControllerBase* controller, int phase, TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings);
+	void SpawnAndPrepareReplay(APlayerControllerBase* controller, FRecordedPlayerData PlayerRecordings);
 
 	void SpawnAllPlayersForWarmupRound();
 
@@ -52,6 +55,7 @@ private:
 	class ATDMGameModeBase* gameMode;
 
 private:
+	void EquipShopItems(class ABaseCharacter* character, TArray<FTDMEquipSlot> equippedItems);
 	FString GetSpawnTag(APlayerControllerBase*  playerController, int phase);
 	AActor* FindSpawnForPlayer(APlayerControllerBase* playerController, int phase);
 	int GetTeam(APlayerControllerBase* playerController);

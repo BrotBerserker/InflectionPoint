@@ -32,68 +32,17 @@ ATDMGameModeBase::ATDMGameModeBase()
 
 	ScoreHandler = CreateDefaultSubobject<UTDMScoreHandler>(TEXT("ScoreHandler"));
 	CharacterSpawner = CreateDefaultSubobject<UTDMCharacterSpawner>(TEXT("CharacterSpawner"));
+
+	MatchStartCountdown = CreateDefaultSubobject<UCountdown>(TEXT("MatchStartCountdown"));
+	PhaseStartCountdown = CreateDefaultSubobject<UCountdown>(TEXT("PhaseStartCountdown"));
+	ShopCountdown = CreateDefaultSubobject<UCountdown>(TEXT("ShopCountdown"));
 }
 
-void ATDMGameModeBase::Tick(float DeltaSeconds) {
-	Super::Tick(DeltaSeconds);
-
-	UpdateTimeUntilMatchStart(DeltaSeconds);
-
-	UpdateTimeUntilNextCountdownUpdate(DeltaSeconds);
-}
-
-void ATDMGameModeBase::UpdateTimeUntilNextCountdownUpdate(float DeltaSeconds) {
-	if(GetGameState()->CurrentRound == 0 || nextCountdownNumber < 0) {
-		return;
-	}
-	timeUntilNextCountdownUpdate -= DeltaSeconds;
-	if(timeUntilNextCountdownUpdate <= 0) {
-		timeUntilNextCountdownUpdate = 1.f;
-		UpdateCountdown(nextCountdownNumber--);
-	}
-}
-
-void ATDMGameModeBase::UpdateTimeUntilMatchStart(float DeltaSeconds) {
-	if(GetGameState()->CurrentRound > 0) {
-		return;
-	}
-	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
-		timeUntilMatchStart -= DeltaSeconds;
-	} else {
-		timeUntilMatchStart = MatchStartDelay;
-	}
-	if(timeUntilMatchStart <= 0) {
-		timeUntilMatchStart = MatchStartDelay;
-		StartMatch();
-	}
-}
-
-void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
-	Super::PostLogin(NewPlayer);
-	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
-	GetGameState()->NumPlayers++;
-	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	if(GetGameState()->NumPlayers > GetGameState()->MaxPlayers) {
-		GameSession->KickPlayer(NewPlayer, FText::FromString("Server is already full!"));
-		return;
-	}
-}
-
-void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
-	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
-	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
-	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
-		ErrorMessage = "Server is already full!";
-	}
-}
-
-void ATDMGameModeBase::Logout(AController* Exiting) {
-	Super::Logout(Exiting);
-	GetGameState()->NumPlayers--;
-	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
-	if(GetGameState()->CurrentRound > 0 && nextCountdownNumber < 0 && IsPhaseWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
-		StartEndMatchSequence();
-	}
+void ATDMGameModeBase::PostInitializeComponents() {
+	Super::PostInitializeComponents();
+	MatchStartCountdown->Setup(this, &ATDMGameModeBase::UpdateMatchCountdown, &ATDMGameModeBase::StartMatch, MatchStartDelay);
+	ShopCountdown->Setup(this, &ATDMGameModeBase::UpdateShopCountdown, &ATDMGameModeBase::PreparePhaseStart, ShopTime, true);
+	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdatePhaseCountdown, &ATDMGameModeBase::StartPhase, PhaseStartDelay);
 }
 
 void ATDMGameModeBase::InitializeSettings(FName SessionName) {
@@ -110,6 +59,40 @@ void ATDMGameModeBase::InitializeSettings(FName SessionName) {
 	}
 }
 
+void ATDMGameModeBase::PreLogin(const FString & Options, const FString & Address, const FUniqueNetIdRepl & UniqueId, FString & ErrorMessage) {
+	Super::PreLogin(Options, Address, UniqueId, ErrorMessage);
+	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
+	if(GetGameState()->NumPlayers >= GetGameState()->MaxPlayers) {
+		ErrorMessage = "Server is already full!";
+	}
+}
+
+void ATDMGameModeBase::PostLogin(APlayerController * NewPlayer) {
+	Super::PostLogin(NewPlayer);
+	AssertNotNull(GetGameState(), GetWorld(), __FILE__, __LINE__);
+	GetGameState()->NumPlayers++;
+	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
+	if(GetGameState()->NumPlayers > GetGameState()->MaxPlayers) {
+		GameSession->KickPlayer(NewPlayer, FText::FromString("Server is already full!"));
+		return;
+	}
+	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
+		MatchStartCountdown->Start();
+	}
+}
+
+void ATDMGameModeBase::Logout(AController* Exiting) {
+	Super::Logout(Exiting);
+	GetGameState()->NumPlayers--;
+	UpdateCurrentPlayers(Cast<UInflectionPointGameInstanceBase>(GetGameInstance())->CurrentSessionName);
+	if(GetGameState()->CurrentRound > 0 && IsPhaseWinnerFound(Exiting) && !isPlayingEndMatchSequence) {
+		MatchStartCountdown->Stop();
+		PhaseStartCountdown->Stop();
+		ShopCountdown->Stop();
+		StartEndMatchSequence();
+	}
+}
+
 void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 	IOnlineSessionPtr session = IOnlineSubsystem::Get()->GetSessionInterface();
 	FOnlineSessionSettings* sessionSettings = session->GetSessionSettings(SessionName);
@@ -120,26 +103,48 @@ void ATDMGameModeBase::UpdateCurrentPlayers(FName SessionName) {
 }
 
 void ATDMGameModeBase::StartMatch() {
-	ResetGameState();
+	GetGameState()->PrepareForMatchStart(CharacterSpawner->GetSpawnPointCount());
 	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
 	StartNextRound();
 }
 
-void ATDMGameModeBase::ReStartMatch() {
-	isPlayingEndMatchSequence = false;
-	ResetGameState();
-	ResetLevel();
-	CharacterSpawner->SpawnAllPlayersForWarmupRound();
-	CharacterSpawner->AssignTeamsAndPlayerStartGroups();
+void ATDMGameModeBase::StartNextRound() {
+	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
+		return;
+	GetGameState()->PrepareForRoundStart();
+	PlayerRecordings.Reset();
+	StartNextPhase();
 }
 
-void ATDMGameModeBase::ResetGameState() {
-	GetGameState()->TeamWins.Init(0, GetGameState()->TeamCount + 1); // +1 because teams start with 1
-	GetGameState()->CurrentRound = 0;
-	GetGameState()->CurrentPhase = 0;
-	GetGameState()->MaxPhaseNum = CharacterSpawner->GetSpawnPointCount() / GetGameState()->MaxPlayers;
-	GetGameState()->ResetPlayerScores();
-	GetGameState()->ResetTotalPlayerScores();
+void ATDMGameModeBase::StartNextPhase() {
+	int phase = GetGameState()->CurrentPhase + 1;
+	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
+		return;
+	GetGameState()->CurrentPhase = phase;
+	ResetLevel();
+	ShowShops();
+	ShopCountdown->Start();
+}
+
+void ATDMGameModeBase::ShowShops() {
+	bool isFirstPhaseInRound = GetGameState()->CurrentPhase == 1;
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowShop(isFirstPhaseInRound);
+	});
+}
+
+void ATDMGameModeBase::PreparePhaseStart() {
+	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
+	SendPhaseStartedToPlayers(GetGameState()->CurrentPhase);
+	PhaseStartCountdown->Start();
+	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
+}
+
+void ATDMGameModeBase::StartPhase() {
+	StartReplays();
+	if(IsPhaseWinnerFound()) {
+		StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
+	}
 }
 
 void ATDMGameModeBase::EndCurrentPhase() {
@@ -151,18 +156,6 @@ void ATDMGameModeBase::EndCurrentPhase() {
 	}
 }
 
-void ATDMGameModeBase::StartNextPhase() {
-	int phase = GetGameState()->CurrentPhase + 1;
-	if(!AssertTrue(phase <= GetGameState()->MaxPhaseNum, GetWorld(), __FILE__, __LINE__, "Cant start the next Phase"))
-		return;
-	GetGameState()->CurrentPhase = phase;
-	ResetLevel();
-	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
-	SendPhaseStartedToPlayers(phase);
-	StartCountdown();
-	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
-}
-
 void ATDMGameModeBase::EndCurrentRound() {
 	int winnerTeam = ScoreHandler->SelectWinnerTeamForRound();
 	ScoreHandler->UpdateScoresForNextRound();
@@ -172,6 +165,34 @@ void ATDMGameModeBase::EndCurrentRound() {
 	}
 	NotifyControllersOfEndRound(winnerTeam);
 	StartTimer(this, GetWorld(), "StartNextRound", RoundEndDelay, false);
+}
+
+void ATDMGameModeBase::ReStartMatch() {
+	isPlayingEndMatchSequence = false;
+	GetGameState()->PrepareForMatchStart(CharacterSpawner->GetSpawnPointCount());
+	ResetLevel();
+	CharacterSpawner->SpawnAllPlayersForWarmupRound();
+	if(GetGameState()->NumPlayers == GetGameState()->MaxPlayers) {
+		MatchStartCountdown->Start();
+	}
+}
+
+void ATDMGameModeBase::UpdateMatchCountdown(int number) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowMatchCountdownNumber(number);
+	});
+}
+
+void ATDMGameModeBase::UpdatePhaseCountdown(int number) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowPhaseCountdownNumber(number);
+	});
+}
+
+void ATDMGameModeBase::UpdateShopCountdown(int number) {
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowShopCountdownNumber(number);
+	});
 }
 
 void ATDMGameModeBase::StartEndMatchSequence() {
@@ -189,36 +210,21 @@ void ATDMGameModeBase::StartEndMatchSequence() {
 		return;
 	}
 	ResetLevel();
-	FString winnerName = GetAnyPlayerControllerInTeam(winningTeam) ? GetAnyPlayerControllerInTeam(winningTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
-	FString loserName = GetAnyPlayerControllerInTeam(losingTeam) ? GetAnyPlayerControllerInTeam(losingTeam)->PlayerState->GetPlayerName() : "oops something went wrong";
+	FString winnerName = GetAnyPlayerControllerInTeam(winningTeam) ? GetAnyPlayerControllerInTeam(winningTeam)->PlayerState->GetPlayerName() : "Winnerboi";
+	FString loserName = GetAnyPlayerControllerInTeam(losingTeam) ? GetAnyPlayerControllerInTeam(losingTeam)->PlayerState->GetPlayerName() : "Kacknoob";
 	levelScript->StartEndMatchSequence(CharacterSpawner->PlayerCharacters[winningTeam], CharacterSpawner->PlayerCharacters[losingTeam], winnerName, loserName);
 }
 
 void ATDMGameModeBase::NotifyControllersOfEndMatch(int winnerTeam) {
-	TArray<AActor*> controllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
-	for(auto& controller : controllers) {
-		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
-		playerController->ClientShowMatchEnd(winnerTeam);
-	}
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowMatchEnd(winnerTeam);
+	});
 }
 
 void ATDMGameModeBase::NotifyControllersOfEndRound(int winnerTeam) {
-	TArray<AActor*> controllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
-	for(auto& controller : controllers) {
-		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
-		playerController->ClientShowRoundEnd(winnerTeam);
-	}
-}
-
-void ATDMGameModeBase::StartNextRound() {
-	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
-		return;
-	GetGameState()->ResetPlayerScores();
-	GetGameState()->CurrentPhase = 0;
-	GetGameState()->CurrentRound++;
-	StartNextPhase();
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->ClientShowRoundEnd(winnerTeam);
+	});
 }
 
 void ATDMGameModeBase::StartSpawnCinematics() {
@@ -257,22 +263,18 @@ void ATDMGameModeBase::CharacterDied(AController * KilledPlayer, AController* Ki
 void ATDMGameModeBase::SendKillInfoToPlayers(AController * KilledPlayer, AController* KillingPlayer, AActor* DamageCauser) {
 	FCharacterInfo killerInfo = KillingPlayer ? KillingPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo() : FCharacterInfo();
 	FCharacterInfo killedInfo = KilledPlayer->GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo();
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		float killedScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKilledScoreChange(KilledPlayer, KillingPlayer);
 		float killerScoreChange = GetGameState()->CurrentPhase == 0 ? 0 : ScoreHandler->GetKillerScoreChange(KilledPlayer, KillingPlayer);
 		auto weapon = Cast<ABaseWeapon>(DamageCauser);
 		controller->ClientShowKillInfo(killedInfo, killedScoreChange, killerInfo, killerScoreChange, weapon ? weapon->WeaponTexture : NULL);
-	}
+	});
 }
 
 void ATDMGameModeBase::SendPhaseStartedToPlayers(int Phase) {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		APlayerControllerBase* controller = Cast<APlayerControllerBase>(playerController);
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		controller->ClientPhaseStarted(Phase);
-	}
+	});
 }
 
 bool ATDMGameModeBase::IsPhaseWinnerFound(AController* controllerToIgnore) {
@@ -303,29 +305,6 @@ bool ATDMGameModeBase::IsPlayerAlive(APlayerControllerBase* playerController) {
 	return Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive;
 }
 
-void ATDMGameModeBase::StartCountdown() {
-	nextCountdownNumber = CountDownDuration;
-	timeUntilNextCountdownUpdate = 1.f;
-}
-
-void ATDMGameModeBase::UpdateCountdown(int number) {
-	TArray<AActor*> controllers;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APlayerControllerBase::StaticClass(), controllers);
-	for(auto& controller : controllers) {
-		APlayerControllerBase* playerController = Cast<APlayerControllerBase>(controller);
-		playerController->ClientShowCountdownNumber(number);
-		if(number == 0 && playerController->GetCharacter()) {
-			playerController->GetCharacter()->FindComponentByClass<UPlayerStateRecorder>()->ServerStartRecording();
-		}
-	}
-	if(number == 0) {
-		StartReplays();
-		if(IsPhaseWinnerFound()) {
-			StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation
-		}
-	}
-}
-
 void ATDMGameModeBase::StartReplays() {
 	TArray<AActor*> foundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AReplayCharacterBase::StaticClass(), foundActors);
@@ -334,24 +313,28 @@ void ATDMGameModeBase::StartReplays() {
 }
 
 void ATDMGameModeBase::SaveRecordingsFromRemainingPlayers() {
-	for(FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator) {
-		auto playerController = UGameplayStatics::GetPlayerController(GetWorld(), Iterator.GetIndex());
-		auto ipPlayerController = Cast<APlayerControllerBase>(playerController);
-		if(IsPlayerAlive(ipPlayerController))
-			SavePlayerRecordings(ipPlayerController);
-	}
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		if(IsPlayerAlive(controller)) {
+			SavePlayerRecordings(controller);
+		}
+	});
 }
 
 void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerController) {
+	auto playerState = Cast<ATDMPlayerStateBase>(playerController->PlayerState);
 	auto pawn = playerController->GetPawn();
-	if(AssertNotNull(pawn, GetWorld(), __FILE__, __LINE__)) {
+	if(AssertNotNull(pawn, GetWorld(), __FILE__, __LINE__) && AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__)) {
 		auto playerStateRecorder = pawn->FindComponentByClass<UPlayerStateRecorder>();
 		AssertNotNull(playerStateRecorder, GetWorld(), __FILE__, __LINE__);
 		if(!PlayerRecordings.Contains(playerController)) {
-			TMap<int, TArray<FRecordedPlayerState>> map;
-			PlayerRecordings.Add(playerController, map);
+			TArray<FRecordedPlayerData> list;
+			PlayerRecordings.Add(playerController, list);
 		}
-		PlayerRecordings[playerController].Add(GetGameState()->CurrentPhase, playerStateRecorder->RecordedPlayerStates);
+		FRecordedPlayerData data = FRecordedPlayerData();
+		data.EquippedShopItems = playerState->EquippedShopItems;
+		data.Phase = GetGameState()->CurrentPhase;
+		data.RecordedPlayerStates = playerStateRecorder->RecordedPlayerStates;
+		PlayerRecordings[playerController].Add(data);
 	}
 }
 

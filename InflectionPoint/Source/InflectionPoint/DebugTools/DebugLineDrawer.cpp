@@ -42,10 +42,10 @@ void UDebugLineDrawer::DrawDebugLineTrace(FVector StartPos, FVector EndPos, bool
 	if(!(cheatManager && cheatManager->IsDebugProjectileLineTraceEnabled))
 		return;
 	if(!IsReplay) {
-		DrawDebugLine(GetWorld(), StartPos, EndPos, PlayerDebugColor, true, -1, 0, LineThickness);
+		DrawDebugLine(GetWorld(), StartPos, EndPos, PlayerDebugColor, true, 1000, 0, LineThickness);
 		DrawDebugPoint(GetWorld(), EndPos, 3, PlayerDebugColor, true);
 	} else {
-		DrawDebugLine(GetWorld(), StartPos, EndPos, ReplayDebugColor, true, -1, 0, LineThickness);
+		DrawDebugLine(GetWorld(), StartPos, EndPos, ReplayDebugColor, true, 1000, 0, LineThickness);
 		DrawDebugPoint(GetWorld(), EndPos, 3, ReplayDebugColor, true);
 	}
 }

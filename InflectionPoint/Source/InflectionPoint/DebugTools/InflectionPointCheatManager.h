@@ -4,6 +4,7 @@
 
 #include "GameFramework/CheatManager.h"
 #include "GameFramework/CheatManager.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
 #include "InflectionPointCheatManager.generated.h"
 
 /**
@@ -32,6 +33,12 @@ public:
 
 	UFUNCTION(exec)
 		virtual void EnableHUD(bool enable = true);
+
+	UFUNCTION(exec)
+		void OpenShop();
+
+	UFUNCTION(exec)
+		void CloseShop();
 
 	UPROPERTY(BlueprintReadWrite)
 		bool IsDebugProjectileLineTraceEnabled = false;

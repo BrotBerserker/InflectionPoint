@@ -6,14 +6,27 @@
 #include "Gamemodes/TDMGameStateBase.h" 
 #include "Gamemodes/TDMScoreHandler.h"
 #include "Gamemodes/TDMCharacterSpawner.h"
+#include "Gamemodes/Countdown.h"
 #include "TDMGameModeBase.generated.h"
+
+
+USTRUCT(BlueprintType)
+struct FRecordedPlayerData {
+	GENERATED_BODY()
+
+public:
+	int Phase;
+	TArray<FRecordedPlayerState> RecordedPlayerStates;
+	TArray<FTDMEquipSlot> EquippedShopItems;
+};
+
 
 UCLASS(minimalapi)
 class ATDMGameModeBase : public AGameModeBase {
 	GENERATED_BODY()
 
 public:
-	void Tick(float DeltaSeconds) override;
+	void PostInitializeComponents() override;
 
 public:
 	/* ---------------------- */
@@ -52,9 +65,16 @@ public:
 	UFUNCTION()
 		void EndCurrentPhase();
 
-	/** Respawns players and replays, start the countdown */
+	/** Respawns players and replays, starts the phase countdown */
+	UFUNCTION()
+		void PreparePhaseStart();
+
 	UFUNCTION()
 		void StartNextPhase();
+
+	/** Starts the replays, ends the match if a player has left during the countdown */
+	UFUNCTION()
+		void StartPhase();
 
 	/** starts the next round */
 	UFUNCTION()
@@ -64,13 +84,21 @@ public:
 	UFUNCTION()
 		void EndCurrentRound();
 
-	/** Starts the countdown at the beginning of a new phase */
+	/** Informs all players about the next match countdown number */
 	UFUNCTION()
-		void StartCountdown();
+		void UpdateMatchCountdown(int number);
 
-	/** Informs all players about the next countdown number */
+	/** Informs all players about the next phase countdown number */
 	UFUNCTION()
-		void UpdateCountdown(int number);
+		void UpdatePhaseCountdown(int number);
+
+	/** Informs all players about the next shop countdown number */
+	UFUNCTION()
+		void UpdateShopCountdown(int number);
+
+	/** Shows the shops for all Clients and gives ShopItems and IPs */
+	UFUNCTION()
+		void ShowShops();
 
 	/** Switches to a cinematic camera at the beginning of a new phase */
 	UFUNCTION()
@@ -87,7 +115,7 @@ public:
 	/** Informs all players about the end of round */
 	UFUNCTION()
 		void NotifyControllersOfEndRound(int winnerTeam);
-	
+
 	/** Starts all spawned replays */
 	UFUNCTION()
 		void StartReplays();
@@ -107,17 +135,21 @@ public:
 	/*    Editor Settings     */
 	/* ---------------------- */
 
-	/** Countdown duration in seconds */
+	/** Duration of the phase start countdown */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		int CountDownDuration = 3;
+		int PhaseStartDelay = 3;
 
 	/** Seconds to wait before starting the match after enough players have joined */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float MatchStartDelay = 10.0f;
 
+	/** Seconds to wait before closing the shop and starting the phase */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float ShopTime = 10.0f;
+
 	/** Seconds to wait before restarting the match after the last one has ended */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float MatchReStartDelay = 10.0f;
+		float MatchReStartDelay = 15.0f;
 
 	/** Seconds to wait before a phase is ended after the winner has been decided */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -146,14 +178,19 @@ public:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UTDMCharacterSpawner* CharacterSpawner;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCountdown* MatchStartCountdown;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCountdown* PhaseStartCountdown;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		class UCountdown* ShopCountdown;
+
 private:
-	TMap<APlayerController*, TMap<int, TArray<FRecordedPlayerState>>> PlayerRecordings;
+	TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings;
 
 	// thai ming
-	float timeUntilMatchStart = 10.f;
-	int nextCountdownNumber = -1;
-	float timeUntilNextCountdownUpdate = 1.f;
-
 	bool isPlayingEndMatchSequence = false;
 
 private:
@@ -174,8 +211,4 @@ private:
 	void SendPhaseStartedToPlayers(int Phase);
 
 	APlayerController* GetAnyPlayerControllerInTeam(int team);
-
-	void ResetGameState();
-	void UpdateTimeUntilMatchStart(float DeltaSeconds);
-	void UpdateTimeUntilNextCountdownUpdate(float DeltaSeconds);
 };

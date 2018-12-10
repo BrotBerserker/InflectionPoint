@@ -7,6 +7,13 @@
 // Sets default values for this component's properties
 UWeaponInventory::UWeaponInventory() {
 	PrimaryComponentTick.bCanEverTick = false;
+	SetIsReplicated(true);
+}
+
+void UWeaponInventory::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UWeaponInventory, WeaponSlots);
 }
 
 // Called when the game starts
@@ -17,96 +24,140 @@ void UWeaponInventory::BeginPlay() {
 		return;
 	}
 
-	for(TSubclassOf<ABaseWeapon> weaponClass : DefaultWeaponClasses) {
-		FActorSpawnParameters spawnParams;
-		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-		spawnParams.Instigator = (APawn*)GetOwner();
-		spawnParams.Owner = GetOwner();
-		ABaseWeapon* spawnedWeapon = GetWorld()->SpawnActor<ABaseWeapon>(weaponClass, spawnParams);
-		AddWeapon(spawnedWeapon);
+	InitDefaultWeapons();
+}
+
+void UWeaponInventory::InitDefaultWeapons() {
+	AssertTrue(WeaponSlots.Num() > 0, GetWorld(), __FILE__, __LINE__, "Inventory has no Slots assigned!"); // change in blueprint
+	for(auto& slot : WeaponSlots) {
+		if(!slot.DefaultWeapon)
+			continue;
+		SetWeaponAtPosition(slot.SlotPosition, slot.DefaultWeapon);
 	}
 }
 
 void UWeaponInventory::Destroy() {
-	for(ABaseWeapon* weapon : weapons) {
-		weapon->Destroy();
+	for(auto& item : WeaponSlots) {
+		ClearWeaponSlot(item);
 	}
 }
 
-// Called every frame
-void UWeaponInventory::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+void UWeaponInventory::ClearWeaponSlot(FInventoryWeaponSlot slot) {
+	if(!slot.Weapon)
+		return;
+	slot.Weapon->Destroy();
+	slot.Weapon = nullptr;
 }
 
 bool UWeaponInventory::IsReadyForInitialization() {
-	for(ABaseWeapon* weapon : weapons) {
-		if(!weapon->IsReadyForInitialization()) {
+	for(auto& item : WeaponSlots) {
+		if(item.Weapon && !item.Weapon->IsReadyForInitialization()) {
 			return false;
 		}
 	}
 	return true;
 }
 
-void UWeaponInventory::AddWeapon(ABaseWeapon* Weapon) {
-	weapons.AddUnique(Weapon);
+void UWeaponInventory::SetWeaponAtPosition(EInventorySlotPosition position, TSubclassOf<ABaseWeapon> weaponClass) {
+	AssertTrue(GetOwner()->HasAuthority(), GetWorld(), __FILE__, __LINE__, "Only call on server");
+	int index = GetWeaponSlotIndex(position);
+	AssertTrue(index >= 0, GetWorld(), __FILE__, __LINE__, "Inventory Slot dose not exist!");
+	if(WeaponSlots[index].Weapon)
+		ClearWeaponSlot(WeaponSlots[index]);
+	WeaponSlots[index].Weapon = SpawnWeapon(weaponClass);
 }
 
-void UWeaponInventory::RemoveWeapon(ABaseWeapon* Weapon) {
-	weapons.Remove(Weapon);
+ABaseWeapon* UWeaponInventory::SpawnWeapon(TSubclassOf<ABaseWeapon> weaponClass) {
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnParams.Instigator = (APawn*)GetOwner();
+	spawnParams.Owner = GetOwner();
+	return GetWorld()->SpawnActor<ABaseWeapon>(weaponClass, spawnParams);
+}
+
+ABaseWeapon* UWeaponInventory::GetNextWeaponInDirection(ABaseWeapon* CurrentWeapon, bool isDirectionForward) {
+	int currentIndex = GetWeaponSlotIndex(CurrentWeapon);
+	if(currentIndex < 0)
+		currentIndex = 0;
+	for(int i = 1; i < WeaponSlots.Num() + 1; i++) {
+		int modifier = isDirectionForward ? i : i * (-1) + WeaponSlots.Num(); // if moving right or left
+		int index = (currentIndex + modifier) % WeaponSlots.Num();
+		if(WeaponSlots[index].Weapon != nullptr)
+			return WeaponSlots[index].Weapon;
+	}
+	return CurrentWeapon;
 }
 
 ABaseWeapon* UWeaponInventory::GetNextWeapon(ABaseWeapon* CurrentWeapon) {
-	int32 index = weapons.IndexOfByKey(CurrentWeapon);
-	return weapons[(index + 1) % weapons.Num()];
+	return GetNextWeaponInDirection(CurrentWeapon, false);
 }
 
 ABaseWeapon* UWeaponInventory::GetPreviousWeapon(ABaseWeapon* CurrentWeapon) {
-	int32 index = weapons.IndexOfByKey(CurrentWeapon);
-	return weapons[(index - 1 + weapons.Num()) % weapons.Num()];
+	return GetNextWeaponInDirection(CurrentWeapon, true);
 }
 
 ABaseWeapon* UWeaponInventory::GetNextUsableWeapon(ABaseWeapon* CurrentWeapon) {
-	int32 index = weapons.IndexOfByKey(CurrentWeapon);
-	for(int i = 1; i < weapons.Num(); i++) {
-		auto weapon = weapons[(index + i) % weapons.Num()];
-		if(weapon->CurrentAmmo != 0)
-			return weapon;
+	auto nextWeapon = GetNextWeapon(CurrentWeapon);
+	for(int i = 0; i < WeaponSlots.Num(); i++) {
+		if(nextWeapon->CurrentAmmo != 0)
+			return nextWeapon;
+		nextWeapon = GetNextWeapon(CurrentWeapon);
 	}
 	return CurrentWeapon;
 }
 
 ABaseWeapon* UWeaponInventory::GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapon) {
-	int32 index = weapons.IndexOfByKey(CurrentWeapon);
-	for(int i = 1; i < weapons.Num(); i++) {
-		auto weapon = weapons[(index - i + weapons.Num()) % weapons.Num()];
-		if(weapon->CurrentAmmo != 0)
-			return weapon;
+	auto nextWeapon = GetPreviousWeapon(CurrentWeapon);
+	for(int i = 0; i < WeaponSlots.Num(); i++) {
+		if(nextWeapon->CurrentAmmo != 0)
+			return nextWeapon;
+		nextWeapon = GetPreviousWeapon(CurrentWeapon);
 	}
 	return CurrentWeapon;
 }
 
 ABaseWeapon* UWeaponInventory::GetRandomWeapon() {
-	int32 index = FMath::RandHelper(weapons.Num());
-	for(int i = 1; i < weapons.Num(); i++) {
-		auto weapon = weapons[(index + i) % weapons.Num()];
-		return weapon;
+	int index = FMath::RandHelper(WeaponSlots.Num());
+	for(int i = 0; i < WeaponSlots.Num(); i++) {
+		int nextIndex = (index + i) % WeaponSlots.Num();
+		auto slot = WeaponSlots[nextIndex];
+		if(!slot.Weapon || slot.Weapon->CurrentAmmo == 0)
+			continue;
+		return slot.Weapon;
 	}
 	return NULL;
 }
 
-ABaseWeapon* UWeaponInventory::GetWeapon(int index) {
-	if(index < 0 || index >= weapons.Num())
+ABaseWeapon* UWeaponInventory::GetWeapon(EInventorySlotPosition slot) {
+	int index = GetWeaponSlotIndex(slot);
+	if(index < 0)
 		return NULL;
-	return weapons[index];
+	return WeaponSlots[index].Weapon;
 }
 
 int UWeaponInventory::GetWeaponNum() {
-	return weapons.Num();
+	return WeaponSlots.Num();
 }
 
 ABaseWeapon* UWeaponInventory::GetWeaponByClass(UClass* weaponClass) {
-	for(ABaseWeapon* weapon : weapons)
-		if(weapon->IsA(weaponClass))
-			return weapon;
+	for(auto& item : WeaponSlots)
+		if(item.Weapon && item.Weapon->IsA(weaponClass))
+			return item.Weapon;
 	return NULL;
+}
+
+int UWeaponInventory::GetWeaponSlotIndex(ABaseWeapon* weapon) {
+	for(int i = 0; i < WeaponSlots.Num(); i++) {
+		if(WeaponSlots[i].Weapon == weapon)
+			return i;
+	}
+	return -1;
+}
+
+int UWeaponInventory::GetWeaponSlotIndex(EInventorySlotPosition type) {
+	for(int i = 0; i < WeaponSlots.Num(); i++) {
+		if(WeaponSlots[i].SlotPosition == type)
+			return i;
+	}
+	return -1;
 }

@@ -55,7 +55,15 @@ public:
 		int GetTeamScore(int team);
 
 	UFUNCTION()
+		void PrepareForMatchStart(int SpawnPointCount);
+
+	UFUNCTION()
+		void PrepareForRoundStart();
+
+	UFUNCTION()
 		void ResetPlayerScores();
 	UFUNCTION()
 		void ResetTotalPlayerScores();
+
+	void PreparePlayerStatesForRoundStart();
 };

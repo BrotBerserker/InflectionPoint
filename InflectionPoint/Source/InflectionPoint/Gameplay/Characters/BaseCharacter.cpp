@@ -78,7 +78,7 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterHeadDisplay->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
 	CharacterHeadDisplay->SetWidgetSpace(EWidgetSpace::Screen);
 	CharacterHeadDisplay->SetVisibility(true);
-	CharacterHeadDisplay->RegisterComponent();
+	//CharacterHeadDisplay->RegisterComponent();
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -100,7 +100,7 @@ bool ABaseCharacter::IsReadyForInitialization() {
 
 void ABaseCharacter::Initialize() {
 	if(IsLocallyControlled()) {
-		ServerEquipSpecificWeapon(0);
+		ServerEquipSpecificWeapon(EInventorySlotPosition::Weapon1);
 	}
 }
 
@@ -250,7 +250,7 @@ bool ABaseCharacter::ServerStartFire_Validate() {
 
 void ABaseCharacter::ServerStartFire_Implementation() {
 	DrawDebugArrow();
-	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
+	if(!CurrentWeapon)
 		return;
 	CurrentWeapon->StartFire();
 }
@@ -271,7 +271,8 @@ void ABaseCharacter::ServerStopFire_Implementation() {
 
 void ABaseCharacter::StartAiming() {
 	IsAiming = true;
-	CurrentWeapon->StartAiming();
+	if(CurrentWeapon)
+		CurrentWeapon->StartAiming();
 	auto controller = Cast<APlayerControllerBase>(GetController());
 	if(controller)
 		controller->OnStartAiming(CurrentWeapon);
@@ -289,7 +290,8 @@ void ABaseCharacter::ServerStartAiming_Implementation() {
 
 void ABaseCharacter::MulticastStartAiming_Implementation() {
 	IsAiming = true;
-	CurrentWeapon->StartAiming();
+	if(CurrentWeapon)
+		CurrentWeapon->StartAiming();
 	auto controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
 	if(controller && controller->SpectatedCharacter == this) {
 		controller->OnStartAiming(CurrentWeapon);
@@ -350,12 +352,12 @@ void ABaseCharacter::ServerEquipPreviousWeapon_Implementation() {
 	EquipWeapon(WeaponInventory->GetPreviousUsableWeapon(CurrentWeapon), CurrentWeapon);
 }
 
-bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(int index) {
+bool ABaseCharacter::ServerEquipSpecificWeapon_Validate(EInventorySlotPosition slot) {
 	return true;
 }
 
-void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(int index) {
-	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(index);
+void ABaseCharacter::ServerEquipSpecificWeapon_Implementation(EInventorySlotPosition slot) {
+	ABaseWeapon* newWeapon = WeaponInventory->GetWeapon(slot);
 	if(newWeapon && CurrentWeapon != newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
 }
@@ -375,9 +377,6 @@ bool ABaseCharacter::ServerPickWeaponUp_Validate(UClass* weapon) {
 }
 
 void ABaseCharacter::ServerPickWeaponUp_Implementation(UClass* weapon) {
-	//if(WeaponInventory->IsWeaponUsable(weapon))
-	//	return;
-	//WeaponInventory->SetWeaponUsabilityStatus(weapon, true);
 	auto newWeapon = WeaponInventory->GetWeaponByClass(weapon);
 	if(newWeapon)
 		EquipWeapon(newWeapon, CurrentWeapon);
@@ -390,8 +389,22 @@ void ABaseCharacter::OnRep_CurrentWeapon(ABaseWeapon* OldWeapon) {
 void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon) {
 	CurrentWeapon = NewWeapon;
 
-	if(OldWeapon)
+	if(OldWeapon) {
+		if(IsAiming) {
+			OldWeapon->StopAiming();
+		}
+		Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(CurrentWeapon->AnimationNotifyDelegate);
+		Mesh1P->GetAnimInstance()->OnMontageEnded.Remove(CurrentWeapon->AnimationEndDelegate);
+		Mesh1P->GetAnimInstance()->Montage_Stop(0, CurrentWeapon->ReloadAnimation1P);
 		OldWeapon->OnUnequip();
+	}
+	
+	Mesh1P->GetAnimInstance()->Montage_Play(CurrentWeapon->EquipAnimation1P);
+	Mesh3P->GetAnimInstance()->Montage_Play(CurrentWeapon->EquipAnimation3P);
+
+	if(IsAiming) {
+		CurrentWeapon->StartAiming();
+	}
 	CurrentWeapon->OnEquip();
 
 	MulticastWeaponChanged(NewWeapon, OldWeapon);

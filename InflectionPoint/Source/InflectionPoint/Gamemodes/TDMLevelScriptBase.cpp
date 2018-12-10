@@ -46,6 +46,7 @@ void ATDMLevelScriptBase::PrepareAndStartSequence(ACameraActor* camera, ALevelSe
 void ATDMLevelScriptBase::StartSequence(APlayerController* controller, ACameraActor* camera, ALevelSequenceActor* sequenceActor, float fadeTime) {
 	controller->ClientSetCameraFade(true, FColor::Black, FVector2D(1, 0), fadeTime);
 	controller->SetViewTargetWithBlend(camera);
+	sequenceActor->SequencePlayer->PlayToSeconds(0);
 	sequenceActor->SequencePlayer->Play();
 	sequenceActor->SequencePlayer->OnStop.AddDynamic(this, &ATDMLevelScriptBase::CleanUpAfterSequence);
 }

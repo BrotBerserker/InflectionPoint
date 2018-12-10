@@ -4,6 +4,9 @@
 
 #include "GameFramework/PlayerController.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Shop/BaseShopItem.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
+#include "Gamemodes/TDMPlayerStateBase.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "PlayerControllerBase.generated.h"
 
@@ -52,10 +55,28 @@ public:
 		void OnShowRoundEnd(int winningTeam);
 
 	UFUNCTION(Client, Reliable)
-		void ClientShowCountdownNumber(int number);
+		void ClientShowPhaseCountdownNumber(int number);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnCountdownUpdate(int number);
+		void OnPhaseCountdownUpdate(int number);
+
+	UFUNCTION(Client, Reliable)
+		void ClientShowMatchCountdownNumber(int number);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnMatchCountdownUpdate(int number);	
+	
+	UFUNCTION(Client, Reliable)
+		void ClientShowShopCountdownNumber(int number);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnShopCountdownUpdate(int number);
+
+	UFUNCTION(CLient, Reliable)
+		void ClientShowShop(bool intelligentSmartResetBoolean);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnShowShop(bool intelligentSmartResetBoolean);
 
 	UFUNCTION(Client, Reliable)
 		void ClientSetIgnoreInput(bool ignore);
@@ -82,6 +103,16 @@ public:
 
 	UFUNCTION()
 		bool IsLookingAtActor(AActor* actor, float distance = 130);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerPurchaseShopItem(TSubclassOf<class UBaseShopItem> itemClass);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerEquipShopItem(EInventorySlotPosition inventorySlot, TSubclassOf<class UBaseShopItem> item);
+
+	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
+		void ServerUnequipShopItemFromSlot(EInventorySlotPosition slot);
+
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		class ABaseCharacter* SpectatedCharacter;
