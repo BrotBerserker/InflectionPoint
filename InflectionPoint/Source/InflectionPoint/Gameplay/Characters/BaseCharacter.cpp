@@ -100,7 +100,7 @@ bool ABaseCharacter::IsReadyForInitialization() {
 
 void ABaseCharacter::Initialize() {
 	if(IsLocallyControlled()) {
-		ServerEquipSpecificWeapon(EInventorySlotPosition::Weapon1);
+		ServerEquipNextWeapon();
 	}
 }
 

@@ -89,7 +89,8 @@ ABaseWeapon* UWeaponInventory::GetNextWeaponInDirection(ABaseWeapon* CurrentWeap
 	int currentIndex = GetWeaponSlotIndex(CurrentWeapon);
 	if(currentIndex < 0)
 		currentIndex = 0;
-	for(int i = 1; i < WeaponSlots.Num() + 1; i++) {
+	int startOffset = CurrentWeapon ? 1 : 0; // if weapon null start with first weapon
+	for(int i = startOffset; i < WeaponSlots.Num() + 1; i++) {
 		int modifier = isDirectionForward ? i : i * (-1) + WeaponSlots.Num(); // if moving right or left
 		int index = (currentIndex + modifier) % WeaponSlots.Num();
 		if(WeaponSlots[index].Weapon != nullptr)
@@ -99,11 +100,11 @@ ABaseWeapon* UWeaponInventory::GetNextWeaponInDirection(ABaseWeapon* CurrentWeap
 }
 
 ABaseWeapon* UWeaponInventory::GetNextWeapon(ABaseWeapon* CurrentWeapon) {
-	return GetNextWeaponInDirection(CurrentWeapon, false);
+	return GetNextWeaponInDirection(CurrentWeapon, true);
 }
 
 ABaseWeapon* UWeaponInventory::GetPreviousWeapon(ABaseWeapon* CurrentWeapon) {
-	return GetNextWeaponInDirection(CurrentWeapon, true);
+	return GetNextWeaponInDirection(CurrentWeapon, false);
 }
 
 ABaseWeapon* UWeaponInventory::GetNextUsableWeapon(ABaseWeapon* CurrentWeapon) {
@@ -157,7 +158,7 @@ ABaseWeapon* UWeaponInventory::GetWeaponByClass(UClass* weaponClass) {
 }
 
 int UWeaponInventory::GetWeaponSlotIndex(ABaseWeapon* weapon) {
-	for(int i = 0; i < WeaponSlots.Num(); i++) {
+	for(int i = 0; weapon && i < WeaponSlots.Num(); i++) {
 		if(WeaponSlots[i].Weapon == weapon)
 			return i;
 	}
