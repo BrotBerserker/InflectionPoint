@@ -62,9 +62,19 @@ void UWeaponInventory::SetWeaponAtPosition(EInventorySlotPosition position, TSub
 	AssertTrue(GetOwner()->HasAuthority(), GetWorld(), __FILE__, __LINE__, "Only call on server");
 	int index = GetWeaponSlotIndex(position);
 	AssertTrue(index >= 0, GetWorld(), __FILE__, __LINE__, "Inventory Slot dose not exist!");
+	auto weapon = GetWeaponByClass(weaponClass);
+	if(weapon) {
+		// move weapon to new slot
+		int index2 = GetWeaponSlotIndex(weapon);
+		WeaponSlots[index2].Weapon = nullptr;
+	} else {
+		// create new weapon
+		weapon = SpawnWeapon(weaponClass);
+	}
+	// remove old weapon from slot
 	if(WeaponSlots[index].Weapon)
 		ClearWeaponSlot(WeaponSlots[index]);
-	WeaponSlots[index].Weapon = SpawnWeapon(weaponClass);
+	WeaponSlots[index].Weapon = weapon;
 }
 
 ABaseWeapon* UWeaponInventory::SpawnWeapon(TSubclassOf<ABaseWeapon> weaponClass) {
