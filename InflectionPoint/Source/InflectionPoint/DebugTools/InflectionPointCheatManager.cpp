@@ -46,7 +46,9 @@ void UInflectionPointCheatManager::CloseShop() {
 	auto controller = Cast<APlayerControllerBase>(GetWorld()->GetFirstPlayerController());
 	auto playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
 	auto character = Cast<ABaseCharacter>(controller->GetPawn());
-	controller->ClientShowPhaseCountdownNumber(0); // to switch to ingame View
+	controller->ClientShowPhaseCountdownNumber(0); // switch HUD view
+	controller->SetInputMode(FInputModeGameOnly());
+	controller->bShowMouseCursor = false;
 	// Equipp Items
 	for(int i = 0; i < playerState->EquippedShopItems.Num(); i++) {
 		auto item = playerState->EquippedShopItems[i];
