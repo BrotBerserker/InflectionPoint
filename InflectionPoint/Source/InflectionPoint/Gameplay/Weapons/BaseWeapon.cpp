@@ -51,7 +51,6 @@ ABaseWeapon::ABaseWeapon() {
 	TP_MuzzleLocation->SetRelativeLocation(FVector(0.7f, 56.f, 10.8f));
 
 	AnimationNotifyDelegate.BindUFunction(this, "ReloadAnimationNotifyCallback");
-	AnimationEndDelegate.BindUFunction(this, "ReloadAnimationEndCallback");
 
 	AISuitabilityWeaponRangeCurve.GetRichCurve()->DefaultValue = 1.0;
 	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(0, 1.0);
@@ -127,6 +126,7 @@ void ABaseWeapon::Tick(float DeltaTime) {
 }
 
 void ABaseWeapon::StartFire() {
+	wantsToFire = true;
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
 		MulticastSpawnNoAmmoSound();
 	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
@@ -174,6 +174,7 @@ void ABaseWeapon::OnEquip() {
 }
 
 void ABaseWeapon::OnUnequip() {
+	wantsToFire = false;
 	UpdateEquippedState(false);
 }
 
@@ -210,6 +211,7 @@ void ABaseWeapon::PlayFireAnimation() {
 }
 
 void ABaseWeapon::StopFire() {
+	wantsToFire = false;
 	if(CurrentState == EWeaponState::FIRING) {
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
@@ -218,7 +220,6 @@ void ABaseWeapon::StopFire() {
 void ABaseWeapon::Reload() {
 	if(CurrentState != EWeaponState::RELOADING && CurrentState != EWeaponState::EQUIPPING && CurrentAmmoInClip != ClipSize && CurrentAmmoInClip != CurrentAmmo) {
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(AnimationNotifyDelegate);
-		OwningCharacter->Mesh1P->GetAnimInstance()->OnMontageEnded.AddUnique(AnimationEndDelegate);
 
 		ChangeWeaponState(EWeaponState::RELOADING);
 		MulticastPlayReloadAnimation();
@@ -241,13 +242,11 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 		CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
-		ChangeWeaponState(EWeaponState::IDLE);
-	}
-}
-
-void ABaseWeapon::ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted) {
-	if(Montage == ReloadAnimation1P && CurrentState == EWeaponState::RELOADING) {
-		ChangeWeaponState(EWeaponState::IDLE);
+		if(wantsToFire) {
+			ChangeWeaponState(EWeaponState::FIRING);
+		} else {
+			ChangeWeaponState(EWeaponState::IDLE);
+		}
 	}
 }
 

@@ -276,10 +276,6 @@ public:
 	UFUNCTION()
 		void ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);
 
-	/** Callback for when the reload animation ends or is interrupted */
-	UFUNCTION()
-		void ReloadAnimationEndCallback(UAnimMontage* Montage, bool bInterrupted);
-
 	/** Returns the 1st person muzzle location */
 	FVector GetFPMuzzleLocation();
 	UFUNCTION()
@@ -312,7 +308,6 @@ public:
 
 public:
 		FScriptDelegate AnimationNotifyDelegate;
-		FScriptDelegate AnimationEndDelegate;
 
 protected:
 	UPROPERTY(Replicated)
@@ -322,6 +317,7 @@ protected:
 
 	float timeSinceLastShot = 0.f;
 
+	bool wantsToFire = false;
 
 	bool equipped = false;
 	bool RecordKeyReleaseNextTick = false;

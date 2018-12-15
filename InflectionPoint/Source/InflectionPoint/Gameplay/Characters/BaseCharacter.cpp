@@ -394,7 +394,6 @@ void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon)
 			OldWeapon->StopAiming();
 		}
 		Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.Remove(CurrentWeapon->AnimationNotifyDelegate);
-		Mesh1P->GetAnimInstance()->OnMontageEnded.Remove(CurrentWeapon->AnimationEndDelegate);
 		Mesh1P->GetAnimInstance()->Montage_Stop(0, CurrentWeapon->ReloadAnimation1P);
 		OldWeapon->OnUnequip();
 	}
