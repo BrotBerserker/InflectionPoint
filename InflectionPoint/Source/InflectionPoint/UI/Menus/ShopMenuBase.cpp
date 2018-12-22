@@ -47,6 +47,23 @@ UBaseShopItem* UShopMenuBase::GetEquippedItem(EInventorySlotPosition inventorySl
 	return EquippedShopItems[inventorySlot].GetDefaultObject();
 }
 
+UBaseShopItem* UShopMenuBase::GetDefaultItem(EInventorySlotPosition inventorySlot) {
+	if(DefaultShopItems.Contains(inventorySlot))
+		return DefaultShopItems[inventorySlot].GetDefaultObject();
+	return nullptr;
+}
+
+bool UShopMenuBase::IsDefaultItemActive(EInventorySlotPosition inventorySlot) {
+	if(!DefaultShopItems.Contains(inventorySlot) || EquippedShopItems.Contains(inventorySlot))
+		return false;
+	auto defaultItemClass = DefaultShopItems[inventorySlot];
+	for(auto& item : EquippedShopItems) {
+		if(item.Value == defaultItemClass)
+			return false;
+	}
+	return true;
+}
+
 void UShopMenuBase::EquipItem(EInventorySlotPosition inventorySlot, UBaseShopItem* item) {
 	UnequipItemFromSlot(inventorySlot);
 	if(!item)

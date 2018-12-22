@@ -23,6 +23,9 @@ public:
 	TArray<TSubclassOf<class UBaseShopItem>> PurchasedShopItems;
 
 	TMap<EInventorySlotPosition, TSubclassOf<class UBaseShopItem>> EquippedShopItems;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TMap<EInventorySlotPosition, TSubclassOf<class UBaseShopItem>> DefaultShopItems;
 public:
 
 	UFUNCTION(BlueprintCallable)
@@ -41,6 +44,12 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		class UBaseShopItem* GetEquippedItem(EInventorySlotPosition slotName);
+
+	UFUNCTION(BlueprintCallable)
+		class UBaseShopItem* GetDefaultItem(EInventorySlotPosition slotName);
+
+	UFUNCTION(BlueprintCallable)
+		bool IsDefaultItemActive(EInventorySlotPosition slotName);
 
 	UFUNCTION(BlueprintCallable)
 		void EquipItem(EInventorySlotPosition inventorySlot, class UBaseShopItem* item);

@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
+#include "Gameplay/Characters/BaseCharacter.h"
+#include "Gamemodes/TDMPlayerStateBase.h"
 #include "WeaponInventory.h"
 
 
@@ -109,7 +111,7 @@ ABaseWeapon* UWeaponInventory::GetPreviousWeapon(ABaseWeapon* CurrentWeapon) {
 
 ABaseWeapon* UWeaponInventory::GetNextUsableWeapon(ABaseWeapon* CurrentWeapon) {
 	auto nextWeapon = GetNextWeapon(CurrentWeapon);
-	for(int i = 0; i < WeaponSlots.Num(); i++) {
+	for(int i = 0; nextWeapon && i < WeaponSlots.Num(); i++) {
 		if(nextWeapon->CurrentAmmo != 0)
 			return nextWeapon;
 		nextWeapon = GetNextWeapon(CurrentWeapon);
@@ -119,7 +121,7 @@ ABaseWeapon* UWeaponInventory::GetNextUsableWeapon(ABaseWeapon* CurrentWeapon) {
 
 ABaseWeapon* UWeaponInventory::GetPreviousUsableWeapon(ABaseWeapon* CurrentWeapon) {
 	auto nextWeapon = GetPreviousWeapon(CurrentWeapon);
-	for(int i = 0; i < WeaponSlots.Num(); i++) {
+	for(int i = 0; nextWeapon && i < WeaponSlots.Num(); i++) {
 		if(nextWeapon->CurrentAmmo != 0)
 			return nextWeapon;
 		nextWeapon = GetPreviousWeapon(CurrentWeapon);
