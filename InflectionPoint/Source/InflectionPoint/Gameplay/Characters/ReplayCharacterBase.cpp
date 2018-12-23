@@ -18,11 +18,19 @@ AReplayCharacterBase::AReplayCharacterBase() {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryActorTick.bCanEverTick = true;
+
+	// Create another Mesh3P for post process effects
+	Mesh3PPostProcess = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh3PPostProcess"));
+	Mesh3PPostProcess->SetupAttachment(GetCapsuleComponent());
+	Mesh3PPostProcess->SetOwnerNoSee(true);
+	Mesh3PPostProcess->RelativeLocation = Mesh3P->RelativeLocation;
+	Mesh3PPostProcess->RelativeRotation = Mesh3P->RelativeRotation;
 }
 
 void AReplayCharacterBase::BeginPlay() {
 	Super::BeginPlay();
 	//PrimaryActorTick.bCanEverTick = true;
+	Mesh3PPostProcess->SetMasterPoseComponent(Mesh3P);
 }
 
 bool AReplayCharacterBase::IsReadyForInitialization() {
@@ -43,7 +51,7 @@ void AReplayCharacterBase::Initialize() {
 	Super::Initialize();
 	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
 	auto playerState = Cast<ATDMPlayerStateBase>(owningController->PlayerState);
-	Mesh3P->SetCustomDepthStencilValue(CharacterInfoProvider->GetCharacterInfo().Team * 10 + 1);
+	Mesh3PPostProcess->SetCustomDepthStencilValue(CharacterInfoProvider->GetCharacterInfo().Team * 10 + 1);
 }
 
 void AReplayCharacterBase::StartReplay() {
@@ -82,6 +90,7 @@ void AReplayCharacterBase::MulticastShowDematerializeAnimation_Implementation() 
 	dematerializeInstanceDynamic->SetVectorParameterValue("BaseColor", gameState->GetTeamColor(CharacterInfoProvider->GetCharacterInfo().Team));
 
 	OverrideMaterials(Mesh3P, dematerializeInstanceDynamic);
+	OverrideMaterials(Mesh3PPostProcess, dematerializeInstanceDynamic);
 	if(CurrentWeapon)
 		OverrideMaterials(CurrentWeapon->Mesh3P, dematerializeInstanceDynamic);
 

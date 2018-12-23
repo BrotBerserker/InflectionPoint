@@ -15,6 +15,16 @@ class INFLECTIONPOINT_API AReplayCharacterBase : public ABaseCharacter {
 	GENERATED_BODY()
 
 		DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFinishedReplaying);
+
+public:
+	/* -------------- */
+	/*   Components   */
+	/* -------------- */
+
+	/** Mesh3P for post processing */
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly, Category = Mesh)
+		class USkeletalMeshComponent* Mesh3PPostProcess;
+
 public:
 	/* ------------------ */
 	/* Editor Settings */
