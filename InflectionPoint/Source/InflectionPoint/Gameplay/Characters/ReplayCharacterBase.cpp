@@ -44,7 +44,6 @@ void AReplayCharacterBase::Initialize() {
 	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
 	auto playerState = Cast<ATDMPlayerStateBase>(owningController->PlayerState);
 	Mesh3P->SetCustomDepthStencilValue(CharacterInfoProvider->GetCharacterInfo().Team * 10 + 1);
-	UE_LOG(LogTemp, Warning, TEXT("asdasf %i"), Mesh3P->CustomDepthStencilValue);
 }
 
 void AReplayCharacterBase::StartReplay() {

@@ -79,7 +79,7 @@ void APlayerCharacterBase::UpdateMesh3PRenderCustomDepth() {
 		bool canSeeCharacter = controller->LineOfSightTo(this);
 		auto playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
 		bool isInSameTeam = playerState ? playerState->Team == CharacterInfoProvider->GetCharacterInfo().Team : false;
-		Mesh3P->SetRenderCustomDepth(isInSameTeam && !canSeeCharacter);
+		Mesh3P->SetRenderCustomDepth(!isInSameTeam || !canSeeCharacter);
 	}
 }
 
