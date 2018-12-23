@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "Gamemodes/TDMPlayerStateBase.h"
 #include "TDMGameStateBase.h"
+#include "Gameplay/CharacterInfoProvider.h"
 
 
 void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const {
@@ -30,6 +31,21 @@ void ATDMGameStateBase::PrepareForRoundStart() {
 	PreparePlayerStatesForRoundStart();
 	CurrentPhase = 0;
 	CurrentRound++;
+}
+
+FColor ATDMGameStateBase::GetTeamColor(int Team) {
+	if(Team == 0) {
+		return NeutralColor;
+	}
+	ACharacter* character = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetCharacter();
+	if(!character) {
+		return NeutralColor;
+	}
+	UCharacterInfoProvider* provider = character->FindComponentByClass<UCharacterInfoProvider>();
+	if(!provider) {
+		return NeutralColor;
+	}
+	return provider->GetCharacterInfo().Team == Team ? FriendlyColor : EnemyColor;
 }
 
 int ATDMGameStateBase::GetTeamScore(int team) {

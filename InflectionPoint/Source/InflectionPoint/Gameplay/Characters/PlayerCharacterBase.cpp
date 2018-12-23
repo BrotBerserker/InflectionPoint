@@ -16,8 +16,8 @@ bool APlayerCharacterBase::IsReadyForInitialization() {
 
 void APlayerCharacterBase::Initialize() {
 	Super::Initialize();
-	ApplyTeamColor(Cast<ATDMPlayerStateBase>(GetPlayerState()));
-	//ShowSpawnAnimation();
+	auto playerState = Cast<ATDMPlayerStateBase>(GetPlayerState());
+	Mesh3P->SetCustomDepthStencilValue(playerState->Team * 10);
 }
 
 
@@ -67,8 +67,6 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	PlayerStateRecorder->InitializeBindings(PlayerInputComponent);
 }
-
-
 
 void APlayerCharacterBase::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);

@@ -42,14 +42,20 @@ public:
 		TArray<int> TeamWins;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<FColor> TeamColors;
+		FColor NeutralColor;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<FColor> ReplayTeamColors;
+		FColor FriendlyColor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FColor EnemyColor;
 
 public:
 	/** Needed for replication */
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+		FColor GetTeamColor(int Team);
 
 	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
 		int GetTeamScore(int team);

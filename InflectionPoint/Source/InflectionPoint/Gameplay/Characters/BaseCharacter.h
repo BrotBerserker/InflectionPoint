@@ -133,13 +133,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnInitialized();
 
-	/** Applies the team color to Mesh3P and Mesh1P */
-	UFUNCTION(BlueprintCallable)
-		void ApplyTeamColor(ATDMPlayerStateBase* state);
-
-	/** Applies the team color to Mesh3P and Mesh1P via Multicast */
-	UFUNCTION(BlueprintCallable, NetMulticast, Unreliable)
-		void MulticastApplyTeamColor(ATDMPlayerStateBase* state);
 
 	/** Shows a spawn animation using Materialize effects */
 	UFUNCTION(BlueprintCallable)
@@ -331,8 +324,6 @@ public:
 		bool IsAiming = false;
 private:
 	void UpdateFieldOfView(float DeltaTime);
-
-	void ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color);
 
 private:
 	bool initialized = false;

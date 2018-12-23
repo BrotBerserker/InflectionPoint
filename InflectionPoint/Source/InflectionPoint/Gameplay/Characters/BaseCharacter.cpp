@@ -150,34 +150,6 @@ bool ABaseCharacter::IsInSameTeamAs(class ABaseCharacter* character) {
 	return CharacterInfoProvider->IsInSameTeamAs(character);
 }
 
-void ABaseCharacter::ApplyTeamColor(ATDMPlayerStateBase* playerState) {
-	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
-	AssertNotNull(gameState, GetWorld(), __FILE__, __LINE__, TEXT("GameState is null!"));
-
-	auto bodyMetalColor = IsAReplay() ? gameState->ReplayTeamColors[playerState->Team] : gameState->TeamColors[playerState->Team];
-	ApplyColorToMaterials(Mesh3P, bodyMetalColor);
-	ApplyColorToMaterials(Mesh1P, bodyMetalColor);
-}
-
-
-void ABaseCharacter::ApplyColorToMaterials(UMeshComponent* mesh, FLinearColor color) {
-	auto unusedColor = FLinearColor(); // only needed for checking the vecorParameter
-	for(int i = 0; i < mesh->GetMaterials().Num(); i++) {
-		if(!mesh->GetMaterial(i))
-			continue;
-		bool check = mesh->GetMaterial(i)->GetVectorParameterValue(TeamColorMaterialParameterName, unusedColor);
-		if(!check)
-			continue;
-		UMaterialInstanceDynamic* dynamic = UMaterialInstanceDynamic::Create(mesh->GetMaterial(i), mesh);
-		dynamic->SetVectorParameterValue(TeamColorMaterialParameterName, color);
-		mesh->SetMaterial(i, dynamic);
-	}
-}
-
-void ABaseCharacter::MulticastApplyTeamColor_Implementation(ATDMPlayerStateBase* playerState) {
-	ApplyTeamColor(playerState);
-}
-
 void ABaseCharacter::ShowSpawnAnimation() {
 	if(!SoftAssertTrue(MaterializeCurve != nullptr, GetWorld(), __FILE__, __LINE__, TEXT("No materialize curve has been set!")))
 		return;

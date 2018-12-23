@@ -42,9 +42,9 @@ bool AReplayCharacterBase::IsReadyForInitialization() {
 void AReplayCharacterBase::Initialize() {
 	Super::Initialize();
 	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
-	AssertNotNull(owningController, GetWorld(), __FILE__, __LINE__);
-	MulticastApplyTeamColor(Cast<ATDMPlayerStateBase>(owningController->PlayerState));
-	//MulticastShowSpawnAnimation();
+	auto playerState = Cast<ATDMPlayerStateBase>(owningController->PlayerState);
+	Mesh3P->SetCustomDepthStencilValue(CharacterInfoProvider->GetCharacterInfo().Team * 10 + 1);
+	UE_LOG(LogTemp, Warning, TEXT("asdasf %i"), Mesh3P->CustomDepthStencilValue);
 }
 
 void AReplayCharacterBase::StartReplay() {
@@ -80,8 +80,8 @@ void AReplayCharacterBase::TransformToInflectionPoint() {
 void AReplayCharacterBase::MulticastShowDematerializeAnimation_Implementation() {
 	dematerializeInstanceDynamic = UMaterialInstanceDynamic::Create(DematerializeMaterial, Mesh3P);
 	ATDMGameStateBase* gameState = Cast<ATDMGameStateBase>(UGameplayStatics::GetGameState(GetWorld()));
-	dematerializeInstanceDynamic->SetVectorParameterValue("BaseColor", gameState->TeamColors[CharacterInfoProvider->GetCharacterInfo().Team]);
-	
+	dematerializeInstanceDynamic->SetVectorParameterValue("BaseColor", gameState->GetTeamColor(CharacterInfoProvider->GetCharacterInfo().Team));
+
 	OverrideMaterials(Mesh3P, dematerializeInstanceDynamic);
 	if(CurrentWeapon)
 		OverrideMaterials(CurrentWeapon->Mesh3P, dematerializeInstanceDynamic);
