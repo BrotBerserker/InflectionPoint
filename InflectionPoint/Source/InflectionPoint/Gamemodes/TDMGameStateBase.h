@@ -54,11 +54,17 @@ public:
 	/** Needed for replication */
 	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "InflectionPoint|Gameplay")
 		FColor GetTeamColor(int Team);
 
-	UFUNCTION(BlueprintCallable, Category = "InflectionPoint|Gameplay")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "InflectionPoint|Gameplay")
 		int GetTeamScore(int team);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "InflectionPoint|Gameplay")
+		int GetLocalPlayerTeam();
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "InflectionPoint|Gameplay")
+		int GetLocalPlayerEnemyTeam();
 
 	UFUNCTION()
 		void PrepareForMatchStart(int SpawnPointCount);

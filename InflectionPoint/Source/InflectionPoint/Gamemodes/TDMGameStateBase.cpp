@@ -37,15 +37,11 @@ FColor ATDMGameStateBase::GetTeamColor(int Team) {
 	if(Team == 0) {
 		return NeutralColor;
 	}
-	ACharacter* character = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetCharacter();
-	if(!character) {
+	ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerState);
+	if(!playerState) {
 		return NeutralColor;
 	}
-	UCharacterInfoProvider* provider = character->FindComponentByClass<UCharacterInfoProvider>();
-	if(!provider) {
-		return NeutralColor;
-	}
-	return provider->GetCharacterInfo().Team == Team ? FriendlyColor : EnemyColor;
+	return playerState->Team == Team ? FriendlyColor : EnemyColor;
 }
 
 int ATDMGameStateBase::GetTeamScore(int team) {
@@ -57,6 +53,22 @@ int ATDMGameStateBase::GetTeamScore(int team) {
 			teamScore += tdmPlayerState->Score;
 	}
 	return teamScore;
+}
+
+int ATDMGameStateBase::GetLocalPlayerTeam() {
+	ATDMPlayerStateBase* playerState = Cast<ATDMPlayerStateBase>(UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerState);
+	if(playerState) {
+		return playerState->Team;
+	}
+	return 0;
+}
+
+int ATDMGameStateBase::GetLocalPlayerEnemyTeam() {
+	int team = GetLocalPlayerTeam();
+	if(team != 0) {
+		return FMath::Max((team + 1) % (TeamCount + 1), 1);
+	}
+	return 0;
 }
 
 void ATDMGameStateBase::ResetPlayerScores() {
