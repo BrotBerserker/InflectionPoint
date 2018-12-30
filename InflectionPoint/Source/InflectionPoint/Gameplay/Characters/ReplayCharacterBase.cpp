@@ -49,14 +49,21 @@ bool AReplayCharacterBase::IsReadyForInitialization() {
 
 void AReplayCharacterBase::Initialize() {
 	Super::Initialize();
-	APlayerController* owningController = Cast<AAIControllerBase>(GetController())->OwningPlayerController;
-	auto playerState = Cast<ATDMPlayerStateBase>(owningController->PlayerState);
-	Mesh3PPostProcess->SetCustomDepthStencilValue(CharacterInfoProvider->GetCharacterInfo().Team * 10 + 1);
+	MulticastUpdateCustomDepthStencil();
 }
 
 void AReplayCharacterBase::StartReplay() {
 	replayIndex = 0;
 	isReplaying = true;
+}
+
+void AReplayCharacterBase::MulticastUpdateCustomDepthStencil_Implementation() {
+	auto controller = GetWorld()->GetFirstPlayerController();
+	if(controller) {
+		auto playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
+		bool isInSameTeam = playerState ? playerState->Team == CharacterInfoProvider->GetCharacterInfo().Team : false;
+		Mesh3PPostProcess->SetCustomDepthStencilValue(isInSameTeam ? 11 : 21);
+	}
 }
 
 void AReplayCharacterBase::SetReplayData(TArray<FRecordedPlayerState> RecordData) {

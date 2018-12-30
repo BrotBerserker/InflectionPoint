@@ -16,8 +16,6 @@ bool APlayerCharacterBase::IsReadyForInitialization() {
 
 void APlayerCharacterBase::Initialize() {
 	Super::Initialize();
-	auto playerState = Cast<ATDMPlayerStateBase>(GetPlayerState());
-	Mesh3P->SetCustomDepthStencilValue(playerState->Team * 10);
 }
 
 
@@ -80,6 +78,7 @@ void APlayerCharacterBase::UpdateMesh3PRenderCustomDepth() {
 		auto playerState = Cast<ATDMPlayerStateBase>(controller->PlayerState);
 		bool isInSameTeam = playerState ? playerState->Team == CharacterInfoProvider->GetCharacterInfo().Team : false;
 		Mesh3P->SetRenderCustomDepth(!isInSameTeam || !canSeeCharacter);
+		Mesh3P->SetCustomDepthStencilValue(isInSameTeam ? 10 : 20);
 	}
 }
 
@@ -107,7 +106,7 @@ void APlayerCharacterBase::DEBUG_ServerSpawnReplay_Implementation() {
 	AssertNotNull(PlayerStateRecorder, GetWorld(), __FILE__, __LINE__);
 	newPlayer->SetReplayData(PlayerStateRecorder->RecordedPlayerStates);
 	Cast<AAIControllerBase>(newPlayer->GetController())->Initialize(Cast<APlayerController>(GetController()));
-	
+
 	newPlayer->StartReplay();
 }
 

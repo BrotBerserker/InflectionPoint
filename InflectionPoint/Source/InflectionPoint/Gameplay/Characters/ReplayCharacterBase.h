@@ -169,6 +169,10 @@ private:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastShowDematerializeAnimation();
 
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastUpdateCustomDepthStencil();
+
+
 	void OverrideMaterials(USkeletalMeshComponent* Mesh, UMaterialInterface* Material);
 
 	UFUNCTION()
