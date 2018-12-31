@@ -12,6 +12,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
+	DOREPLIFETIME(ABaseWeapon, SelectedTargetComponent);
 }
 
 // Sets default values
@@ -108,20 +109,18 @@ void ABaseWeapon::AttachToOwner() {
 
 void ABaseWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	if(!HasAuthority()) {
-		return;
-	}
+	if(HasAuthority()) {
+		timeSinceLastShot += DeltaTime;
 
-	timeSinceLastShot += DeltaTime;
-
-	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
-		&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= ReloadDelay) {
-		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
-	} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
-		Fire();
-	} else if(Recorder && RecordKeyReleaseNextTick) {
-		RecordKeyReleaseNextTick = false;
-		Recorder->ServerRecordKeyReleased("WeaponFired");
+		if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
+			&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= ReloadDelay) {
+			StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
+		} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
+			Fire();
+		} else if(Recorder && RecordKeyReleaseNextTick) {
+			RecordKeyReleaseNextTick = false;
+			Recorder->ServerRecordKeyReleased("WeaponFired");
+		}
 	}
 }
 

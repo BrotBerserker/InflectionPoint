@@ -18,7 +18,7 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
 
 	CollisionDamageDealer = CreateDefaultSubobject<UCollisionDamageDealer>(TEXT("CollisionDamageDealer"));
-	
+
 	// Initialize MortalityProvider
 	MortalityProvider = CreateDefaultSubobject<UMortalityProvider>(TEXT("MortalityProvider"));
 	MortalityProvider->SetIsReplicated(true);

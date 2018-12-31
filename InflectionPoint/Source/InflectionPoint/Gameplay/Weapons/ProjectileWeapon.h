@@ -21,6 +21,9 @@ public:
 
 	void UpdateSelectedTarget();
 
+	UFUNCTION(Server, WithValidation, Reliable)
+		void ServerSetSelectedTarget(UPrimitiveComponent* NewTarget);
+
 	void SetTargetMarkerVisibility(AActor* actor, bool visible);
 
 	/** Projectile class to spawn */
@@ -28,5 +31,7 @@ public:
 		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
 
 	void ExecuteFire() override;
+
+	virtual void OnUnequip() override;
 
 };

@@ -306,7 +306,7 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmoInClip;
 
-	UPROPERTY(BlueprintReadWrite)
+	UPROPERTY(Replicated, BlueprintReadWrite)
 		UPrimitiveComponent* SelectedTargetComponent;
 
 public:

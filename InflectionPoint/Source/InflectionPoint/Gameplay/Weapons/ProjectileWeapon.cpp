@@ -10,16 +10,19 @@ AProjectileWeapon::AProjectileWeapon() {
 
 void AProjectileWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
+
+	if(!Cast<ABaseCharacter>(GetOwner())->IsLocallyControlled()) {
+		return;
+	}
+
 	if(ProjectileClass.GetDefaultObject()->Homing) {
 		UpdateSelectedTarget();
-	} else if(SelectedTargetComponent) {
-		SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
-	}
+	} 
 }
 
 void AProjectileWeapon::UpdateSelectedTarget() {
-	FVector StartLocation = GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetCameraLocation();
-	FVector EndLocation = StartLocation + GetWorld()->GetFirstPlayerController()->PlayerCameraManager->GetActorForwardVector() * 3000;
+	FVector StartLocation = Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetComponentLocation();
+	FVector EndLocation = StartLocation + Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetForwardVector() * 3000;
 	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(25, 1, 1));
 	FQuat ShapeRotation = FQuat(0, 0, 0, 0);
 	FCollisionObjectQueryParams ObjectQueryParams;
@@ -29,17 +32,40 @@ void AProjectileWeapon::UpdateSelectedTarget() {
 	FHitResult SweepResult;
 	bool hit = GetWorld()->SweepSingleByObjectType(SweepResult, StartLocation, EndLocation, ShapeRotation, ObjectQueryParams, Shape, QueryParams);
 	if(hit) {
+		if(SelectedTargetComponent == SweepResult.Component.Get()) {
+			return;
+		}
 		if(SelectedTargetComponent) {
 			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
 		}
 		SetTargetMarkerVisibility(SweepResult.Actor.Get(), true);
 		SelectedTargetComponent = SweepResult.Component.Get();
+		ServerSetSelectedTarget(SweepResult.Component.Get());
 	}
 }
 
+bool AProjectileWeapon::ServerSetSelectedTarget_Validate(UPrimitiveComponent* NewTarget) {
+	return true;
+}
+
+void AProjectileWeapon::ServerSetSelectedTarget_Implementation(UPrimitiveComponent* NewTarget) {
+	SelectedTargetComponent = NewTarget;
+}
+
 void AProjectileWeapon::SetTargetMarkerVisibility(AActor* actor, bool visible) {
+	if(GetOwner()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo().IsReplay) {
+		return;
+	}
 	if(Cast<ABaseCharacter>(actor)) {
 		Cast<ABaseCharacter>(actor)->TargetMarker->SetVisibility(visible);
+	}
+}
+
+void AProjectileWeapon::OnUnequip() {
+	Super::OnUnequip();
+	if(SelectedTargetComponent) {
+		SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
+		SelectedTargetComponent = NULL;
 	}
 }
 
