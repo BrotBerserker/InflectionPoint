@@ -17,13 +17,23 @@ void AProjectileWeapon::Tick(float DeltaTime) {
 
 	if(ProjectileClass.GetDefaultObject()->Homing) {
 		UpdateSelectedTarget();
-	} 
+	}
+
+	if(SelectedTargetComponent) {
+		if(!Cast<ABaseCharacter>(SelectedTargetComponent->GetOwner())->IsAlive()) {
+			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
+			SelectedTargetComponent = NULL;
+		} else if(GetOwner()->GetDistanceTo(SelectedTargetComponent->GetOwner()) > 3000.f) {
+			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
+			SelectedTargetComponent = NULL;
+		}
+	}
 }
 
 void AProjectileWeapon::UpdateSelectedTarget() {
 	FVector StartLocation = Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetComponentLocation();
 	FVector EndLocation = StartLocation + Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetForwardVector() * 3000;
-	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(25, 1, 1));
+	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(30, 15, 15));
 	FQuat ShapeRotation = FQuat(0, 0, 0, 0);
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECollisionChannel::ECC_Pawn);
@@ -32,7 +42,7 @@ void AProjectileWeapon::UpdateSelectedTarget() {
 	FHitResult SweepResult;
 	bool hit = GetWorld()->SweepSingleByObjectType(SweepResult, StartLocation, EndLocation, ShapeRotation, ObjectQueryParams, Shape, QueryParams);
 	if(hit) {
-		if(SelectedTargetComponent == SweepResult.Component.Get()) {
+		if(SelectedTargetComponent == SweepResult.Component.Get() || !Cast<ABaseCharacter>(SweepResult.Actor.Get())->IsAlive()) {
 			return;
 		}
 		if(SelectedTargetComponent) {
