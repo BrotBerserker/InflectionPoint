@@ -35,6 +35,9 @@ public:
 		class UProjectileMovementComponent* ProjectileMovement;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		bool Homing;
+	
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<AActor> HitEffectClass;
 
 	UPROPERTY(EditDefaultsOnly)
@@ -56,10 +59,13 @@ public:
 		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
-		void OnDamageHit(float Damage, const FHitResult& Hit);
+		void OnTargetHit(float Damage, const FHitResult& Hit);
+	
+	UFUNCTION()
+		void OnPawnHit(float Damage, const FHitResult& Hit);
 
 	UFUNCTION()
-		void OnHarmlessHit(const FHitResult& Hit);
+		void OnOtherHit(const FHitResult& Hit);
 
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 		void MulticastSpawnHitEffect();

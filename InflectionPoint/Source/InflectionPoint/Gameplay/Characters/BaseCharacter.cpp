@@ -78,7 +78,13 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterHeadDisplay->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
 	CharacterHeadDisplay->SetWidgetSpace(EWidgetSpace::Screen);
 	CharacterHeadDisplay->SetVisibility(true);
-	//CharacterHeadDisplay->RegisterComponent();
+	
+	TargetMarker = CreateDefaultSubobject<UWidgetComponent>(TEXT("TargetMarker"));
+	TargetMarker->SetupAttachment(GetCapsuleComponent());
+	TargetMarker->SetOwnerNoSee(true);
+	TargetMarker->SetRelativeLocation(FVector(0.f, 0.f, 34.f));
+	TargetMarker->SetWidgetSpace(EWidgetSpace::Screen);
+	TargetMarker->SetVisibility(false);
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -111,6 +117,8 @@ void ABaseCharacter::InitCharacterHeadDisplay() {
 	}
 	CharacterHeadDisplay->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
 	CharacterHeadDisplay->InitWidget();
+	TargetMarker->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
+	TargetMarker->InitWidget();
 	auto headDisplayWidget = Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
 	headDisplayWidget->OwningCharacter = this;
 }

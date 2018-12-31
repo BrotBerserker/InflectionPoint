@@ -243,9 +243,9 @@ public:
 	/** Plays the reload animation on all clients */
 	UFUNCTION(NetMulticast, Reliable)
 		virtual void MulticastPlayReloadAnimation();
-	
+
 	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
-	virtual void ServerIncreaseCurrentAmmo(int amount);
+		virtual void ServerIncreaseCurrentAmmo(int amount);
 
 	/** Called when this weapon is equipped. Sets up attachment, plays equip animation etc. */
 	virtual void OnEquip();
@@ -306,8 +306,11 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmoInClip;
 
+	UPROPERTY(BlueprintReadWrite)
+		UPrimitiveComponent* SelectedTargetComponent;
+
 public:
-		FScriptDelegate AnimationNotifyDelegate;
+	FScriptDelegate AnimationNotifyDelegate;
 
 protected:
 	UPROPERTY(Replicated)
@@ -323,7 +326,7 @@ protected:
 	bool RecordKeyReleaseNextTick = false;
 
 	void UpdateEquippedState(bool equipped);
-	
+
 	UFUNCTION()
 		void ChangeWeaponState(EWeaponState newState);
 

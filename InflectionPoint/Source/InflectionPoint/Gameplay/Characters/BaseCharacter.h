@@ -49,6 +49,9 @@ public:
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 		class UWidgetComponent* CharacterHeadDisplay;
+	
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
+		class UWidgetComponent* TargetMarker;
 public:
 	/* ---------------------- */
 	/*    Editor Settings     */

@@ -37,7 +37,7 @@ AInflectionPointProjectile::AInflectionPointProjectile() {
 	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
 
 	// Die after 5 seconds by default
-	InitialLifeSpan = 5.0f;
+	InitialLifeSpan = 20.0f;
 }
 
 void AInflectionPointProjectile::BeginPlay() {
@@ -46,8 +46,9 @@ void AInflectionPointProjectile::BeginPlay() {
 	startPos = GetActorLocation();
 
 	// We can't do this in the constructor because the Events are not yet initialized then
-	CollisionDamageDealer->OnDamageHit.AddDynamic(this, &AInflectionPointProjectile::OnDamageHit);
-	CollisionDamageDealer->OnHarmlessHit.AddDynamic(this, &AInflectionPointProjectile::OnHarmlessHit);
+	CollisionDamageDealer->OnTargetHit.AddDynamic(this, &AInflectionPointProjectile::OnTargetHit);
+	CollisionDamageDealer->OnPawnHit.AddDynamic(this, &AInflectionPointProjectile::OnPawnHit);
+	CollisionDamageDealer->OnOtherHit.AddDynamic(this, &AInflectionPointProjectile::OnOtherHit);
 	MortalityProvider->OnDeath.AddDynamic(this, &AInflectionPointProjectile::DestroyProjectile);
 	MortalityProvider->StartHealth = 1;
 
@@ -62,6 +63,13 @@ void AInflectionPointProjectile::BeginPlay() {
 	// Avoid collision with instigator
 	((ABaseCharacter*)Instigator)->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
 	CollisionComp->IgnoreActorWhenMoving(Instigator, true);
+
+	if(Homing) {
+		ProjectileMovement->bIsHomingProjectile = true;
+		ProjectileMovement->HomingAccelerationMagnitude = 1000000.f;
+		ProjectileMovement->HomingTargetComponent = Cast<ABaseWeapon>(GetOwner())->SelectedTargetComponent;
+		CollisionDamageDealer->TargetComponent = Cast<ABaseWeapon>(GetOwner())->SelectedTargetComponent;
+	}
 }
 
 void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
@@ -71,18 +79,24 @@ void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* Oth
 	}
 }
 
-void AInflectionPointProjectile::OnDamageHit(float Damage, const FHitResult& Hit) {
-	if(CollisionDamageDealer->DestroyOnDamageDealt) {
+void AInflectionPointProjectile::OnTargetHit(float Damage, const FHitResult& Hit) {
+	if(CollisionDamageDealer->DestroyOnTargetHit) {
+		MulticastSpawnHitEffect();
+	}
+}
+
+void AInflectionPointProjectile::OnPawnHit(float Damage, const FHitResult& Hit) {
+	if(CollisionDamageDealer->DestroyOnPawnHit) {
 		MulticastSpawnHitEffect();
 	}
 	APlayerControllerBase* playerController = Cast<APlayerControllerBase>(Instigator->GetController());
-	if(playerController) {
+	if(playerController && Damage > 0) {
 		playerController->DamageDealt();
 	}
 }
 
-void AInflectionPointProjectile::OnHarmlessHit(const FHitResult& Hit) {
-	if(CollisionDamageDealer->DestroyOnHarmlessHit) {
+void AInflectionPointProjectile::OnOtherHit(const FHitResult& Hit) {
+	if(CollisionDamageDealer->DestroyOnOtherHit) {
 		MulticastSpawnHitEffect();
 	}
 }

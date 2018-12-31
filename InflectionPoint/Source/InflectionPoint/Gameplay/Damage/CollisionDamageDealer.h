@@ -10,8 +10,9 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UCollisionDamageDealer : public UActorComponent {
 	GENERATED_BODY()
 
-		DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDamageHitDelegate, float, damage, const FHitResult&, Hit);
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHarmlessHitDelegate, const FHitResult&, Hit);
+		DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTargetHitDelegate, float, damage, const FHitResult&, Hit);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPawnHitDelegate, float, damage, const FHitResult&, Hit);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOtherHitDelegate, const FHitResult&, Hit);
 
 public:
 	/* ---------------------- */
@@ -20,11 +21,15 @@ public:
 
 	/** Destroys the projectile when it collides with an actor that shouldn't be damaged by this projectile */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
-		bool DestroyOnHarmlessHit = false;
+		bool DestroyOnTargetHit = false;
 
 	/** Destroys the projectile when it collides with an actor that should be damaged by this projectile */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
-		bool DestroyOnDamageDealt = false;
+		bool DestroyOnPawnHit = false;
+
+	/** Destroys the projectile when it collides with an actor that should be damaged by this projectile */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
+		bool DestroyOnOtherHit = false;
 
 	/** Lifetime after Hit when DestroyOnHit or DestroyOnActorHit enabled */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
@@ -41,6 +46,9 @@ public:
 	/** The amount of damage */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "InflectionPoint|Damage")
 		float Damage = 0.;
+
+public:
+	class UPrimitiveComponent* TargetComponent;
 
 public:
 	/* ------------- */
@@ -61,13 +69,16 @@ public:
 	UFUNCTION()
 		void OnCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	UPROPERTY(BlueprintAssignable)
+		FOnTargetHitDelegate OnTargetHit;
+
 	/** Fired when this projectile hit another actor and dealt damage to it */
 	UPROPERTY(BlueprintAssignable)
-		FOnDamageHitDelegate OnDamageHit;
+		FOnPawnHitDelegate OnPawnHit;
 
 	/** Fired when this projectile hit another actor without dealing damage */
 	UPROPERTY(BlueprintAssignable)
-		FOnHarmlessHitDelegate OnHarmlessHit;
+		FOnOtherHitDelegate OnOtherHit;
 
 	/** Inflicts damage to the given actor */
 	float InflictDamage(AActor* DamagedActor);
@@ -75,8 +86,6 @@ public:
 
 private:
 	UShapeComponent* collisionShapeComponent;
-
-	void PerformHitConsequences(bool damageDealed);
 
 	void SpawnFromClassOnHit(const FHitResult & Hit, UClass * &item);
 

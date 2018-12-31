@@ -34,18 +34,27 @@ void UCollisionDamageDealer::BeginPlay() {
 }
 
 void UCollisionDamageDealer::OnCollision(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {
-	OnHarmlessHit.Broadcast(Hit);
-	PerformHitConsequences(false);
+	OnOtherHit.Broadcast(Hit);
+	if(DestroyOnOtherHit) {
+		DestroyOwner();
+	}
 }
 
 void UCollisionDamageDealer::OnOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {
 	bool damageDealt = false;
 
 	float damage = InflictDamage(OtherActor);
-	damageDealt = damage > 0;
-	if(damageDealt)
-		OnDamageHit.Broadcast(damage, SweepResult);
-	PerformHitConsequences(damageDealt);
+	if(OtherComp == TargetComponent) {
+		OnTargetHit.Broadcast(damage, SweepResult);
+		if(DestroyOnTargetHit) {
+			DestroyOwner();
+		}
+	} else {
+		OnPawnHit.Broadcast(damage, SweepResult);
+		if(DestroyOnPawnHit) {
+			DestroyOwner();
+		}
+	}
 }
 
 float UCollisionDamageDealer::InflictDamage(AActor* DamagedActor) {
@@ -53,14 +62,6 @@ float UCollisionDamageDealer::InflictDamage(AActor* DamagedActor) {
 		return 0;
 	AController* instigator = GetOwner()->Instigator ? GetOwner()->Instigator->GetController() : nullptr;
 	return UGameplayStatics::ApplyDamage(DamagedActor, Damage, instigator, DamageCauser, DamageType);
-}
-
-void UCollisionDamageDealer::PerformHitConsequences(bool damageDealt) {
-	bool needsToBeDestroyed =
-		(damageDealt && DestroyOnDamageDealt)
-		|| (!damageDealt && DestroyOnHarmlessHit);
-	if(needsToBeDestroyed)
-		DestroyOwner();
 }
 
 void UCollisionDamageDealer::DestroyOwner() {

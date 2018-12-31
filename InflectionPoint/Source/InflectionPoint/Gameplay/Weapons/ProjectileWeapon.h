@@ -17,6 +17,12 @@ public:
 
 	AProjectileWeapon();
 
+	virtual void Tick(float DeltaTime) override;
+
+	void UpdateSelectedTarget();
+
+	void SetTargetMarkerVisibility(AActor* actor, bool visible);
+
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
