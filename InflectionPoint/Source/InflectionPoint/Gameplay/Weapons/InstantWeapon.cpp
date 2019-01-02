@@ -11,7 +11,7 @@ AInstantWeapon::AInstantWeapon() {
 	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
 
 	// set default values
-	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(Range >= 100 ? Range-100 : 1, 1);
+	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(Range >= 100 ? Range - 100 : 1, 1);
 	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(Range >= 100 ? Range : 100, 0);
 }
 
@@ -56,7 +56,7 @@ FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector&
 	return Hit;
 }
 
-void AInstantWeapon::DealDamage(const FHitResult hitResult,const FVector& ShootDir) {
+void AInstantWeapon::DealDamage(const FHitResult hitResult, const FVector& ShootDir) {
 	if(!hitResult.Actor.IsValid())
 		return;
 
@@ -82,21 +82,23 @@ void AInstantWeapon::SpawnTrailFX(const FHitResult hitResult) {
 	if(!TrailFX)
 		return;
 	auto endPoint = hitResult.bBlockingHit ? hitResult.ImpactPoint : hitResult.TraceEnd;
-	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh3P, NAME_None);
-	if(tpTrail) {
-		tpTrail->bOwnerNoSee = true;
-		tpTrail->bOnlyOwnerSee = false;
-		tpTrail->SetVectorParameter(TrailSourceParamName, GetTPMuzzleLocation());
-		tpTrail->SetVectorParameter(TrailTargetParamName, endPoint);
-	}
+	SpawnTrailFX(endPoint, true);
+	SpawnTrailFX(endPoint, false);
+}
 
-	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, Mesh1P, NAME_None);
-	if(fpTrail) {
-		fpTrail->bOwnerNoSee = false;
-		fpTrail->bOnlyOwnerSee = true;
-		fpTrail->SetVectorParameter(TrailSourceParamName, GetFPMuzzleLocation());
-		fpTrail->SetVectorParameter(TrailTargetParamName, endPoint);
-	}
+
+UParticleSystemComponent* AInstantWeapon::SpawnTrailFX(const FVector& end, bool isFirstPerson) {
+	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, isFirstPerson ? Mesh1P : Mesh3P, NAME_None);
+	if(!fpTrail)
+		return nullptr;
+	FVector start = isFirstPerson ? GetFPMuzzleLocation() : GetTPMuzzleLocation();
+	fpTrail->bOwnerNoSee = !isFirstPerson;
+	fpTrail->bOnlyOwnerSee = isFirstPerson;
+	fpTrail->SetBeamSourcePoint(0, start, 0);
+	fpTrail->SetBeamTargetPoint(0, end, 0);
+	fpTrail->SetVectorParameter(TrailSourceParamName, start);
+	fpTrail->SetVectorParameter(TrailTargetParamName, end);
+	return fpTrail;
 }
 
 void AInstantWeapon::SpawnImpactFX(const FHitResult hitResult) {

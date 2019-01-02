@@ -13,6 +13,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
 	DOREPLIFETIME(ABaseWeapon, SelectedTargetComponent);
+	DOREPLIFETIME(ABaseWeapon, timeSinceLastShot);
 }
 
 // Sets default values

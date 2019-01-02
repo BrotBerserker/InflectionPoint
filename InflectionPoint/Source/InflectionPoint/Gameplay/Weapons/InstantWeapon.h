@@ -82,7 +82,8 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastSpawnInstantWeaponFX(const FHitResult hitResult);
 
-	void SpawnTrailFX(const FHitResult hitResult);
+	virtual void SpawnTrailFX(const FHitResult hitResult);
+	UParticleSystemComponent* SpawnTrailFX(const FVector& end, bool isFirstPerson);
 
 	void SpawnImpactFX(const FHitResult hitResult);
 

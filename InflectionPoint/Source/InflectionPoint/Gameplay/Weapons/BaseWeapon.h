@@ -318,7 +318,8 @@ protected:
 
 	UPlayerStateRecorder* Recorder;
 
-	float timeSinceLastShot = 0.f;
+	UPROPERTY(Replicated)
+		float timeSinceLastShot = 0.f;
 
 	bool wantsToFire = false;
 
