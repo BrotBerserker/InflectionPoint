@@ -120,6 +120,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		float MuzzleFXDuration = 0.1;
 
+	/** CameraShake when fiering */
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		TSubclassOf<UCameraShake> FireCameraShake;
+
 	/** AnimMontage to play on Mesh1P when this weapon is equipped */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* EquipAnimation1P;

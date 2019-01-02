@@ -193,6 +193,7 @@ void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 }
 
 void ABaseWeapon::MulticastFireExecuted_Implementation() {
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), FireCameraShake, OwningCharacter->GetActorLocation(), 50, 60);
 	SpawnMuzzleFX();
 	SpawnFireSound();
 	PlayFireAnimation();
@@ -214,8 +215,9 @@ void ABaseWeapon::MulticastStartStopChargeSound_Implementation(bool shouldPlay) 
 		return;
 	if(shouldPlay) {
 		ChargeSoundComponent->Play(0);
-	} else if(ChargeSoundComponent->IsPlaying()){
-		ChargeSoundComponent->FadeOut(0.2,0);
+	} else if(ChargeSoundComponent->IsPlaying()) {
+		ChargeSoundComponent->FadeOut(0.2, 0);
+		ChargeSoundComponent = nullptr;
 	}
 }
 
@@ -228,7 +230,7 @@ void ABaseWeapon::PlayFireAnimation() {
 }
 
 void ABaseWeapon::StopFire() {
-	wantsToFire = false; 
+	wantsToFire = false;
 	if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
 		MulticastStartStopChargeSound(false);
 		ChangeWeaponState(EWeaponState::IDLE);
