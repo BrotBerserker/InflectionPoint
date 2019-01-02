@@ -16,6 +16,7 @@ enum EWeaponState {
 	IDLE,
 	RELOADING,
 	EQUIPPING,
+	CHARGING,
 	FIRING
 };
 
@@ -62,6 +63,10 @@ public:
 	/** Sound to play when no Ammo is left */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
 		class USoundBase* NoAmmoSound;
+
+	/** Sound to play each time we fire */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
+		class USoundBase* ChargeSound;
 
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
@@ -138,6 +143,10 @@ public:
 	/** Whether automatic fire should be enabled for this weapon */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		bool AutoFire = true;
+
+	/** Seconds to wait for the first shot */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
+		float ChargeDuration = 0.0f;
 
 	/** Seconds to wait between two shots */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
@@ -266,6 +275,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastSpawnNoAmmoSound();
 
+	/* Spawns the No Ammo Sound */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastStartStopChargeSound(bool shouldPlay);
+
 	/* Plays the Fire Animation (called from multicast)*/
 	void PlayFireAnimation();
 
@@ -320,6 +333,7 @@ protected:
 
 	UPROPERTY(Replicated)
 		float timeSinceLastShot = 0.f;
+	float timeSinceStartFire = 0.f;
 
 	bool wantsToFire = false;
 
@@ -330,5 +344,6 @@ protected:
 
 	UFUNCTION()
 		void ChangeWeaponState(EWeaponState newState);
-
+private:
+	UAudioComponent* ChargeSoundComponent;
 };

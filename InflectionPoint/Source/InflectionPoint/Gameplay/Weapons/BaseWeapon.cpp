@@ -112,10 +112,13 @@ void ABaseWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	if(HasAuthority()) {
 		timeSinceLastShot += DeltaTime;
+		timeSinceStartFire += DeltaTime;
 
 		if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
 			&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= ReloadDelay) {
 			StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
+		} else if(CurrentState == EWeaponState::CHARGING && timeSinceStartFire >= ChargeDuration) {
+			ChangeWeaponState(EWeaponState::FIRING);
 		} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
 			Fire();
 		} else if(Recorder && RecordKeyReleaseNextTick) {
@@ -127,10 +130,12 @@ void ABaseWeapon::Tick(float DeltaTime) {
 
 void ABaseWeapon::StartFire() {
 	wantsToFire = true;
+	timeSinceStartFire = 0;
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
 		MulticastSpawnNoAmmoSound();
 	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
-		ChangeWeaponState(EWeaponState::FIRING);
+		MulticastStartStopChargeSound(true);
+		ChangeWeaponState(EWeaponState::CHARGING);
 	}
 }
 
@@ -138,7 +143,7 @@ void ABaseWeapon::FireOnce() {
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
 		MulticastSpawnNoAmmoSound();
 	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= FireInterval) {
-		ChangeWeaponState(EWeaponState::FIRING);
+		ChangeWeaponState(EWeaponState::FIRING); // No charging for replays
 		Fire();
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
@@ -202,6 +207,18 @@ void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
 	UGameplayStatics::SpawnSoundAttached(NoAmmoSound, OwningCharacter->Mesh1P);
 }
 
+void ABaseWeapon::MulticastStartStopChargeSound_Implementation(bool shouldPlay) {
+	if(!ChargeSoundComponent)
+		ChargeSoundComponent = UGameplayStatics::SpawnSoundAttached(ChargeSound, OwningCharacter->Mesh1P);
+	if(!ChargeSoundComponent)
+		return;
+	if(shouldPlay) {
+		ChargeSoundComponent->Play(0);
+	} else if(ChargeSoundComponent->IsPlaying()){
+		ChargeSoundComponent->FadeOut(0.2,0);
+	}
+}
+
 void ABaseWeapon::PlayFireAnimation() {
 	UAnimInstance* AnimInstance = OwningCharacter->Mesh1P->GetAnimInstance();
 	if(AnimInstance != NULL) {
@@ -211,8 +228,9 @@ void ABaseWeapon::PlayFireAnimation() {
 }
 
 void ABaseWeapon::StopFire() {
-	wantsToFire = false;
-	if(CurrentState == EWeaponState::FIRING) {
+	wantsToFire = false; 
+	if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
+		MulticastStartStopChargeSound(false);
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
@@ -243,7 +261,9 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
 		if(wantsToFire) {
-			ChangeWeaponState(EWeaponState::FIRING);
+			timeSinceStartFire = 0;
+			MulticastStartStopChargeSound(true);
+			ChangeWeaponState(EWeaponState::CHARGING);
 		} else {
 			ChangeWeaponState(EWeaponState::IDLE);
 		}
