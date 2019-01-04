@@ -97,6 +97,7 @@ void ABaseWeapon::ReattachMuzzleLocation() {
 void ABaseWeapon::DetachFromOwner() {
 	Mesh1P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	Mesh3P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	StopFire();
 }
 
 void ABaseWeapon::AttachToOwner() {
@@ -202,6 +203,7 @@ void ABaseWeapon::MulticastFireExecuted_Implementation() {
 
 void ABaseWeapon::SpawnFireSound() {
 	UGameplayStatics::SpawnSoundAttached(FireSound, OwningCharacter->Mesh1P);
+	MulticastStartStopFireLoopSound(true);
 }
 
 void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
@@ -222,6 +224,24 @@ void ABaseWeapon::MulticastStartStopChargeSound_Implementation(bool shouldPlay) 
 	}
 }
 
+void ABaseWeapon::MulticastStartStopFireLoopSound_Implementation(bool shouldPlay) {
+	if(!FireLoopSoundComponent) {
+		FireLoopSoundComponent = UGameplayStatics::SpawnSoundAttached(FireLoopSound, OwningCharacter->Mesh1P);
+		if(!shouldPlay && FireLoopSoundComponent)
+			FireLoopSoundComponent->Stop(); // to prevent fadeout
+	}
+	if(!FireLoopSoundComponent)
+		return;
+	if(shouldPlay) {
+		if(!FireLoopSoundComponent->IsPlaying())
+			FireLoopSoundComponent->Play(0);
+	} else {
+		if(FireLoopSoundComponent->IsPlaying())
+			FireLoopSoundComponent->FadeOut(0.2, 0);
+		FireLoopSoundComponent = nullptr;
+	}
+}
+
 void ABaseWeapon::PlayFireAnimation() {
 	UAnimInstance* AnimInstance = OwningCharacter->Mesh1P->GetAnimInstance();
 	if(AnimInstance != NULL) {
@@ -234,11 +254,13 @@ void ABaseWeapon::StopFire() {
 	wantsToFire = false;
 	if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
 		MulticastStartStopChargeSound(false);
+		MulticastStartStopFireLoopSound(false);
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
 
 void ABaseWeapon::Reload() {
+	MulticastStartStopFireLoopSound(false);
 	if(CurrentState != EWeaponState::RELOADING && CurrentState != EWeaponState::EQUIPPING && CurrentAmmoInClip != ClipSize && CurrentAmmoInClip != CurrentAmmo) {
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(AnimationNotifyDelegate);
 

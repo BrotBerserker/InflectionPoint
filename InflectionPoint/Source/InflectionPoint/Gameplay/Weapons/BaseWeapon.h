@@ -72,6 +72,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
 		class USoundBase* FireSound;
 
+	/** Sound to play each while fireing */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
+		class USoundBase* FireLoopSound;
+
 	/** Idle animation (without aiming) for 1P */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimationAsset* IdleAnimation1P;
@@ -287,9 +291,13 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastSpawnNoAmmoSound();
 
-	/* Spawns the No Ammo Sound */
+	/* Starts or stops Charge Sound */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastStartStopChargeSound(bool shouldPlay);
+	
+	/* Starts or stops Fire Loop Sound */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastStartStopFireLoopSound(bool shouldPlay);
 
 	/* Plays the Fire Animation (called from multicast)*/
 	void PlayFireAnimation();
@@ -358,4 +366,5 @@ protected:
 		void ChangeWeaponState(EWeaponState newState);
 private:
 	UAudioComponent* ChargeSoundComponent;
+	UAudioComponent* FireLoopSoundComponent;
 };
