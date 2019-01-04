@@ -215,8 +215,9 @@ void ABaseWeapon::MulticastStartStopChargeSound_Implementation(bool shouldPlay) 
 		return;
 	if(shouldPlay) {
 		ChargeSoundComponent->Play(0);
-	} else if(ChargeSoundComponent->IsPlaying()) {
-		ChargeSoundComponent->FadeOut(0.2, 0);
+	} else{ 
+		if(ChargeSoundComponent->IsPlaying()) 
+			ChargeSoundComponent->FadeOut(0.2, 0);
 		ChargeSoundComponent = nullptr;
 	}
 }
