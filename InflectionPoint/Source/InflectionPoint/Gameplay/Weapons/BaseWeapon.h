@@ -72,6 +72,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
 		class USoundBase* FireSound;
 
+	/** Idle animation (without aiming) for 1P */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+		class UAnimationAsset* IdleAnimation1P;
+
+	/** Idle animation (without aiming) for 3P */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+		class UAnimationAsset* IdleAnimation3P;
+
 	/** AnimMontage to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
 		class UAnimMontage* FireAnimation;
