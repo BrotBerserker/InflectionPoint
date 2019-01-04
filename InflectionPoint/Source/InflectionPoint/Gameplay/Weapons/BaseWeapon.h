@@ -77,48 +77,72 @@ public:
 		class USoundBase* FireLoopSound;
 
 	/** Idle animation (without aiming) for 1P */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* IdleAnimation1P;
 
+	/** Idle animation (without aiming) for 1P */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
+		class UAnimationAsset* WalkAnimation1P;
+
+	/** Idle animation (without aiming) for 1P */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
+		class UAnimationAsset* JumpStartAnimation1P;
+
+	/** Idle animation (without aiming) for 1P */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
+		class UAnimationAsset* JumpLoopAnimation1P;
+
+	/** Idle animation (without aiming) for 1P */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
+		class UAnimationAsset* JumpEndAnimation1P;
+
 	/** Idle animation (without aiming) for 3P */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|3P")
 		class UAnimationAsset* IdleAnimation3P;
 
 	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|3P")
 		class UAnimMontage* FireAnimation;
 
 	/** AnimMontage to play on 1p weapon when firing */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* FireAnimationWeapon1P;
 
 	/** AnimMontage to play on 1P hands when reloading */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimMontage* ReloadAnimation1P;
 
 	/** AnimMontage to play on 3p hands when reloading */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|3P")
 		class UAnimMontage* ReloadAnimation3P;
 
 	/** Animation to play on 1p weapon when reloading */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* ReloadAnimationWeapon1P;
 
 	/** Idle Animation to play on 1p hands when aiming */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|Aiming")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* AimAnimation1PIdle;
 
 	/** Walk Animation to play on 1p hands when aiming */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|Aiming")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* AimAnimation1PWalk;
 
 	/** JumpStart Animation to play on 1p hands when aiming */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|Aiming")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* AimAnimation1PJumpStart;
 
 	/** JumpEnd Animation to play on 1p hands when aiming */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|Aiming")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* AimAnimation1PJumpEnd;
+
+	/** AnimMontage to play on Mesh1P when this weapon is equipped */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
+		class UAnimMontage* EquipAnimation1P;
+
+	/** AnimMontage to playon Mesh3P when this weapon is equipped */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|3P")
+		class UAnimMontage* EquipAnimation3P;
 
 	/** FX for muzzle flash */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
@@ -135,14 +159,6 @@ public:
 	/** CameraShake when fiering */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		TSubclassOf<UCameraShake> FireCameraShake;
-
-	/** AnimMontage to play on Mesh1P when this weapon is equipped */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-		class UAnimMontage* EquipAnimation1P;
-
-	/** AnimMontage to playon Mesh3P when this weapon is equipped */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animation)
-		class UAnimMontage* EquipAnimation3P;
 
 	/** Number of shots per clip */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
