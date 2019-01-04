@@ -126,6 +126,9 @@ void ABaseWeapon::Tick(float DeltaTime) {
 			RecordKeyReleaseNextTick = false;
 			Recorder->ServerRecordKeyReleased("WeaponFired");
 		}
+		if(CurrentState != EWeaponState::FIRING || timeSinceLastShot >= FireInterval + 0.1) {
+			MulticastStartStopFireLoopSound(false);
+		}
 	}
 }
 
@@ -260,7 +263,6 @@ void ABaseWeapon::StopFire() {
 }
 
 void ABaseWeapon::Reload() {
-	MulticastStartStopFireLoopSound(false);
 	if(CurrentState != EWeaponState::RELOADING && CurrentState != EWeaponState::EQUIPPING && CurrentAmmoInClip != ClipSize && CurrentAmmoInClip != CurrentAmmo) {
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(AnimationNotifyDelegate);
 
