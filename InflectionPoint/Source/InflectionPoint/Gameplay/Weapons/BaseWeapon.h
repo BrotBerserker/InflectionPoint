@@ -341,10 +341,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 		EWeaponState GetCurrentWeaponState();
 
-
 	/** Value between 0 and 1 that tells a AI how suitabe the Weapon is */
 	UFUNCTION(BlueprintCallable)
 		virtual float GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim);
+
+	/** Used to fire OnStateChanged as multicast */
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastStateChanged(EWeaponState NewState);
+
+	/** Fired when the weapon state has been changed */
+	UFUNCTION(BlueprintImplementableEvent)
+		void OnStateChanged(EWeaponState NewState);
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;

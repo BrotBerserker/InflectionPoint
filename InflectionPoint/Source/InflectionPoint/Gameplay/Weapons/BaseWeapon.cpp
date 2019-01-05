@@ -345,6 +345,11 @@ void ABaseWeapon::StopAiming() {
 
 void ABaseWeapon::ChangeWeaponState(EWeaponState newState) {
 	CurrentState = newState;
+	MulticastStateChanged(newState);
+}
+
+void ABaseWeapon::MulticastStateChanged_Implementation(EWeaponState newState) {
+	OnStateChanged(newState);
 }
 
 EWeaponState ABaseWeapon::GetCurrentWeaponState() {
