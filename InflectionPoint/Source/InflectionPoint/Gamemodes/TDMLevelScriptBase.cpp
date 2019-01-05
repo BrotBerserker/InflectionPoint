@@ -101,6 +101,7 @@ void ATDMLevelScriptBase::CleanUpAfterSequence() {
 void ATDMLevelScriptBase::ResetLevel() {
 	DestroyAllActors(AReplayCharacterBase::StaticClass());
 	DestroyAllActors(APlayerCharacterBase::StaticClass());
+	DestroyAllActors(ABaseWeapon::StaticClass());
 	DestroyAllActors(AInflectionPointProjectile::StaticClass());
 	DestroyAllActorsWithTag(FName("DeleteOnClearMap"));
 	ResetAllLevelActors();

@@ -240,6 +240,8 @@ public:
 	/** Initializes variables and attachments */
 	virtual void BeginPlay() override;
 
+	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	void SetupReferences();
 
 	virtual bool IsReadyForInitialization();
@@ -343,7 +345,6 @@ public:
 	/** Value between 0 and 1 that tells a AI how suitabe the Weapon is */
 	UFUNCTION(BlueprintCallable)
 		virtual float GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim);
-
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;

@@ -68,6 +68,11 @@ void ABaseWeapon::BeginPlay() {
 	SetupReferences();
 }
 
+void ABaseWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+	StopFire();
+	Super::EndPlay(EndPlayReason);
+}
+
 void ABaseWeapon::OnRep_Instigator() {
 	SetupReferences();
 }
@@ -127,8 +132,9 @@ void ABaseWeapon::Tick(float DeltaTime) {
 			Recorder->ServerRecordKeyReleased("WeaponFired");
 		}
 		// You can not only take the CurrentState because of replays only calling FireOnce()
-		isCurrentlyFiring = CurrentState == EWeaponState::FIRING || (GetGameTimeSinceCreation() > FireInterval && timeSinceLastShot <= FireInterval + 0.1);
+		isCurrentlyFiring = isCurrentlyFiring && timeSinceLastShot <= FireInterval + 0.1;
 	}
+	//UE_LOG(LogTemp, Warning, TEXT("The value of 'isCurrentlyFiring' is: %i [%i]"), isCurrentlyFiring, HasAuthority());
 	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, isCurrentlyFiring);
 	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponState::CHARGING);
 }
@@ -160,6 +166,7 @@ void ABaseWeapon::Fire() {
 	}
 	if(CurrentAmmoInClip <= 0)
 		return;
+	isCurrentlyFiring = true;
 	timeSinceLastShot = 0;
 	PreExecuteFire();
 	for(int i = 0; i < FireShotNum; i++)
@@ -240,9 +247,10 @@ void ABaseWeapon::PlayFireAnimation() {
 
 void ABaseWeapon::StopFire() {
 	wantsToFire = false;
+	isCurrentlyFiring = false;
+	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
+	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
 	if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
-		TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
-		TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }

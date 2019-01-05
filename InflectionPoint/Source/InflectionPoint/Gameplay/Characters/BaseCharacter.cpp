@@ -141,8 +141,8 @@ void ABaseCharacter::Tick(float DeltaTime) {
 }
 
 void ABaseCharacter::Destroyed() {
-	Super::Destroyed();
 	WeaponInventory->Destroy();
+	Super::Destroyed();
 }
 
 void ABaseCharacter::UpdateFieldOfView(float DeltaTime) {
