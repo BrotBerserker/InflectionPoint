@@ -26,6 +26,9 @@ void AProjectileWeapon::Tick(float DeltaTime) {
 		} else if(GetOwner()->GetDistanceTo(SelectedTargetComponent->GetOwner()) > 3000.f) {
 			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
 			SelectedTargetComponent = NULL;
+		} else if(!Cast<ABaseCharacter>(GetOwner())->Controller->LineOfSightTo(SelectedTargetComponent->GetOwner())) {
+			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
+			SelectedTargetComponent = NULL;
 		}
 	}
 }
