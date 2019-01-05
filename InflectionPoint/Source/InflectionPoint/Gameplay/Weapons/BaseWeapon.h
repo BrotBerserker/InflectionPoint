@@ -80,19 +80,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* IdleAnimation1P;
 
-	/** Idle animation (without aiming) for 1P */
+	/** Walk animation (without aiming) for 1P */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* WalkAnimation1P;
 
-	/** Idle animation (without aiming) for 1P */
+	/** Sprint animation for 1P */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
+		class UAnimationAsset* SprintAnimation1P;
+
+	/** Jump start animation for 1P */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* JumpStartAnimation1P;
 
-	/** Idle animation (without aiming) for 1P */
+	/** Jump loop animation for 1P */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* JumpLoopAnimation1P;
 
-	/** Idle animation (without aiming) for 1P */
+	/** Jump end animation for 1P */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimationAsset* JumpEndAnimation1P;
 
