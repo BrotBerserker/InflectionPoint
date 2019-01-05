@@ -6,7 +6,7 @@
 void ALaserWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	if(GetGameTimeSinceCreation() > FireInterval && timeSinceLastShot <= FireInterval) {
+	if(isCurrentlyFiring) {
 		SpawnLaserFX();
 	} else {
 		if(fpLaserTrail)

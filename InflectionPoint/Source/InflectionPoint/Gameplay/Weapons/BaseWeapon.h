@@ -311,14 +311,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastSpawnNoAmmoSound();
 
-	/* Starts or stops Charge Sound */
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastStartStopChargeSound(bool shouldPlay);
-	
-	/* Starts or stops Fire Loop Sound */
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastStartStopFireLoopSound(bool shouldPlay);
-
 	/* Plays the Fire Animation (called from multicast)*/
 	void PlayFireAnimation();
 
@@ -366,13 +358,18 @@ public:
 	FScriptDelegate AnimationNotifyDelegate;
 
 protected:
+	/** Spawns the sound if not existent and starts or stops it*/
+	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
+
 	UPROPERTY(Replicated)
 		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE;
 
 	UPlayerStateRecorder* Recorder;
 
-	UPROPERTY(Replicated)
-		float timeSinceLastShot = 0.f;
+	UPROPERTY(Replicated) // gets set to true if weapon fires
+		bool isCurrentlyFiring = false;
+
+	float timeSinceLastShot = 0.f;
 	float timeSinceStartFire = 0.f;
 
 	bool wantsToFire = false;

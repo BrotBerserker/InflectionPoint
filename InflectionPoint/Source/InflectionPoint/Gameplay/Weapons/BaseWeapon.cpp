@@ -13,7 +13,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
 	DOREPLIFETIME(ABaseWeapon, SelectedTargetComponent);
-	DOREPLIFETIME(ABaseWeapon, timeSinceLastShot);
+	DOREPLIFETIME(ABaseWeapon, isCurrentlyFiring);
 }
 
 // Sets default values
@@ -126,10 +126,11 @@ void ABaseWeapon::Tick(float DeltaTime) {
 			RecordKeyReleaseNextTick = false;
 			Recorder->ServerRecordKeyReleased("WeaponFired");
 		}
-		if(CurrentState != EWeaponState::FIRING || timeSinceLastShot >= FireInterval + 0.1) {
-			MulticastStartStopFireLoopSound(false);
-		}
+		// You can not only take the CurrentState because of replays only calling FireOnce()
+		isCurrentlyFiring = CurrentState == EWeaponState::FIRING || (GetGameTimeSinceCreation() > FireInterval && timeSinceLastShot <= FireInterval + 0.1);
 	}
+	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, isCurrentlyFiring);
+	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponState::CHARGING);
 }
 
 void ABaseWeapon::StartFire() {
@@ -138,7 +139,6 @@ void ABaseWeapon::StartFire() {
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
 		MulticastSpawnNoAmmoSound();
 	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
-		MulticastStartStopChargeSound(true);
 		ChangeWeaponState(EWeaponState::CHARGING);
 	}
 }
@@ -206,42 +206,27 @@ void ABaseWeapon::MulticastFireExecuted_Implementation() {
 
 void ABaseWeapon::SpawnFireSound() {
 	UGameplayStatics::SpawnSoundAttached(FireSound, OwningCharacter->Mesh1P);
-	MulticastStartStopFireLoopSound(true);
 }
 
 void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
 	UGameplayStatics::SpawnSoundAttached(NoAmmoSound, OwningCharacter->Mesh1P);
 }
 
-void ABaseWeapon::MulticastStartStopChargeSound_Implementation(bool shouldPlay) {
-	if(!ChargeSoundComponent)
-		ChargeSoundComponent = UGameplayStatics::SpawnSoundAttached(ChargeSound, OwningCharacter->Mesh1P);
-	if(!ChargeSoundComponent)
+void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
+	if(!component) {
+		component = UGameplayStatics::SpawnSoundAttached(soundClass, OwningCharacter->Mesh1P);
+		if(!shouldPlay && component)
+			component->Stop(); // to prevent fadeout
+	}
+	if(!component)
 		return;
 	if(shouldPlay) {
-		ChargeSoundComponent->Play(0);
-	} else{ 
-		if(ChargeSoundComponent->IsPlaying()) 
-			ChargeSoundComponent->FadeOut(0.2, 0);
-		ChargeSoundComponent = nullptr;
-	}
-}
-
-void ABaseWeapon::MulticastStartStopFireLoopSound_Implementation(bool shouldPlay) {
-	if(!FireLoopSoundComponent) {
-		FireLoopSoundComponent = UGameplayStatics::SpawnSoundAttached(FireLoopSound, OwningCharacter->Mesh1P);
-		if(!shouldPlay && FireLoopSoundComponent)
-			FireLoopSoundComponent->Stop(); // to prevent fadeout
-	}
-	if(!FireLoopSoundComponent)
-		return;
-	if(shouldPlay) {
-		if(!FireLoopSoundComponent->IsPlaying())
-			FireLoopSoundComponent->Play(0);
+		if(!component->IsPlaying())
+			component->Play(0);
 	} else {
-		if(FireLoopSoundComponent->IsPlaying())
-			FireLoopSoundComponent->FadeOut(0.2, 0);
-		FireLoopSoundComponent = nullptr;
+		if(component->IsPlaying())
+			component->FadeOut(fadeOut, 0);
+		component = nullptr;
 	}
 }
 
@@ -256,8 +241,8 @@ void ABaseWeapon::PlayFireAnimation() {
 void ABaseWeapon::StopFire() {
 	wantsToFire = false;
 	if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
-		MulticastStartStopChargeSound(false);
-		MulticastStartStopFireLoopSound(false);
+		TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
+		TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
@@ -289,7 +274,6 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 	} else if(NotifyName.ToString() == "EnableFiring") {
 		if(wantsToFire) {
 			timeSinceStartFire = 0;
-			MulticastStartStopChargeSound(true);
 			ChangeWeaponState(EWeaponState::CHARGING);
 		} else {
 			ChangeWeaponState(EWeaponState::IDLE);
