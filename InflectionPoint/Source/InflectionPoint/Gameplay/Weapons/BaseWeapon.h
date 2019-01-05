@@ -105,7 +105,7 @@ public:
 		class UAnimationAsset* IdleAnimation3P;
 
 	/** AnimMontage to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|3P")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
 		class UAnimMontage* FireAnimation;
 
 	/** AnimMontage to play on 1p weapon when firing */
