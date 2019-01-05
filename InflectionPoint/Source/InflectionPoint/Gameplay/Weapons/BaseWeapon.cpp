@@ -212,16 +212,16 @@ void ABaseWeapon::MulticastFireExecuted_Implementation() {
 }
 
 void ABaseWeapon::SpawnFireSound() {
-	UGameplayStatics::SpawnSoundAttached(FireSound, OwningCharacter->Mesh1P);
+	UGameplayStatics::SpawnSoundAttached(FireSound, Mesh1P);
 }
 
 void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
-	UGameplayStatics::SpawnSoundAttached(NoAmmoSound, OwningCharacter->Mesh1P);
+	UGameplayStatics::SpawnSoundAttached(NoAmmoSound, Mesh1P);
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
 	if(!component) {
-		component = UGameplayStatics::SpawnSoundAttached(soundClass, OwningCharacter->Mesh1P);
+		component = UGameplayStatics::SpawnSoundAttached(soundClass, Mesh1P);
 		if(!shouldPlay && component)
 			component->Stop(); // to prevent fadeout
 	}
