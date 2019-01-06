@@ -36,7 +36,7 @@ void AProjectileWeapon::Tick(float DeltaTime) {
 void AProjectileWeapon::UpdateSelectedTarget() {
 	FVector StartLocation = Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetComponentLocation();
 	FVector EndLocation = StartLocation + Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetForwardVector() * 3000;
-	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(30, 15, 15));
+	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(30, 30, 50));
 	FQuat ShapeRotation = FQuat(0, 0, 0, 0);
 	FCollisionObjectQueryParams ObjectQueryParams;
 	ObjectQueryParams.AddObjectTypesToQuery(ECollisionChannel::ECC_Pawn);
