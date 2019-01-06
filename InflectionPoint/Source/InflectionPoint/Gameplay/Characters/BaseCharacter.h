@@ -51,7 +51,7 @@ public:
 		class UWidgetComponent* CharacterHeadDisplay;
 	
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
-		class UWidgetComponent* TargetMarker;
+		class UParticleSystemComponent* TargetMarkerParticles;
 public:
 	/* ---------------------- */
 	/*    Editor Settings     */

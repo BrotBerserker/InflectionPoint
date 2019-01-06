@@ -17,6 +17,7 @@
 #include "UI/HUD/CharacterHeadDisplayBase.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Gamemodes/TDMGameStateBase.h"
+#include "Engine/Classes/Animation/SkeletalMeshActor.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogFPChar, Warning, All);
 
@@ -79,12 +80,10 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterHeadDisplay->SetWidgetSpace(EWidgetSpace::Screen);
 	CharacterHeadDisplay->SetVisibility(true);
 	
-	TargetMarker = CreateDefaultSubobject<UWidgetComponent>(TEXT("TargetMarker"));
-	TargetMarker->SetupAttachment(GetCapsuleComponent());
-	TargetMarker->SetOwnerNoSee(true);
-	TargetMarker->SetRelativeLocation(FVector(0.f, 0.f, 34.f));
-	TargetMarker->SetWidgetSpace(EWidgetSpace::Screen);
-	TargetMarker->SetVisibility(false);
+	TargetMarkerParticles = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("TargetMarkerParticles"));
+	TargetMarkerParticles->SetupAttachment(GetCapsuleComponent());
+	TargetMarkerParticles->SetOwnerNoSee(true);
+	TargetMarkerParticles->SetVisibility(false);
 }
 
 void ABaseCharacter::BeginPlay() {
@@ -94,10 +93,17 @@ void ABaseCharacter::BeginPlay() {
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
 	InitCharacterHeadDisplay();
-	//// Create dynamic materials for materialize animation
-	//DynamicBodyMaterial = UMaterialInstanceDynamic::Create(Mesh3P->GetMaterial(0), Mesh3P);
-	//Mesh3P->SetMaterial(0, DynamicBodyMaterial);
-	//Mesh1P->SetMaterial(0, DynamicBodyMaterial);
+	
+	if(Cast<AReplayCharacterBase>(this) || !IsLocallyControlled()) {
+		FActorSpawnParameters params;
+		ASkeletalMeshActor* meshActor = GetWorld()->SpawnActor<ASkeletalMeshActor>(params);
+		Cast<USkinnedMeshComponent>(meshActor->GetSkeletalMeshComponent())->SetSkeletalMesh(Mesh3P->SkeletalMesh);
+		meshActor->GetSkeletalMeshComponent()->SetMasterPoseComponent(Mesh3P);
+		meshActor->AttachToComponent(Mesh3P, FAttachmentTransformRules(EAttachmentRule::SnapToTarget, true));
+		meshActor->SetActorEnableCollision(false);
+		meshActor->SetActorHiddenInGame(true);
+		TargetMarkerParticles->SetActorParameter(FName("VertSurfaceActor"), meshActor);
+	}
 }
 
 bool ABaseCharacter::IsReadyForInitialization() {
@@ -117,8 +123,6 @@ void ABaseCharacter::InitCharacterHeadDisplay() {
 	}
 	CharacterHeadDisplay->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
 	CharacterHeadDisplay->InitWidget();
-	TargetMarker->AttachToComponent(GetCapsuleComponent(), FAttachmentTransformRules::KeepRelativeTransform); // because unreal ...
-	TargetMarker->InitWidget();
 	auto headDisplayWidget = Cast<UCharacterHeadDisplayBase>(CharacterHeadDisplay->GetUserWidgetObject());
 	headDisplayWidget->OwningCharacter = this;
 }

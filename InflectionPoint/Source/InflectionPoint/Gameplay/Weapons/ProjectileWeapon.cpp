@@ -70,7 +70,7 @@ void AProjectileWeapon::SetTargetMarkerVisibility(AActor* actor, bool visible) {
 		return;
 	}
 	if(Cast<ABaseCharacter>(actor)) {
-		Cast<ABaseCharacter>(actor)->TargetMarker->SetVisibility(visible);
+		Cast<ABaseCharacter>(actor)->TargetMarkerParticles->SetVisibility(visible);
 	}
 }
 
