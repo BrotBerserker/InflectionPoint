@@ -54,7 +54,9 @@ public:
 
 	bool TargetShouldBeDeselected(UPrimitiveComponent* targetComponent);
 
-	void ExecuteFire() override;
+	virtual bool CanFire() override;
+
+	virtual void ExecuteFire() override;
 
 	virtual void OnUnequip() override;
 

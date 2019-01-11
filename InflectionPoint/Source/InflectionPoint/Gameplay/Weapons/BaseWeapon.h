@@ -268,6 +268,9 @@ public:
 	/** Fires a shot (includes animation, sound, and decreasing ammo) */
 	virtual void Fire();
 
+	/** Returns true if firing should be possible */
+	virtual bool CanFire();
+
 	/** Called before ExecuteFire */
 	virtual void PreExecuteFire();
 

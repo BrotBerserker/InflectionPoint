@@ -139,6 +139,9 @@ void ABaseWeapon::Tick(float DeltaTime) {
 }
 
 void ABaseWeapon::StartFire() {
+	if(!CanFire()) {
+		return;
+	}
 	wantsToFire = true;
 	timeSinceStartFire = 0;
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
@@ -149,6 +152,9 @@ void ABaseWeapon::StartFire() {
 }
 
 void ABaseWeapon::FireOnce() {
+	if(!CanFire()) {
+		return;
+	}
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
 		MulticastSpawnNoAmmoSound();
 	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= FireInterval) {
@@ -156,6 +162,10 @@ void ABaseWeapon::FireOnce() {
 		Fire();
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
+}
+
+bool ABaseWeapon::CanFire() {
+	return true;
 }
 
 void ABaseWeapon::Fire() {

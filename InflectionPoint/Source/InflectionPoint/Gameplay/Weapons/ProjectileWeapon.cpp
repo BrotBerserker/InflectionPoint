@@ -19,7 +19,7 @@ void AProjectileWeapon::Tick(float DeltaTime) {
 		}
 
 		UPrimitiveComponent* newTarget = FindSelectedTarget();
-		if(newTarget && newTarget != SelectedTargetComponent) {
+		if(newTarget != SelectedTargetComponent) {
 			SwitchSelectedTarget(newTarget);
 		}
 
@@ -103,6 +103,10 @@ void AProjectileWeapon::UpdateTargetBeam() {
 void AProjectileWeapon::OnUnequip() {
 	Super::OnUnequip();
 	SwitchSelectedTarget(NULL);
+}
+
+bool AProjectileWeapon::CanFire() {
+	return !ProjectileClass.GetDefaultObject()->Homing || SelectedTargetComponent != NULL;
 }
 
 void AProjectileWeapon::ExecuteFire() {
