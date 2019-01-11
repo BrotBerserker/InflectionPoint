@@ -6,6 +6,8 @@
 
 AProjectileWeapon::AProjectileWeapon() {
 	AISuitabilityWeaponRangeCurve.GetRichCurve()->AddKey(1000, 1.0);
+	TargetBeam = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("TargetBeam"));
+	TargetBeam->SetupAttachment(Mesh1P);
 }
 
 void AProjectileWeapon::Tick(float DeltaTime) {
@@ -30,6 +32,11 @@ void AProjectileWeapon::Tick(float DeltaTime) {
 			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
 			SelectedTargetComponent = NULL;
 		}
+		TargetBeam->SetBeamTargetPoint(0, SelectedTargetComponent->GetComponentLocation(), 0);
+		TargetBeam->SetBeamSourcePoint(0, Mesh1P->GetComponentLocation(), 0);
+		TargetBeam->Activate();
+	} else {
+		TargetBeam->Deactivate();
 	}
 }
 

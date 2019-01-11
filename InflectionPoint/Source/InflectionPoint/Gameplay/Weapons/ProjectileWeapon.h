@@ -15,6 +15,15 @@ class INFLECTIONPOINT_API AProjectileWeapon : public ABaseWeapon {
 
 public:
 
+	/** Projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		UParticleSystemComponent* TargetBeam;
+
+public:
+
 	AProjectileWeapon();
 
 	virtual void Tick(float DeltaTime) override;
@@ -25,10 +34,6 @@ public:
 		void ServerSetSelectedTarget(UPrimitiveComponent* NewTarget);
 
 	void SetTargetMarkerVisibility(AActor* actor, bool visible);
-
-	/** Projectile class to spawn */
-	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
 
 	void ExecuteFire() override;
 
