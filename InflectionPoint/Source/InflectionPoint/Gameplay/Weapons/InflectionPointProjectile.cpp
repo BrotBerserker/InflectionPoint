@@ -5,6 +5,7 @@
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "ProjectileWeapon.h"
 
 AInflectionPointProjectile::AInflectionPointProjectile() {
 	// Use a sphere as a simple collision representation
@@ -67,8 +68,8 @@ void AInflectionPointProjectile::BeginPlay() {
 	if(Homing) {
 		ProjectileMovement->bIsHomingProjectile = true;
 		ProjectileMovement->HomingAccelerationMagnitude = 1000000.f;
-		ProjectileMovement->HomingTargetComponent = Cast<ABaseWeapon>(GetOwner())->SelectedTargetComponent;
-		CollisionDamageDealer->TargetComponent = Cast<ABaseWeapon>(GetOwner())->SelectedTargetComponent;
+		ProjectileMovement->HomingTargetComponent = Cast<AProjectileWeapon>(GetOwner())->SelectedTargetComponent;
+		CollisionDamageDealer->TargetComponent = Cast<AProjectileWeapon>(GetOwner())->SelectedTargetComponent;
 	}
 }
 

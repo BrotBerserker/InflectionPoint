@@ -12,7 +12,6 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
-	DOREPLIFETIME(ABaseWeapon, SelectedTargetComponent);
 	DOREPLIFETIME(ABaseWeapon, isCurrentlyFiring);
 }
 

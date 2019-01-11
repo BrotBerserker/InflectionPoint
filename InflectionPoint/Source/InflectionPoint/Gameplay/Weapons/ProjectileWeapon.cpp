@@ -13,34 +13,46 @@ AProjectileWeapon::AProjectileWeapon() {
 void AProjectileWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	if(!Cast<ABaseCharacter>(GetOwner())->IsLocallyControlled()) {
-		return;
-	}
-
-	if(ProjectileClass.GetDefaultObject()->Homing) {
-		UpdateSelectedTarget();
-	}
-
-	if(SelectedTargetComponent) {
-		if(!Cast<ABaseCharacter>(SelectedTargetComponent->GetOwner())->IsAlive()) {
-			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
-			SelectedTargetComponent = NULL;
-		} else if(GetOwner()->GetDistanceTo(SelectedTargetComponent->GetOwner()) > 3000.f) {
-			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
-			SelectedTargetComponent = NULL;
-		} else if(!Cast<ABaseCharacter>(GetOwner())->Controller->LineOfSightTo(SelectedTargetComponent->GetOwner())) {
-			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
-			SelectedTargetComponent = NULL;
+	if(ProjectileClass.GetDefaultObject()->Homing && CurrentAmmoInClip > 0) {
+		if(TargetShouldBeDeselected(SelectedTargetComponent)) {
+			SwitchSelectedTarget(NULL);
 		}
-		TargetBeam->SetBeamTargetPoint(0, SelectedTargetComponent->GetComponentLocation(), 0);
-		TargetBeam->SetBeamSourcePoint(0, Mesh1P->GetComponentLocation(), 0);
-		TargetBeam->Activate();
+
+		UPrimitiveComponent* newTarget = FindSelectedTarget();
+		if(newTarget && newTarget != SelectedTargetComponent) {
+			SwitchSelectedTarget(newTarget);
+		}
+
+		UpdateTargetBeam();
 	} else {
+		SwitchSelectedTarget(NULL);
 		TargetBeam->Deactivate();
 	}
 }
 
-void AProjectileWeapon::UpdateSelectedTarget() {
+bool AProjectileWeapon::TargetShouldBeDeselected(UPrimitiveComponent* targetComponent) {
+	if(!targetComponent || !Cast<ABaseCharacter>(targetComponent->GetOwner())) {
+		return false;
+	}
+	if(!Cast<ABaseCharacter>(targetComponent->GetOwner())->IsAlive()) {
+		return true;
+	} else if(GetOwner() && GetOwner()->GetDistanceTo(targetComponent->GetOwner()) > 3000.f) {
+		return true;
+	} else if(Cast<ABaseCharacter>(GetOwner())->Controller && !Cast<ABaseCharacter>(GetOwner())->Controller->LineOfSightTo(targetComponent->GetOwner())) {
+		return true;
+	}
+	return false;
+}
+
+void AProjectileWeapon::SwitchSelectedTarget(UPrimitiveComponent * newTarget) {
+	if(Cast<ABaseCharacter>(GetOwner())->IsLocallyControlled() && !GetOwner()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo().IsReplay) {
+		UnMarkTarget(SelectedTargetComponent);
+		MarkTarget(newTarget);
+	}
+	SelectedTargetComponent = newTarget;
+}
+
+UPrimitiveComponent* AProjectileWeapon::FindSelectedTarget() {
 	FVector StartLocation = Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetComponentLocation();
 	FVector EndLocation = StartLocation + Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetForwardVector() * 3000;
 	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(30, 30, 50));
@@ -51,42 +63,46 @@ void AProjectileWeapon::UpdateSelectedTarget() {
 	QueryParams.AddIgnoredActor(GetOwner());
 	FHitResult SweepResult;
 	bool hit = GetWorld()->SweepSingleByObjectType(SweepResult, StartLocation, EndLocation, ShapeRotation, ObjectQueryParams, Shape, QueryParams);
-	if(hit) {
-		if(SelectedTargetComponent == SweepResult.Component.Get() || !Cast<ABaseCharacter>(SweepResult.Actor.Get())->IsAlive()) {
-			return;
+	if(hit && SweepResult.Component.IsValid()) {
+		if(!Cast<ABaseCharacter>(SweepResult.Actor.Get())->IsAlive()) {
+			return NULL;
 		}
-		if(SelectedTargetComponent) {
-			SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
-		}
-		SetTargetMarkerVisibility(SweepResult.Actor.Get(), true);
-		SelectedTargetComponent = SweepResult.Component.Get();
-		ServerSetSelectedTarget(SweepResult.Component.Get());
+		return SweepResult.Component.Get();
 	}
+	return NULL;
 }
 
-bool AProjectileWeapon::ServerSetSelectedTarget_Validate(UPrimitiveComponent* NewTarget) {
-	return true;
-}
-
-void AProjectileWeapon::ServerSetSelectedTarget_Implementation(UPrimitiveComponent* NewTarget) {
-	SelectedTargetComponent = NewTarget;
-}
-
-void AProjectileWeapon::SetTargetMarkerVisibility(AActor* actor, bool visible) {
-	if(GetOwner()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo().IsReplay) {
+void AProjectileWeapon::MarkTarget(UPrimitiveComponent* targetComponent) {
+	if(!targetComponent) {
 		return;
 	}
-	if(Cast<ABaseCharacter>(actor)) {
-		Cast<ABaseCharacter>(actor)->TargetMarkerParticles->SetVisibility(visible);
+	if(Cast<ABaseCharacter>(targetComponent->GetOwner())) {
+		Cast<ABaseCharacter>(targetComponent->GetOwner())->TargetMarkerParticles->SetVisibility(true);
+	}
+}
+
+void AProjectileWeapon::UnMarkTarget(UPrimitiveComponent* targetComponent) {
+	if(!targetComponent) {
+		return;
+	}
+	if(Cast<ABaseCharacter>(targetComponent->GetOwner())) {
+		Cast<ABaseCharacter>(targetComponent->GetOwner())->TargetMarkerParticles->SetVisibility(false);
+	}
+}
+
+void AProjectileWeapon::UpdateTargetBeam() {
+	if(SelectedTargetComponent) {
+		TargetBeam->SetBeamTargetPoint(0, SelectedTargetComponent->GetComponentLocation(), 0);
+		TargetBeam->SetBeamSourcePoint(0, Mesh1P->GetComponentLocation(), 0);
+		TargetBeam->Activate();
+	} else {
+		TargetBeam->Deactivate();
 	}
 }
 
 void AProjectileWeapon::OnUnequip() {
 	Super::OnUnequip();
-	if(SelectedTargetComponent) {
-		SetTargetMarkerVisibility(SelectedTargetComponent->GetOwner(), false);
-		SelectedTargetComponent = NULL;
-	}
+	SwitchSelectedTarget(NULL);
 }
 
 void AProjectileWeapon::ExecuteFire() {

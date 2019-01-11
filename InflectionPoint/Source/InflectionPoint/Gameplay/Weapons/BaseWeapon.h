@@ -359,9 +359,6 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmoInClip;
 
-	UPROPERTY(Replicated, BlueprintReadWrite)
-		UPrimitiveComponent* SelectedTargetComponent;
-
 public:
 	FScriptDelegate AnimationNotifyDelegate;
 
