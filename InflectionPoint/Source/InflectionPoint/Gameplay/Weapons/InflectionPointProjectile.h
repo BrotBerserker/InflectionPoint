@@ -36,7 +36,16 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		bool Homing;
+
+	UPROPERTY(ReplicatedUsing = OnRep_HomingTarget)
+		UPrimitiveComponent* HomingTarget;
 	
+	UFUNCTION()
+		void OnRep_HomingTarget();
+
+	UFUNCTION()
+		void SetHomingTarget(UPrimitiveComponent* Target);
+
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<AActor> HitEffectClass;
 

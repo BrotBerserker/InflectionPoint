@@ -7,6 +7,11 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "ProjectileWeapon.h"
 
+void AInflectionPointProjectile::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+	DOREPLIFETIME(AInflectionPointProjectile, HomingTarget);
+}
+
 AInflectionPointProjectile::AInflectionPointProjectile() {
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
@@ -64,13 +69,16 @@ void AInflectionPointProjectile::BeginPlay() {
 	// Avoid collision with instigator
 	((ABaseCharacter*)Instigator)->GetCapsuleComponent()->IgnoreActorWhenMoving(this, true);
 	CollisionComp->IgnoreActorWhenMoving(Instigator, true);
+}
 
-	if(Homing) {
-		ProjectileMovement->bIsHomingProjectile = true;
-		ProjectileMovement->HomingAccelerationMagnitude = 1000000.f;
-		ProjectileMovement->HomingTargetComponent = Cast<AProjectileWeapon>(GetOwner())->SelectedTargetComponent;
-		CollisionDamageDealer->TargetComponent = Cast<AProjectileWeapon>(GetOwner())->SelectedTargetComponent;
-	}
+void AInflectionPointProjectile::OnRep_HomingTarget() {
+	SetHomingTarget(HomingTarget);
+}
+
+void AInflectionPointProjectile::SetHomingTarget(UPrimitiveComponent* Target){
+	HomingTarget = Target;
+	ProjectileMovement->HomingTargetComponent = HomingTarget;
+	CollisionDamageDealer->TargetComponent = HomingTarget;
 }
 
 void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit) {

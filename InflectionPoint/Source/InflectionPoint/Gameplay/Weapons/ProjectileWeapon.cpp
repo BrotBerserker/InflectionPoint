@@ -122,4 +122,5 @@ void AProjectileWeapon::ExecuteFire() {
 
 	// spawn the projectile at the muzzle
 	AInflectionPointProjectile* projectile = World->SpawnActor<AInflectionPointProjectile>(ProjectileClass, GetFPMuzzleLocation(), GetAimDirection(), ActorSpawnParams);
+	projectile->SetHomingTarget(SelectedTargetComponent);
 }
