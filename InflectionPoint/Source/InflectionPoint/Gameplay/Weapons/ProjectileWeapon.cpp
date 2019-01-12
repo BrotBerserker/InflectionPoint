@@ -53,6 +53,9 @@ void AProjectileWeapon::SwitchSelectedTarget(UPrimitiveComponent * newTarget) {
 }
 
 UPrimitiveComponent* AProjectileWeapon::FindSelectedTarget() {
+	if(!Cast<ABaseCharacter>(GetOwner()) || !Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent) {
+		return NULL;
+	}
 	FVector StartLocation = Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetComponentLocation();
 	FVector EndLocation = StartLocation + Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetForwardVector() * TargetSelectingRange;
 	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(30, 30, 50));
