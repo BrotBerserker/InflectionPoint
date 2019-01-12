@@ -59,7 +59,7 @@ public:
 		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 	UFUNCTION()
-		void OnTargetHit(float Damage, const FHitResult& Hit);
+		void OnTargetHit(float Damage, AActor* OtherActor, UPrimitiveComponent* OtherComp);
 	
 	UFUNCTION()
 		void OnPawnHit(float Damage, const FHitResult& Hit);

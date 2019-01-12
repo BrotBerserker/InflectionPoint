@@ -10,7 +10,7 @@ UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UCollisionDamageDealer : public UActorComponent {
 	GENERATED_BODY()
 
-		DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTargetHitDelegate, float, damage, const FHitResult&, Hit);
+		DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnTargetHitDelegate, float, damage, AActor*, OtherActor, UPrimitiveComponent*, OtherComp);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPawnHitDelegate, float, damage, const FHitResult&, Hit);
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnOtherHitDelegate, const FHitResult&, Hit);
 

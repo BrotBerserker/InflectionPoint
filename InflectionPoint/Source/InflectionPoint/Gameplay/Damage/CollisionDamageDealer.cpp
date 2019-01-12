@@ -42,10 +42,9 @@ void UCollisionDamageDealer::OnCollision(class UPrimitiveComponent* HitComp, cla
 
 void UCollisionDamageDealer::OnOverlap(class UPrimitiveComponent* HitComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult) {
 	bool damageDealt = false;
-
 	float damage = InflictDamage(OtherActor);
 	if(OtherComp == TargetComponent) {
-		OnTargetHit.Broadcast(damage, SweepResult);
+		OnTargetHit.Broadcast(damage, OtherActor, OtherComp);
 		if(DestroyOnTargetHit) {
 			DestroyOwner();
 		}

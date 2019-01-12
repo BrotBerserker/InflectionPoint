@@ -80,7 +80,7 @@ void AInflectionPointProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* Oth
 	}
 }
 
-void AInflectionPointProjectile::OnTargetHit(float Damage, const FHitResult& Hit) {
+void AInflectionPointProjectile::OnTargetHit(float Damage, AActor* OtherActor, UPrimitiveComponent* OtherComp) {
 	if(CollisionDamageDealer->DestroyOnTargetHit) {
 		MulticastSpawnHitEffect();
 	}

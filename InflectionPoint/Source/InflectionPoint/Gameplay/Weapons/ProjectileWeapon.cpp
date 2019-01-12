@@ -14,13 +14,13 @@ void AProjectileWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	if(ProjectileClass.GetDefaultObject()->Homing && CurrentAmmoInClip > 0) {
-		if(TargetShouldBeDeselected(SelectedTargetComponent)) {
-			SwitchSelectedTarget(NULL);
-		}
-
 		UPrimitiveComponent* newTarget = FindSelectedTarget();
 		if(newTarget != SelectedTargetComponent) {
 			SwitchSelectedTarget(newTarget);
+		}
+
+		if(TargetShouldBeDeselected(SelectedTargetComponent)) {
+			SwitchSelectedTarget(NULL);
 		}
 
 		UpdateTargetBeam();
