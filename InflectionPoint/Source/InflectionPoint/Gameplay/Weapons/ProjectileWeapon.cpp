@@ -36,7 +36,7 @@ bool AProjectileWeapon::TargetShouldBeDeselected(UPrimitiveComponent* targetComp
 	}
 	if(!Cast<ABaseCharacter>(targetComponent->GetOwner())->IsAlive()) {
 		return true;
-	} else if(GetOwner() && GetOwner()->GetDistanceTo(targetComponent->GetOwner()) > 3000.f) {
+	} else if(GetOwner() && GetOwner()->GetDistanceTo(targetComponent->GetOwner()) > TargetSelectingRange) {
 		return true;
 	} else if(Cast<ABaseCharacter>(GetOwner())->Controller && !Cast<ABaseCharacter>(GetOwner())->Controller->LineOfSightTo(targetComponent->GetOwner())) {
 		return true;
@@ -54,7 +54,7 @@ void AProjectileWeapon::SwitchSelectedTarget(UPrimitiveComponent * newTarget) {
 
 UPrimitiveComponent* AProjectileWeapon::FindSelectedTarget() {
 	FVector StartLocation = Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetComponentLocation();
-	FVector EndLocation = StartLocation + Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetForwardVector() * 3000;
+	FVector EndLocation = StartLocation + Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetForwardVector() * TargetSelectingRange;
 	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(30, 30, 50));
 	FQuat ShapeRotation = FQuat(0, 0, 0, 0);
 	FCollisionObjectQueryParams ObjectQueryParams;

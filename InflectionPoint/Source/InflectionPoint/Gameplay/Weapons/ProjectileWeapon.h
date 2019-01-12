@@ -22,6 +22,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
 		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = Projectile)
+		float TargetSelectingRange = 30000.f;
+
 public:
 	/* -------------- */
 	/*   Components   */
