@@ -229,7 +229,7 @@ void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
-	if(!component) {
+	if(!component || (shouldPlay && !component->IsPlaying())) {
 		component = UGameplayStatics::SpawnSoundAttached(soundClass, Mesh1P);
 		if(!shouldPlay && component)
 			component->Stop(); // to prevent fadeout
