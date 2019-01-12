@@ -225,21 +225,27 @@ void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
+	DebugPrint(__FILE__, __LINE__);
 	if(!component || (shouldPlay && !component->IsPlaying())) {
 		component = UGameplayStatics::SpawnSoundAttached(soundClass, Mesh1P);
 		if(!shouldPlay && component)
 			component->Stop(); // to prevent fadeout
 	}
+	DebugPrint(__FILE__, __LINE__);
 	if(!component)
-		return;
+		return; 
+	DebugPrint(__FILE__, __LINE__);
 	if(shouldPlay) {
+		DebugPrint(__FILE__, __LINE__);
 		if(!component->IsPlaying())
 			component->Play(0);
 	} else {
+		DebugPrint(__FILE__, __LINE__);
 		if(component->IsPlaying())
 			component->FadeOut(fadeOut, 0);
 		component = nullptr;
 	}
+	DebugPrint(__FILE__, __LINE__);
 }
 
 void ABaseWeapon::PlayFireAnimation() {
