@@ -20,6 +20,11 @@ void UMortalityProvider::TickComponent(float DeltaTime, enum ELevelTick TickType
 	if(GetOwner() && !GetOwner()->HasAuthority())
 		return;
 
+	if(invincibleSeconds > 0) {
+		invincibleSeconds -= DeltaTime;
+		Invincible = invincibleSeconds > 0;
+	}
+
 	timeSinceLastDamageTaken += DeltaTime; 
 	if(timeSinceLastDamageTaken < RegenerationDelayAfterDamageTaken)
 		return;
@@ -60,6 +65,10 @@ void UMortalityProvider::TakeDamage(float DamageAmount, AController * KillingPla
 	if(CurrentHealth <= 0) {
 		OnDeath.Broadcast(KillingPlayer, DamageCauser);
 	}
+}
+
+void UMortalityProvider::SetInvincibleForSeconds(float Seconds) {
+	invincibleSeconds = Seconds;
 }
 
 bool UMortalityProvider::IsAlive() {

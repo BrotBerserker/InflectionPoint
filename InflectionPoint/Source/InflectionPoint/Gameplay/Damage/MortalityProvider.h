@@ -76,6 +76,9 @@ public:
 	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
 		void TakeDamage(float DamageAmount, AController * KillingPlayer, AActor * DamageCauser);
 
+	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
+		void SetInvincibleForSeconds(float Seconds);
+
 	/* Fired when the current health value changes */
 	UPROPERTY(BlueprintAssignable)
 		FOnHealthChangedDelegate OnHealthChanged;
@@ -89,4 +92,6 @@ public:
 private:
 	float timeSinceLastRegeneration;
 	float timeSinceLastDamageTaken;
+
+	float invincibleSeconds = 0.f;
 };
