@@ -63,7 +63,8 @@ void ABaseWeapon::BeginPlay() {
 
 	if(!HasAuthority())
 		return; // On Client the Instigator is not set yet
-
+	if(GetWorld()->WorldType == EWorldType::PIE)
+		CurrentAmmo = -1;
 	SetupReferences();
 }
 

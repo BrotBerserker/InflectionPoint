@@ -28,6 +28,9 @@ struct FInventoryWeaponSlot {
 	UPROPERTY(EditAnywhere, BlueprintReadonly)
 		TSubclassOf<ABaseWeapon> DefaultWeapon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		TSubclassOf<ABaseWeapon> EditorOnlyDefaultWeapon;
+
 	UPROPERTY(BlueprintReadonly)
 		ABaseWeapon* Weapon;
 };

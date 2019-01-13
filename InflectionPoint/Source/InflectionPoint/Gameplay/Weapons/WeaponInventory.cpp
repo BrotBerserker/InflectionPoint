@@ -32,6 +32,12 @@ void UWeaponInventory::BeginPlay() {
 void UWeaponInventory::InitDefaultWeapons() {
 	AssertTrue(WeaponSlots.Num() > 0, GetWorld(), __FILE__, __LINE__, "Inventory has no Slots assigned!"); // change in blueprint
 	for(auto& slot : WeaponSlots) {
+
+		if(slot.EditorOnlyDefaultWeapon && GetWorld()->WorldType == EWorldType::PIE) {
+			UE_LOG(LogTemp, Warning, TEXT("Shit Working"));
+			SetWeaponAtPosition(slot.SlotPosition, slot.EditorOnlyDefaultWeapon);
+			continue;
+		}
 		if(!slot.DefaultWeapon)
 			continue;
 		SetWeaponAtPosition(slot.SlotPosition, slot.DefaultWeapon);
