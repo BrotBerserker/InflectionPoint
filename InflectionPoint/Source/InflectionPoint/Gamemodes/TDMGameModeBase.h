@@ -167,6 +167,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 		int OfflineMaxRoundNum = 3;
 
+	/** MaxRoundNum is set to this value when playing in editor or offline */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		bool IsPIEQuickPlayModeEnabled = true;
+
 public:
 	/* ---------------------- */
 	/*    Public variables    */
@@ -211,4 +215,6 @@ private:
 	void SendPhaseStartedToPlayers(int Phase);
 
 	APlayerController* GetAnyPlayerControllerInTeam(int team);
+
+	void EnablePIEQuickPlayMode();
 };

@@ -38,8 +38,19 @@ ATDMGameModeBase::ATDMGameModeBase()
 	ShopCountdown = CreateDefaultSubobject<UCountdown>(TEXT("ShopCountdown"));
 }
 
+void ATDMGameModeBase::EnablePIEQuickPlayMode() {
+	PhaseStartDelay = 1;
+	MatchStartDelay = 1;
+	ShopTime = 3.0f;
+	MatchReStartDelay = 3.0f;
+	PhaseEndDelay = 2.0f;
+	RoundEndDelay = 3.0f;
+}
+
 void ATDMGameModeBase::PostInitializeComponents() {
 	Super::PostInitializeComponents();
+	if(IsPIEQuickPlayModeEnabled && GetWorld()->WorldType == EWorldType::PIE)
+		EnablePIEQuickPlayMode();
 	MatchStartCountdown->Setup(this, &ATDMGameModeBase::UpdateMatchCountdown, &ATDMGameModeBase::StartMatch, MatchStartDelay);
 	ShopCountdown->Setup(this, &ATDMGameModeBase::UpdateShopCountdown, &ATDMGameModeBase::PreparePhaseStart, ShopTime, true);
 	PhaseStartCountdown->Setup(this, &ATDMGameModeBase::UpdatePhaseCountdown, &ATDMGameModeBase::StartPhase, PhaseStartDelay);
