@@ -54,8 +54,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = Weapons)
 		TArray<FInventoryWeaponSlot> WeaponSlots;
 
-	UFUNCTION(BlueprintCallable)
-		void Destroy();
+	UFUNCTION(Server, Reliable, WithValidation, BlueprintCallable)
+		void ServerDestroy();
 
 	UFUNCTION(BlueprintCallable)
 		void SetWeaponAtPosition(EInventorySlotPosition slot, TSubclassOf<ABaseWeapon> weaponClass);

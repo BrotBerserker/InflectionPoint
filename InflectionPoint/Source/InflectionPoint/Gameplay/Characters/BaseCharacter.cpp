@@ -145,7 +145,7 @@ void ABaseCharacter::Tick(float DeltaTime) {
 }
 
 void ABaseCharacter::Destroyed() {
-	WeaponInventory->Destroy();
+	WeaponInventory->ServerDestroy();
 	Super::Destroyed();
 }
 

@@ -42,7 +42,11 @@ void UWeaponInventory::InitDefaultWeapons() {
 	}
 }
 
-void UWeaponInventory::Destroy() {
+bool UWeaponInventory::ServerDestroy_Validate() {
+	return true; 
+}
+
+void UWeaponInventory::ServerDestroy_Implementation() {
 	for(auto& item : WeaponSlots) {
 		ClearWeaponSlot(item);
 	}
