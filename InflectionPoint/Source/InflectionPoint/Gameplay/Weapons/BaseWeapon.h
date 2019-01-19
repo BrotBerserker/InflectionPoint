@@ -375,7 +375,7 @@ protected:
 	UPlayerStateRecorder* Recorder;
 
 	UPROPERTY(Replicated) // gets set to true if weapon fires
-		bool isCurrentlyFiring = false;
+		bool shouldPlayFireFX = false;
 
 	float timeSinceLastShot = 0.f;
 	float timeSinceStartFire = 0.f;

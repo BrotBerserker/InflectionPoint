@@ -12,7 +12,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
-	DOREPLIFETIME(ABaseWeapon, isCurrentlyFiring);
+	DOREPLIFETIME(ABaseWeapon, shouldPlayFireFX);
 }
 
 // Sets default values
@@ -69,6 +69,10 @@ void ABaseWeapon::BeginPlay() {
 }
 
 void ABaseWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
+	if(FireLoopSoundComponent)
+		FireLoopSoundComponent->DestroyComponent();
+	if(ChargeSoundComponent)
+		ChargeSoundComponent->DestroyComponent();
 	StopFire();
 	Super::EndPlay(EndPlayReason);
 }
@@ -132,10 +136,9 @@ void ABaseWeapon::Tick(float DeltaTime) {
 			Recorder->ServerRecordKeyReleased("WeaponFired");
 		}
 		// You can not only take the CurrentState because of replays only calling FireOnce()
-		isCurrentlyFiring = isCurrentlyFiring && timeSinceLastShot <= FireInterval + 0.1;
+		shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("The value of 'isCurrentlyFiring' is: %i [%i]"), isCurrentlyFiring, HasAuthority());
-	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, isCurrentlyFiring);
+	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
 	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponState::CHARGING);
 }
 
@@ -171,7 +174,7 @@ void ABaseWeapon::Fire() {
 		}
 		if(CurrentAmmoInClip <= 0)
 			return;
-		isCurrentlyFiring = true;
+		shouldPlayFireFX = true;
 		timeSinceLastShot = 0;
 		PreExecuteFire();
 		for(int i = 0; i < FireShotNum; i++)
@@ -226,20 +229,14 @@ void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
-	if(!component || (shouldPlay && !component->IsPlaying())) {
-		component = UGameplayStatics::SpawnSoundAttached(soundClass, Mesh1P);
-		if(!shouldPlay && component)
-			component->Stop(); // to prevent fadeout
-	}
-	if(!component)
-		return; 
 	if(shouldPlay) {
-		if(!component->IsPlaying())
+		if(!component) {
+			component = UGameplayStatics::SpawnSoundAttached(soundClass, Mesh1P, NAME_None, FVector(ForceInit), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, false, 1.f, 1.f, 0.f, nullptr, nullptr, false); // bAutoDestroy=false
+		} else if(!component->IsPlaying()) {
 			component->Play(0);
-	} else {
-		if(component->IsPlaying())
-			component->FadeOut(fadeOut, 0);
-		component = nullptr;
+		}
+	} else if(component && component->IsPlaying()) {
+		component->FadeOut(fadeOut, 0);
 	}
 }
 
@@ -253,7 +250,7 @@ void ABaseWeapon::PlayFireAnimation() {
 
 void ABaseWeapon::StopFire() {
 	wantsToFire = false;
-	isCurrentlyFiring = false;
+	shouldPlayFireFX = false;
 	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
 	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
 	if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
