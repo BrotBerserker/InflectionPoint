@@ -213,7 +213,8 @@ void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 }
 
 void ABaseWeapon::MulticastFireExecuted_Implementation() {
-	UGameplayStatics::PlayWorldCameraShake(GetWorld(), FireCameraShake, OwningCharacter->GetActorLocation(), 50, 60);
+	if(OwningCharacter)
+		UGameplayStatics::PlayWorldCameraShake(GetWorld(), FireCameraShake, OwningCharacter->GetActorLocation(), 50, 60);
 	SpawnMuzzleFX();
 	SpawnFireSound();
 	PlayFireAnimation();
@@ -318,7 +319,8 @@ void ABaseWeapon::SpawnMuzzleFX() {
 }
 
 void ABaseWeapon::DecativateParticleSystem(UParticleSystemComponent* effect) {
-	effect->DeactivateSystem();
+	if(effect)
+		effect->DeactivateSystem();
 }
 
 FRotator ABaseWeapon::GetAimDirection() {

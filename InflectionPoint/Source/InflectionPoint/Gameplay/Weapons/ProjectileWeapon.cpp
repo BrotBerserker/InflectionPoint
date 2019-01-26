@@ -45,7 +45,7 @@ bool AProjectileWeapon::TargetShouldBeDeselected(UPrimitiveComponent* targetComp
 }
 
 void AProjectileWeapon::SwitchSelectedTarget(UPrimitiveComponent * newTarget) {
-	if(Cast<ABaseCharacter>(GetOwner())->IsLocallyControlled() && !GetOwner()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo().IsReplay) {
+	if(GetOwner() && Cast<ABaseCharacter>(GetOwner())->IsLocallyControlled() && !GetOwner()->FindComponentByClass<UCharacterInfoProvider>()->GetCharacterInfo().IsReplay) {
 		UnMarkTarget(SelectedTargetComponent);
 		MarkTarget(newTarget);
 	}
