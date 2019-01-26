@@ -318,7 +318,8 @@ void ABaseWeapon::SpawnMuzzleFX() {DebugPrint(__FILE__, __LINE__);
 DebugPrint(__FILE__, __LINE__);}
 
 void ABaseWeapon::DecativateParticleSystem(UParticleSystemComponent* effect) {DebugPrint(__FILE__, __LINE__);
-	effect->DeactivateSystem();
+	if(effect)
+		effect->DeactivateSystem();
 DebugPrint(__FILE__, __LINE__);}
 
 FRotator ABaseWeapon::GetAimDirection() {DebugPrint(__FILE__, __LINE__);
