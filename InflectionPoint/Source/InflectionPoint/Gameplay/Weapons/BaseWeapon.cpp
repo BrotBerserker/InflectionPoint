@@ -213,7 +213,8 @@ void ABaseWeapon::UpdateEquippedState(bool newEquipped) {DebugPrint(__FILE__, __
 DebugPrint(__FILE__, __LINE__);}
 
 void ABaseWeapon::MulticastFireExecuted_Implementation() {DebugPrint(__FILE__, __LINE__);
-	UGameplayStatics::PlayWorldCameraShake(GetWorld(), FireCameraShake, OwningCharacter->GetActorLocation(), 50, 60);
+	if(OwningCharacter)
+		UGameplayStatics::PlayWorldCameraShake(GetWorld(), FireCameraShake, OwningCharacter->GetActorLocation(), 50, 60);
 	SpawnMuzzleFX();
 	SpawnFireSound();
 	PlayFireAnimation();
