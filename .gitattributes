@@ -1,1 +1,1 @@
-*.uasset filter=lfs diff=lfs merge=lfs -text
+*BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
