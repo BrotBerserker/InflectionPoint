@@ -1,1 +1,2 @@
 *BuiltData.uasset filter=lfs diff=lfs merge=lfs -text
+InflectionPoint/Content/InflectionPoint/Meshes/LargeRockStuff.uasset filter=lfs diff=lfs merge=lfs -text
