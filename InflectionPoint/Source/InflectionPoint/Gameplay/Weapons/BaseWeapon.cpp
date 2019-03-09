@@ -214,7 +214,7 @@ void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 
 void ABaseWeapon::MulticastFireExecuted_Implementation() {
 	if(OwningCharacter)
-		UGameplayStatics::PlayWorldCameraShake(GetWorld(), FireCameraShake, OwningCharacter->GetActorLocation(), 50, 60);
+		GetWorld()->GetFirstPlayerController()->PlayerCameraManager->PlayCameraShake(FireCameraShake, 1.0f);
 	SpawnMuzzleFX();
 	SpawnFireSound();
 	PlayFireAnimation();
