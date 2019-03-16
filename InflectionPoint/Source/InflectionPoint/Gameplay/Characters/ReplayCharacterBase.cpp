@@ -10,7 +10,8 @@
 void AReplayCharacterBase::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME(AReplayCharacterBase, ReplayIndex);
+	DOREPLIFETIME(AReplayCharacterBase, ReplayIndex); 
+	DOREPLIFETIME(AReplayCharacterBase, TotalReplayDuration);
 }
 
 // Sets default values for this component's properties
@@ -68,6 +69,7 @@ void AReplayCharacterBase::MulticastUpdateCustomDepthStencil_Implementation() {
 
 void AReplayCharacterBase::SetReplayData(TArray<FRecordedPlayerState> RecordData) {
 	recordData = RecordData;
+	TotalReplayDuration = recordData.Last().Timestamp;
 }
 
 void AReplayCharacterBase::StopReplay() {

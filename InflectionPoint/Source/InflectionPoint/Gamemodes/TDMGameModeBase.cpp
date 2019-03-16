@@ -152,6 +152,7 @@ void ATDMGameModeBase::PreparePhaseStart() {
 }
 
 void ATDMGameModeBase::StartPhase() {
+	GetGameState()->MulticastStartPhase();
 	StartReplays();
 	if(IsPhaseWinnerFound()) {
 		StartTimer(this, GetWorld(), "StartEndMatchSequence", 1.1f, false); // wait for countdown animation

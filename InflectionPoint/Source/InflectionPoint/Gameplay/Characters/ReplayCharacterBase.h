@@ -141,6 +141,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		int ReplayIndex = -1;
 
+	UPROPERTY(BlueprintReadWrite, Replicated)
+		float TotalReplayDuration = 0;
+
 private:
 
 	TArray<FRecordedPlayerState> recordData;

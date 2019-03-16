@@ -41,6 +41,9 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
 		TArray<int> TeamWins;
 
+	UPROPERTY(Replicated, BlueprintReadWrite, Category = "InflectionPoint")
+		float localPhaseStartGameTime = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FColor NeutralColor;
 
@@ -78,4 +81,7 @@ public:
 		void ResetTotalPlayerScores();
 
 	void PreparePlayerStatesForRoundStart();
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastStartPhase();
 };

@@ -16,6 +16,7 @@ void ATDMGameStateBase::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME(ATDMGameStateBase, TeamWins);
 	DOREPLIFETIME(ATDMGameStateBase, MaxPlayers);
 	DOREPLIFETIME(ATDMGameStateBase, NumPlayers);
+	DOREPLIFETIME(ATDMGameStateBase, localPhaseStartGameTime);	
 }
 
 void ATDMGameStateBase::PrepareForMatchStart(int SpawnPointCount) {
@@ -93,4 +94,8 @@ void ATDMGameStateBase::PreparePlayerStatesForRoundStart() {
 		AssertNotNull(tdmPlayerState, GetWorld(), __FILE__, __LINE__);
 		tdmPlayerState->PrepareForRoundStart();
 	}
+}
+
+void ATDMGameStateBase::MulticastStartPhase_Implementation() {
+	localPhaseStartGameTime = UGameplayStatics::GetRealTimeSeconds(GetWorld());
 }
