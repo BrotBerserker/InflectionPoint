@@ -20,6 +20,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void Initialize(APlayerController* OwningController);
 
+	UFUNCTION(BlueprintCallable)
+		void InitializeOwner(APlayerController* OwningController, APlayerState* OwnerPlayerState);
+
 	UPROPERTY(BlueprintReadOnly)
 		APlayerController* OwningPlayerController;
 };

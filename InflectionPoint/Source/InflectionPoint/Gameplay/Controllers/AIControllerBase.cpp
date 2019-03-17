@@ -11,12 +11,18 @@ AAIControllerBase::AAIControllerBase(const FObjectInitializer& ObjectInitializer
 }
 
 void AAIControllerBase::Initialize(APlayerController* OwningController) {
-	OwningPlayerController = OwningController;
+	AssertNotNull(OwningController, GetWorld(), __FILE__, __LINE__);
+	InitializeOwner(OwningController, OwningController->PlayerState);
+}
 
-	AssertNotNull(OwningPlayerController, GetWorld(), __FILE__, __LINE__);
-	AssertNotNull(OwningPlayerController->PlayerState, GetWorld(), __FILE__, __LINE__);
+void AAIControllerBase::InitializeOwner(APlayerController* OwningController, APlayerState* OwnerPlayerState) {
+	AssertNotNull(OwningController, GetWorld(), __FILE__, __LINE__);
+	AssertNotNull(OwnerPlayerState, GetWorld(), __FILE__, __LINE__);
 	AssertNotNull(GetCharacter(), GetWorld(), __FILE__, __LINE__);
+
+	OwningPlayerController = OwningController;
 	UCharacterInfoProvider* provider = GetCharacter()->FindComponentByClass<UCharacterInfoProvider>();
 	AssertNotNull(provider, GetWorld(), __FILE__, __LINE__);
-	provider->PlayerState = OwningPlayerController->PlayerState;
+	provider->PlayerState = OwnerPlayerState;
 }
+
