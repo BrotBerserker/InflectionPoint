@@ -16,6 +16,7 @@ enum class EHUDElementView : uint8 {
 	SpectatorView,
 	MatchEndView,
 	ShopView,
+	TutorialView,
 }; 
 ENUM_CLASS_FLAGS(EHUDElementView);
 
