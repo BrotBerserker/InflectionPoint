@@ -149,7 +149,7 @@ public:
 
 	/** Seconds to wait before restarting the match after the last one has ended */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float MatchReStartDelay = 15.0f;
+		float MatchReStartDelay = 20.0f;
 
 	/** Seconds to wait before a phase is ended after the winner has been decided */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
