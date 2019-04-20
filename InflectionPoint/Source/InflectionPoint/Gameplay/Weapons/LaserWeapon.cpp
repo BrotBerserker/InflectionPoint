@@ -23,15 +23,7 @@ void ALaserWeapon::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult
 }
 
 void ALaserWeapon::SpawnLaserFX() {
-	float spread = (OwningCharacter && OwningCharacter->IsAiming) ? AimSpread : Spread;
-	const float ConeHalfAngle = FMath::DegreesToRadians(spread * 0.5f);
-
-	const FVector direction = OwningCharacter->FirstPersonCameraComponent->GetForwardVector();
-	const FVector StartTrace = OwningCharacter->FirstPersonCameraComponent->GetComponentLocation();
-	const FVector ShootDir = WeaponRandomStream.VRandCone(direction, ConeHalfAngle, ConeHalfAngle);
-	const FVector EndTrace = StartTrace + ShootDir * Range;
-	FHitResult hitResult = AInstantWeapon::WeaponTrace(StartTrace, EndTrace);
-
+	FHitResult hitResult = AInstantWeapon::WeaponTraceShootDirection(false);
 	SpawnTrailFX(hitResult);
 	SpawnImpactFX(hitResult);
 }

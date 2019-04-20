@@ -20,27 +20,32 @@ void AInstantWeapon::PreExecuteFire() {
 }
 
 void AInstantWeapon::ExecuteFire() {
-	float spread = (OwningCharacter && OwningCharacter->IsAiming) ? AimSpread : Spread;
-	const float ConeHalfAngle = FMath::DegreesToRadians(spread * 0.5f);
-
-	const FVector direction = OwningCharacter->FirstPersonCameraComponent->GetForwardVector();
-	const FVector StartTrace = OwningCharacter->FirstPersonCameraComponent->GetComponentLocation();
-	const FVector ShootDir = WeaponRandomStream.VRandCone(direction, ConeHalfAngle, ConeHalfAngle);
-	const FVector EndTrace = StartTrace + ShootDir * Range;
-
-	FHitResult hitResult = WeaponTrace(StartTrace, EndTrace);
+	FHitResult hitResult = WeaponTraceShootDirection(true);
 	MulticastSpawnInstantWeaponFX(hitResult);
-
+	
 	if(hitResult.bBlockingHit) {
 		DebugLineDrawer->DrawDebugLineTrace(GetFPMuzzleLocation(), hitResult.ImpactPoint);
 	}
-	DealDamage(hitResult, ShootDir);
+	DealDamage(hitResult, OwningCharacter->FirstPersonCameraComponent->GetForwardVector());
 }
 
 void AInstantWeapon::PostExecuteFire() {
 	auto controller = Cast<APlayerControllerBase>(OwningCharacter->Controller);
 	if(controller && damageWasDealt)
 		controller->DamageDealt();
+}
+
+FHitResult AInstantWeapon::WeaponTraceShootDirection(bool applySpread) {
+	float spread = (OwningCharacter && OwningCharacter->IsAiming) ? AimSpread : Spread;
+	const float ConeHalfAngle = FMath::DegreesToRadians(spread * 0.5f);
+	FVector ShootDir = OwningCharacter->FirstPersonCameraComponent->GetForwardVector();
+	if(applySpread)
+		ShootDir = WeaponRandomStream.VRandCone(ShootDir, ConeHalfAngle, ConeHalfAngle);
+	const FVector StartTrace = OwningCharacter->FirstPersonCameraComponent->GetComponentLocation();
+	const FVector EndTrace = StartTrace + ShootDir * Range;
+	if(ShootRadius <= 0)
+		return WeaponTrace(StartTrace, EndTrace);
+	return WeaponBoxTrace(StartTrace, EndTrace, ShootRadius);
 }
 
 FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector& endTrace) {
@@ -54,6 +59,17 @@ FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector&
 	FHitResult Hit(ForceInit);
 	GetWorld()->LineTraceSingleByChannel(Hit, startTrace, endTrace, (ECollisionChannel)CollisionChannel, TraceParams);
 	return Hit;
+}
+
+FHitResult AInstantWeapon::WeaponBoxTrace(const FVector& startTrace, const FVector& endTrace, int radius) {
+	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(radius * 2, radius*2, 50));
+	FQuat ShapeRotation = FQuat(0, 0, 0, 0);
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(GetOwner());
+	QueryParams.AddIgnoredActor(this);
+	FHitResult hitResult;
+	GetWorld()->SweepSingleByChannel(hitResult, startTrace, endTrace, ShapeRotation, (ECollisionChannel)CollisionChannel, Shape, QueryParams);
+	return hitResult;
 }
 
 void AInstantWeapon::DealDamage(const FHitResult hitResult, const FVector& ShootDir) {

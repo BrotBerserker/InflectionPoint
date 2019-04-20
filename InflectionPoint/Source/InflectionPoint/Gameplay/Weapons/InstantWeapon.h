@@ -31,6 +31,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		float Range = 10000;
 
+	/** weapon shoot radius */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+		float ShootRadius = 0;
+
 	/** damage amount */
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		int32 Damage = 10;
@@ -71,8 +75,15 @@ public:
 	void ExecuteFire() override;
 	void PostExecuteFire() override;
 
+	/* Perform a line trace to retrieve hit info in Shooting direction 
+	(applySpread: spread will be generate based on a seed - dont use for fx!) */
+	FHitResult WeaponTraceShootDirection(bool applySpread);
+
 	/* Perform a line trace to retrieve hit info */
 	FHitResult WeaponTrace(const FVector& StartTrace, const FVector& EndTrace);
+
+	/* Perform a box trace to retrieve hit info */
+	FHitResult WeaponBoxTrace(const FVector& StartTrace, const FVector& EndTrace, int radius);
 
 	/* Deals Damage if Character was hit*/
 	void DealDamage(const FHitResult hitResult, const FVector& ShootDir);
