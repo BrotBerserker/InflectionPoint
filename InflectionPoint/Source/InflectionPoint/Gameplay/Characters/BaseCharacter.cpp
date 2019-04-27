@@ -514,6 +514,9 @@ void ABaseCharacter::MulticastUpdateCameraPitch_Implementation(float pitch) {
 
 void ABaseCharacter::EnableSprint() {
 	sprintEnabled = true;
+	if(bIsCrouched) {
+		UnCrouch();
+	}
 }
 
 void ABaseCharacter::DisableSprint() {
@@ -553,6 +556,14 @@ bool ABaseCharacter::ServerStopSprinting_Validate() {
 
 void ABaseCharacter::ServerStopSprinting_Implementation() {
 	StopSprinting();
+}
+
+void ABaseCharacter::Jump() {
+	if(bIsCrouched) {
+		UnCrouch();
+	} else {
+		Super::Jump();
+	}
 }
 
 void ABaseCharacter::ToggleCrouching() {

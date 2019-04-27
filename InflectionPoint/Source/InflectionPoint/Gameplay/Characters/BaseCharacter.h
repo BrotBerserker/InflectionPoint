@@ -194,6 +194,9 @@ public:
 	/** Handles stafing movement, left and right */
 	void MoveRight(float val);
 
+	/** Jumps if the player is standing, uncrouches if the player is crouched */
+	virtual void Jump() override;
+
 	/** Toggles between crouching/standing */
 	void ToggleCrouching();
 
