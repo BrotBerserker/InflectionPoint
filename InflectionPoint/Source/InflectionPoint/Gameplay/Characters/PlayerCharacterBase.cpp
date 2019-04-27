@@ -29,6 +29,8 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABaseCharacter::ToggleCrouching);
+
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::StartFire);
 	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::StopFire);
 

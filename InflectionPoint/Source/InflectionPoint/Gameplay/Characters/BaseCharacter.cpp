@@ -68,6 +68,8 @@ ABaseCharacter::ABaseCharacter() {
 	// Initialize Materialize Timeline (wtf aber ok, siehe https://wiki.unrealengine.com/Timeline_in_c%2B%2B)
 	MaterializeTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("MaterializeTimeline"));
 
+	CrouchingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("CrouchingTimeline"));
+
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	CharacterInfoProvider = CreateDefaultSubobject<UCharacterInfoProvider>(TEXT("CharacterInfoProvider"));
@@ -79,7 +81,7 @@ ABaseCharacter::ABaseCharacter() {
 	CharacterHeadDisplay->SetRelativeLocation(FVector(0.f, 0.f, 100.f));
 	CharacterHeadDisplay->SetWidgetSpace(EWidgetSpace::Screen);
 	CharacterHeadDisplay->SetVisibility(true);
-	
+
 	TargetMarkerParticles = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("TargetMarkerParticles"));
 	TargetMarkerParticles->SetupAttachment(GetCapsuleComponent());
 	TargetMarkerParticles->SetOwnerNoSee(true);
@@ -93,7 +95,7 @@ void ABaseCharacter::BeginPlay() {
 	// Show or hide the two versions of the gun based on whether or not we're using motion controllers.
 	Mesh1P->SetHiddenInGame(false, true);
 	InitCharacterHeadDisplay();
-	
+
 	if(Cast<AReplayCharacterBase>(this) || !IsLocallyControlled()) {
 		FActorSpawnParameters params;
 		ASkeletalMeshActor* meshActor = GetWorld()->SpawnActor<ASkeletalMeshActor>(params);
@@ -104,6 +106,17 @@ void ABaseCharacter::BeginPlay() {
 		meshActor->SetActorHiddenInGame(true);
 		TargetMarkerParticles->SetActorParameter(FName("VertSurfaceActor"), meshActor);
 	}
+
+	AssertNotNull(CrouchingCurve, GetWorld(), __FILE__, __LINE__);
+
+	FOnTimelineFloat callback{};
+	callback.BindUFunction(this, FName{ TEXT("CrouchingCallback") });
+	CrouchingTimeline->AddInterpFloat(CrouchingCurve, callback, FName{ TEXT("CrouchingTimelineAnimation") });
+
+	CamMiddle = FirstPersonCameraComponent->RelativeLocation;
+	CrouchHeightDiff = GetCapsuleComponent()->GetScaledCapsuleHalfHeight() - GetCharacterMovement()->CrouchedHalfHeight;
+	CamTop = FVector(CamMiddle.X, CamMiddle.Y, CamMiddle.Z + CrouchHeightDiff);
+	CamBottom = FVector(CamMiddle.X, CamMiddle.Y, CamMiddle.Z - CrouchHeightDiff);
 }
 
 bool ABaseCharacter::IsReadyForInitialization() {
@@ -381,7 +394,7 @@ void ABaseCharacter::EquipWeapon(ABaseWeapon* NewWeapon, ABaseWeapon* OldWeapon)
 		Mesh1P->GetAnimInstance()->Montage_Stop(0, CurrentWeapon->ReloadAnimation1P);
 		OldWeapon->OnUnequip();
 	}
-	
+
 	Mesh1P->GetAnimInstance()->Montage_Play(CurrentWeapon->EquipAnimation1P);
 	Mesh3P->GetAnimInstance()->Montage_Play(CurrentWeapon->EquipAnimation3P);
 
@@ -535,6 +548,37 @@ bool ABaseCharacter::ServerStopSprinting_Validate() {
 
 void ABaseCharacter::ServerStopSprinting_Implementation() {
 	StopSprinting();
+}
+
+void ABaseCharacter::ToggleCrouching() {
+	if(!GetCharacterMovement()->IsMovingOnGround()) {
+		return;
+	}
+	if(!bIsCrouched) {
+		Crouch();
+	} else {
+		UnCrouch();
+	}
+}
+
+void ABaseCharacter::OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) {
+	FVector loc = Mesh3P->RelativeLocation;
+	Mesh3P->SetRelativeLocation(FVector(loc.X, loc.Y, loc.Z + CrouchHeightDiff - 7));
+	CamStart = CamTop;
+	CamFinish = CamMiddle;
+	CrouchingTimeline->Play();
+}
+
+void ABaseCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) {
+	FVector loc = Mesh3P->RelativeLocation;
+	Mesh3P->SetRelativeLocation(FVector(loc.X, loc.Y, loc.Z - CrouchHeightDiff + 7));
+	CamStart = CamMiddle;
+	CamFinish = CamBottom;
+	CrouchingTimeline->Reverse();
+}
+
+void ABaseCharacter::CrouchingCallback(float value) {
+	FirstPersonCameraComponent->SetRelativeLocation(FMath::Lerp(CamFinish, CamStart, value));
 }
 
 bool ABaseCharacter::IsAlive() {

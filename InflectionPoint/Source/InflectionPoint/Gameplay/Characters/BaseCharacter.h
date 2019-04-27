@@ -42,7 +42,11 @@ public:
 
 	/** Timeline used to show the materialize effect */
 	UPROPERTY()
-		UTimelineComponent* MaterializeTimeline;
+		UTimelineComponent* MaterializeTimeline;	
+	
+	/** Timeline used to smoothly adjust the camera height when crouching */
+	UPROPERTY()
+		UTimelineComponent* CrouchingTimeline;
 
 	UPROPERTY(BlueprintReadOnly)
 		class UCharacterInfoProvider* CharacterInfoProvider;
@@ -64,6 +68,10 @@ public:
 	/** Determines the maximum walk speed when walking normaly */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
 		int WalkSpeed = 600;
+
+	/** Used by CrouchingTimeline to adjust the camera height when crouching */
+	UPROPERTY(EditAnywhere, Category = Materialize)
+		UCurveFloat* CrouchingCurve;
 
 	/** Determines the materialize amount over time when playing the materialize animation */
 	UPROPERTY(EditAnywhere, Category = Materialize)
@@ -136,7 +144,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnInitialized();
 
-
 	/** Shows a spawn animation using Materialize effects */
 	UFUNCTION(BlueprintCallable)
 		void ShowSpawnAnimation();
@@ -151,7 +158,11 @@ public:
 
 	/** Called when the materialize animation has finished */
 	UFUNCTION()
-		void MaterializeFinishCallback();
+		void MaterializeFinishCallback();	
+
+	/** Callback for CrouchingTimeline, sets the camera height based on CamStart and CamFinish */
+	UFUNCTION()
+		void CrouchingCallback(float value);
 
 	/** Takes damage using the MortalityProvider */
 	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
@@ -182,6 +193,13 @@ public:
 
 	/** Handles stafing movement, left and right */
 	void MoveRight(float val);
+
+	/** Toggles between crouching/standing */
+	void ToggleCrouching();
+
+	/** Overriden from ACharacter, fired on server and clients */
+	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
+	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
 	/** These two are needed because sprinting is handled on client side */
 	void StartFire();
@@ -338,5 +356,19 @@ private:
 	bool sprintAllowed = true;
 
 	UMaterialInstanceDynamic* DynamicBodyMaterial;
+
+	// ### Crouch animation variables
+	// Original camera location
+	FVector CamMiddle;
+	// Camera location at the top of the capsule
+	FVector CamTop;
+	// Camera location at the bottom of the capsule
+	FVector CamBottom;
+	// Start location for the CrouchingTimeline
+	FVector CamStart;
+	// Finish location for the CrouchingTimeline
+	FVector CamFinish;
+	// Capsule's half height difference between standing/crouching
+	float CrouchHeightDiff;
 };
 
