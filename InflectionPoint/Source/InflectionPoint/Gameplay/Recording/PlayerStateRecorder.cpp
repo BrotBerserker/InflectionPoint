@@ -35,6 +35,8 @@ void UPlayerStateRecorder::InitializeBindings(UInputComponent * inputComponent) 
 	inputComponent->BindAction("Jump", IE_Pressed, this, &UPlayerStateRecorder::RecordJump<IE_Pressed>);
 	inputComponent->BindAction("Jump", IE_Released, this, &UPlayerStateRecorder::RecordJump<IE_Released>);
 
+	inputComponent->BindAction("Crouch", IE_Pressed, this, &UPlayerStateRecorder::RecordToggleCrouching<IE_Pressed>);
+
 	inputComponent->BindAction("Aim", IE_Pressed, this, &UPlayerStateRecorder::RecordAim<IE_Pressed>);
 	inputComponent->BindAction("Aim", IE_Released, this, &UPlayerStateRecorder::RecordAim<IE_Released>);
 
@@ -164,6 +166,11 @@ void UPlayerStateRecorder::RecordKey(FString key, EInputEvent eventType) {
 template<EInputEvent eventType>
 void UPlayerStateRecorder::RecordJump() {
 	RecordKey("Jump", eventType);
+}
+
+template<EInputEvent eventType>
+void UPlayerStateRecorder::RecordToggleCrouching() {
+	RecordKey("ToggleCrouching", eventType);
 }
 
 template<EInputEvent eventType>

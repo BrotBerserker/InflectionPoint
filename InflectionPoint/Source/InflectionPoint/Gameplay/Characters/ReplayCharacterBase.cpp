@@ -22,10 +22,8 @@ AReplayCharacterBase::AReplayCharacterBase() {
 
 	// Create another Mesh3P for post process effects
 	Mesh3PPostProcess = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh3PPostProcess"));
-	Mesh3PPostProcess->SetupAttachment(GetCapsuleComponent());
+	Mesh3PPostProcess->SetupAttachment(Mesh3P);
 	Mesh3PPostProcess->SetOwnerNoSee(true);
-	Mesh3PPostProcess->RelativeLocation = Mesh3P->RelativeLocation;
-	Mesh3PPostProcess->RelativeRotation = Mesh3P->RelativeRotation;
 }
 
 void AReplayCharacterBase::BeginPlay() {
@@ -193,6 +191,8 @@ void AReplayCharacterBase::UpdateReleasedKeys(FRecordedPlayerState &recordDataSt
 void AReplayCharacterBase::PressKey(FString key) {
 	if(key == "Jump") {
 		Jump();
+	} else if(key == "ToggleCrouching") {
+		ToggleCrouching();
 	} else if(key == "Aim") {
 		StartAiming();
 	} else if(key == "Sprint") {

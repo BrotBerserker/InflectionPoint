@@ -117,6 +117,9 @@ private:
 	void RecordJump();
 
 	template<EInputEvent eventType>
+	void RecordToggleCrouching();
+
+	template<EInputEvent eventType>
 	void RecordAim();
 
 	template<EInputEvent eventType>
