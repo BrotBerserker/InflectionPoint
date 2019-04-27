@@ -43,9 +43,9 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 	PlayerInputComponent->BindAction("SwitchToWeapon1", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<EInventorySlotPosition::Weapon1>);
 	PlayerInputComponent->BindAction("SwitchToWeapon2", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<EInventorySlotPosition::Weapon2>);
 	PlayerInputComponent->BindAction("SwitchToWeapon3", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<EInventorySlotPosition::Weapon3>);
-	//PlayerInputComponent->BindAction("SwitchToWeapon4", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<3>);
-	//PlayerInputComponent->BindAction("SwitchToWeapon5", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<4>);
-	//PlayerInputComponent->BindAction("SwitchToWeapon6", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<5>);
+	PlayerInputComponent->BindAction("SwitchToSkill1", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<EInventorySlotPosition::Skill1>);
+	PlayerInputComponent->BindAction("SwitchToSkill2", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<EInventorySlotPosition::Skill2>);
+	PlayerInputComponent->BindAction("SwitchToSkill3", IE_Pressed, this, &APlayerCharacterBase::EquipSpecificWeapon<EInventorySlotPosition::Skill3>);
 
 	PlayerInputComponent->BindAction("Sprint", IE_Pressed, this, &ABaseCharacter::EnableSprint);
 	PlayerInputComponent->BindAction("Sprint", IE_Released, this, &ABaseCharacter::DisableSprint);
