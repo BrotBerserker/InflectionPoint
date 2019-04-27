@@ -205,9 +205,9 @@ void AReplayCharacterBase::PressKey(FString key) {
 		ServerEquipNextWeapon();
 	} else if(key == "EquipPreviousWeapon") {
 		ServerEquipPreviousWeapon();
-	} else if(key.Contains("EquipSpecificWeapon")) {
+	} else if(key.Contains("EquipSpecificSlot")) {
 		auto str = FString(key); // to not alter string
-		str.RemoveFromStart("EquipSpecificWeapon");
+		str.RemoveFromStart("EquipSpecificSlot");
 		int index = FCString::Atoi(*str);
 		ServerEquipSpecificWeapon((EInventorySlotPosition)index);
 	}

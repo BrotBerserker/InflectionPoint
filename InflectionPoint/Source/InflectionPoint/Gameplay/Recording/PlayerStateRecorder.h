@@ -4,6 +4,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "PlayerStateRecorder.generated.h"
 
 /** Represents a player's state (location, rotation, pressed keys) at a certain point of time */
@@ -135,8 +136,8 @@ private:
 
 	void RecordMoveRight(float val);
 
-	template<int index, EInputEvent eventType>
-	void RecordEquipSpecificWeapon();
+	template<EInventorySlotPosition slot, EInputEvent eventType>
+	void RecordEquipSpecificSlot();
 
 public:
 	UFUNCTION(Server, Reliable, WithValidation)
