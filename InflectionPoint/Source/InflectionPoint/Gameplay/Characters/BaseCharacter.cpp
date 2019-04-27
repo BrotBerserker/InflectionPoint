@@ -155,6 +155,11 @@ void ABaseCharacter::Tick(float DeltaTime) {
 	}
 
 	UpdateFieldOfView(DeltaTime);
+
+	if(wantsToCrouch && GetCharacterMovement()->IsMovingOnGround()) {
+		wantsToCrouch = false;
+		Crouch();
+	}
 }
 
 void ABaseCharacter::Destroyed() {
@@ -551,11 +556,8 @@ void ABaseCharacter::ServerStopSprinting_Implementation() {
 }
 
 void ABaseCharacter::ToggleCrouching() {
-	if(!GetCharacterMovement()->IsMovingOnGround()) {
-		return;
-	}
 	if(!bIsCrouched) {
-		Crouch();
+		wantsToCrouch = true;
 	} else {
 		UnCrouch();
 	}

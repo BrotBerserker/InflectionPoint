@@ -370,5 +370,7 @@ private:
 	FVector CamFinish;
 	// Capsule's half height difference between standing/crouching
 	float CrouchHeightDiff;
+
+	bool wantsToCrouch = false;
 };
 
