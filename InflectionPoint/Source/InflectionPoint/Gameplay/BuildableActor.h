@@ -6,6 +6,24 @@
 #include "GameFramework/Actor.h"
 #include "BuildableActor.generated.h"
 
+
+USTRUCT(BlueprintType)
+struct FBuildingStage {
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		UStaticMesh* Mesh;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		UMaterialInterface* MaterializeMaterial;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		UMaterialInterface* FinishedMaterial;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+		FTransform Transform;
+};
+
 UCLASS()
 class INFLECTIONPOINT_API ABuildableActor : public AActor {
 	GENERATED_BODY()
@@ -15,31 +33,37 @@ public:
 
 public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		UStaticMeshComponent* Mesh;
+		TArray<FBuildingStage> BuildingStages;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 		UMaterialInterface* PreviewMaterial;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		UMaterialInterface* MaterializeMaterial;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-		UMaterialInterface* FinishedMaterial;
-
-	UPROPERTY(EditAnywhere, Category = Materialize)
+	UPROPERTY(EditAnywhere)
 		UCurveFloat* MaterializeCurve;
 
+	UPROPERTY(BlueprintReadOnly)
+		TArray<UStaticMeshComponent*> StageMeshes;
+
+	UPROPERTY(BlueprintReadOnly)
+		int32 CurrentStage = -1;
+
 public:
-	// Sets default values for this actor's properties
 	ABuildableActor();
 
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
-	void UpdateLocation(FVector NewLocation, FVector HitNormal, AActor* HitActor);
+	virtual void OnConstruction(const FTransform & Transform) override;
 
 public:
+	UFUNCTION(BlueprintCallable)
+		void UpdateLocation(FVector NewLocation, FVector HitNormal, AActor* HitActor);
+
+	UFUNCTION(BlueprintCallable)
+		void ShowNextStagePreview();
+
+	UFUNCTION(BlueprintCallable)
+		void HideNextStagePreview();
+
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerBuild();
 
@@ -60,7 +84,15 @@ private:
 	void EnableBuild();
 	void DisableBuild();
 
+	void UpdateLocationOnExistingBuilding(AActor * HitActor, FVector &NewLocation, FVector &HitNormal);
+	const FRotator GetRotationFromHitNormal(FVector & HitNormal);
+	bool IsValidTargetBuilding(AActor * HitActor);
+	void UpdateLocationOnMap(FVector &NewLocation, FVector &HitNormal, AActor * HitActor);
+
+
 private:
+	ABuildableActor* TargetBuilding;
+
 	UMaterialInstanceDynamic* PreviewMaterialInstance;
 	UMaterialInstanceDynamic* MaterializeMaterialInstance;
 

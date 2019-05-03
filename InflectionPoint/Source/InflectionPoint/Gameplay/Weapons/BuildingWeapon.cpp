@@ -29,7 +29,9 @@ void ABuildingWeapon::OnEquip() {
 
 void ABuildingWeapon::OnUnequip() {
 	Super::OnUnequip();
-	buildableActor->Destroy();
+	if(buildableActor) {
+		buildableActor->Destroy();
+	}
 }
 
 bool ABuildingWeapon::CanFire() {
