@@ -343,11 +343,15 @@ FVector ABaseWeapon::GetTPMuzzleLocation() {
 void ABaseWeapon::StartAiming() {
 	if(HideWeaponWhenAiming)
 		Mesh1P->SetVisibility(false, true);
+	if(OwningCharacter && HideWeaponWhenAiming)
+		OwningCharacter->Mesh1P->SetVisibility(false, false);
 }
 
 void ABaseWeapon::StopAiming() {
 	if(HideWeaponWhenAiming)
 		Mesh1P->SetVisibility(true, true);
+	if(OwningCharacter && HideWeaponWhenAiming)
+		OwningCharacter->Mesh1P->SetVisibility(true, false);
 }
 
 void ABaseWeapon::ChangeWeaponState(EWeaponState newState) {

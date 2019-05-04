@@ -87,7 +87,5 @@ public:
 private:
 	FVector startPos;
 	bool firstHit = true;
-
-		
 };
 

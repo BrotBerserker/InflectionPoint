@@ -82,7 +82,7 @@ public:
 		void ClientSetIgnoreInput(bool ignore);
 
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-		void DamageDealt();
+		void DamageDealt(bool headshot);
 
 	/** Spectates the next player or replay that is alive and in the same team as this player */
 	UFUNCTION(BlueprintCallable, Server, WithValidation, Unreliable)

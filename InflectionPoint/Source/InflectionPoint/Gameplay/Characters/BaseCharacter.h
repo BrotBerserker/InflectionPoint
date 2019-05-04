@@ -252,6 +252,10 @@ public:
 
 	UFUNCTION()
 		void PlayDeathSound(bool suicide);
+
+	/** Weather a hit counts as Headshot or not */
+	UFUNCTION()
+		bool IsHitAHeadshot(const FHitResult hitResult);
 public:
 	/* --------------- */
 	/*  RPC Functions  */

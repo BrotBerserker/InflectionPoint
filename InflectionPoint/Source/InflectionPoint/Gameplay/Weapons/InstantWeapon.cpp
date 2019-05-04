@@ -17,12 +17,13 @@ AInstantWeapon::AInstantWeapon() {
 
 void AInstantWeapon::PreExecuteFire() {
 	damageWasDealt = false;
+	hitWasHeadshot = false;
 }
 
 void AInstantWeapon::ExecuteFire() {
 	FHitResult hitResult = WeaponTraceShootDirection(true);
 	MulticastSpawnInstantWeaponFX(hitResult);
-	
+
 	if(hitResult.bBlockingHit) {
 		DebugLineDrawer->DrawDebugLineTrace(GetFPMuzzleLocation(), hitResult.ImpactPoint);
 	}
@@ -32,7 +33,7 @@ void AInstantWeapon::ExecuteFire() {
 void AInstantWeapon::PostExecuteFire() {
 	auto controller = Cast<APlayerControllerBase>(OwningCharacter->Controller);
 	if(controller && damageWasDealt)
-		controller->DamageDealt();
+		controller->DamageDealt(hitWasHeadshot);
 }
 
 FHitResult AInstantWeapon::WeaponTraceShootDirection(bool applySpread) {
@@ -62,7 +63,7 @@ FHitResult AInstantWeapon::WeaponTrace(const FVector& startTrace, const FVector&
 }
 
 FHitResult AInstantWeapon::WeaponBoxTrace(const FVector& startTrace, const FVector& endTrace, int radius) {
-	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(radius * 2, radius*2, 50));
+	FCollisionShape Shape = FCollisionShape::MakeBox(FVector(radius * 2, radius * 2, 50));
 	FQuat ShapeRotation = FQuat(0, 0, 0, 0);
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(GetOwner());
@@ -76,15 +77,17 @@ void AInstantWeapon::DealDamage(const FHitResult hitResult, const FVector& Shoot
 	if(!hitResult.Actor.IsValid())
 		return;
 
+	// to notify a controller if a character was damaged
+	if(hitResult.Actor.Get()->IsA(ABaseCharacter::StaticClass())) {
+		hitWasHeadshot = hitWasHeadshot || (HeadshotBonusDamage != 0 && Cast<ABaseCharacter>(hitResult.Actor.Get())->IsHitAHeadshot(hitResult));
+		damageWasDealt = true;
+	}
+
 	FPointDamageEvent PointDmg;
 	PointDmg.DamageTypeClass = DamageType;
 	PointDmg.HitInfo = hitResult;
 	PointDmg.ShotDirection = ShootDir;
-	PointDmg.Damage = Damage;
-
-	// to notify a controller if a character was damaged
-	if(hitResult.Actor.Get()->IsA(ABaseCharacter::StaticClass()))
-		damageWasDealt = true;
+	PointDmg.Damage = Damage + (hitWasHeadshot ? HeadshotBonusDamage : 0);
 
 	hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
 }

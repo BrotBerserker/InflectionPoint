@@ -39,6 +39,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		int32 Damage = 10;
 
+	/** damage amount that gets added if hit is a headshot */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+		int32 HeadshotBonusDamage = 0;
+
 	/** type of damage */
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		TSubclassOf<UDamageType> DamageType;
@@ -101,4 +105,5 @@ public:
 	float GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) override;
 private:
 	bool damageWasDealt = false;
+	bool hitWasHeadshot = false;
 };

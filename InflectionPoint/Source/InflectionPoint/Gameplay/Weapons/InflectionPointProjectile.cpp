@@ -100,7 +100,7 @@ void AInflectionPointProjectile::OnPawnHit(float Damage, const FHitResult& Hit) 
 	}
 	APlayerControllerBase* playerController = Cast<APlayerControllerBase>(Instigator->GetController());
 	if(playerController && Damage > 0) {
-		playerController->DamageDealt();
+		playerController->DamageDealt(false);
 	}
 }
 

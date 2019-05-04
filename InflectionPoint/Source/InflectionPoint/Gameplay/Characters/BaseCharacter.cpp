@@ -615,3 +615,9 @@ void ABaseCharacter::PlayDeathSound(bool suicide) {
 	if(audio)
 		UGameplayStatics::SpawnSoundAttached(audio, Mesh3P);
 }
+
+bool ABaseCharacter::IsHitAHeadshot(const FHitResult hitResult) {
+	if(this->GetActorLocation().Z > hitResult.ImpactPoint.Z)
+		return false;
+	return (this->GetActorLocation() - hitResult.ImpactPoint).Size() > 60;
+}

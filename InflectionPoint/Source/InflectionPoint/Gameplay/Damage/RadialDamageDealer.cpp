@@ -42,7 +42,7 @@ void URadialDamageDealer::ExecuteDealDamage(FVector location, AController* contr
 	auto playerController = Cast<APlayerControllerBase>(controller);
 	for(int i = 0; i < damagedActors.Num() && playerController; ++i) {
 		if(damagedActors[i]->IsA(ABaseCharacter::StaticClass())) {
-			playerController->DamageDealt();
+			playerController->DamageDealt(false);
 			return; // show damageDealt only once
 		}
 	}
