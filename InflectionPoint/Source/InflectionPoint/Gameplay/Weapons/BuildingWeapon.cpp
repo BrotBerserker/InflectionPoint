@@ -4,6 +4,15 @@
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "BuildingWeapon.h"
 
+
+ABuildingWeapon::ABuildingWeapon() {
+	OutOfRangeText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("OutOfRangeText"));
+	OutOfRangeText->SetText(FText::FromString("Out of range!"));
+	OutOfRangeText->SetRelativeLocation(FVector(8.78f, -1.66f, -11.13f));
+	OutOfRangeText->SetRelativeRotation(FRotator(10.85f, -106.02f, 59.62f));
+	OutOfRangeText->SetupAttachment(Mesh1P);
+}
+
 void ABuildingWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	if(!Cast<ABaseCharacter>(GetOwner()) || !Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent || CurrentAmmoInClip <= 0) {
@@ -22,9 +31,13 @@ void ABuildingWeapon::Tick(float DeltaTime) {
 			buildableActor = GetWorld()->SpawnActor<ABuildableActor>(BuildableActorClass, spawnParams);
 		}
 		buildableActor->UpdateLocation(HitResult.Location, HitResult.ImpactNormal, HitResult.Actor.Get());
-	} else if(buildableActor) {
-		buildableActor->Destroy();
-		buildableActor = nullptr;
+		OutOfRangeText->SetVisibility(false);
+	} else {
+		if(buildableActor) {
+			buildableActor->Destroy();
+			buildableActor = nullptr;
+		}
+		OutOfRangeText->SetVisibility(true);
 	}
 }
 

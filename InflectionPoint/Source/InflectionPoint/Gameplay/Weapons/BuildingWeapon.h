@@ -15,6 +15,10 @@ class INFLECTIONPOINT_API ABuildingWeapon : public ABaseWeapon {
 	GENERATED_BODY()
 
 public:
+	UPROPERTY(VisibleDefaultsOnly)
+		UTextRenderComponent* OutOfRangeText;
+
+public:
 
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly)
 		TSubclassOf<ABuildableActor> BuildableActorClass;
@@ -27,6 +31,8 @@ public:
 		void MulticastHidePreview();
 
 public:
+	ABuildingWeapon();
+
 	virtual void Tick(float DeltaTime);
 
 	virtual bool CanFire() override;
