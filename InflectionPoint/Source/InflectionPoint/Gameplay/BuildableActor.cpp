@@ -59,6 +59,7 @@ void ABuildableActor::UpdateLocationOnExistingBuilding(AActor * HitActor, FVecto
 	} else {
 		SetActorLocation(NewLocation);
 		SetActorRotation(GetRotationFromHitNormal(HitNormal));
+		ShowNextStagePreview();
 		DisableBuild();
 	}
 }
@@ -74,9 +75,9 @@ void ABuildableActor::UpdateLocationOnMap(FVector &NewLocation, FVector &HitNorm
 	SetActorLocation(NewLocation, true, &hitResult);
 	SetActorLocation(NewLocation);
 	SetActorRotation(GetRotationFromHitNormal(HitNormal));
-	if(hitResult.Actor->IsA(ABuildableActor::StaticClass())) {
+	if(hitResult.Actor.IsValid() && hitResult.Actor->IsA(ABuildableActor::StaticClass())) {
 		UpdateLocationOnExistingBuilding(hitResult.Actor.Get(), NewLocation, HitNormal);
-	} else if(hitResult.Actor != nullptr && HitActor != nullptr && hitResult.Actor->GetName() != HitActor->GetName()) {
+	} else if(hitResult.Actor.IsValid() && HitActor != nullptr && hitResult.Actor->GetName() != HitActor->GetName()) {
 		DisableBuild();
 	} else {
 		EnableBuild();
@@ -92,16 +93,26 @@ bool ABuildableActor::IsValidTargetBuilding(AActor * HitActor) {
 		return false;
 	}
 	ABuildableActor* buildable = Cast<ABuildableActor>(HitActor);
+	if(buildable->CurrentStage == -1) {
+		return false;
+	}
+	if(buildable->MaterializeTimeline->GetPlaybackPosition() < buildable->MaterializeTimeline->GetTimelineLength()) {
+		return false;
+	}
 	return buildable->CurrentStage + 1 < buildable->BuildingStages.Num();
 }
 
 void ABuildableActor::ShowNextStagePreview() {
-	PreviewMaterialInstance = StageMeshes[CurrentStage + 1]->CreateAndSetMaterialInstanceDynamicFromMaterial(0, PreviewMaterial);
-	StageMeshes[CurrentStage + 1]->SetVisibility(true);
+	if(StageMeshes.Num() > CurrentStage + 1) {
+		PreviewMaterialInstance = StageMeshes[CurrentStage + 1]->CreateAndSetMaterialInstanceDynamicFromMaterial(0, PreviewMaterial);
+		StageMeshes[CurrentStage + 1]->SetVisibility(true);
+	}
 }
 
 void ABuildableActor::HideNextStagePreview() {
-	StageMeshes[CurrentStage + 1]->SetVisibility(false);
+	if(StageMeshes.Num() > CurrentStage + 1) {
+		StageMeshes[CurrentStage + 1]->SetVisibility(false);
+	}
 }
 
 bool ABuildableActor::ServerBuild_Validate() {
@@ -111,6 +122,7 @@ bool ABuildableActor::ServerBuild_Validate() {
 void ABuildableActor::ServerBuild_Implementation() {
 	if(TargetBuilding) {
 		TargetBuilding->ServerBuild();
+		TargetBuilding = nullptr;
 		Destroy();
 	} else {
 		SetReplicates(true);
@@ -121,6 +133,7 @@ void ABuildableActor::ServerBuild_Implementation() {
 void ABuildableActor::MulticastBuild_Implementation() {
 	CurrentStage++;
 
+	StageMeshes[CurrentStage]->SetVisibility(true);
 	StageMeshes[CurrentStage]->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 	StageMeshes[CurrentStage]->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
 	MaterializeMaterialInstance = StageMeshes[CurrentStage]->CreateAndSetMaterialInstanceDynamicFromMaterial(0, BuildingStages[CurrentStage].MaterializeMaterial);
@@ -154,3 +167,9 @@ void ABuildableActor::DisableBuild() {
 	}
 }
 
+void ABuildableActor::Destroyed() {
+	Super::Destroyed();
+	if(TargetBuilding) {
+		TargetBuilding->HideNextStagePreview();
+	}
+}

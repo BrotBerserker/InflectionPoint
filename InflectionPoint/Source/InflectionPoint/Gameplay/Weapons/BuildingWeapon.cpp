@@ -6,7 +6,7 @@
 
 void ABuildingWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	if(!Cast<ABaseCharacter>(GetOwner()) || !Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent || !buildableActor) {
+	if(!Cast<ABaseCharacter>(GetOwner()) || !Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent || CurrentAmmoInClip <= 0) {
 		return;
 	}
 	FVector StartLocation = Cast<ABaseCharacter>(GetOwner())->FirstPersonCameraComponent->GetComponentLocation();
@@ -16,21 +16,28 @@ void ABuildingWeapon::Tick(float DeltaTime) {
 	params.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
 	bool hit = GetWorld()->LineTraceSingleByObjectType(HitResult, StartLocation, EndLocation, params);
 	if(hit && HitResult.Actor.IsValid()) {
+		if(!buildableActor) {
+			FActorSpawnParameters spawnParams;
+			spawnParams.Owner = GetOwner();
+			buildableActor = GetWorld()->SpawnActor<ABuildableActor>(BuildableActorClass, spawnParams);
+		}
 		buildableActor->UpdateLocation(HitResult.Location, HitResult.ImpactNormal, HitResult.Actor.Get());
+	} else if(buildableActor) {
+		buildableActor->Destroy();
+		buildableActor = nullptr;
 	}
 }
 
 void ABuildingWeapon::OnEquip() {
 	Super::OnEquip();
-	FActorSpawnParameters params;
-	params.Owner = GetOwner();
-	buildableActor = GetWorld()->SpawnActor<ABuildableActor>(BuildableActorClass, params);
+
 }
 
 void ABuildingWeapon::OnUnequip() {
 	Super::OnUnequip();
 	if(buildableActor) {
 		buildableActor->Destroy();
+		buildableActor = nullptr;
 	}
 }
 
@@ -49,5 +56,6 @@ void ABuildingWeapon::ExecuteFire() {
 void ABuildingWeapon::MulticastHidePreview_Implementation() {
 	if(!HasAuthority()) {
 		buildableActor->Destroy();
+		buildableActor = nullptr;
 	}
 }
