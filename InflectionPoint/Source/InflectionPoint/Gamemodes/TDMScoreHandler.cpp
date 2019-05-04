@@ -30,6 +30,8 @@ float UTDMScoreHandler::GetKillerScoreChange(AController * KilledPlayer, AContro
 }
 
 float UTDMScoreHandler::GetKilledScoreChange(AController * KilledPlayer, AController* KillingPlayer) {
+	if(KilledPlayer == KillingPlayer || !KillingPlayer)
+		return ScorePointsForSuicide;
 	return ScorePointsForDeath;
 }
 
