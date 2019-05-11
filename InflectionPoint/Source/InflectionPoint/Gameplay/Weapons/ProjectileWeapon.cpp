@@ -13,7 +13,7 @@ AProjectileWeapon::AProjectileWeapon() {
 void AProjectileWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	if(ProjectileClass.GetDefaultObject()->Homing && CurrentAmmoInClip > 0) {
+	if(ProjectileClass != NULL && ProjectileClass.GetDefaultObject()->Homing && CurrentAmmoInClip > 0) {
 		UPrimitiveComponent* newTarget = FindSelectedTarget();
 		if(newTarget != SelectedTargetComponent) {
 			SwitchSelectedTarget(newTarget);
@@ -109,6 +109,8 @@ void AProjectileWeapon::OnUnequip() {
 }
 
 bool AProjectileWeapon::CanFire() {
+	if(ProjectileClass == NULL)
+		return false;
 	return !ProjectileClass.GetDefaultObject()->Homing || SelectedTargetComponent != NULL;
 }
 
