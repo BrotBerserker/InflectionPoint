@@ -57,31 +57,50 @@ void ABuildableActor::UpdateLocationOnExistingBuilding(AActor * HitActor, FVecto
 		HideNextStagePreview();
 		EnableBuild();
 	} else {
-		SetActorLocation(NewLocation);
-		SetActorRotation(GetRotationFromHitNormal(HitNormal));
-		ShowNextStagePreview();
+		ShowPreviewAtLocation(NewLocation, HitNormal);
 		DisableBuild();
 	}
 }
 
 void ABuildableActor::UpdateLocationOnMap(FVector &NewLocation, FVector &HitNormal, AActor * HitActor) {
-	ShowNextStagePreview();
-	if(TargetBuilding) {
-		TargetBuilding->HideNextStagePreview();
-		TargetBuilding = nullptr;
-	}
-	SetActorLocation(GetOwner()->GetActorLocation());
-	FHitResult hitResult;
-	SetActorLocation(NewLocation, true, &hitResult);
-	SetActorLocation(NewLocation);
-	SetActorRotation(GetRotationFromHitNormal(HitNormal));
-	if(hitResult.Actor.IsValid() && hitResult.Actor->IsA(ABuildableActor::StaticClass())) {
+	ClearTargetBuilding();
+	FHitResult hitResult = SweepToLocation(NewLocation);
+	ShowPreviewAtLocation(NewLocation, HitNormal);
+	if(CollidesWithExistingBuilding(hitResult)) {
 		UpdateLocationOnExistingBuilding(hitResult.Actor.Get(), NewLocation, HitNormal);
-	} else if(hitResult.Actor.IsValid() && HitActor != nullptr && hitResult.Actor->GetName() != HitActor->GetName()) {
+	} else if(CollidesWithOtherActor(hitResult, HitActor)) {
 		DisableBuild();
 	} else {
 		EnableBuild();
 	}
+}
+
+bool ABuildableActor::CollidesWithExistingBuilding(FHitResult &hitResult) {
+	return hitResult.Actor.IsValid() && hitResult.Actor->IsA(ABuildableActor::StaticClass());
+}
+
+bool ABuildableActor::CollidesWithOtherActor(FHitResult &hitResult, AActor * HitActor) {
+	return hitResult.Actor.IsValid() && HitActor != nullptr && hitResult.Actor->GetName() != HitActor->GetName();
+}
+
+void ABuildableActor::ShowPreviewAtLocation(FVector & NewLocation, FVector & HitNormal) {
+	SetActorLocation(NewLocation);
+	SetActorRotation(GetRotationFromHitNormal(HitNormal));
+	ShowNextStagePreview();
+}
+
+void ABuildableActor::ClearTargetBuilding() {
+	if(TargetBuilding) {
+		TargetBuilding->HideNextStagePreview();
+		TargetBuilding = nullptr;
+	}
+}
+
+FHitResult ABuildableActor::SweepToLocation(FVector & NewLocation) {
+	SetActorLocation(GetOwner()->GetActorLocation());
+	FHitResult hitResult;
+	SetActorLocation(NewLocation, true, &hitResult);
+	return hitResult;
 }
 
 const FRotator ABuildableActor::GetRotationFromHitNormal(FVector & HitNormal) {
@@ -176,7 +195,5 @@ void ABuildableActor::DisableBuild() {
 
 void ABuildableActor::Destroyed() {
 	Super::Destroyed();
-	if(TargetBuilding) {
-		TargetBuilding->HideNextStagePreview();
-	}
+	ClearTargetBuilding();
 }

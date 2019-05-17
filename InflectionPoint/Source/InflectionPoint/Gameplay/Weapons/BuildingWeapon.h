@@ -46,4 +46,7 @@ public:
 private:
 	ABuildableActor* buildableActor;
 
+	void UpdateBuildableActor(FHitResult &HitResult);
+
+	void ShowOutOfRange();
 };

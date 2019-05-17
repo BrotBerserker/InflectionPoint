@@ -25,20 +25,28 @@ void ABuildingWeapon::Tick(float DeltaTime) {
 	params.AddObjectTypesToQuery(ECollisionChannel::ECC_WorldStatic);
 	bool hit = GetWorld()->LineTraceSingleByObjectType(HitResult, StartLocation, EndLocation, params);
 	if(hit && HitResult.Actor.IsValid()) {
-		if(!buildableActor) {
-			FActorSpawnParameters spawnParams;
-			spawnParams.Owner = GetOwner();
-			buildableActor = GetWorld()->SpawnActor<ABuildableActor>(BuildableActorClass, spawnParams);
-		}
-		buildableActor->UpdateLocation(HitResult.Location, HitResult.ImpactNormal, HitResult.Actor.Get());
-		OutOfRangeText->SetVisibility(false);
+		UpdateBuildableActor(HitResult);
 	} else {
-		if(buildableActor) {
-			buildableActor->Destroy();
-			buildableActor = nullptr;
-		}
-		OutOfRangeText->SetVisibility(true);
+		ShowOutOfRange();
 	}
+}
+
+void ABuildingWeapon::UpdateBuildableActor(FHitResult &HitResult) {
+	if(!buildableActor) {
+		FActorSpawnParameters spawnParams;
+		spawnParams.Owner = GetOwner();
+		buildableActor = GetWorld()->SpawnActor<ABuildableActor>(BuildableActorClass, spawnParams);
+	}
+	buildableActor->UpdateLocation(HitResult.Location, HitResult.ImpactNormal, HitResult.Actor.Get());
+	OutOfRangeText->SetVisibility(false);
+}
+
+void ABuildingWeapon::ShowOutOfRange() {
+	if(buildableActor) {
+		buildableActor->Destroy();
+		buildableActor = nullptr;
+	}
+	OutOfRangeText->SetVisibility(true);
 }
 
 void ABuildingWeapon::OnEquip() {
