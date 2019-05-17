@@ -124,8 +124,10 @@ void AInstantWeapon::SpawnImpactFX(const FHitResult hitResult) {
 	if(!hitResult.bBlockingHit)
 		return;
 	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAtLocation(this, ImpactFX, hitResult.ImpactPoint);
-	if(tpTrail)
+	if(tpTrail) {
 		tpTrail->SetWorldRotation(hitResult.ImpactNormal.ToOrientationRotator());
+		tpTrail->SetRelativeScale3D(ImpactFXScale);
+	}
 }
 
 void AInstantWeapon::OnEquip() {

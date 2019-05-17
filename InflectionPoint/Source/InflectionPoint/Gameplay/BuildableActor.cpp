@@ -142,6 +142,10 @@ void ABuildableActor::MulticastBuild_Implementation() {
 	callback.BindUFunction(this, FName{ TEXT("MaterializeCallback") });
 	MaterializeTimeline->AddInterpFloat(MaterializeCurve, callback, FName{ TEXT("MaterializeTimelineAnimation") });
 
+	FOnTimelineEvent finishCallback{};
+	finishCallback.BindUFunction(this, FName{ TEXT("MaterializeFinishCallback") });
+	MaterializeTimeline->SetTimelineFinishedFunc(finishCallback);
+
 	MaterializeTimeline->PlayFromStart();
 }
 
@@ -150,7 +154,10 @@ void ABuildableActor::MaterializeCallback(float Value) {
 }
 
 void ABuildableActor::MaterializeFinishCallback() {
-	StageMeshes[0]->SetMaterial(0, BuildingStages[0].FinishedMaterial);
+	StageMeshes[CurrentStage]->SetMaterial(0, BuildingStages[CurrentStage].FinishedMaterial);
+	if(CurrentStage + 1 == BuildingStages.Num()) {
+		BuildingFinished();
+	}
 }
 
 void ABuildableActor::EnableBuild() {

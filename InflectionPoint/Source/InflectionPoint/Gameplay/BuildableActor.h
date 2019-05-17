@@ -72,6 +72,10 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastBuild();
 
+	/** Called when the last stage has been built and the spawn animation has finished */
+	UFUNCTION(BlueprintImplementableEvent)
+		void BuildingFinished();
+
 public:
 	UFUNCTION()
 		void MaterializeCallback(float Value);

@@ -67,6 +67,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		UParticleSystem* ImpactFX;
 
+	/** Scale the impact FX */
+	UPROPERTY(EditDefaultsOnly, Category = Effects)
+		FVector ImpactFXScale = FVector(1.f, 1.f, 1.f);
+
 	/** For generating Random numbers*/
 	UPROPERTY(BlueprintReadWrite)
 		FRandomStream WeaponRandomStream = FRandomStream(0);
