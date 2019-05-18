@@ -49,11 +49,6 @@ void ABuildingWeapon::ShowOutOfRange() {
 	OutOfRangeText->SetVisibility(true);
 }
 
-void ABuildingWeapon::OnEquip() {
-	Super::OnEquip();
-
-}
-
 void ABuildingWeapon::OnUnequip() {
 	Super::OnUnequip();
 	if(buildableActor) {

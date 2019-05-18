@@ -107,7 +107,6 @@ private:
 	void ClearTargetBuilding();
 	FHitResult SweepToLocation(FVector & NewLocation);
 
-
 private:
 	ABuildableActor* TargetBuilding;
 

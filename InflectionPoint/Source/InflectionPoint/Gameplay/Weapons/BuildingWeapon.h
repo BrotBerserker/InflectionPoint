@@ -39,8 +39,6 @@ public:
 
 	virtual void ExecuteFire() override;
 
-	virtual void OnEquip() override;
-
 	virtual void OnUnequip() override;
 
 private:
