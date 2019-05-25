@@ -48,7 +48,7 @@ public:
 	UPROPERTY()
 		UTimelineComponent* CrouchingTimeline;
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)
 		class UCharacterInfoProvider* CharacterInfoProvider;
 
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadOnly)

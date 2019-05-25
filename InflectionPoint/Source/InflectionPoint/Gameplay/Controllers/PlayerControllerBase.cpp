@@ -209,3 +209,17 @@ void APlayerControllerBase::ServerUnequipShopItemFromSlot_Implementation(EInvent
 		}
 	}
 }
+
+TArray<FRecordedPlayerState> APlayerControllerBase::GetRecordedCharacterData(TSubclassOf<ABaseCharacter> CharacterClass, int Phase, float TimeStamp) {
+	float minDistance = 10.f;
+	TArray<FRecordedPlayerState> result;
+	for(int i = 0; i < RecordedCharacterData.Num(); i++) {
+		FRecordedCharacterData data = RecordedCharacterData[i];
+		float distance = FMath::Abs(data.TimeStamp - TimeStamp);
+		if(data.CharacterClass == CharacterClass && data.Phase == Phase && distance < minDistance) {
+			result = data.RecordedPlayerStates;
+			minDistance = distance;
+		}
+	}
+	return result;
+}

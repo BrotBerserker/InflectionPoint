@@ -3,6 +3,7 @@
 #pragma once
 
 #include "GameFramework/PlayerController.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/CharacterInfoProvider.h"
 #include "Gameplay/Shop/BaseShopItem.h"
 #include "Gameplay/Weapons/WeaponInventory.h"
@@ -10,9 +11,24 @@
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "PlayerControllerBase.generated.h"
 
-/**
- *
- */
+USTRUCT(BlueprintType)
+struct FRecordedCharacterData {
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(BlueprintReadWrite)
+		TSubclassOf<ABaseCharacter> CharacterClass;
+
+	UPROPERTY(BlueprintReadWrite)
+		int Phase;
+
+	UPROPERTY(BlueprintReadWrite)
+		float TimeStamp;
+
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FRecordedPlayerState> RecordedPlayerStates;
+};
+
 UCLASS()
 class INFLECTIONPOINT_API APlayerControllerBase : public APlayerController {
 	GENERATED_BODY()
@@ -64,8 +80,8 @@ public:
 		void ClientShowMatchCountdownNumber(int number);
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void OnMatchCountdownUpdate(int number);	
-	
+		void OnMatchCountdownUpdate(int number);
+
 	UFUNCTION(Client, Reliable)
 		void ClientShowShopCountdownNumber(int number);
 
@@ -113,12 +129,18 @@ public:
 	UFUNCTION(Server, Reliable, BlueprintCallable, WithValidation)
 		void ServerUnequipShopItemFromSlot(EInventorySlotPosition slot);
 
+	UFUNCTION(BlueprintCallable)
+		TArray<FRecordedPlayerState> GetRecordedCharacterData(TSubclassOf<ABaseCharacter> CharacterClass, int Phase, float TimeStamp);
+
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		class ABaseCharacter* SpectatedCharacter;
 
 	UPROPERTY(BlueprintReadWrite)
 		TArray<ABaseCharacter*> CharactersInLineOfSight;
+
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FRecordedCharacterData> RecordedCharacterData;
 private:
 	/** Searches the given array for an actor that can be spectated. If one is found, switches the camera to spectate him and returns true */
 	bool SpectateNextActorInRange(TArray<AActor*> actors, int32 beginIndex, int32 endIndex);

@@ -144,11 +144,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		float TotalReplayDuration = 0;
 
-private:
+	UPROPERTY(BlueprintReadOnly)
+		float passedTime = 0.f;
 
+private:
 	TArray<FRecordedPlayerState> recordData;
 	bool isReplaying = false;
-	float passedTime = 0.f;
 	float passedTimeSinceLastCorrection = 0.f;
 	int replayIndex = 0;
 	TArray<FString> pressedKeys;

@@ -23,14 +23,19 @@ struct FCharacterInfo {
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int ReplayIndex = -1;
 
+	// Replay's name = player's name + ReplaySuffix
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ReplaySuffix;
+
 	FCharacterInfo() {
 	}
 
-	FCharacterInfo(FString playerName, int team, bool isReplay, int replayIndex = -1) {
+	FCharacterInfo(FString playerName, int team, bool isReplay, int replayIndex, FString replaySuffix) {
 		PlayerName = playerName;
 		Team = team;
 		IsReplay = isReplay;
 		ReplayIndex = replayIndex;
+		ReplaySuffix = replaySuffix;
 	}
 
 };
@@ -38,6 +43,12 @@ struct FCharacterInfo {
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class INFLECTIONPOINT_API UCharacterInfoProvider : public UActorComponent {
 	GENERATED_BODY()
+
+public:
+
+	// Used as FCharacterInfo's ReplaySuffix
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FString ReplaySuffix = "Replay";
 
 public:
 	UCharacterInfoProvider();

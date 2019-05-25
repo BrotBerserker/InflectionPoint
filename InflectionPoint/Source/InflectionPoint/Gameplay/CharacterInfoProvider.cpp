@@ -25,7 +25,7 @@ FCharacterInfo UCharacterInfoProvider::GetCharacterInfo() {
 	}
 	ATDMPlayerStateBase* tdmPlayerState = Cast<ATDMPlayerStateBase>(PlayerState);
 	AReplayCharacterBase* owner = Cast<AReplayCharacterBase>(GetOwner());
-	return FCharacterInfo(tdmPlayerState->GetPlayerName(), tdmPlayerState->Team, IsAReplay(), owner ? owner->ReplayIndex : -1);
+	return FCharacterInfo(tdmPlayerState->GetPlayerName(), tdmPlayerState->Team, IsAReplay(), owner ? owner->ReplayIndex : -1, ReplaySuffix);
 }
 
 bool UCharacterInfoProvider::IsAReplay() {

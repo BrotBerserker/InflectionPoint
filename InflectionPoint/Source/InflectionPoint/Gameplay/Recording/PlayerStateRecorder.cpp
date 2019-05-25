@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 #include "PlayerStateRecorder.h"
-
 
 // Sets default values for this component's properties
 UPlayerStateRecorder::UPlayerStateRecorder() {

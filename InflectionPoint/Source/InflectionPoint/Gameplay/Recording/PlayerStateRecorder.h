@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Weapons/WeaponInventory.h"
 #include "PlayerStateRecorder.generated.h"
 
@@ -94,10 +93,14 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		TArray<FRecordedPlayerState> RecordedPlayerStates;
 
+public:
+	UPROPERTY(BlueprintReadOnly)
+		float passedTime;
+
 private:
 	bool recording = false;
-	float passedTime;
-	ABaseCharacter* owner;
+
+	class ABaseCharacter* owner;
 	TArray<FString> pressedKeys;
 	TArray<FString> releasedKeys;
 

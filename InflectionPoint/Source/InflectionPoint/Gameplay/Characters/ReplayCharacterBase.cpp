@@ -76,7 +76,7 @@ void AReplayCharacterBase::StopReplay() {
 }
 
 void AReplayCharacterBase::TransformToInflectionPoint() {
-	if(!MortalityProvider->IsAlive()) {
+	if(!MortalityProvider->IsAlive() || !InflectionPoint) {
 		return;
 	}
 
