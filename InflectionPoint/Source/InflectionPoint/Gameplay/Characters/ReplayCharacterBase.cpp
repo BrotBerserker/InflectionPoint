@@ -124,6 +124,10 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 	Super::Tick(deltaTime);
 	if(!isReplaying)
 		return;
+
+	if(!AssertTrue(recordData.Num() > 0, GetWorld(), __FILE__, __LINE__, TEXT("No record data for replay!")))
+		return;
+
 	passedTime += deltaTime;
 	passedTimeSinceLastCorrection += deltaTime;
 
