@@ -10,17 +10,6 @@
 #include "TDMGameModeBase.generated.h"
 
 
-USTRUCT(BlueprintType)
-struct FRecordedPlayerData {
-	GENERATED_BODY()
-
-public:
-	int Phase;
-	TArray<FRecordedPlayerState> RecordedPlayerStates;
-	TArray<FTDMEquipSlot> EquippedShopItems;
-};
-
-
 UCLASS(minimalapi)
 class ATDMGameModeBase : public AGameModeBase {
 	GENERATED_BODY()
@@ -192,8 +181,6 @@ public:
 		class UCountdown* ShopCountdown;
 
 private:
-	TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings;
-
 	// thai ming
 	bool isPlayingEndMatchSequence = false;
 

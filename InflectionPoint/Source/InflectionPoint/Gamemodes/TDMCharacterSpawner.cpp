@@ -19,10 +19,10 @@ void UTDMCharacterSpawner::BeginPlay() {
 	gameMode = Cast<ATDMGameModeBase>(GetOwner());
 }
 
-void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings) {	
+void UTDMCharacterSpawner::SpawnPlayersAndReplays(int CurrentPhase) {	
 	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
 		SpawnAndPossessPlayer(controller, CurrentPhase);
-		SpawnAndPrepareReplays(controller, CurrentPhase, PlayerRecordings);
+		SpawnAndPrepareReplays(controller, CurrentPhase);
 	});
 }
 
@@ -40,11 +40,9 @@ void UTDMCharacterSpawner::SpawnAndPossessPlayer(APlayerControllerBase * playerC
 	Cast<ATDMPlayerStateBase>(playerController->PlayerState)->IsAlive = true;
 }
 
-void UTDMCharacterSpawner::SpawnAndPrepareReplays(APlayerControllerBase* controller, int CurrentPhase, TMap<APlayerController*, TArray<FRecordedPlayerData>> PlayerRecordings) {
-	if(PlayerRecordings.Num() == 0)
-		return;
-	for(int i = 0; i < PlayerRecordings[controller].Num(); i++) {
-		auto data = PlayerRecordings[controller][i];
+void UTDMCharacterSpawner::SpawnAndPrepareReplays(APlayerControllerBase* controller, int CurrentPhase) {
+	for(int i = 0; i < CurrentPhase - 1; i++) {
+		auto data = controller->RecordedPlayerData[i];
 		AssertTrue(data.Phase < CurrentPhase, GetWorld(), __FILE__, __LINE__, "Replay data mismatch");
 		SpawnAndPrepareReplay(controller, data);
 	}

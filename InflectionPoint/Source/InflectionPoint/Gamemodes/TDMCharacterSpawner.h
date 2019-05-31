@@ -38,16 +38,16 @@ public:
 	void AssignTeamsAndPlayerStartGroups();
 
 	/** Spawns all players and replays for the given phase */
-	void SpawnPlayersAndReplays(int CurrentPhase, TMap<APlayerController*, TArray<struct FRecordedPlayerData>> PlayerRecordings);
+	void SpawnPlayersAndReplays(int CurrentPhase);
 
 	/** Spawns a player for the given phase and lets the given controller possess it */
 	void SpawnAndPossessPlayer(APlayerControllerBase* playerController, int CurrentPhase);
 
 	/** Spawns all replays for a controller */
-	void SpawnAndPrepareReplays(APlayerControllerBase* controller, int CurrentPhase, TMap<APlayerController*, TArray<struct FRecordedPlayerData>> PlayerRecordings);
+	void SpawnAndPrepareReplays(APlayerControllerBase* controller, int CurrentPhase);
 
 	/** Spawns a replay for the given phase and initializes it using the given controller and replay data */
-	void SpawnAndPrepareReplay(APlayerControllerBase* controller, FRecordedPlayerData PlayerRecordings);
+	void SpawnAndPrepareReplay(APlayerControllerBase* controller, FRecordedPlayerData playerRecordings);
 
 	void SpawnAllPlayersForWarmupRound();
 

@@ -123,7 +123,9 @@ void ATDMGameModeBase::StartNextRound() {
 	if(!AssertTrue(GetGameState()->CurrentRound < GetGameState()->MaxRoundNum, GetWorld(), __FILE__, __LINE__, "Cant Start next Round"))
 		return;
 	GetGameState()->PrepareForRoundStart();
-	PlayerRecordings.Reset();
+	DoShitForAllPlayerControllers(GetWorld(), [&](APlayerControllerBase* controller) {
+		controller->RecordedPlayerData.Reset();
+	});
 	StartNextPhase();
 }
 
@@ -145,7 +147,7 @@ void ATDMGameModeBase::ShowShops() {
 }
 
 void ATDMGameModeBase::PreparePhaseStart() {
-	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase, PlayerRecordings);
+	CharacterSpawner->SpawnPlayersAndReplays(GetGameState()->CurrentPhase);
 	SendPhaseStartedToPlayers(GetGameState()->CurrentPhase);
 	PhaseStartCountdown->Start();
 	StartTimer(this, GetWorld(), "StartSpawnCinematics", 0.3, false); // needed because rpc not redy ^^
@@ -338,15 +340,11 @@ void ATDMGameModeBase::SavePlayerRecordings(APlayerControllerBase * playerContro
 	if(AssertNotNull(pawn, GetWorld(), __FILE__, __LINE__) && AssertNotNull(playerState, GetWorld(), __FILE__, __LINE__)) {
 		auto playerStateRecorder = pawn->FindComponentByClass<UPlayerStateRecorder>();
 		AssertNotNull(playerStateRecorder, GetWorld(), __FILE__, __LINE__);
-		if(!PlayerRecordings.Contains(playerController)) {
-			TArray<FRecordedPlayerData> list;
-			PlayerRecordings.Add(playerController, list);
-		}
 		FRecordedPlayerData data = FRecordedPlayerData();
 		data.EquippedShopItems = playerState->EquippedShopItems;
 		data.Phase = GetGameState()->CurrentPhase;
 		data.RecordedPlayerStates = playerStateRecorder->RecordedPlayerStates;
-		PlayerRecordings[playerController].Add(data);
+		playerController->RecordedPlayerData.Add(data);
 	}
 }
 

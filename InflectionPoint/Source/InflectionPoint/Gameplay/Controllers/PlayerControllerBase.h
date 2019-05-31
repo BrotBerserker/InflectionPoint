@@ -29,6 +29,16 @@ public:
 		TArray<FRecordedPlayerState> RecordedPlayerStates;
 };
 
+USTRUCT(BlueprintType)
+struct FRecordedPlayerData {
+	GENERATED_BODY()
+
+public:
+	int Phase;
+	TArray<FRecordedPlayerState> RecordedPlayerStates;
+	TArray<FTDMEquipSlot> EquippedShopItems;
+};
+
 UCLASS()
 class INFLECTIONPOINT_API APlayerControllerBase : public APlayerController {
 	GENERATED_BODY()
@@ -138,6 +148,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 		TArray<ABaseCharacter*> CharactersInLineOfSight;
+
+	UPROPERTY(BlueprintReadWrite)
+		TArray<FRecordedPlayerData> RecordedPlayerData;
 
 	UPROPERTY(BlueprintReadWrite)
 		TArray<FRecordedCharacterData> RecordedCharacterData;
