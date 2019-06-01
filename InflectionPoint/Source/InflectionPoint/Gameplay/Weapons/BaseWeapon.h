@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
+#include "Gameplay/Weapons/FireModules/BaseWeaponModule.h"
 #include "Blueprint/UserWidget.h"
 #include "BaseWeapon.generated.h"
 
@@ -18,6 +19,26 @@ enum EWeaponState {
 	EQUIPPING,
 	CHARGING,
 	FIRING
+};
+
+USTRUCT(BlueprintType)
+struct FBaseWeaponModus {
+	GENERATED_BODY()
+
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		TSubclassOf<UBaseWeaponModule> PrimaryModuleClass;
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		TSubclassOf<UBaseWeaponModule> SecondaryModuleClass;
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		UBaseWeaponModule* PrimaryModule;
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		UBaseWeaponModule* SecondaryModule;
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		UStaticMesh* staticshit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadonly)
+		float MuzzleFXDuration = 0.1;
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireExecutedDelegate);
@@ -163,6 +184,10 @@ public:
 	/** CameraShake when fiering */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		TSubclassOf<UCameraShake> FireCameraShake;
+
+	/** List of fire Modi for this weapon */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = WeaponConfig)
+		TArray<FBaseWeaponModus> WeaponModi;
 
 	/** Number of shots per clip */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
@@ -362,9 +387,14 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmoInClip;
 
+	UPROPERTY(Replicated, BlueprintReadOnly)
+		int CurrentWeaponModusIndex = 0;
+
 public:
 	FScriptDelegate AnimationNotifyDelegate;
 
+	UPROPERTY(BlueprintReadOnly)
+		TArray<UBaseWeaponModule*> BaseWeaponModuleReferences; // to avoid garbage collection
 protected:
 	/** Spawns the sound if not existent and starts or stops it*/
 	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
@@ -387,9 +417,14 @@ protected:
 
 	void UpdateEquippedState(bool equipped);
 
+	void SetupWeaponModi();
+	UBaseWeaponModule* CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz);
+
+	FBaseWeaponModus GetCurrentWeaponModus();
+
 	UFUNCTION()
 		void ChangeWeaponState(EWeaponState newState);
 private:
 	UAudioComponent* ChargeSoundComponent;
-	UAudioComponent* FireLoopSoundComponent;
+	UAudioComponent* FireLoopSoundComponent; 
 };

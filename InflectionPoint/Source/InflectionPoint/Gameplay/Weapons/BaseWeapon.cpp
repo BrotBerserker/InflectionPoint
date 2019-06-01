@@ -13,6 +13,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
 	DOREPLIFETIME(ABaseWeapon, shouldPlayFireFX);
+	DOREPLIFETIME(ABaseWeapon, CurrentWeaponModusIndex);	
 }
 
 // Sets default values
@@ -86,7 +87,42 @@ void ABaseWeapon::SetupReferences() {
 	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
 	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
+	//SetupWeaponModi();
 	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.7f, false);
+}
+
+void ABaseWeapon::SetupWeaponModi() {
+	DebugPrint(__FILE__, __LINE__);
+	SoftAssertTrue(WeaponModi.Num(), GetWorld(), __FILE__, __LINE__, "Weapon has no weapon modules");
+	//BaseWeaponModuleReferences.RemoveAll();
+	for(int i = 0; i < WeaponModi.Num();i++) {
+		auto modus = WeaponModi[i];
+		modus.PrimaryModule = CreateWeaponModule(modus.PrimaryModuleClass);
+		modus.SecondaryModule = CreateWeaponModule(modus.SecondaryModuleClass);
+		BaseWeaponModuleReferences.Add(modus.PrimaryModule);
+		BaseWeaponModuleReferences.Add(modus.SecondaryModule);
+		AssertNotNull(modus.PrimaryModule, GetWorld(), __FILE__, __LINE__, "modus.PrimaryModule is null");
+		AssertNotNull(modus.SecondaryModule, GetWorld(), __FILE__, __LINE__, "modus.SecondaryModule is null");
+	}
+	for(int i = 0; i < WeaponModi.Num(); i++) {
+		DebugPrint(__FILE__, __LINE__);
+		auto modus = WeaponModi[i];
+		DebugPrint(__FILE__, __LINE__);
+		UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.PrimaryModule' is: %i"), modus.PrimaryModule);
+		UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.SecondaryModule' is: %i"), modus.SecondaryModule);
+	}
+}
+
+UBaseWeaponModule* ABaseWeapon::CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz) {
+	if(AssertNotNull(clazz, GetWorld(), __FILE__, __LINE__))
+		return nullptr;
+	UBaseWeaponModule* newModule = NewObject<UBaseWeaponModule>(this, clazz);
+	//newModule->RegisterComponent();
+	//newModule->AttachTo(GetRootComponent());
+	//newModule->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+	newModule->Weapon = this;
+	newModule->OwningCharacter = OwningCharacter;
+	return newModule;
 }
 
 bool ABaseWeapon::IsReadyForInitialization() {
@@ -176,10 +212,24 @@ void ABaseWeapon::Fire() {
 			return;
 		shouldPlayFireFX = true;
 		timeSinceLastShot = 0;
-		PreExecuteFire();
+
+		DebugPrint(__FILE__, __LINE__);
+		for(int i = 0; i < WeaponModi.Num(); i++) {
+			DebugPrint(__FILE__, __LINE__);
+			auto modus = WeaponModi[i];
+			DebugPrint(__FILE__, __LINE__);
+			UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.PrimaryModule' is: %i"), modus.PrimaryModule);
+			UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.SecondaryModule' is: %i"), modus.SecondaryModule);
+		}
+		auto weaponModule = GetCurrentWeaponModus().PrimaryModule;
+		DebugPrint(__FILE__, __LINE__);
+		if(AssertNotNull(weaponModule, GetWorld(), __FILE__, __LINE__))
+			weaponModule->Fire();
+		DebugPrint(__FILE__, __LINE__);
+		/*PreExecuteFire();
 		for(int i = 0; i < FireShotNum; i++)
 			ExecuteFire();
-		PostExecuteFire();
+		PostExecuteFire();*/
 		CurrentAmmoInClip--;
 		CurrentAmmo--;
 		ForceNetUpdate();
@@ -389,6 +439,14 @@ void ABaseWeapon::ServerIncreaseCurrentAmmo_Implementation(int amount) {
 	if(CurrentAmmo <= -1)
 		return;
 	CurrentAmmo += amount;
+}
+
+FBaseWeaponModus ABaseWeapon::GetCurrentWeaponModus() {
+	int index = FMath::Clamp(CurrentWeaponModusIndex, 0, WeaponModi.Num() - 1);
+	UE_LOG(LogTemp, Warning, TEXT("The value of 'CurrentWeaponModusIndex' is: %i"), CurrentWeaponModusIndex);
+	UE_LOG(LogTemp, Warning, TEXT("The value of 'index' is: %i"), index);
+	UE_LOG(LogTemp, Warning, TEXT("The value of 'WeaponModi.Num()' is: %i"), WeaponModi.Num());
+	return WeaponModi[index];
 }
 
 void ABaseWeapon::PreExecuteFire() {}
