@@ -93,6 +93,9 @@ public:
 	UFUNCTION()
 		void MaterializeFinishCallback();
 
+	UFUNCTION()
+		void OnOwnerDeath(AController* KillingPlayer, AActor* DamageCauser);
+
 public:
 	bool CanBeBuilt = false;
 

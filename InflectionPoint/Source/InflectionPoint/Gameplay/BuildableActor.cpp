@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
+#include "Gameplay/Damage/MortalityProvider.h"
 #include "BuildableActor.h"
 
 ABuildableActor::ABuildableActor() {
@@ -36,6 +37,19 @@ void ABuildableActor::BeginPlay() {
 	Super::BeginPlay();
 	for(int i = 1; i < StageMeshes.Num(); i++) {
 		StageMeshes[i]->SetVisibility(false);
+	}
+	UMortalityProvider* mortalityProvider = GetOwner()->FindComponentByClass<UMortalityProvider>();
+	if(mortalityProvider) {
+		mortalityProvider->OnDeath.AddDynamic(this, &ABuildableActor::OnOwnerDeath);
+	}
+}
+
+void ABuildableActor::OnOwnerDeath(AController* KillingPlayer, AActor* DamageCauser) {
+	if(CurrentStage == -1) {
+		Destroy();
+	}
+	if(TargetBuilding) {
+		TargetBuilding->HideNextStagePreview();
 	}
 }
 
