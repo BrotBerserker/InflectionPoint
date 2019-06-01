@@ -152,6 +152,8 @@ void ABuildableActor::ServerBuild_Implementation() {
 void ABuildableActor::MulticastBuild_Implementation() {
 	CurrentStage++;
 
+	UGameplayStatics::SpawnSoundAttached(BuildSound, RootComponent);
+
 	StageMeshes[CurrentStage]->SetVisibility(true);
 	StageMeshes[CurrentStage]->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
 	StageMeshes[CurrentStage]->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);

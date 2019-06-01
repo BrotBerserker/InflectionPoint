@@ -42,6 +42,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		UCurveFloat* MaterializeCurve;
 
+	UPROPERTY(EditAnywhere)
+		class USoundBase* BuildSound;
+
 	UPROPERTY(BlueprintReadOnly)
 		TArray<UStaticMeshComponent*> StageMeshes;
 
