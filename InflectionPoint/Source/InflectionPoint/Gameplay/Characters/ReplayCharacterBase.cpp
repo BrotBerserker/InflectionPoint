@@ -129,7 +129,6 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 		return;
 
 	passedTime += deltaTime;
-	passedTimeSinceLastCorrection += deltaTime;
 
 	// Correct position 
 	bool shouldCorrectPosition = CurrentPositionShouldBeCorrected();
@@ -280,5 +279,4 @@ void AReplayCharacterBase::DrawDebugSphereAtCurrentPosition(bool positionHasBeen
 
 void AReplayCharacterBase::CorrectPosition(FVector correctPosition) {
 	SetActorLocation(correctPosition);
-	passedTimeSinceLastCorrection = 0;
 }

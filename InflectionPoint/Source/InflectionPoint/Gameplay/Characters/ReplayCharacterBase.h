@@ -150,7 +150,6 @@ public:
 private:
 	TArray<FRecordedPlayerState> recordData;
 	bool isReplaying = false;
-	float passedTimeSinceLastCorrection = 0.f;
 	int replayIndex = 0;
 	TArray<FString> pressedKeys;
 
