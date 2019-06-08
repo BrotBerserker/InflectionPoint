@@ -4,6 +4,7 @@
 #include "DebugTools/InflectionPointCheatManager.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h"
+#include "Gameplay/Damage/MortalityProvider.h"
 #include "InstantWeapon.h"
 
 
@@ -80,7 +81,6 @@ void AInstantWeapon::DealDamage(const FHitResult hitResult, const FVector& Shoot
 	// to notify a controller if a character was damaged
 	if(hitResult.Actor.Get()->IsA(ABaseCharacter::StaticClass())) {
 		hitWasHeadshot = hitWasHeadshot || (HeadshotBonusDamage != 0 && Cast<ABaseCharacter>(hitResult.Actor.Get())->IsHitAHeadshot(hitResult));
-		damageWasDealt = true;
 	}
 
 	FPointDamageEvent PointDmg;
@@ -89,7 +89,10 @@ void AInstantWeapon::DealDamage(const FHitResult hitResult, const FVector& Shoot
 	PointDmg.ShotDirection = ShootDir;
 	PointDmg.Damage = Damage + (hitWasHeadshot ? HeadshotBonusDamage : 0);
 
-	hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
+	float dealtDamage = hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, this);
+	if(dealtDamage > 0 && hitResult.GetActor()->FindComponentByClass<UMortalityProvider>()) {
+		damageWasDealt = true;
+	}
 }
 
 void AInstantWeapon::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {

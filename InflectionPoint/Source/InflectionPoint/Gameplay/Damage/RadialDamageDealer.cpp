@@ -40,11 +40,8 @@ void URadialDamageDealer::ExecuteDealDamage(FVector location, AController* contr
 
 	// Show hitmarker if a character was hit
 	auto playerController = Cast<APlayerControllerBase>(controller);
-	for(int i = 0; i < damagedActors.Num() && playerController; ++i) {
-		if(damagedActors[i]->IsA(ABaseCharacter::StaticClass())) {
-			playerController->DamageDealt(false);
-			return; // show damageDealt only once
-		}
+	if(damagedActors.Num() > 0) {
+		playerController->DamageDealt(false);
 	}
 }
 
@@ -124,7 +121,7 @@ TArray<AActor*> URadialDamageDealer::DealDamage(const FVector & origin, TMap<AAc
 
 		DmgEvent.ComponentHits = hitResults;
 		float damage = victim->TakeDamage(BaseDamage, DmgEvent, instigatedByController, DamageCauser);
-		if(damage > 0)
+		if(damage > 0 && victim->FindComponentByClass<UMortalityProvider>())
 			DamagedActorList.Add(victim);
 	}
 	return DamagedActorList;
