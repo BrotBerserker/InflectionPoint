@@ -19,8 +19,16 @@ void UBaseWeaponModule::Fire() {
 	}
 }
 
+TStatId UBaseWeaponModule::GetStatId() const {
+	return Super::GetStatID(); 
+}
+//
+//UWorld* UBaseWeaponModule::GetWorld() const {
+//	return GetOuter()->GetWorld();
+//}
+
 void UBaseWeaponModule::PreExecuteFire() {}
 void UBaseWeaponModule::PostExecuteFire() {}
 
 void UBaseWeaponModule::OnActivate() {}
-void UBaseWeaponModule::OnDetactivate() {}
+void UBaseWeaponModule::OnDeactivate() {}

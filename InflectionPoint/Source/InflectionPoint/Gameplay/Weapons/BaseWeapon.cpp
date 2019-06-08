@@ -86,20 +86,17 @@ void ABaseWeapon::SetupReferences() {
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
 	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
-	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
 	SetupWeaponModi();
 	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.7f, false);
 }
 
 void ABaseWeapon::SetupWeaponModi() {
-	DebugPrint(__FILE__, __LINE__);
 	SoftAssertTrue(WeaponModi.Num(), GetWorld(), __FILE__, __LINE__, "Weapon has no weapon modules");
-	//BaseWeaponModuleReferences.RemoveAll();
 	for(int i = 0; i < WeaponModi.Num();i++) {
 		FBaseWeaponModus& modus = WeaponModi[i]; // use & to get a reference!
 		// First of all: WTF unreal
 		// Apparently you need to set NewObject directly into a UPROPERTY() 
-		// setting a pointer returned from a method dose not work (and obj->AddToRoot() also didnt work)
+		// setting a pointer returned from a method dose not work ^^
 		modus.PrimaryModule = NewObject<UBaseWeaponModule>(this, modus.PrimaryModuleClass);
 		modus.SecondaryModule = NewObject<UBaseWeaponModule>(this, modus.PrimaryModuleClass);
 		AssertNotNull(modus.PrimaryModule, GetWorld(), __FILE__, __LINE__);
@@ -211,14 +208,8 @@ void ABaseWeapon::Fire() {
 			UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.SecondaryModule' is: %i"), modus.SecondaryModule);
 		}
 		auto weaponModule = GetCurrentWeaponModus().PrimaryModule;
-		DebugPrint(__FILE__, __LINE__);
 		if(AssertNotNull(weaponModule, GetWorld(), __FILE__, __LINE__))
 			weaponModule->Fire();
-		DebugPrint(__FILE__, __LINE__);
-		/*PreExecuteFire();
-		for(int i = 0; i < FireShotNum; i++)
-			ExecuteFire();
-		PostExecuteFire();*/
 		CurrentAmmoInClip--;
 		CurrentAmmo--;
 		ForceNetUpdate();

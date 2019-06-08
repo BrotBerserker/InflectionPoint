@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "Gameplay/Weapons/FireModules/BaseWeaponModule.h"
 #include "Gameplay/Characters/BaseCharacter.h"
-#include "Gameplay/Weapons/BaseWeapon.h"
 #include "DebugTools/DebugLineDrawer.h"
 #include "InstantWeaponModule.generated.h"
 

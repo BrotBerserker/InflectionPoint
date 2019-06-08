@@ -9,8 +9,8 @@
 /**
  *
  */
-UCLASS(hidecategories = Object, customconstructor, BlueprintType, config = Engine)
-class INFLECTIONPOINT_API UBaseWeaponModule : public UObject {
+UCLASS(hidecategories = Object, BlueprintType)
+class INFLECTIONPOINT_API UBaseWeaponModule : public UObject, public FTickableGameObject {
 	GENERATED_BODY()
 public:
 	/* ---------------------- */
@@ -31,6 +31,9 @@ public:
 	/* ------------- */
 	/*   Functions   */
 	/* ------------- */
+	virtual void Tick(float DeltaTime) override {};
+	virtual bool IsTickable() const override { return false; }
+	virtual TStatId GetStatId() const override;
 
 	/** Fires a shot (includes animation, sound, and decreasing ammo) */
 	virtual void Fire();
@@ -51,5 +54,5 @@ public:
 	virtual void OnActivate();
 
 	/** Called when this module is detached from the weapon */
-	virtual void OnDetactivate();
+	virtual void OnDeactivate();
 };
