@@ -23,7 +23,7 @@ void ABuildableActor::OnConstruction(const FTransform & Transform) {
 
 		NewComponent->bCastDynamicShadow = false;
 		NewComponent->CastShadow = false;
-		NewComponent->SetCollisionProfileName("OverlapOnlyPawn");
+		NewComponent->SetCollisionProfileName("BuildingPreview");
 
 		StageMeshes.Add(NewComponent);
 
@@ -169,8 +169,7 @@ void ABuildableActor::MulticastBuild_Implementation() {
 	UGameplayStatics::SpawnSoundAttached(BuildSound, RootComponent);
 
 	StageMeshes[CurrentStage]->SetVisibility(true);
-	StageMeshes[CurrentStage]->SetCollisionObjectType(ECollisionChannel::ECC_WorldStatic);
-	StageMeshes[CurrentStage]->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+	StageMeshes[CurrentStage]->SetCollisionProfileName("Building");
 	MaterializeMaterialInstance = StageMeshes[CurrentStage]->CreateAndSetMaterialInstanceDynamicFromMaterial(0, BuildingStages[CurrentStage].MaterializeMaterial);
 
 	FOnTimelineFloat callback{};
