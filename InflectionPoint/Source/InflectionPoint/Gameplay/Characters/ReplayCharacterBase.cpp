@@ -197,12 +197,12 @@ void AReplayCharacterBase::PressKey(FString key) {
 		Jump();
 	} else if(key == "ToggleCrouching") {
 		ToggleCrouching();
-	} else if(key == "Aim") {
-		StartAiming();
+	//} else if(key == "Aim") {
+	//	StartAiming();
 	} else if(key == "Sprint") {
 		EnableSprint();
 	} else if(key == "WeaponFired") {
-		CurrentWeapon->Fire();
+		CurrentWeapon->Fire(); // TODO: hmmmmmm ... why WeaponFired ? should be Fire ? regardless this needs to be reworked 
 	} else if(key == "Reload") {
 		CurrentWeapon->Reload();
 	} else if(key == "EquipNextWeapon") {
@@ -232,8 +232,8 @@ void AReplayCharacterBase::HoldKey(FString key) {
 void AReplayCharacterBase::ReleaseKey(FString key) {
 	if(key == "Sprint") {
 		DisableSprint();
-	} else if(key == "Aim") {
-		StopAiming();
+	//} else if(key == "Aim") {
+	//	StopAiming();
 	}
 }
 

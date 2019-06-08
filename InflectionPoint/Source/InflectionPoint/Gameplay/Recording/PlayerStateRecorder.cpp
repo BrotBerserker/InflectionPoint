@@ -116,6 +116,14 @@ void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString 
 	releasedKeys.Add(key);
 }
 
+void UPlayerStateRecorder::RecordFirePressed(EFireMode mode) {
+	RecordKey(FString("FireWithMode") + FString::FromInt((int)mode), EInputEvent::IE_Pressed);
+}
+
+void UPlayerStateRecorder::RecordFireReleased(EFireMode mode) {
+	RecordKey(FString("FireWithMode") + FString::FromInt((int)mode), EInputEvent::IE_Released);
+}
+
 void UPlayerStateRecorder::RecordMoveForward(float val) {
 	if(movingForward == val) {
 		return;

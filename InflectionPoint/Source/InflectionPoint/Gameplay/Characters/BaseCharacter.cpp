@@ -229,46 +229,46 @@ float ABaseCharacter::TakeDamage(float DamageAmount, FDamageEvent const & Damage
 	return actualDamage;
 }
 
-void ABaseCharacter::StartFire() {
+void ABaseCharacter::StartFire(EFireMode mode) {
 	DisableSprint();
 	sprintAllowed = false;
-	ServerStartFire();
+	ServerStartFire(mode);
 }
 
-bool ABaseCharacter::ServerFireOnce_Validate() {
+bool ABaseCharacter::ServerFireOnce_Validate(EFireMode mode) {
 	return true;
 }
 
-void ABaseCharacter::ServerFireOnce_Implementation() {
+void ABaseCharacter::ServerFireOnce_Implementation(EFireMode mode) {
 	DrawDebugArrow();
 	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
 		return;
-	CurrentWeapon->FireOnce();
+	CurrentWeapon->FireOnce(mode);
 }
 
-bool ABaseCharacter::ServerStartFire_Validate() {
+bool ABaseCharacter::ServerStartFire_Validate(EFireMode mode) {
 	return true;
 }
 
-void ABaseCharacter::ServerStartFire_Implementation() {
+void ABaseCharacter::ServerStartFire_Implementation(EFireMode mode) {
 	DrawDebugArrow();
 	if(!CurrentWeapon)
 		return;
-	CurrentWeapon->StartFire();
+	CurrentWeapon->StartFire(mode);
 }
 
-void ABaseCharacter::StopFire() {
+void ABaseCharacter::StopFire(EFireMode mode) {
 	sprintAllowed = true;
-	ServerStopFire();
+	ServerStopFire(mode);
 }
 
-bool ABaseCharacter::ServerStopFire_Validate() {
+bool ABaseCharacter::ServerStopFire_Validate(EFireMode mode) {
 	return true;
 }
 
-void ABaseCharacter::ServerStopFire_Implementation() {
+void ABaseCharacter::ServerStopFire_Implementation(EFireMode mode) {
 	if(CurrentWeapon)
-		CurrentWeapon->StopFire();
+		CurrentWeapon->StopFire(mode);
 }
 
 void ABaseCharacter::StartAiming() {

@@ -4,6 +4,7 @@
 
 #include "Components/ActorComponent.h"
 #include "Gameplay/Weapons/WeaponInventory.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
 #include "PlayerStateRecorder.generated.h"
 
 /** Represents a player's state (location, rotation, pressed keys) at a certain point of time */
@@ -152,4 +153,6 @@ public:
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerRecordKeyReleased(const FString &key);
 
+	void RecordFirePressed(EFireMode mode);
+	void RecordFireReleased(EFireMode mode);
 };

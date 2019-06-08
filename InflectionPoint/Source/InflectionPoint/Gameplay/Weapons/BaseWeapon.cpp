@@ -74,7 +74,8 @@ void ABaseWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 		FireLoopSoundComponent->DestroyComponent();
 	if(ChargeSoundComponent)
 		ChargeSoundComponent->DestroyComponent();
-	StopFire();
+	StopFire(EFireMode::Primary);
+	StopFire(EFireMode::Secondary);
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -128,7 +129,8 @@ void ABaseWeapon::ReattachMuzzleLocation() {
 void ABaseWeapon::DetachFromOwner() {
 	Mesh1P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	Mesh3P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-	StopFire();
+	StopFire(EFireMode::Primary);
+	StopFire(EFireMode::Secondary);
 }
 
 void ABaseWeapon::AttachToOwner() {
@@ -147,24 +149,24 @@ void ABaseWeapon::Tick(float DeltaTime) {
 		timeSinceStartFire += DeltaTime;
 
 		if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
-			&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= ReloadDelay) {
+			&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= CurrentWeaponModule->ReloadDelay) {
 			StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
-		} else if(CurrentState == EWeaponState::CHARGING && timeSinceStartFire >= ChargeDuration) {
+		} else if(CurrentState == EWeaponState::CHARGING && timeSinceStartFire >= CurrentWeaponModule->ChargeDuration) {
 			ChangeWeaponState(EWeaponState::FIRING);
-		} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
+		} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= CurrentWeaponModule->FireInterval) {
 			Fire();
 		} else if(Recorder && RecordKeyReleaseNextTick) {
 			RecordKeyReleaseNextTick = false;
 			Recorder->ServerRecordKeyReleased("WeaponFired");
 		}
 		// You can not only take the CurrentState because of replays only calling FireOnce()
-		shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
+		shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= CurrentWeaponModule->FireInterval + 0.1;
 	}
-	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
-	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponState::CHARGING);
+	TogglePersistentSoundFX(FireLoopSoundComponent, CurrentWeaponModule->FireLoopSound, shouldPlayFireFX);
+	TogglePersistentSoundFX(ChargeSoundComponent, CurrentWeaponModule->ChargeSound, CurrentState == EWeaponState::CHARGING);
 }
 
-void ABaseWeapon::StartFire() {
+void ABaseWeapon::StartFire(EFireMode mode) {
 	wantsToFire = true;
 	timeSinceStartFire = 0;
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
@@ -174,17 +176,17 @@ void ABaseWeapon::StartFire() {
 	}
 }
 
-void ABaseWeapon::FireOnce() {
+void ABaseWeapon::FireOnce(EFireMode mode) {
 	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
 		MulticastSpawnNoAmmoSound();
-	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= FireInterval) {
+	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= CurrentWeaponModule->FireInterval) {
 		ChangeWeaponState(EWeaponState::FIRING); // No charging for replays
 		Fire();
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
 
-bool ABaseWeapon::CanFire() {
+bool ABaseWeapon::CanFire() { // remove this ?
 	return true;
 }
 
@@ -198,29 +200,19 @@ void ABaseWeapon::Fire() {
 			return;
 		shouldPlayFireFX = true;
 		timeSinceLastShot = 0;
-
-		DebugPrint(__FILE__, __LINE__);
-		for(int i = 0; i < WeaponModi.Num(); i++) {
-			DebugPrint(__FILE__, __LINE__);
-			auto modus = WeaponModi[i];
-			DebugPrint(__FILE__, __LINE__);
-			UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.PrimaryModule' is: %i"), modus.PrimaryModule);
-			UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.SecondaryModule' is: %i"), modus.SecondaryModule);
-		}
-		auto weaponModule = GetCurrentWeaponModus().PrimaryModule;
-		if(AssertNotNull(weaponModule, GetWorld(), __FILE__, __LINE__))
-			weaponModule->Fire();
+		if(AssertNotNull(CurrentWeaponModule, GetWorld(), __FILE__, __LINE__))
+			CurrentWeaponModule->Fire();
 		CurrentAmmoInClip--;
 		CurrentAmmo--;
 		ForceNetUpdate();
 		MulticastFireExecuted();
 	}
-	if(!AutoFire)
+	if(!CurrentWeaponModule->AutoFire)
 		ChangeWeaponState(EWeaponState::IDLE);
 }
 
 void ABaseWeapon::OnEquip() {
-	timeSinceLastShot = FireInterval; // so you can fire after EquipDelay
+	//timeSinceLastShot = FireInterval; // so you can fire after EquipDelay
 	ChangeWeaponState(EWeaponState::EQUIPPING);
 
 	UpdateEquippedState(true);
@@ -244,7 +236,7 @@ void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 
 void ABaseWeapon::MulticastFireExecuted_Implementation() {
 	if(OwningCharacter && Cast<APlayerController>(OwningCharacter->GetController()))
-		Cast<APlayerController>(OwningCharacter->GetController())->PlayerCameraManager->PlayCameraShake(FireCameraShake, 1.0f);
+		Cast<APlayerController>(OwningCharacter->GetController())->PlayerCameraManager->PlayCameraShake(CurrentWeaponModule->FireCameraShake, 1.0f);
 	SpawnMuzzleFX();
 	SpawnFireSound();
 	PlayFireAnimation();
@@ -252,11 +244,11 @@ void ABaseWeapon::MulticastFireExecuted_Implementation() {
 }
 
 void ABaseWeapon::SpawnFireSound() {
-	UGameplayStatics::SpawnSoundAttached(FireSound, Mesh1P);
+	UGameplayStatics::SpawnSoundAttached(CurrentWeaponModule->FireSound, Mesh1P);
 }
 
 void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
-	UGameplayStatics::SpawnSoundAttached(NoAmmoSound, Mesh1P);
+	UGameplayStatics::SpawnSoundAttached(CurrentWeaponModule->NoAmmoSound, Mesh1P);
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
@@ -279,11 +271,11 @@ void ABaseWeapon::PlayFireAnimation() {
 	Mesh1P->PlayAnimation(FireAnimationWeapon1P, false);
 }
 
-void ABaseWeapon::StopFire() {
+void ABaseWeapon::StopFire(EFireMode mode) {
 	wantsToFire = false;
 	shouldPlayFireFX = false;
-	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
-	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
+	TogglePersistentSoundFX(FireLoopSoundComponent, CurrentWeaponModule->FireLoopSound, false);
+	TogglePersistentSoundFX(ChargeSoundComponent, CurrentWeaponModule->ChargeSound, false);
 	if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
@@ -324,27 +316,27 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 }
 
 void ABaseWeapon::SpawnMuzzleFX() {
-	if(!MuzzleFX)
+	if(!CurrentWeaponModule || !CurrentWeaponModule->MuzzleFX)
 		return;
 
-	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, NAME_None);
+	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(CurrentWeaponModule->MuzzleFX, Mesh1P, NAME_None);
 	if(mesh1pFX) {
-		mesh1pFX->SetRelativeScale3D(MuzzleFXScale);
+		mesh1pFX->SetRelativeScale3D(CurrentWeaponModule->MuzzleFXScale);
 		mesh1pFX->SetWorldLocation(GetFPMuzzleLocation());
 		mesh1pFX->SetWorldRotation(GetAimDirection());
 		mesh1pFX->bOwnerNoSee = false;
 		mesh1pFX->bOnlyOwnerSee = true;
-		if(MuzzleFXDuration > 0)
-			StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh1pFX);
+		if(CurrentWeaponModule->MuzzleFXDuration > 0)
+			StartTimer(this, GetWorld(), "DecativateParticleSystem", CurrentWeaponModule->MuzzleFXDuration, false, mesh1pFX);
 	}
-	UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, NAME_None);
+	UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(CurrentWeaponModule->MuzzleFX, Mesh3P, NAME_None);
 	if(mesh3pFX) {
 		mesh3pFX->SetWorldLocation(GetTPMuzzleLocation());
 		mesh3pFX->SetWorldRotation(GetAimDirection());
 		mesh3pFX->bOwnerNoSee = true;
 		mesh3pFX->bOnlyOwnerSee = false;
-		if(MuzzleFXDuration > 0)
-			StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh3pFX);
+		if(CurrentWeaponModule->MuzzleFXDuration > 0)
+			StartTimer(this, GetWorld(), "DecativateParticleSystem", CurrentWeaponModule->MuzzleFXDuration, false, mesh3pFX);
 	}
 }
 
@@ -371,16 +363,16 @@ FVector ABaseWeapon::GetTPMuzzleLocation() {
 }
 
 void ABaseWeapon::StartAiming() {
-	if(HideWeaponWhenAiming)
+	if(HideWeaponWhenAiming) {
 		Mesh1P->SetVisibility(false, true);
-	if(OwningCharacter && HideWeaponWhenAiming)
-		OwningCharacter->Mesh1P->SetVisibility(false, false);
+		if(OwningCharacter)
+			OwningCharacter->Mesh1P->SetVisibility(false, false);
+	}
 }
 
 void ABaseWeapon::StopAiming() {
-	if(HideWeaponWhenAiming)
-		Mesh1P->SetVisibility(true, true);
-	if(OwningCharacter && HideWeaponWhenAiming)
+	Mesh1P->SetVisibility(true, true);
+	if(OwningCharacter)
 		OwningCharacter->Mesh1P->SetVisibility(true, false);
 }
 
@@ -421,7 +413,7 @@ void ABaseWeapon::ServerIncreaseCurrentAmmo_Implementation(int amount) {
 	CurrentAmmo += amount;
 }
 
-FBaseWeaponModus ABaseWeapon::GetCurrentWeaponModus() {
+FBaseWeaponModus& ABaseWeapon::GetCurrentWeaponModus() {
 	int index = FMath::Clamp(CurrentWeaponModusIndex, 0, WeaponModi.Num() - 1);
 	UE_LOG(LogTemp, Warning, TEXT("The value of 'CurrentWeaponModusIndex' is: %i"), CurrentWeaponModusIndex);
 	UE_LOG(LogTemp, Warning, TEXT("The value of 'index' is: %i"), index);
