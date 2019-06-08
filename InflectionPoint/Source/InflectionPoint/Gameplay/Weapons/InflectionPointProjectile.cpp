@@ -127,12 +127,6 @@ void AInflectionPointProjectile::MulticastSpawnHitEffect_Implementation() {
 	GetWorld()->SpawnActor<AActor>(HitEffectClass, GetActorTransform(), ActorSpawnParams);
 }
 
-float AInflectionPointProjectile::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser) {
-	const float actualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	MortalityProvider->TakeDamage(actualDamage, EventInstigator, DamageCauser);
-	return actualDamage;
-}
-
 void AInflectionPointProjectile::DestroyProjectile(AController* KillingPlayer, AActor* DamageCauser) {
 	MulticastSpawnHitEffect();
 	SetLifeSpan(0.0000001);

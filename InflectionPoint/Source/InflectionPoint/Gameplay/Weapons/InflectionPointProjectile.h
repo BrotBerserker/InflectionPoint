@@ -79,9 +79,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable, BlueprintCallable)
 		void MulticastSpawnHitEffect();
 
-	/** Takes damage using the MortalityProvider */
-	float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, class AActor* DamageCauser) override;
-
 	UFUNCTION()
 		void DestroyProjectile(AController* KillingPlayer, AActor* DamageCauser);
 private:

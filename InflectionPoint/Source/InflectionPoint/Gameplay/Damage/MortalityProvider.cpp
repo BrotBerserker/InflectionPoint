@@ -12,6 +12,7 @@ void UMortalityProvider::BeginPlay() {
 	Super::BeginPlay();
 	CurrentHealth = StartHealth;
 	CurrentShield = StartShield;
+	GetOwner()->OnTakeAnyDamage.AddDynamic(this, &UMortalityProvider::TakeDamage);
 }
 
 void UMortalityProvider::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction *ThisTickFunction) {
@@ -43,8 +44,8 @@ void UMortalityProvider::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& O
 	DOREPLIFETIME(UMortalityProvider, CurrentShield);
 }
 
-void UMortalityProvider::TakeDamage(float DamageAmount, AController * KillingPlayer, AActor * DamageCauser) {
-	if(CurrentHealth <= 0 || Invincible) 
+void UMortalityProvider::TakeDamage(AActor* DamagedActor, float DamageAmount, const class UDamageType* DamageType, AController * InstigatedBy, AActor * DamageCauser) {
+	if(CurrentHealth <= 0 || Invincible)
 		return;
 	timeSinceLastDamageTaken = 0;
 
@@ -63,7 +64,7 @@ void UMortalityProvider::TakeDamage(float DamageAmount, AController * KillingPla
 	OnHealthChanged.Broadcast(oldHealth, CurrentHealth);
 
 	if(CurrentHealth <= 0) {
-		OnDeath.Broadcast(KillingPlayer, DamageCauser);
+		OnDeath.Broadcast(InstigatedBy, DamageCauser);
 	}
 }
 

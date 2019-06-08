@@ -74,7 +74,7 @@ public:
 
 	/* Inflicts damage by reducing the health value */
 	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
-		void TakeDamage(float DamageAmount, AController * KillingPlayer, AActor * DamageCauser);
+		void TakeDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,  AController * InstigatedBy, AActor * DamageCauser);
 
 	UFUNCTION(BlueprintCallable, category = "InflectionPoint|Damage")
 		void SetInvincibleForSeconds(float Seconds);
