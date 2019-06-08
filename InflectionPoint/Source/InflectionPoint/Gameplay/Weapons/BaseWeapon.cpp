@@ -87,7 +87,7 @@ void ABaseWeapon::SetupReferences() {
 	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
 	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
-	//SetupWeaponModi();
+	SetupWeaponModi();
 	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.7f, false);
 }
 
@@ -96,33 +96,22 @@ void ABaseWeapon::SetupWeaponModi() {
 	SoftAssertTrue(WeaponModi.Num(), GetWorld(), __FILE__, __LINE__, "Weapon has no weapon modules");
 	//BaseWeaponModuleReferences.RemoveAll();
 	for(int i = 0; i < WeaponModi.Num();i++) {
-		auto modus = WeaponModi[i];
-		modus.PrimaryModule = CreateWeaponModule(modus.PrimaryModuleClass);
-		modus.SecondaryModule = CreateWeaponModule(modus.SecondaryModuleClass);
-		BaseWeaponModuleReferences.Add(modus.PrimaryModule);
-		BaseWeaponModuleReferences.Add(modus.SecondaryModule);
-		AssertNotNull(modus.PrimaryModule, GetWorld(), __FILE__, __LINE__, "modus.PrimaryModule is null");
-		AssertNotNull(modus.SecondaryModule, GetWorld(), __FILE__, __LINE__, "modus.SecondaryModule is null");
+		FBaseWeaponModus& modus = WeaponModi[i]; // use & to get a reference!
+		// First of all: WTF unreal
+		// Apparently you need to set NewObject directly into a UPROPERTY() 
+		// setting a pointer returned from a method dose not work (and obj->AddToRoot() also didnt work)
+		modus.PrimaryModule = NewObject<UBaseWeaponModule>(this, modus.PrimaryModuleClass);
+		modus.SecondaryModule = NewObject<UBaseWeaponModule>(this, modus.PrimaryModuleClass);
+		AssertNotNull(modus.PrimaryModule, GetWorld(), __FILE__, __LINE__);
+		if(modus.PrimaryModule) {
+			modus.PrimaryModule->Weapon = this;
+			modus.PrimaryModule->OwningCharacter = OwningCharacter;
+		}
+		if(modus.SecondaryModule) {
+			modus.SecondaryModule->Weapon = this;
+			modus.SecondaryModule->OwningCharacter = OwningCharacter;
+		}
 	}
-	for(int i = 0; i < WeaponModi.Num(); i++) {
-		DebugPrint(__FILE__, __LINE__);
-		auto modus = WeaponModi[i];
-		DebugPrint(__FILE__, __LINE__);
-		UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.PrimaryModule' is: %i"), modus.PrimaryModule);
-		UE_LOG(LogTemp, Warning, TEXT("The value of 'modus.SecondaryModule' is: %i"), modus.SecondaryModule);
-	}
-}
-
-UBaseWeaponModule* ABaseWeapon::CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz) {
-	if(AssertNotNull(clazz, GetWorld(), __FILE__, __LINE__))
-		return nullptr;
-	UBaseWeaponModule* newModule = NewObject<UBaseWeaponModule>(this, clazz);
-	//newModule->RegisterComponent();
-	//newModule->AttachTo(GetRootComponent());
-	//newModule->AttachToComponent(GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
-	newModule->Weapon = this;
-	newModule->OwningCharacter = OwningCharacter;
-	return newModule;
 }
 
 bool ABaseWeapon::IsReadyForInitialization() {

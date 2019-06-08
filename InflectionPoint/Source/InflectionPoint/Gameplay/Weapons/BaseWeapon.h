@@ -392,9 +392,6 @@ public:
 
 public:
 	FScriptDelegate AnimationNotifyDelegate;
-
-	UPROPERTY(BlueprintReadOnly)
-		TArray<UBaseWeaponModule*> BaseWeaponModuleReferences; // to avoid garbage collection
 protected:
 	/** Spawns the sound if not existent and starts or stops it*/
 	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
