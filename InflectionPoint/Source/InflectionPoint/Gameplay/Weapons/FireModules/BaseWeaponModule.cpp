@@ -42,34 +42,32 @@ UWorld* UBaseWeaponModule::GetWorld() const {
 }
 
 void UBaseWeaponModule::FireOnce() {
-	//if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-	//	MulticastSpawnNoAmmoSound();
-	//} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= CurrentWeaponModule->FireInterval) {
-	//	ChangeWeaponState(EWeaponState::FIRING); // No charging for replays
-	//	Fire();
-	//	ChangeWeaponState(EWeaponState::IDLE);
-	//}
+	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0) {
+		Weapon->MulticastSpawnNoAmmoSound();
+		return;
+	}
+	if(CurrentState != EWeaponModuleState::IDLE || timeSinceLastShot < FireInterval)
+		return;
+	ChangeModuleState(EWeaponModuleState::FIRING); // No charging for replays
+	Fire();
+	ChangeModuleState(EWeaponModuleState::IDLE);
 }
 
 void UBaseWeaponModule::StopFire() {
-
-	//wantsToFire = false;
-	//shouldPlayFireFX = false;
-	//TogglePersistentSoundFX(FireLoopSoundComponent, CurrentWeaponModule->FireLoopSound, false);
-	//TogglePersistentSoundFX(ChargeSoundComponent, CurrentWeaponModule->ChargeSound, false);
-	//if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
-	//	ChangeWeaponState(EWeaponState::IDLE);
-	//}
+	wantsToFire = false;
+	shouldPlayFireFX = false;
+	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
+	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
+	ChangeModuleState(EWeaponModuleState::IDLE);
 }
 
 void UBaseWeaponModule::StartFire() {
 	wantsToFire = true;
 	timeSinceStartFire = 0;
-	//if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-	//	MulticastSpawnNoAmmoSound();
-	//} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
-	//	ChangeWeaponState(EWeaponState::CHARGING);
-	//}
+	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0) 
+		Weapon->MulticastSpawnNoAmmoSound();	
+	if(CurrentState == EWeaponModuleState::IDLE && Weapon->CurrentAmmoInClip > 0)
+		ChangeModuleState(EWeaponModuleState::CHARGING);
 }
 
 bool UBaseWeaponModule::CanFire() {
