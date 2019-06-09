@@ -248,7 +248,7 @@ public:
 	virtual void StopFire(EFireMode mode);
 
 	/** Fires a shot (includes animation, sound, and decreasing ammo) */
-	virtual void Fire();
+	virtual void Fire() {} // [Depricated]
 
 	/** Returns true if firing should be possible */
 	virtual bool CanFire();
@@ -257,13 +257,13 @@ public:
 	virtual bool CanFire(EFireMode mode);
 
 	/** Called before ExecuteFire */
-	virtual void PreExecuteFire();
+	virtual void PreExecuteFire() {}; // [Depricated]
 
 	/** This function should be overriden in subclasses to implement specific fire behaviour */
-	virtual void ExecuteFire() {};
+	virtual void ExecuteFire() {}; // [Depricated]
 
 	/** Called after ExecuteFire*/
-	virtual void PostExecuteFire();
+	virtual void PostExecuteFire() {};// [Depricated]
 
 	/** Notify Weapon that it is aiming  */
 	virtual void StartAiming();
@@ -324,7 +324,7 @@ public:
 
 	/** Notifies clients about projectile fired (plays animation, sound etc.) */
 	UFUNCTION(Reliable, NetMulticast)
-		void MulticastFireExecuted();
+		void MulticastFireExecuted(); // [Depricated]
 
 	UFUNCTION(BlueprintCallable)
 		EWeaponState GetCurrentWeaponState();

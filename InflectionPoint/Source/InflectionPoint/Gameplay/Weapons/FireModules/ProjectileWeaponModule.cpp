@@ -99,9 +99,14 @@ void UProjectileWeaponModule::UpdateTargetBeam() {
 	}
 }
 
+void UProjectileWeaponModule::Initialize() {
+	Super::Initialize();
+	TargetBeamComponent = UGameplayStatics::SpawnEmitterAttached(TargetBeam, Weapon->Mesh1P, NAME_None);
+}
+
 void UProjectileWeaponModule::OnActivate() {
 	UBaseWeaponModule::OnActivate();
-	TargetBeamComponent = UGameplayStatics::SpawnEmitterAttached(TargetBeam, Weapon->Mesh1P, NAME_None);
+	//TargetBeamComponent = UGameplayStatics::SpawnEmitterAttached(TargetBeam, Weapon->Mesh1P, NAME_None);
 }
 
 void UProjectileWeaponModule::OnDeactivate() {

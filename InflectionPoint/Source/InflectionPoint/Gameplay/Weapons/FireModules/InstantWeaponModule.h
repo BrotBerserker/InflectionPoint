@@ -91,6 +91,7 @@ public:
 	void ExecuteFire() override;
 	void PostExecuteFire() override;
 	void OnActivate() override;
+	void Initialize() override;
 
 	/* Perform a line trace to retrieve hit info in Shooting direction
 	(applySpread: spread will be generate based on a seed - dont use for fx!) */

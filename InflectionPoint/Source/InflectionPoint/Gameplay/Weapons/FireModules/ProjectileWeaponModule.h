@@ -58,11 +58,10 @@ public:
 	void UpdateTargetBeam();
 
 	bool TargetShouldBeDeselected(UPrimitiveComponent* targetComponent);
-
+	
+	virtual void Initialize() override;
 	virtual bool CanFire() override;
-
 	virtual void ExecuteFire() override;
-
 	virtual void OnActivate() override;
 	virtual void OnDeactivate() override;
 };

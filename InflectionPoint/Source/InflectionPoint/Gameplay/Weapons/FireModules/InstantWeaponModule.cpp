@@ -125,6 +125,10 @@ void UInstantWeaponModule::SpawnImpactFX(const FHitResult hitResult) {
 
 void UInstantWeaponModule::OnActivate() {
 	Super::OnActivate();
+}
+
+void UInstantWeaponModule::Initialize() {
+	Super::Initialize();
 	// always start with a new RandomStream for replay Precision
 	WeaponRandomStream = FRandomStream(0);
 }

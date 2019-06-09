@@ -65,7 +65,7 @@ void UBaseWeaponModule::StartFire() {
 	wantsToFire = true;
 	timeSinceStartFire = 0;
 	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0) 
-		Weapon->MulticastSpawnNoAmmoSound();	
+		Weapon->MulticastSpawnNoAmmoSound();
 	if(CurrentState == EWeaponModuleState::IDLE && Weapon->CurrentAmmoInClip > 0)
 		ChangeModuleState(EWeaponModuleState::CHARGING);
 }
@@ -121,5 +121,13 @@ void UBaseWeaponModule::PostExecuteFire() {}
 
 void UBaseWeaponModule::OnActivate() {
 	timeSinceLastShot = FireInterval; // so you can fire after activation
+	if(wantsToFire) {
+		timeSinceStartFire = 0;
+		ChangeModuleState(EWeaponModuleState::CHARGING);
+	} else {
+		ChangeModuleState(EWeaponModuleState::IDLE);
+	}
 }
-void UBaseWeaponModule::OnDeactivate() {}
+void UBaseWeaponModule::OnDeactivate() {
+	ChangeModuleState(EWeaponModuleState::DEACTIVATED);
+}

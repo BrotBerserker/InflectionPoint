@@ -70,12 +70,6 @@ void ABaseWeapon::BeginPlay() {
 }
 
 void ABaseWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
-	//if(FireLoopSoundComponent)
-	//	FireLoopSoundComponent->DestroyComponent();
-	//if(ChargeSoundComponent)
-	//	ChargeSoundComponent->DestroyComponent();
-	//StopFire(EFireMode::Primary);
-	//StopFire(EFireMode::Secondary);
 	GetCurrentWeaponModus().PrimaryModule->Dispose();
 	GetCurrentWeaponModus().SecondaryModule->Dispose();
 	Super::EndPlay(EndPlayReason);
@@ -149,7 +143,6 @@ void ABaseWeapon::AttachToOwner() {
 void ABaseWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	if(HasAuthority()) {
-
 		if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
 			&& CurrentState != EWeaponState::EQUIPPING /*&& timeSinceLastShot >= GetCurrentWeaponModus().ReloadDelay*/) {
 			StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
@@ -168,13 +161,6 @@ void ABaseWeapon::StartFire(EFireMode mode) {
 	if(CurrentState == EWeaponState::IDLE && (GetCurrentWeaponModus().PrimaryModule->IsFireing() || GetCurrentWeaponModus().SecondaryModule->IsFireing())) {
 		ChangeWeaponState(EWeaponState::FIRING);
 	}
-	//wantsToFire = true;
-	//timeSinceStartFire = 0;
-	//if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-	//	MulticastSpawnNoAmmoSound();
-	//} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
-	//	ChangeWeaponState(EWeaponState::CHARGING);
-	//}
 }
 
 void ABaseWeapon::StopFire(EFireMode mode) {
@@ -184,62 +170,19 @@ void ABaseWeapon::StopFire(EFireMode mode) {
 		&& GetCurrentWeaponModus().SecondaryModule->CurrentState == EWeaponModuleState::IDLE) {
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
-	//wantsToFire = false;
-	//shouldPlayFireFX = false;
-	//TogglePersistentSoundFX(FireLoopSoundComponent, CurrentWeaponModule->FireLoopSound, false);
-	//TogglePersistentSoundFX(ChargeSoundComponent, CurrentWeaponModule->ChargeSound, false);
-	//if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
-	//	ChangeWeaponState(EWeaponState::IDLE);
-	//}
 }
 
 void ABaseWeapon::FireOnce(EFireMode mode) {
 	if(CanFire(mode)) // propably no check needed here ...
 		GetCurrentWeaponModule(mode)->FireOnce();
-	//if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-	//	MulticastSpawnNoAmmoSound();
-	//} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= CurrentWeaponModule->FireInterval) {
-	//	ChangeWeaponState(EWeaponState::FIRING); // No charging for replays
-	//	Fire();
-	//	ChangeWeaponState(EWeaponState::IDLE);
-	//}
 }
 
-bool ABaseWeapon::CanFire(EFireMode mode) { // remove this ?
-	auto module = GetCurrentWeaponModule(mode);
-	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-		return false; // no ammo (spawn sound?)
-	} else if(CurrentState == EWeaponState::IDLE) {
-		return true; // prevent firing both modules at same time
-	} else if(GetCurrentWeaponModus().IsAsync && CurrentState == EWeaponState::FIRING) {
-		return true;
-	}
-	return false;
+bool ABaseWeapon::CanFire(EFireMode mode) {
+	return true;
 }
 
 bool ABaseWeapon::CanFire() { // remove this ?
 	return true;
-}
-
-void ABaseWeapon::Fire() {
-	//if(CanFire()) {
-	//	if(Recorder) {
-	//		RecordKeyReleaseNextTick = true;
-	//		Recorder->ServerRecordKeyPressed("WeaponFired");
-	//	}
-	//	if(CurrentAmmoInClip <= 0)
-	//		return;
-	//	shouldPlayFireFX = true;
-	//	timeSinceLastShot = 0;
-	//	if(AssertNotNull(CurrentWeaponModule, GetWorld(), __FILE__, __LINE__))
-	//		CurrentWeaponModule->Fire();
-	//	CurrentAmmoInClip--;
-	//	CurrentAmmo--;
-	//	ForceNetUpdate();
-	//	MulticastFireExecuted();
-	//}
-	//if(!CurrentWeaponModule->AutoFire)
-	//	ChangeWeaponState(EWeaponState::IDLE);
 }
 
 void ABaseWeapon::OnEquip() {
@@ -306,6 +249,10 @@ void ABaseWeapon::Reload() {
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(AnimationNotifyDelegate);
 
 		ChangeWeaponState(EWeaponState::RELOADING);
+
+		GetCurrentWeaponModus().PrimaryModule->OnDeactivate();
+		GetCurrentWeaponModus().SecondaryModule->OnDeactivate();
+
 		MulticastPlayReloadAnimation();
 		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation1P);
 		OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(ReloadAnimation3P);
@@ -326,12 +273,8 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 		CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
-		//if(wantsToFire) {
-		//	timeSinceStartFire = 0;
-		//	ChangeWeaponState(EWeaponState::CHARGING);
-		//} else {
-		//	ChangeWeaponState(EWeaponState::IDLE);
-		//}
+		GetCurrentWeaponModus().PrimaryModule->OnActivate();
+		GetCurrentWeaponModus().SecondaryModule->OnActivate();
 	}
 }
 
@@ -448,6 +391,3 @@ UBaseWeaponModule* ABaseWeapon::GetCurrentWeaponModule(EFireMode mode) {
 		return GetCurrentWeaponModus().PrimaryModule;
 	return GetCurrentWeaponModus().SecondaryModule;
 }
-
-void ABaseWeapon::PreExecuteFire() {}
-void ABaseWeapon::PostExecuteFire() {}

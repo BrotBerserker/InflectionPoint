@@ -8,6 +8,7 @@
 
 UENUM(BlueprintType)
 enum class EWeaponModuleState : uint8 {
+	DEACTIVATED,
 	IDLE,
 	CHARGING,
 	FIRING
@@ -76,7 +77,7 @@ public:
 		class ABaseCharacter* OwningCharacter;
 
 	//UPROPERTY(Replicated)
-		TEnumAsByte<EWeaponModuleState> CurrentState = EWeaponModuleState::IDLE;
+		TEnumAsByte<EWeaponModuleState> CurrentState = EWeaponModuleState::DEACTIVATED;
 public:
 	/* ------------- */
 	/*   Functions   */
