@@ -6,7 +6,7 @@
 void ALaserWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	if(shouldPlayFireFX) {
+	if(false/*shouldPlayFireFX*/) {
 		SpawnLaserFX();
 	} else {
 		if(fpLaserTrail)

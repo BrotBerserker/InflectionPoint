@@ -143,19 +143,19 @@ void APlayerCharacterBase::ClientStartRecording_Implementation() {
 }
 
 void APlayerCharacterBase::ServerStartFire_Implementation(EFireMode mode) {
-	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
-	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
+	//UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
+	//AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	recorder->RecordFirePressed(mode);
+	//recorder->RecordFirePressed(mode);
 
 	Super::ServerStartFire_Implementation(mode);
 }
 
 void APlayerCharacterBase::ServerStopFire_Implementation(EFireMode mode) {
-	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
-	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
+	//UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
+	//AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	recorder->RecordFireReleased(mode);
+	//recorder->RecordFireReleased(mode);
 
 	Super::ServerStopFire_Implementation(mode);
 }

@@ -6,29 +6,122 @@
 #include "BaseWeaponModule.h"
 
 
+void UBaseWeaponModule::Initialize() {}
+
+void UBaseWeaponModule::Dispose() {
+	if(FireLoopSoundComponent)
+		FireLoopSoundComponent->DestroyComponent();
+	if(ChargeSoundComponent)
+		ChargeSoundComponent->DestroyComponent();
+	StopFire();
+}
+
+void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
+	timeSinceLastShot += DeltaTime;
+	timeSinceStartFire += DeltaTime;
+
+	if(CurrentState == EWeaponModuleState::CHARGING && timeSinceStartFire >= ChargeDuration) {
+		ChangeModuleState(EWeaponModuleState::FIRING);
+	} else if(CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
+		Fire();
+		//} else if(Recorder && RecordKeyReleaseNextTick) {
+		//	RecordKeyReleaseNextTick = false;
+		//	Recorder->ServerRecordKeyReleased("WeaponFired");
+	}
+	// You can not only take the CurrentState because of replays only calling FireOnce()
+	shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
+}
+
+void UBaseWeaponModule::Tick(float DeltaTime) {
+	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
+	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponModuleState::CHARGING);
+}
+
+UWorld* UBaseWeaponModule::GetWorld() const {
+	return GetOuter()->GetWorld();
+}
+
+void UBaseWeaponModule::FireOnce() {
+	//if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
+	//	MulticastSpawnNoAmmoSound();
+	//} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= CurrentWeaponModule->FireInterval) {
+	//	ChangeWeaponState(EWeaponState::FIRING); // No charging for replays
+	//	Fire();
+	//	ChangeWeaponState(EWeaponState::IDLE);
+	//}
+}
+
+void UBaseWeaponModule::StopFire() {
+
+	//wantsToFire = false;
+	//shouldPlayFireFX = false;
+	//TogglePersistentSoundFX(FireLoopSoundComponent, CurrentWeaponModule->FireLoopSound, false);
+	//TogglePersistentSoundFX(ChargeSoundComponent, CurrentWeaponModule->ChargeSound, false);
+	//if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
+	//	ChangeWeaponState(EWeaponState::IDLE);
+	//}
+}
+
+void UBaseWeaponModule::StartFire() {
+	wantsToFire = true;
+	timeSinceStartFire = 0;
+	//if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
+	//	MulticastSpawnNoAmmoSound();
+	//} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
+	//	ChangeWeaponState(EWeaponState::CHARGING);
+	//}
+}
+
 bool UBaseWeaponModule::CanFire() {
 	return true;
 }
 
+bool UBaseWeaponModule::IsFireing() {
+	return CurrentState == EWeaponModuleState::FIRING || CurrentState == EWeaponModuleState::CHARGING;
+}
+
 void UBaseWeaponModule::Fire() {
 	if(CanFire()) {
+		//if(Recorder) {
+		//	RecordKeyReleaseNextTick = true;
+		//	Recorder->ServerRecordKeyPressed("WeaponFired");
+		//}
+		if(Weapon->CurrentAmmoInClip <= 0)
+			return;
+		shouldPlayFireFX = true;
+		timeSinceLastShot = 0;
 		PreExecuteFire();
 		for(int i = 0; i < FireShotNum; i++)
 			ExecuteFire();
 		PostExecuteFire();
+		Weapon->CurrentAmmoInClip--;
+		Weapon->CurrentAmmo--;
+		Weapon->ForceNetUpdate();
+		MulticastFireExecuted();
 	}
+	if(!AutoFire)
+		ChangeModuleState(EWeaponModuleState::IDLE);
 }
 
-TStatId UBaseWeaponModule::GetStatId() const {
-	return Super::GetStatID(); 
+void UBaseWeaponModule::MulticastFireExecuted_Implementation() {
+	if(OwningCharacter && Cast<APlayerController>(OwningCharacter->GetController()))
+		Cast<APlayerController>(OwningCharacter->GetController())->PlayerCameraManager->PlayCameraShake(FireCameraShake, 1.0f);
+	Weapon->SpawnMuzzleFX(MuzzleFX, MuzzleFXDuration, MuzzleFXScale);
+	Weapon->SpawnWeaponSound(FireSound);
+	Weapon->PlayFireAnimation();
+	//OnFireExecuted.Broadcast();
 }
-//
-//UWorld* UBaseWeaponModule::GetWorld() const {
-//	return GetOuter()->GetWorld();
-//}
+
+
+void UBaseWeaponModule::ChangeModuleState(EWeaponModuleState newState) {
+	CurrentState = newState;
+	//MulticastStateChanged(newState); // todo
+}
 
 void UBaseWeaponModule::PreExecuteFire() {}
 void UBaseWeaponModule::PostExecuteFire() {}
 
-void UBaseWeaponModule::OnActivate() {}
+void UBaseWeaponModule::OnActivate() {
+	timeSinceLastShot = FireInterval; // so you can fire after activation
+}
 void UBaseWeaponModule::OnDeactivate() {}

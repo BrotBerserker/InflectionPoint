@@ -13,18 +13,17 @@ class ABaseCharacter;
 class UPlayerStateRecorder;
 
 UENUM(BlueprintType)
-enum EWeaponState {
+enum class EWeaponState : uint8 {
 	IDLE,
 	RELOADING,
 	EQUIPPING,
-	CHARGING, // TODO: move Charging & fiering state to modules
 	FIRING
 };
 
 UENUM(Blueprintable)
 enum class EFireMode : uint8 {
 	Primary = 0,
-	Secondary = 0,
+	Secondary = 1,
 };
 
 USTRUCT(BlueprintType)
@@ -41,6 +40,10 @@ public:
 		TSubclassOf<UBaseWeaponModule> SecondaryModuleClass;
 	UPROPERTY(BlueprintReadonly)
 		UBaseWeaponModule* SecondaryModule;
+
+	/** Delay before reloading */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+		float ReloadDelay = 0;
 	
 	/* Weather you can use primary & secondary fire modules async */
 	UPROPERTY(EditAnywhere, BlueprintReadonly)
@@ -250,6 +253,9 @@ public:
 	/** Returns true if firing should be possible */
 	virtual bool CanFire();
 
+	/** Returns true if firing module should be possible */
+	virtual bool CanFire(EFireMode mode);
+
 	/** Called before ExecuteFire */
 	virtual void PreExecuteFire();
 
@@ -289,7 +295,7 @@ public:
 	void DetachFromOwner();
 
 	/* Spawns the Fire Sound (called from multicast)*/
-	void SpawnFireSound();
+	void SpawnWeaponSound(USoundBase* sound);
 
 	/* Spawns the No Ammo Sound */
 	UFUNCTION(NetMulticast, Reliable)
@@ -299,7 +305,7 @@ public:
 	void PlayFireAnimation();
 
 	/* Spawns the MuzzleFX for 1P and 3P (called from multicast)*/
-	void SpawnMuzzleFX();
+	void SpawnMuzzleFX(UParticleSystem* muzzleFx, float duration, FVector scale);
 
 	/** Callback for anim notifies during the reload animation */
 	UFUNCTION()
@@ -334,6 +340,9 @@ public:
 	/** Fired when the weapon state has been changed */
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnStateChanged(EWeaponState NewState);
+
+	/** Spawns the sound if not existent and starts or stops it*/
+	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;
@@ -347,21 +356,11 @@ public:
 public:
 	FScriptDelegate AnimationNotifyDelegate;
 protected:
-	/** Spawns the sound if not existent and starts or stops it*/
-	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
 
-	UPROPERTY(Replicated)
-		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE;
+	//UPROPERTY(Replicated)
+		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE; // TODO: ENABLE REPLICATION ! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 	UPlayerStateRecorder* Recorder;
-
-	UPROPERTY(Replicated) // gets set to true if weapon fires
-		bool shouldPlayFireFX = false;
-
-	float timeSinceLastShot = 0.f;
-	float timeSinceStartFire = 0.f;
-
-	bool wantsToFire = false;
 
 	bool equipped = false;
 	bool RecordKeyReleaseNextTick = false;
@@ -373,10 +372,8 @@ protected:
 	UBaseWeaponModule* CurrentWeaponModule; // NOPE: remove to enable async firemodes
 	UBaseWeaponModule* CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz);
 	FBaseWeaponModus& GetCurrentWeaponModus();
+	UBaseWeaponModule* GetCurrentWeaponModule(EFireMode mode);
 
 	UFUNCTION()
 		void ChangeWeaponState(EWeaponState newState);
-private:
-	UAudioComponent* ChargeSoundComponent;
-	UAudioComponent* FireLoopSoundComponent; 
 };

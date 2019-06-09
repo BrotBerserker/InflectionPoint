@@ -6,11 +6,18 @@
 #include "UObject/NoExportTypes.h"
 #include "BaseWeaponModule.generated.h"
 
+UENUM(BlueprintType)
+enum class EWeaponModuleState : uint8 {
+	IDLE,
+	CHARGING,
+	FIRING
+};
+
 /**
  *
  */
 UCLASS(hidecategories = Object, BlueprintType)
-class INFLECTIONPOINT_API UBaseWeaponModule : public UObject, public FTickableGameObject {
+class INFLECTIONPOINT_API UBaseWeaponModule : public UObject { // UObject replication: https://wiki.unrealengine.com/Replication#Advanced:_Generic_replication_of_Actor_Subobjects
 	GENERATED_BODY()
 public:
 	/* ---------------------- */
@@ -59,10 +66,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		float FireInterval = 1.0f;
 
-	/** Delay before reloading */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
-		float ReloadDelay = 0;
-
 	/** How many shots are fired at once */
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		int FireShotNum = 1;
@@ -72,19 +75,36 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		class ABaseCharacter* OwningCharacter;
 
+	//UPROPERTY(Replicated)
+		TEnumAsByte<EWeaponModuleState> CurrentState = EWeaponModuleState::IDLE;
 public:
 	/* ------------- */
 	/*   Functions   */
 	/* ------------- */
-	virtual void Tick(float DeltaTime) override {};
-	virtual bool IsTickable() const override { return false; }
-	virtual TStatId GetStatId() const override;
+	/* Tick that only gets called on the server (called before Tick) */
+	virtual void AuthorityTick(float DeltaTime);
+	/* Tick that is called on server & clients*/
+	virtual void Tick(float DeltaTime);
+	UWorld* GetWorld() const override;
+
+
+	/** If possible, fires once */
+	virtual void FireOnce();
+
+	/** If possible, changes the current state to FIRING */
+	virtual void StartFire();
+
+	/** If currently firing, changes the current state to IDLE */
+	virtual void StopFire();
 
 	/** Fires a shot (includes animation, sound, and decreasing ammo) */
 	virtual void Fire();
 
 	/** Returns true if firing should be possible */
 	virtual bool CanFire();
+
+	/** Fires a shot (includes animation, sound, and decreasing ammo) */
+	bool IsFireing();
 
 	/** Called before ExecuteFire */
 	virtual void PreExecuteFire();
@@ -100,4 +120,28 @@ public:
 
 	/** Called when this module is detached from the weapon */
 	virtual void OnDeactivate();
+
+	/** Called when this module is detached from the weapon */
+	virtual void Initialize();
+
+	/** Called when this module is detached from the weapon */
+	virtual void Dispose();
+
+	/** Notifies clients about projectile fired (plays animation, sound etc.) */
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastFireExecuted();
+
+	UFUNCTION()
+		void ChangeModuleState(EWeaponModuleState newState);
+private:
+	UAudioComponent* ChargeSoundComponent;
+	UAudioComponent* FireLoopSoundComponent;
+
+	//UPROPERTY(Replicated) // gets set to true if weapon fires
+		bool shouldPlayFireFX = false;
+
+	float timeSinceLastShot = 0.f;
+	float timeSinceStartFire = 0.f;
+
+	bool wantsToFire = false;
 };
