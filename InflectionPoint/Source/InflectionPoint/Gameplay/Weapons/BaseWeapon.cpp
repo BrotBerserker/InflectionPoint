@@ -95,7 +95,7 @@ void ABaseWeapon::SetupWeaponModi() {
 		// Apparently you need to set NewObject directly into a UPROPERTY() 
 		// setting a pointer returned from a method dose not work ^^
 		modus.PrimaryModule = NewObject<UBaseWeaponModule>(this, modus.PrimaryModuleClass);
-		modus.SecondaryModule = NewObject<UBaseWeaponModule>(this, modus.PrimaryModuleClass);
+		modus.SecondaryModule = NewObject<UBaseWeaponModule>(this, modus.SecondaryModuleClass);
 		AssertNotNull(modus.PrimaryModule, GetWorld(), __FILE__, __LINE__);
 		if(modus.PrimaryModule) {
 			modus.PrimaryModule->Weapon = this;
@@ -156,6 +156,8 @@ void ABaseWeapon::Tick(float DeltaTime) {
 
 void ABaseWeapon::StartFire(EFireMode mode) {
 	if(!CanFire(mode))
+		return;
+	if(!GetCurrentWeaponModus().IsAsync && (GetCurrentWeaponModus().PrimaryModule->IsFireing() || GetCurrentWeaponModus().SecondaryModule->IsFireing()))
 		return;
 	GetCurrentWeaponModule(mode)->StartFire();
 	if(CurrentState == EWeaponState::IDLE && (GetCurrentWeaponModus().PrimaryModule->IsFireing() || GetCurrentWeaponModus().SecondaryModule->IsFireing())) {
@@ -221,7 +223,7 @@ void ABaseWeapon::SpawnWeaponSound(USoundBase* sound) {
 }
 
 void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
-	UGameplayStatics::SpawnSoundAttached(CurrentWeaponModule->NoAmmoSound, Mesh1P);
+	//UGameplayStatics::SpawnSoundAttached(NoAmmoSound, Mesh1P);
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
@@ -273,15 +275,16 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 		CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
+		ChangeWeaponState(EWeaponState::IDLE);
 		GetCurrentWeaponModus().PrimaryModule->OnActivate();
 		GetCurrentWeaponModus().SecondaryModule->OnActivate();
+		if(GetCurrentWeaponModus().PrimaryModule->IsFireing() || GetCurrentWeaponModus().SecondaryModule->IsFireing()) {
+			ChangeWeaponState(EWeaponState::FIRING);
+		}
 	}
 }
 
 void ABaseWeapon::SpawnMuzzleFX(UParticleSystem* muzzleFx, float duration, FVector scale) {
-	if(!CurrentWeaponModule || !CurrentWeaponModule->MuzzleFX)
-		return;
-
 	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(muzzleFx, Mesh1P, NAME_None);
 	if(mesh1pFX) {
 		mesh1pFX->SetRelativeScale3D(scale);
@@ -379,9 +382,6 @@ void ABaseWeapon::ServerIncreaseCurrentAmmo_Implementation(int amount) {
 
 FBaseWeaponModus& ABaseWeapon::GetCurrentWeaponModus() {
 	int index = FMath::Clamp(CurrentWeaponModusIndex, 0, WeaponModi.Num() - 1);
-	UE_LOG(LogTemp, Warning, TEXT("The value of 'CurrentWeaponModusIndex' is: %i"), CurrentWeaponModusIndex);
-	UE_LOG(LogTemp, Warning, TEXT("The value of 'index' is: %i"), index);
-	UE_LOG(LogTemp, Warning, TEXT("The value of 'WeaponModi.Num()' is: %i"), WeaponModi.Num());
 	return WeaponModi[index];
 }
 

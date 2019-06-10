@@ -369,7 +369,6 @@ protected:
 
 	void SetupWeaponModi();
 
-	UBaseWeaponModule* CurrentWeaponModule; // NOPE: remove to enable async firemodes
 	UBaseWeaponModule* CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz);
 	FBaseWeaponModus& GetCurrentWeaponModus();
 	UBaseWeaponModule* GetCurrentWeaponModule(EFireMode mode);

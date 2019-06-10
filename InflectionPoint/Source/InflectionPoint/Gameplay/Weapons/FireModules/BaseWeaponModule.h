@@ -17,7 +17,7 @@ enum class EWeaponModuleState : uint8 {
 /**
  *
  */
-UCLASS(hidecategories = Object, BlueprintType)
+UCLASS(BlueprintType, Blueprintable)
 class INFLECTIONPOINT_API UBaseWeaponModule : public UObject { // UObject replication: https://wiki.unrealengine.com/Replication#Advanced:_Generic_replication_of_Actor_Subobjects
 	GENERATED_BODY()
 public:

@@ -8,8 +8,8 @@ UProjectileWeaponModule::UProjectileWeaponModule() {
 }
 
 void UProjectileWeaponModule::Tick(float DeltaTime) {
-	UBaseWeaponModule::Tick(DeltaTime);
-	if(ProjectileClass != NULL && ProjectileClass.GetDefaultObject()->Homing /*&& CurrentAmmoInClip > 0*/) { //TODO: CurrentAmmoInClip
+	Super::Tick(DeltaTime);
+	if(ProjectileClass != NULL && ProjectileClass.GetDefaultObject()->Homing && Weapon->CurrentAmmoInClip > 0) { 
 		UPrimitiveComponent* newTarget = FindSelectedTarget();
 		if(newTarget != SelectedTargetComponent) {
 			SwitchSelectedTarget(newTarget);
@@ -106,7 +106,6 @@ void UProjectileWeaponModule::Initialize() {
 
 void UProjectileWeaponModule::OnActivate() {
 	UBaseWeaponModule::OnActivate();
-	//TargetBeamComponent = UGameplayStatics::SpawnEmitterAttached(TargetBeam, Weapon->Mesh1P, NAME_None);
 }
 
 void UProjectileWeaponModule::OnDeactivate() {

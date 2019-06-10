@@ -93,7 +93,8 @@ void UBaseWeaponModule::Fire() {
 			ExecuteFire();
 		PostExecuteFire();
 		Weapon->CurrentAmmoInClip--;
-		Weapon->CurrentAmmo--;
+		if(Weapon->CurrentAmmo > 0)
+			Weapon->CurrentAmmo--;
 		Weapon->ForceNetUpdate();
 		MulticastFireExecuted();
 	}

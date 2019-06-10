@@ -12,7 +12,7 @@
 /**
  *
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class INFLECTIONPOINT_API UInstantWeaponModule : public UBaseWeaponModule {
 	GENERATED_BODY()
 public:

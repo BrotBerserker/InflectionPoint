@@ -10,7 +10,7 @@
 /**
  * 
  */
-UCLASS()
+UCLASS(BlueprintType, Blueprintable)
 class INFLECTIONPOINT_API UProjectileWeaponModule : public UBaseWeaponModule
 {
 	GENERATED_BODY()
@@ -25,7 +25,7 @@ public:
 		TSubclassOf<class AInflectionPointProjectile> ProjectileClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = Projectile)
-		float TargetSelectingRange = 30000.f;
+		float TargetSelectingRange = 30000.0f;
 	
 	/** Beam particle, starts at hand, ends at the current target */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
