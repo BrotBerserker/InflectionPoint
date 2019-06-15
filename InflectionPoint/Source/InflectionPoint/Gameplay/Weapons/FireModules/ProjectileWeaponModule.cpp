@@ -105,11 +105,11 @@ void UProjectileWeaponModule::Initialize() {
 }
 
 void UProjectileWeaponModule::OnActivate() {
-	UBaseWeaponModule::OnActivate();
+	Super::OnActivate();
 }
 
 void UProjectileWeaponModule::OnDeactivate() {
-	UBaseWeaponModule::OnDeactivate();
+	Super::OnDeactivate();
 	SwitchSelectedTarget(NULL);
 }
 

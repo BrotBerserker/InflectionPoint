@@ -71,6 +71,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		int FireShotNum = 1;
 public:
+
 	UPROPERTY(BlueprintReadOnly)
 		class ABaseWeapon* Weapon;
 	UPROPERTY(BlueprintReadOnly)

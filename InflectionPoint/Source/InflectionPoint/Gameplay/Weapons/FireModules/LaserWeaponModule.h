@@ -3,19 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Gameplay/Weapons/InstantWeapon.h"
-#include "Gameplay/Weapons/BaseWeapon.h"
-#include "LaserWeapon.generated.h"
+#include "Gameplay/Weapons/FireModules/InstantWeaponModule.h"
+#include "LaserWeaponModule.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class INFLECTIONPOINT_API ALaserWeapon : public AInstantWeapon
+class INFLECTIONPOINT_API ULaserWeaponModule : public UInstantWeaponModule
 {
 	GENERATED_BODY()
 public:
-
 	virtual void Tick(float DeltaTime) override;
 
 	void MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) override;
@@ -29,4 +27,5 @@ public:
 	UParticleSystemComponent* fpLaserTrail;
 	UParticleSystemComponent* tpLaserTrail;
 	UAudioComponent* LoopedFireSound;
+	
 };

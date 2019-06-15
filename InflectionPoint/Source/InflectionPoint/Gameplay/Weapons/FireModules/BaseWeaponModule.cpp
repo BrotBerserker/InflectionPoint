@@ -58,13 +58,16 @@ void UBaseWeaponModule::StopFire() {
 	shouldPlayFireFX = false;
 	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
 	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
-	ChangeModuleState(EWeaponModuleState::IDLE);
+	if(CurrentState != EWeaponModuleState::DEACTIVATED)
+		ChangeModuleState(EWeaponModuleState::IDLE);
 }
 
 void UBaseWeaponModule::StartFire() {
 	wantsToFire = true;
 	timeSinceStartFire = 0;
-	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0) 
+	if(CurrentState == EWeaponModuleState::DEACTIVATED)
+		return;
+	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0)
 		Weapon->MulticastSpawnNoAmmoSound();
 	if(CurrentState == EWeaponModuleState::IDLE && Weapon->CurrentAmmoInClip > 0)
 		ChangeModuleState(EWeaponModuleState::CHARGING);

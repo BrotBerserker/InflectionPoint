@@ -202,7 +202,7 @@ void AReplayCharacterBase::PressKey(FString key) {
 	} else if(key == "Sprint") {
 		EnableSprint();
 	} else if(key == "WeaponFired") {
-		CurrentWeapon->Fire(); // TODO: hmmmmmm ... why WeaponFired ? should be Fire ? regardless this needs to be reworked 
+//		CurrentWeapon->Fire(); // TODO: hmmmmmm ... why WeaponFired ? should be Fire ? regardless this needs to be reworked 
 	} else if(key == "Reload") {
 		CurrentWeapon->Reload();
 	} else if(key == "EquipNextWeapon") {

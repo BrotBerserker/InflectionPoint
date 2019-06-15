@@ -66,7 +66,7 @@ void ABaseWeapon::BeginPlay() {
 		return; // On Client the Instigator is not set yet
 	if(GetWorld()->WorldType == EWorldType::PIE)
 		CurrentAmmo = -1;
-	SetupReferences();
+	Setup();
 }
 
 void ABaseWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
@@ -76,14 +76,18 @@ void ABaseWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 }
 
 void ABaseWeapon::OnRep_Instigator() {
+	Setup(); // Setup the client
+}
+
+void ABaseWeapon::Setup() {
 	SetupReferences();
+	SetupWeaponModi();
 }
 
 void ABaseWeapon::SetupReferences() {
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
 	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
-	SetupWeaponModi();
 	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.7f, false);
 }
 
@@ -91,8 +95,7 @@ void ABaseWeapon::SetupWeaponModi() {
 	SoftAssertTrue(WeaponModi.Num(), GetWorld(), __FILE__, __LINE__, "Weapon has no weapon modules");
 	for(int i = 0; i < WeaponModi.Num(); i++) {
 		FBaseWeaponModus& modus = WeaponModi[i]; // use & to get a reference!
-		// First of all: WTF unreal
-		// Apparently you need to set NewObject directly into a UPROPERTY() 
+		// Apparently you need to set NewObject directly into a UPROPERTY()
 		// setting a pointer returned from a method dose not work ^^
 		modus.PrimaryModule = NewObject<UBaseWeaponModule>(this, modus.PrimaryModuleClass);
 		modus.SecondaryModule = NewObject<UBaseWeaponModule>(this, modus.SecondaryModuleClass);
@@ -147,20 +150,24 @@ void ABaseWeapon::Tick(float DeltaTime) {
 			&& CurrentState != EWeaponState::EQUIPPING /*&& timeSinceLastShot >= GetCurrentWeaponModus().ReloadDelay*/) {
 			StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 		}
-		GetCurrentWeaponModus().PrimaryModule->AuthorityTick(DeltaTime);
-		GetCurrentWeaponModus().SecondaryModule->AuthorityTick(DeltaTime);
+		if(GetCurrentWeaponModus().PrimaryModule)
+			GetCurrentWeaponModus().PrimaryModule->AuthorityTick(DeltaTime);
+		if(GetCurrentWeaponModus().SecondaryModule)
+			GetCurrentWeaponModus().SecondaryModule->AuthorityTick(DeltaTime);
 	}
-	GetCurrentWeaponModus().PrimaryModule->Tick(DeltaTime);
-	GetCurrentWeaponModus().SecondaryModule->Tick(DeltaTime);
+	if(GetCurrentWeaponModus().PrimaryModule)
+		GetCurrentWeaponModus().PrimaryModule->Tick(DeltaTime);
+	if(GetCurrentWeaponModus().SecondaryModule)
+		GetCurrentWeaponModus().SecondaryModule->Tick(DeltaTime);
 }
 
 void ABaseWeapon::StartFire(EFireMode mode) {
 	if(!CanFire(mode))
 		return;
-	if(!GetCurrentWeaponModus().IsAsync && (GetCurrentWeaponModus().PrimaryModule->IsFireing() || GetCurrentWeaponModus().SecondaryModule->IsFireing()))
+	if(!GetCurrentWeaponModus().IsAsync && (GetCurrentWeaponModule(EFireMode::Primary)->IsFireing() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFireing()))
 		return;
 	GetCurrentWeaponModule(mode)->StartFire();
-	if(CurrentState == EWeaponState::IDLE && (GetCurrentWeaponModus().PrimaryModule->IsFireing() || GetCurrentWeaponModus().SecondaryModule->IsFireing())) {
+	if(CurrentState == EWeaponState::IDLE && (GetCurrentWeaponModule(EFireMode::Primary)->IsFireing() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFireing())) {
 		ChangeWeaponState(EWeaponState::FIRING);
 	}
 }
@@ -168,8 +175,8 @@ void ABaseWeapon::StartFire(EFireMode mode) {
 void ABaseWeapon::StopFire(EFireMode mode) {
 	GetCurrentWeaponModule(mode)->StopFire();
 	if(CurrentState == EWeaponState::FIRING
-		&& GetCurrentWeaponModus().PrimaryModule->CurrentState == EWeaponModuleState::IDLE
-		&& GetCurrentWeaponModus().SecondaryModule->CurrentState == EWeaponModuleState::IDLE) {
+		&& GetCurrentWeaponModule(EFireMode::Primary)->CurrentState == EWeaponModuleState::IDLE
+		&& GetCurrentWeaponModule(EFireMode::Secondary)->CurrentState == EWeaponModuleState::IDLE) {
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
@@ -183,20 +190,21 @@ bool ABaseWeapon::CanFire(EFireMode mode) {
 	return true;
 }
 
-bool ABaseWeapon::CanFire() { // remove this ?
-	return true;
-}
-
 void ABaseWeapon::OnEquip() {
 	ChangeWeaponState(EWeaponState::EQUIPPING);
 
 	UpdateEquippedState(true);
 
 	StartTimer(this, GetWorld(), "ChangeWeaponState", EquipDelay + 0.001f, false, EWeaponState::IDLE);
+	GetCurrentWeaponModule(EFireMode::Primary)->OnActivate();
+	GetCurrentWeaponModule(EFireMode::Secondary)->OnActivate();
 }
 
 void ABaseWeapon::OnUnequip() {
-	//wantsToFire = false;
+	GetCurrentWeaponModule(EFireMode::Primary)->StopFire();
+	GetCurrentWeaponModule(EFireMode::Secondary)->StopFire();
+	GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
+	GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
 	UpdateEquippedState(false);
 }
 
@@ -252,8 +260,8 @@ void ABaseWeapon::Reload() {
 
 		ChangeWeaponState(EWeaponState::RELOADING);
 
-		GetCurrentWeaponModus().PrimaryModule->OnDeactivate();
-		GetCurrentWeaponModus().SecondaryModule->OnDeactivate();
+		GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
+		GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
 
 		MulticastPlayReloadAnimation();
 		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation1P);
@@ -276,9 +284,9 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
 		ChangeWeaponState(EWeaponState::IDLE);
-		GetCurrentWeaponModus().PrimaryModule->OnActivate();
-		GetCurrentWeaponModus().SecondaryModule->OnActivate();
-		if(GetCurrentWeaponModus().PrimaryModule->IsFireing() || GetCurrentWeaponModus().SecondaryModule->IsFireing()) {
+		GetCurrentWeaponModule(EFireMode::Primary)->OnActivate();
+		GetCurrentWeaponModule(EFireMode::Secondary)->OnActivate();
+		if(GetCurrentWeaponModule(EFireMode::Primary)->IsFireing() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFireing()) {
 			ChangeWeaponState(EWeaponState::FIRING);
 		}
 	}
@@ -387,7 +395,9 @@ FBaseWeaponModus& ABaseWeapon::GetCurrentWeaponModus() {
 
 
 UBaseWeaponModule* ABaseWeapon::GetCurrentWeaponModule(EFireMode mode) {
-	if(mode == EFireMode::Primary)
-		return GetCurrentWeaponModus().PrimaryModule;
-	return GetCurrentWeaponModus().SecondaryModule;
+	auto module = mode == EFireMode::Primary ?
+		GetCurrentWeaponModus().PrimaryModule :
+		GetCurrentWeaponModus().SecondaryModule;
+	AssertNotNull(module, GetWorld(), __FILE__, __LINE__);
+	return module;
 }

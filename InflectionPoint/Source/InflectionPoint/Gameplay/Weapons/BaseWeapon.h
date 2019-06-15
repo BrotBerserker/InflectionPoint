@@ -224,6 +224,7 @@ public:
 
 	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	void Setup();
 	void SetupReferences();
 
 	virtual bool IsReadyForInitialization();
@@ -247,23 +248,8 @@ public:
 	/** If currently firing, changes the current state to IDLE */
 	virtual void StopFire(EFireMode mode);
 
-	/** Fires a shot (includes animation, sound, and decreasing ammo) */
-	virtual void Fire() {} // [Depricated]
-
-	/** Returns true if firing should be possible */
-	virtual bool CanFire();
-
 	/** Returns true if firing module should be possible */
 	virtual bool CanFire(EFireMode mode);
-
-	/** Called before ExecuteFire */
-	virtual void PreExecuteFire() {}; // [Depricated]
-
-	/** This function should be overriden in subclasses to implement specific fire behaviour */
-	virtual void ExecuteFire() {}; // [Depricated]
-
-	/** Called after ExecuteFire*/
-	virtual void PostExecuteFire() {};// [Depricated]
 
 	/** Notify Weapon that it is aiming  */
 	virtual void StartAiming();

@@ -3,20 +3,22 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Gameplay/Weapons/FireModules/BaseWeaponModule.h"
+#include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "Gameplay/BuildableActor.h"
-#include "BuildingWeapon.generated.h"
+#include "BuildingWeaponModule.generated.h"
 
 /**
- *
+ * 
  */
 UCLASS()
-class INFLECTIONPOINT_API ABuildingWeapon : public ABaseWeapon {
+class INFLECTIONPOINT_API UBuildingWeaponModule : public UBaseWeaponModule
+{
 	GENERATED_BODY()
-
 public:
-	UPROPERTY(VisibleDefaultsOnly)
-		UTextRenderComponent* OutOfRangeText;
+	//UPROPERTY(VisibleDefaultsOnly)
+	//	UTextRenderComponent* OutOfRangeText;
 
 public:
 
@@ -31,15 +33,15 @@ public:
 		void MulticastHidePreview();
 
 public:
-	ABuildingWeapon();
+	//ABuildingWeapon();
 
-	virtual void Tick(float DeltaTime);
+	virtual void Tick(float DeltaTime) override;
 
 	virtual bool CanFire() override;
 
 	virtual void ExecuteFire() override;
 
-	virtual void OnUnequip() override;
+	virtual void OnDeactivate() override;
 
 private:
 	ABuildableActor* buildableActor;

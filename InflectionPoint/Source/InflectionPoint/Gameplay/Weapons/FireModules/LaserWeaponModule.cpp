@@ -1,9 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "InflectionPoint.h"
-#include "LaserWeapon.h"
+#include "LaserWeaponModule.h"
 
-void ALaserWeapon::Tick(float DeltaTime) {
+
+void ULaserWeaponModule::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	if(false/*shouldPlayFireFX*/) {
@@ -18,32 +19,32 @@ void ALaserWeapon::Tick(float DeltaTime) {
 	}
 }
 
-void ALaserWeapon::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {
+void ULaserWeaponModule::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {
 	// dont spawn fx here but in tick
 }
 
-void ALaserWeapon::SpawnLaserFX() {
-	FHitResult hitResult = AInstantWeapon::WeaponTraceShootDirection(false);
+void ULaserWeaponModule::SpawnLaserFX() {
+	FHitResult hitResult = UInstantWeaponModule::WeaponTraceShootDirection(false);
 	SpawnTrailFX(hitResult);
 	SpawnImpactFX(hitResult);
 }
 
-void ALaserWeapon::SpawnTrailFX(const FHitResult hitResult) {
+void ULaserWeaponModule::SpawnTrailFX(const FHitResult hitResult) {
 	if(!TrailFX)
 		return;
 	auto endPoint = hitResult.bBlockingHit ? hitResult.ImpactPoint : hitResult.TraceEnd;
 
 	if(!fpLaserTrail)
-		fpLaserTrail = AInstantWeapon::SpawnTrailFX(endPoint, true);
+		fpLaserTrail = UInstantWeaponModule::SpawnTrailFX(endPoint, true);
 	if(!tpLaserTrail)
-		tpLaserTrail = AInstantWeapon::SpawnTrailFX(endPoint, false);
+		tpLaserTrail = UInstantWeaponModule::SpawnTrailFX(endPoint, false);
 	if(fpLaserTrail)
-		UpdateTrailFX(fpLaserTrail, GetFPMuzzleLocation(), endPoint);
+		UpdateTrailFX(fpLaserTrail, Weapon->GetFPMuzzleLocation(), endPoint);
 	if(tpLaserTrail)
-		UpdateTrailFX(tpLaserTrail, GetTPMuzzleLocation(), endPoint);
+		UpdateTrailFX(tpLaserTrail, Weapon->GetTPMuzzleLocation(), endPoint);
 }
 
-void ALaserWeapon::UpdateTrailFX(UParticleSystemComponent* trail, const FVector& start, const FVector& end) {
+void ULaserWeaponModule::UpdateTrailFX(UParticleSystemComponent* trail, const FVector& start, const FVector& end) {
 	if(!trail)
 		return;
 	trail->SetBeamSourcePoint(0, start, 0);
