@@ -5,6 +5,14 @@
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "BaseWeaponModule.h"
 
+UBaseWeaponModule::UBaseWeaponModule(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+
+void UBaseWeaponModule::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UBaseWeaponModule, CurrentState);
+	DOREPLIFETIME(UBaseWeaponModule, shouldPlayFireFX);
+}
 
 void UBaseWeaponModule::Initialize() {}
 

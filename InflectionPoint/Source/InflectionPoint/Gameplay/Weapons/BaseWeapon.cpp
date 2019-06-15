@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Characters/ReplayCharacterBase.h"
+#include "Engine/ActorChannel.h"
 #include "BaseWeapon.h"
 
 
@@ -12,8 +13,20 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
-	//DOREPLIFETIME(ABaseWeapon, shouldPlayFireFX);
+	DOREPLIFETIME(ABaseWeapon, WeaponModi);
 	DOREPLIFETIME(ABaseWeapon, CurrentWeaponModusIndex);
+}
+
+bool ABaseWeapon::ReplicateSubobjects(class UActorChannel *channel, class FOutBunch *bunch, FReplicationFlags *repFlags) {
+	bool wroteSomething = Super::ReplicateSubobjects(channel, bunch, repFlags);
+
+	for(FBaseWeaponModus& mode : WeaponModi) {
+		if(mode.SecondaryModule && channel->ReplicateSubobject(mode.SecondaryModule, *bunch, *repFlags))
+			wroteSomething = true;
+		if(mode.PrimaryModule && channel->ReplicateSubobject(mode.PrimaryModule, *bunch, *repFlags))
+			wroteSomething = true;
+	}
+	return wroteSomething;
 }
 
 // Sets default values
@@ -81,7 +94,8 @@ void ABaseWeapon::OnRep_Instigator() {
 
 void ABaseWeapon::Setup() {
 	SetupReferences();
-	SetupWeaponModi();
+	if(HasAuthority())
+		SetupWeaponModi();
 }
 
 void ABaseWeapon::SetupReferences() {

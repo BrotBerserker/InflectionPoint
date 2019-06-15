@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "UnrealNetwork.h"
 #include "BaseWeaponModule.generated.h"
 
 UENUM(BlueprintType)
@@ -18,8 +19,14 @@ enum class EWeaponModuleState : uint8 {
  *
  */
 UCLASS(BlueprintType, Blueprintable)
-class INFLECTIONPOINT_API UBaseWeaponModule : public UObject { // UObject replication: https://wiki.unrealengine.com/Replication#Advanced:_Generic_replication_of_Actor_Subobjects
+class INFLECTIONPOINT_API UBaseWeaponModule : public UObject { 
 	GENERATED_BODY()
+public:
+	UBaseWeaponModule(const FObjectInitializer& ObjectInitializer);
+	// https://wiki.unrealengine.com/Replication#Advanced:_Generic_replication_of_Actor_Subobjects
+	/** Enables replication for UObject */
+	virtual bool IsSupportedForNetworking() const override { return true; }
+
 public:
 	/* ---------------------- */
 	/*    Editor Settings     */
@@ -77,7 +84,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		class ABaseCharacter* OwningCharacter;
 
-	//UPROPERTY(Replicated)
+	UPROPERTY(Replicated)
 		TEnumAsByte<EWeaponModuleState> CurrentState = EWeaponModuleState::DEACTIVATED;
 public:
 	/* ------------- */
@@ -139,7 +146,7 @@ private:
 	UAudioComponent* ChargeSoundComponent;
 	UAudioComponent* FireLoopSoundComponent;
 
-	//UPROPERTY(Replicated) // gets set to true if weapon fires
+	UPROPERTY(Replicated) // gets set to true if weapon fires
 		bool shouldPlayFireFX = false;
 
 	float timeSinceLastShot = 0.f;

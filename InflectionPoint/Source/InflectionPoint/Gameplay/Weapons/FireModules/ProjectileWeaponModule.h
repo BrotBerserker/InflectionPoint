@@ -42,9 +42,6 @@ public:
 
 public:
 
-	UProjectileWeaponModule();
-
-	//virtual bool IsTickable() const override { return true; }
 	virtual void Tick(float DeltaTime) override;
 
 	void SwitchSelectedTarget(UPrimitiveComponent * newTarget);

@@ -4,8 +4,15 @@
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "InstantWeaponModule.h"
 
-UInstantWeaponModule::UInstantWeaponModule() {
+void UInstantWeaponModule::Initialize() {
+	Super::Initialize();
 	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
+	// always start with a new RandomStream for replay Precision
+	WeaponRandomStream = FRandomStream(0);
+}
+
+void UInstantWeaponModule::OnActivate() {
+	Super::OnActivate();
 }
 
 void UInstantWeaponModule::PreExecuteFire() {
@@ -121,14 +128,4 @@ void UInstantWeaponModule::SpawnImpactFX(const FHitResult hitResult) {
 		tpTrail->SetWorldRotation(hitResult.ImpactNormal.ToOrientationRotator());
 		tpTrail->SetRelativeScale3D(ImpactFXScale);
 	}
-}
-
-void UInstantWeaponModule::OnActivate() {
-	Super::OnActivate();
-}
-
-void UInstantWeaponModule::Initialize() {
-	Super::Initialize();
-	// always start with a new RandomStream for replay Precision
-	WeaponRandomStream = FRandomStream(0);
 }

@@ -57,6 +57,9 @@ class INFLECTIONPOINT_API ABaseWeapon : public AActor {
 	GENERATED_BODY()
 
 public:
+	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
+
+public:
 	/* -------------- */
 	/*   Components   */
 	/* -------------- */
@@ -343,8 +346,8 @@ public:
 	FScriptDelegate AnimationNotifyDelegate;
 protected:
 
-	//UPROPERTY(Replicated)
-		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE; // TODO: ENABLE REPLICATION ! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+	UPROPERTY(Replicated)
+		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE;
 
 	UPlayerStateRecorder* Recorder;
 

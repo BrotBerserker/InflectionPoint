@@ -4,9 +4,6 @@
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "ProjectileWeaponModule.h"
 
-UProjectileWeaponModule::UProjectileWeaponModule() {
-}
-
 void UProjectileWeaponModule::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 	if(ProjectileClass != NULL && ProjectileClass.GetDefaultObject()->Homing && Weapon->CurrentAmmoInClip > 0) { 

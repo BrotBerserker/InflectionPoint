@@ -15,8 +15,6 @@
 UCLASS(BlueprintType, Blueprintable)
 class INFLECTIONPOINT_API UInstantWeaponModule : public UBaseWeaponModule {
 	GENERATED_BODY()
-public:
-	UInstantWeaponModule();
 
 public:
 	/* ---------------------- */
@@ -87,11 +85,11 @@ public:
 	/*   Functions   */
 	/* ------------- */
 
-	void PreExecuteFire() override;
-	void ExecuteFire() override;
-	void PostExecuteFire() override;
-	void OnActivate() override;
-	void Initialize() override;
+	virtual void Initialize() override;
+	virtual void PreExecuteFire() override;
+	virtual void ExecuteFire() override;
+	virtual void PostExecuteFire() override;
+	virtual void OnActivate() override;
 
 	/* Perform a line trace to retrieve hit info in Shooting direction
 	(applySpread: spread will be generate based on a seed - dont use for fx!) */
