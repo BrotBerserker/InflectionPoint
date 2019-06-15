@@ -403,6 +403,7 @@ void ABaseWeapon::ServerIncreaseCurrentAmmo_Implementation(int amount) {
 }
 
 FBaseWeaponModus& ABaseWeapon::GetCurrentWeaponModus() {
+	AssertTrue(WeaponModi.Num()>0, GetWorld(), __FILE__, __LINE__);
 	int index = FMath::Clamp(CurrentWeaponModusIndex, 0, WeaponModi.Num() - 1);
 	return WeaponModi[index];
 }

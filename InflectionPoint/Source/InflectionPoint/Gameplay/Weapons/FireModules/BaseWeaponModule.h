@@ -22,7 +22,6 @@ UCLASS(BlueprintType, Blueprintable)
 class INFLECTIONPOINT_API UBaseWeaponModule : public UObject { 
 	GENERATED_BODY()
 public:
-	UBaseWeaponModule(const FObjectInitializer& ObjectInitializer);
 	// https://wiki.unrealengine.com/Replication#Advanced:_Generic_replication_of_Actor_Subobjects
 	/** Enables replication for UObject */
 	virtual bool IsSupportedForNetworking() const override { return true; }

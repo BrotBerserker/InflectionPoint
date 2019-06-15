@@ -6,7 +6,7 @@
 
 void UInstantWeaponModule::Initialize() {
 	Super::Initialize();
-	DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
+	//DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
 	// always start with a new RandomStream for replay Precision
 	WeaponRandomStream = FRandomStream(0);
 }
@@ -25,7 +25,7 @@ void UInstantWeaponModule::ExecuteFire() {
 	MulticastSpawnInstantWeaponFX(hitResult);
 
 	if(hitResult.bBlockingHit) {
-		DebugLineDrawer->DrawDebugLineTrace(Weapon->GetFPMuzzleLocation(), hitResult.ImpactPoint);
+		//DebugLineDrawer->DrawDebugLineTrace(Weapon->GetFPMuzzleLocation(), hitResult.ImpactPoint);
 	}
 	DealDamage(hitResult, OwningCharacter->FirstPersonCameraComponent->GetForwardVector());
 }
