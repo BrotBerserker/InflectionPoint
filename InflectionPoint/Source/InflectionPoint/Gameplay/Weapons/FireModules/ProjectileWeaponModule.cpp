@@ -19,7 +19,8 @@ void UProjectileWeaponModule::Tick(float DeltaTime) {
 		UpdateTargetBeam();
 	} else {
 		SwitchSelectedTarget(NULL);
-		TargetBeamComponent->Deactivate();
+		if(TargetBeamComponent)
+			TargetBeamComponent->Deactivate();
 	}
 }
 
@@ -87,6 +88,8 @@ void UProjectileWeaponModule::UnMarkTarget(UPrimitiveComponent* targetComponent)
 }
 
 void UProjectileWeaponModule::UpdateTargetBeam() {
+	if(!TargetBeamComponent)
+		return;
 	if(SelectedTargetComponent) {
 		TargetBeamComponent->SetBeamTargetPoint(0, SelectedTargetComponent->GetComponentLocation(), 0);
 		TargetBeamComponent->SetBeamSourcePoint(0, Weapon->Mesh1P->GetComponentLocation(), 0);

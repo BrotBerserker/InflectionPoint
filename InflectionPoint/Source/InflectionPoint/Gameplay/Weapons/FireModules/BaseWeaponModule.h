@@ -22,9 +22,12 @@ UCLASS(BlueprintType, Blueprintable)
 class INFLECTIONPOINT_API UBaseWeaponModule : public UObject { 
 	GENERATED_BODY()
 public:
+	// ===
+	// Hint: RPC calls are not working for replicated UObjects
+	// ===
 	// https://wiki.unrealengine.com/Replication#Advanced:_Generic_replication_of_Actor_Subobjects
 	/** Enables replication for UObject */
-	virtual bool IsSupportedForNetworking() const override { return true; }
+	virtual bool IsSupportedForNetworking() const override { return true; }	
 
 public:
 	/* ---------------------- */
@@ -78,9 +81,9 @@ public:
 		int FireShotNum = 1;
 public:
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 		class ABaseWeapon* Weapon;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadOnly, Replicated)
 		class ABaseCharacter* OwningCharacter;
 
 	UPROPERTY(Replicated)
@@ -136,8 +139,7 @@ public:
 	virtual void Dispose();
 
 	/** Notifies clients about projectile fired (plays animation, sound etc.) */
-	UFUNCTION(Reliable, NetMulticast)
-		void MulticastFireExecuted();
+	virtual void FireExecuted();
 
 	UFUNCTION()
 		void ChangeModuleState(EWeaponModuleState newState);

@@ -240,7 +240,7 @@ void ABaseWeapon::MulticastFireExecuted_Implementation() {
 	//OnFireExecuted.Broadcast();
 }
 
-void ABaseWeapon::SpawnWeaponSound(USoundBase* sound) {
+void ABaseWeapon::MulticastSpawnWeaponSound_Implementation(USoundBase* sound) {
 	UGameplayStatics::SpawnSoundAttached(sound, Mesh1P);
 }
 
@@ -249,7 +249,7 @@ void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
-	if(shouldPlay) {
+	if(shouldPlay && soundClass) {
 		if(!component) {
 			component = UGameplayStatics::SpawnSoundAttached(soundClass, Mesh1P, NAME_None, FVector(ForceInit), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, false, 1.f, 1.f, 0.f, nullptr, nullptr, false); // bAutoDestroy=false
 		} else if(!component->IsPlaying()) {
@@ -260,7 +260,7 @@ void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USo
 	}
 }
 
-void ABaseWeapon::PlayFireAnimation() {
+void ABaseWeapon::MulticastPlayFireAnimation_Implementation() {
 	UAnimInstance* AnimInstance = OwningCharacter->Mesh1P->GetAnimInstance();
 	if(AnimInstance != NULL) {
 		AnimInstance->Montage_Play(FireAnimation, 1.f);
@@ -306,7 +306,7 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 	}
 }
 
-void ABaseWeapon::SpawnMuzzleFX(UParticleSystem* muzzleFx, float duration, FVector scale) {
+void ABaseWeapon::MulticastSpawnMuzzleFX_Implementation(UParticleSystem* muzzleFx, float duration, FVector scale) {
 	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(muzzleFx, Mesh1P, NAME_None);
 	if(mesh1pFX) {
 		mesh1pFX->SetRelativeScale3D(scale);

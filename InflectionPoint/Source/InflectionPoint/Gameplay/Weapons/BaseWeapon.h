@@ -283,18 +283,21 @@ public:
 	/** Dettaches this weapon's meshes from the owning character */
 	void DetachFromOwner();
 
-	/* Spawns the Fire Sound (called from multicast)*/
-	void SpawnWeaponSound(USoundBase* sound);
+	/* Spawns the Fire Sound */
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastSpawnWeaponSound(USoundBase* sound);
 
 	/* Spawns the No Ammo Sound */
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastSpawnNoAmmoSound();
 
-	/* Plays the Fire Animation (called from multicast)*/
-	void PlayFireAnimation();
+	/* Plays the Fire Animation */
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastPlayFireAnimation();
 
-	/* Spawns the MuzzleFX for 1P and 3P (called from multicast)*/
-	void SpawnMuzzleFX(UParticleSystem* muzzleFx, float duration, FVector scale);
+	/* Spawns the MuzzleFX for 1P and 3P */
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastSpawnMuzzleFX(UParticleSystem* muzzleFx, float duration, FVector scale);
 
 	/** Callback for anim notifies during the reload animation */
 	UFUNCTION()
