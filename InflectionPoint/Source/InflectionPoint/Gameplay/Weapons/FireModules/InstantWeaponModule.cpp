@@ -22,7 +22,7 @@ void UInstantWeaponModule::PreExecuteFire() {
 
 void UInstantWeaponModule::ExecuteFire() {
 	FHitResult hitResult = WeaponTraceShootDirection(true);
-	MulticastSpawnInstantWeaponFX(hitResult);
+	SpawnInstantWeaponFX(hitResult);
 
 	if(hitResult.bBlockingHit) {
 		//DebugLineDrawer->DrawDebugLineTrace(Weapon->GetFPMuzzleLocation(), hitResult.ImpactPoint);
@@ -92,7 +92,7 @@ void UInstantWeaponModule::DealDamage(const FHitResult hitResult, const FVector&
 	hitResult.GetActor()->TakeDamage(PointDmg.Damage, PointDmg, OwningCharacter->Controller, Weapon);
 }
 
-void UInstantWeaponModule::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {
+void UInstantWeaponModule::SpawnInstantWeaponFX(const FHitResult hitResult) {
 	SpawnTrailFX(hitResult);
 	SpawnImpactFX(hitResult);
 }
@@ -101,31 +101,12 @@ void UInstantWeaponModule::SpawnTrailFX(const FHitResult hitResult) {
 	if(!TrailFX)
 		return;
 	auto endPoint = hitResult.bBlockingHit ? hitResult.ImpactPoint : hitResult.TraceEnd;
-	SpawnTrailFX(endPoint, true);
-	SpawnTrailFX(endPoint, false);
-}
-
-
-UParticleSystemComponent* UInstantWeaponModule::SpawnTrailFX(const FVector& end, bool isFirstPerson) {
-	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(TrailFX, isFirstPerson ? Weapon->Mesh1P : Weapon->Mesh3P, NAME_None);
-	if(!fpTrail)
-		return nullptr;
-	FVector start = isFirstPerson ? Weapon->GetFPMuzzleLocation() : Weapon->GetTPMuzzleLocation();
-	fpTrail->bOwnerNoSee = !isFirstPerson;
-	fpTrail->bOnlyOwnerSee = isFirstPerson;
-	fpTrail->SetBeamSourcePoint(0, start, 0);
-	fpTrail->SetBeamTargetPoint(0, end, 0);
-	fpTrail->SetVectorParameter(TrailSourceParamName, start);
-	fpTrail->SetVectorParameter(TrailTargetParamName, end);
-	return fpTrail;
+	Weapon->MulticastSpawnTrailFX(TrailFX, endPoint, TrailSourceParamName, TrailTargetParamName, true);
+	Weapon->MulticastSpawnTrailFX(TrailFX, endPoint, TrailSourceParamName, TrailTargetParamName, false);
 }
 
 void UInstantWeaponModule::SpawnImpactFX(const FHitResult hitResult) {
 	if(!hitResult.bBlockingHit)
 		return;
-	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAtLocation(this, ImpactFX, hitResult.ImpactPoint);
-	if(tpTrail) {
-		tpTrail->SetWorldRotation(hitResult.ImpactNormal.ToOrientationRotator());
-		tpTrail->SetRelativeScale3D(ImpactFXScale);
-	}
+	Weapon->MulticastSpawnFXAtLocation(ImpactFX, hitResult.ImpactPoint, hitResult.ImpactNormal.ToOrientationRotator(), ImpactFXScale);
 }

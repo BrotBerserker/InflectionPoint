@@ -19,32 +19,32 @@ void ULaserWeaponModule::Tick(float DeltaTime) {
 	}
 }
 
-void ULaserWeaponModule::MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) {
+void ULaserWeaponModule::SpawnInstantWeaponFX(const FHitResult hitResult) {
 	// dont spawn fx here but in tick
 }
 
 void ULaserWeaponModule::SpawnLaserFX() {
 	FHitResult hitResult = UInstantWeaponModule::WeaponTraceShootDirection(false);
-	SpawnTrailFX(hitResult);
+	SpawnLaserTrailFX(hitResult);
 	SpawnImpactFX(hitResult);
 }
 
-void ULaserWeaponModule::SpawnTrailFX(const FHitResult hitResult) {
+void ULaserWeaponModule::SpawnLaserTrailFX(const FHitResult hitResult) {
 	if(!TrailFX)
 		return;
 	auto endPoint = hitResult.bBlockingHit ? hitResult.ImpactPoint : hitResult.TraceEnd;
 
 	if(!fpLaserTrail)
-		fpLaserTrail = UInstantWeaponModule::SpawnTrailFX(endPoint, true);
+		fpLaserTrail = Weapon->SpawnTrailFX(TrailFX, endPoint, TrailSourceParamName, TrailTargetParamName, true);
 	if(!tpLaserTrail)
-		tpLaserTrail = UInstantWeaponModule::SpawnTrailFX(endPoint, false);
+		tpLaserTrail = Weapon->SpawnTrailFX(TrailFX, endPoint, TrailSourceParamName, TrailTargetParamName, false);
 	if(fpLaserTrail)
-		UpdateTrailFX(fpLaserTrail, Weapon->GetFPMuzzleLocation(), endPoint);
+		UpdateLaserTrailFX(fpLaserTrail, Weapon->GetFPMuzzleLocation(), endPoint);
 	if(tpLaserTrail)
-		UpdateTrailFX(tpLaserTrail, Weapon->GetTPMuzzleLocation(), endPoint);
+		UpdateLaserTrailFX(tpLaserTrail, Weapon->GetTPMuzzleLocation(), endPoint);
 }
 
-void ULaserWeaponModule::UpdateTrailFX(UParticleSystemComponent* trail, const FVector& start, const FVector& end) {
+void ULaserWeaponModule::UpdateLaserTrailFX(UParticleSystemComponent* trail, const FVector& start, const FVector& end) {
 	if(!trail)
 		return;
 	trail->SetBeamSourcePoint(0, start, 0);

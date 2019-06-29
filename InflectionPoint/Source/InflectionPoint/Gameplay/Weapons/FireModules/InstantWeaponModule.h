@@ -105,14 +105,10 @@ public:
 	void DealDamage(const FHitResult hitResult, const FVector& ShootDir);
 
 
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastSpawnInstantWeaponFX(const FHitResult hitResult);
+	virtual void SpawnInstantWeaponFX(const FHitResult hitResult);
 
-	virtual void SpawnTrailFX(const FHitResult hitResult);
-	UParticleSystemComponent* SpawnTrailFX(const FVector& end, bool isFirstPerson);
-
+	void SpawnTrailFX(const FHitResult hitResult);
 	void SpawnImpactFX(const FHitResult hitResult);
-
 private:
 	bool damageWasDealt = false;
 	bool hitWasHeadshot = false;

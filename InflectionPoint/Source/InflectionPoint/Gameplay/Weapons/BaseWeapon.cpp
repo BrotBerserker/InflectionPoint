@@ -357,6 +357,35 @@ void ABaseWeapon::MulticastSpawnMuzzleFX_Implementation(UParticleSystem* muzzleF
 	}
 }
 
+
+void ABaseWeapon::MulticastSpawnTrailFX_Implementation(UParticleSystem* trailFX, FVector end, FName trailSourceParamName, FName trailTargetParamName, bool isFirstPerson) {
+	SpawnTrailFX(trailFX, end, trailSourceParamName, trailTargetParamName, isFirstPerson);
+}
+
+UParticleSystemComponent* ABaseWeapon::SpawnTrailFX(UParticleSystem* trailFX, FVector end, FName trailSourceParamName, FName trailTargetParamName, bool isFirstPerson) {
+	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(trailFX, isFirstPerson ? Mesh1P : Mesh3P, NAME_None);
+	if(!fpTrail)
+		return nullptr;
+	FVector start = isFirstPerson ? GetFPMuzzleLocation() : GetTPMuzzleLocation();
+	fpTrail->bOwnerNoSee = !isFirstPerson;
+	fpTrail->bOnlyOwnerSee = isFirstPerson;
+	fpTrail->SetBeamSourcePoint(0, start, 0);
+	fpTrail->SetBeamTargetPoint(0, end, 0);
+	fpTrail->SetVectorParameter(trailSourceParamName, start);
+	fpTrail->SetVectorParameter(trailTargetParamName, end);
+	return fpTrail;
+}
+
+void ABaseWeapon::MulticastSpawnFXAtLocation_Implementation(UParticleSystem* fx, FVector location, FRotator rotation, FVector scale) {
+	if(!fx)
+		return;
+	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAtLocation(this, fx, location);
+	if(tpTrail) {
+		tpTrail->SetWorldRotation(rotation);
+		tpTrail->SetRelativeScale3D(scale);
+	}
+}
+
 void ABaseWeapon::DecativateParticleSystem(UParticleSystemComponent* effect) {
 	if(effect)
 		effect->DeactivateSystem();

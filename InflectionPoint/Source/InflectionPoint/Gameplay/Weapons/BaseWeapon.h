@@ -299,6 +299,13 @@ public:
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastSpawnMuzzleFX(UParticleSystem* muzzleFx, float duration, FVector scale);
 
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastSpawnTrailFX(UParticleSystem* trailFX, FVector end, FName trailSourceParamName, FName trailTargetParamName, bool isFirstPerson);
+	UParticleSystemComponent* SpawnTrailFX(UParticleSystem* trailFX, FVector end, FName trailSourceParamName, FName trailTargetParamName, bool isFirstPerson);
+
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastSpawnFXAtLocation(UParticleSystem* fx, FVector location, FRotator rotation, FVector scale);
+
 	/** Callback for anim notifies during the reload animation */
 	UFUNCTION()
 		void ReloadAnimationNotifyCallback(FName NotifyName, const FBranchingPointNotifyPayload& BranchingPointPayload);

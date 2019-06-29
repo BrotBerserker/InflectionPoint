@@ -16,13 +16,13 @@ class INFLECTIONPOINT_API ULaserWeaponModule : public UInstantWeaponModule
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	void MulticastSpawnInstantWeaponFX_Implementation(const FHitResult hitResult) override;
+	virtual void SpawnInstantWeaponFX(const FHitResult hitResult) override;
 
 	void SpawnLaserFX();
 
-	void SpawnTrailFX(const FHitResult hitResult) override;
+	void SpawnLaserTrailFX(const FHitResult hitResult);
 
-	void UpdateTrailFX(UParticleSystemComponent* trail, const FVector& start, const FVector& end);
+	void UpdateLaserTrailFX(UParticleSystemComponent* trail, const FVector& start, const FVector& end);
 
 	UParticleSystemComponent* fpLaserTrail;
 	UParticleSystemComponent* tpLaserTrail;
