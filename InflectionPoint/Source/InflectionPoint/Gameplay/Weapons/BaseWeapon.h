@@ -335,6 +335,9 @@ public:
 
 	/** Spawns the sound if not existent and starts or stops it*/
 	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
+
+	/** Records fire of module */
+	void RecordModuleFired(UBaseWeaponModule* module);
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;

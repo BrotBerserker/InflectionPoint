@@ -2,6 +2,8 @@
 
 #include "InflectionPoint.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "PlayerStateRecorder.h"
 
 // Sets default values for this component's properties

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "UnrealNetwork.h"
+#include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "BaseWeaponModule.generated.h"
 
 UENUM(BlueprintType)
@@ -150,6 +151,7 @@ private:
 	UPROPERTY(Replicated) // gets set to true if weapon fires
 		bool shouldPlayFireFX = false;
 
+	bool RecordKeyReleaseNextTick = false;
 	float timeSinceLastShot = 0.f;
 	float timeSinceStartFire = 0.f;
 

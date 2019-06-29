@@ -3,9 +3,10 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "Gameplay/Weapons/WeaponInventory.h"
-#include "Gameplay/Weapons/BaseWeapon.h"
 #include "PlayerStateRecorder.generated.h"
+
+enum class EInventorySlotPosition : uint8;
+enum class EFireMode : uint8;
 
 /** Represents a player's state (location, rotation, pressed keys) at a certain point of time */
 USTRUCT(BlueprintType)

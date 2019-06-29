@@ -32,9 +32,6 @@ void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
 		ChangeModuleState(EWeaponModuleState::FIRING);
 	} else if(CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
 		Fire();
-		//} else if(Recorder && RecordKeyReleaseNextTick) {
-		//	RecordKeyReleaseNextTick = false;
-		//	Recorder->ServerRecordKeyReleased("WeaponFired");
 	}
 	// You can not only take the CurrentState because of replays only calling FireOnce()
 	shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
@@ -92,10 +89,7 @@ bool UBaseWeaponModule::IsFireing() {
 
 void UBaseWeaponModule::Fire() {
 	if(CanFire()) {
-		//if(Recorder) {
-		//	RecordKeyReleaseNextTick = true;
-		//	Recorder->ServerRecordKeyPressed("WeaponFired");
-		//}
+		Weapon->RecordModuleFired(this);
 		if(Weapon->CurrentAmmoInClip <= 0)
 			return;
 		shouldPlayFireFX = true;

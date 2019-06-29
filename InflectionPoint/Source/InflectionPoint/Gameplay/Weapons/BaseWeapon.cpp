@@ -144,6 +144,8 @@ void ABaseWeapon::ReattachMuzzleLocation() {
 void ABaseWeapon::DetachFromOwner() {
 	Mesh1P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	Mesh3P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
+	if(!HasAuthority())
+		return;
 	StopFire(EFireMode::Primary);
 	StopFire(EFireMode::Secondary);
 }
@@ -164,10 +166,16 @@ void ABaseWeapon::Tick(float DeltaTime) {
 			&& CurrentState != EWeaponState::EQUIPPING /*&& timeSinceLastShot >= GetCurrentWeaponModus().ReloadDelay*/) {
 			StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 		}
+
 		if(GetCurrentWeaponModus().PrimaryModule)
 			GetCurrentWeaponModus().PrimaryModule->AuthorityTick(DeltaTime);
 		if(GetCurrentWeaponModus().SecondaryModule)
 			GetCurrentWeaponModus().SecondaryModule->AuthorityTick(DeltaTime);
+
+		if(Recorder && RecordKeyReleaseNextTick) {
+			RecordKeyReleaseNextTick = false;
+			Recorder->ServerRecordKeyReleased("WeaponModuleFired");
+		}
 	}
 	if(GetCurrentWeaponModus().PrimaryModule)
 		GetCurrentWeaponModus().PrimaryModule->Tick(DeltaTime);
@@ -184,6 +192,22 @@ void ABaseWeapon::StartFire(EFireMode mode) {
 	if(CurrentState == EWeaponState::IDLE && (GetCurrentWeaponModule(EFireMode::Primary)->IsFireing() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFireing())) {
 		ChangeWeaponState(EWeaponState::FIRING);
 	}
+}
+
+void ABaseWeapon::RecordModuleFired(UBaseWeaponModule* module) {
+	if(!Recorder)
+		return;
+	EFireMode mode;
+	if(module == GetCurrentWeaponModule(EFireMode::Primary)) {
+		mode = EFireMode::Primary;
+	} else if(module == GetCurrentWeaponModule(EFireMode::Secondary)) {
+		mode = EFireMode::Secondary;
+	} else {
+		SoftAssertTrue(false, GetWorld(), __FILE__, __LINE__,"Fired module is not the current weapon module!");
+		return;
+	}
+	Recorder->RecordFirePressed(mode);
+	Recorder->RecordFireReleased(mode);
 }
 
 void ABaseWeapon::StopFire(EFireMode mode) {
@@ -210,15 +234,19 @@ void ABaseWeapon::OnEquip() {
 	UpdateEquippedState(true);
 
 	StartTimer(this, GetWorld(), "ChangeWeaponState", EquipDelay + 0.001f, false, EWeaponState::IDLE);
+	if(!HasAuthority())
+		return;
 	GetCurrentWeaponModule(EFireMode::Primary)->OnActivate();
 	GetCurrentWeaponModule(EFireMode::Secondary)->OnActivate();
 }
 
 void ABaseWeapon::OnUnequip() {
-	GetCurrentWeaponModule(EFireMode::Primary)->StopFire();
-	GetCurrentWeaponModule(EFireMode::Secondary)->StopFire();
-	GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
-	GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
+	if(HasAuthority()) {
+		GetCurrentWeaponModule(EFireMode::Primary)->StopFire();
+		GetCurrentWeaponModule(EFireMode::Secondary)->StopFire();
+		GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
+		GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
+	}
 	UpdateEquippedState(false);
 }
 
