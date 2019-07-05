@@ -287,10 +287,6 @@ public:
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastSpawnWeaponSound(USoundBase* sound);
 
-	/* Spawns the No Ammo Sound */
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastSpawnNoAmmoSound();
-
 	/* Plays the Fire Animation */
 	UFUNCTION(Reliable, NetMulticast)
 		void MulticastPlayFireAnimation();
@@ -320,10 +316,6 @@ public:
 
 	/** Returns the owning character's aim direction */
 	FRotator GetAimDirection();
-
-	/** Notifies clients about projectile fired (plays animation, sound etc.) */
-	UFUNCTION(Reliable, NetMulticast)
-		void MulticastFireExecuted(); // [Depricated]
 
 	UFUNCTION(BlueprintCallable)
 		EWeaponState GetCurrentWeaponState();

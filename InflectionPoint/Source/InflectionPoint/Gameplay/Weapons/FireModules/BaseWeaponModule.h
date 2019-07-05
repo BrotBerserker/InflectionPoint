@@ -144,12 +144,12 @@ public:
 
 	UFUNCTION()
 		void ChangeModuleState(EWeaponModuleState newState);
-private:
-	UAudioComponent* ChargeSoundComponent;
-	UAudioComponent* FireLoopSoundComponent;
-
+protected:
 	UPROPERTY(Replicated) // gets set to true if weapon fires
 		bool shouldPlayFireFX = false;
+
+	UAudioComponent* ChargeSoundComponent;
+	UAudioComponent* FireLoopSoundComponent;
 
 	bool RecordKeyReleaseNextTick = false;
 	float timeSinceLastShot = 0.f;

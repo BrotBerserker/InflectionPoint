@@ -259,21 +259,8 @@ void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 	newEquipped ? AttachToOwner() : DetachFromOwner();
 }
 
-void ABaseWeapon::MulticastFireExecuted_Implementation() {
-	//if(OwningCharacter && Cast<APlayerController>(OwningCharacter->GetController()))
-	//	Cast<APlayerController>(OwningCharacter->GetController())->PlayerCameraManager->PlayCameraShake(CurrentWeaponModule->FireCameraShake, 1.0f);
-	//SpawnMuzzleFX();
-	//SpawnWeaponSound();
-	//PlayFireAnimation();
-	//OnFireExecuted.Broadcast();
-}
-
 void ABaseWeapon::MulticastSpawnWeaponSound_Implementation(USoundBase* sound) {
 	UGameplayStatics::SpawnSoundAttached(sound, Mesh1P);
-}
-
-void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
-	//UGameplayStatics::SpawnSoundAttached(NoAmmoSound, Mesh1P);
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
@@ -436,13 +423,13 @@ EWeaponState ABaseWeapon::GetCurrentWeaponState() {
 }
 
 float ABaseWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) {
-	if(CurrentAmmo == 0)
-		return 0;
-	float distance = 1000;
-	if(shooter && victim)
-		distance = (shooter->GetActorLocation() - victim->GetActorLocation()).Size();
-	return AISuitabilityWeaponRangeCurve.GetRichCurveConst()->Eval(distance, 0);
-	//return 1.0;
+	//if(CurrentAmmo == 0)
+	//	return 0;
+	//float distance = 1000;
+	//if(shooter && victim)
+	//	distance = (shooter->GetActorLocation() - victim->GetActorLocation()).Size();
+	//return AISuitabilityWeaponRangeCurve.GetRichCurveConst()->Eval(distance, 0);
+	return 1.0;
 }
 
 bool ABaseWeapon::ServerIncreaseCurrentAmmo_Validate(int amount) {

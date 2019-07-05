@@ -28,13 +28,14 @@ void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
 	timeSinceLastShot += DeltaTime;
 	timeSinceStartFire += DeltaTime;
 
+	// You can not only take the CurrentState because of replays only calling FireOnce()
+	shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
+
 	if(CurrentState == EWeaponModuleState::CHARGING && timeSinceStartFire >= ChargeDuration) {
 		ChangeModuleState(EWeaponModuleState::FIRING);
 	} else if(CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
 		Fire();
 	}
-	// You can not only take the CurrentState because of replays only calling FireOnce()
-	shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
 }
 
 void UBaseWeaponModule::Tick(float DeltaTime) {
@@ -49,7 +50,7 @@ UWorld* UBaseWeaponModule::GetWorld() const {
 
 void UBaseWeaponModule::FireOnce() {
 	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0) {
-		Weapon->MulticastSpawnNoAmmoSound();
+		Weapon->MulticastSpawnWeaponSound(NoAmmoSound);
 		return;
 	}
 	if(CurrentState != EWeaponModuleState::IDLE || timeSinceLastShot < FireInterval)
@@ -74,7 +75,7 @@ void UBaseWeaponModule::StartFire() {
 	if(CurrentState == EWeaponModuleState::DEACTIVATED)
 		return;
 	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0)
-		Weapon->MulticastSpawnNoAmmoSound();
+		Weapon->MulticastSpawnWeaponSound(NoAmmoSound);
 	if(CurrentState == EWeaponModuleState::IDLE && Weapon->CurrentAmmoInClip > 0)
 		ChangeModuleState(EWeaponModuleState::CHARGING);
 }

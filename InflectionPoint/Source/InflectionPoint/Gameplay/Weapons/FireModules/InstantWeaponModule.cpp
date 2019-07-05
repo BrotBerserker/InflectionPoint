@@ -24,8 +24,8 @@ void UInstantWeaponModule::ExecuteFire() {
 	FHitResult hitResult = WeaponTraceShootDirection(true);
 	SpawnInstantWeaponFX(hitResult);
 
-	if(hitResult.bBlockingHit) {
-		//DebugLineDrawer->DrawDebugLineTrace(Weapon->GetFPMuzzleLocation(), hitResult.ImpactPoint);
+	if(DebugLineDrawer && hitResult.bBlockingHit) {
+		DebugLineDrawer->DrawDebugLineTrace(Weapon->GetFPMuzzleLocation(), hitResult.ImpactPoint);
 	}
 	DealDamage(hitResult, OwningCharacter->FirstPersonCameraComponent->GetForwardVector());
 }

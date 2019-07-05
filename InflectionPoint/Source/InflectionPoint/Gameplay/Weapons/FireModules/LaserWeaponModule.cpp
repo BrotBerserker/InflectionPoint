@@ -7,16 +7,25 @@
 void ULaserWeaponModule::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
-	if(false/*shouldPlayFireFX*/) {
+	if(shouldPlayFireFX) {
 		SpawnLaserFX();
 	} else {
-		if(fpLaserTrail)
-			fpLaserTrail->DestroyComponent();
-		if(tpLaserTrail)
-			tpLaserTrail->DestroyComponent();
-		fpLaserTrail = nullptr;
-		tpLaserTrail = nullptr;
+		DisposeLaserTrailFX();
 	}
+}
+
+void ULaserWeaponModule::OnDeactivate() {
+	Super::OnDeactivate();
+	DisposeLaserTrailFX();
+}
+
+void ULaserWeaponModule::DisposeLaserTrailFX() {
+	if(fpLaserTrail)
+		fpLaserTrail->DestroyComponent();
+	if(tpLaserTrail)
+		tpLaserTrail->DestroyComponent();
+	fpLaserTrail = nullptr;
+	tpLaserTrail = nullptr;
 }
 
 void ULaserWeaponModule::SpawnInstantWeaponFX(const FHitResult hitResult) {
