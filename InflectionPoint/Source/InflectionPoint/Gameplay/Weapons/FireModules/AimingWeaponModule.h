@@ -15,6 +15,6 @@ class INFLECTIONPOINT_API UAimingWeaponModule : public UBaseWeaponModule
 	GENERATED_BODY()
 public:
 	virtual void Fire() override {}; // do nothing on fire
-	virtual void StartFire() override;
+	virtual bool StartFire() override;
 	virtual void StopFire() override;
 };

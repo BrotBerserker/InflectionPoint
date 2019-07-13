@@ -11,8 +11,8 @@
 //	OutOfRangeText->SetupAttachment(Mesh1P);
 //}
 
-void UBuildingWeaponModule::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
+void UBuildingWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
+	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
 	if(!OwningCharacter || !OwningCharacter->FirstPersonCameraComponent || Weapon->CurrentAmmoInClip <= 0) {
 		return;
 	}

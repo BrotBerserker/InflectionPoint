@@ -13,20 +13,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
-	DOREPLIFETIME(ABaseWeapon, WeaponModi);
 	DOREPLIFETIME(ABaseWeapon, CurrentWeaponModusIndex);
-}
-
-bool ABaseWeapon::ReplicateSubobjects(class UActorChannel *channel, class FOutBunch *bunch, FReplicationFlags *repFlags) {
-	bool wroteSomething = Super::ReplicateSubobjects(channel, bunch, repFlags);
-
-	for(FBaseWeaponModus& mode : WeaponModi) {
-		if(mode.SecondaryModule && channel->ReplicateSubobject(mode.SecondaryModule, *bunch, *repFlags))
-			wroteSomething = true;
-		if(mode.PrimaryModule && channel->ReplicateSubobject(mode.PrimaryModule, *bunch, *repFlags))
-			wroteSomething = true;
-	}
-	return wroteSomething;
 }
 
 // Sets default values
@@ -82,12 +69,6 @@ void ABaseWeapon::BeginPlay() {
 	Setup();
 }
 
-void ABaseWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
-	GetCurrentWeaponModus().PrimaryModule->Dispose();
-	GetCurrentWeaponModus().SecondaryModule->Dispose();
-	Super::EndPlay(EndPlayReason);
-}
-
 void ABaseWeapon::OnRep_Instigator() {
 	Setup(); // Setup the client
 }
@@ -106,25 +87,20 @@ void ABaseWeapon::SetupReferences() {
 }
 
 void ABaseWeapon::SetupWeaponModi() {
-	SoftAssertTrue(WeaponModi.Num(), GetWorld(), __FILE__, __LINE__, "Weapon has no weapon modules");
-	for(int i = 0; i < WeaponModi.Num(); i++) {
-		FBaseWeaponModus& modus = WeaponModi[i]; // use & to get a reference!
-		// Apparently you need to set NewObject directly into a UPROPERTY()
-		// setting a pointer returned from a method dose not work ^^
-		modus.PrimaryModule = NewObject<UBaseWeaponModule>(this, modus.PrimaryModuleClass);
-		modus.SecondaryModule = NewObject<UBaseWeaponModule>(this, modus.SecondaryModuleClass);
-		AssertNotNull(modus.PrimaryModule, GetWorld(), __FILE__, __LINE__);
-		if(modus.PrimaryModule) {
-			modus.PrimaryModule->Weapon = this;
-			modus.PrimaryModule->OwningCharacter = OwningCharacter;
-			modus.PrimaryModule->Initialize();
-		}
-		if(modus.SecondaryModule) {
-			modus.SecondaryModule->Weapon = this;
-			modus.SecondaryModule->OwningCharacter = OwningCharacter;
-			modus.SecondaryModule->Initialize();
-		}
+	TArray<UBaseWeaponModule*> modules;
+	GetComponents<UBaseWeaponModule>(modules);
+	for(int i = 0; i < modules.Num(); i++) {
+		auto module = modules[i];
+		if(module->FireMode == EFireMode::Primary)
+			PrimaryModule = module;
+		if(module->FireMode == EFireMode::Secondary)
+			SecondaryModule = module;
+		module->Weapon = this;
+		module->OwningCharacter = OwningCharacter;
+		module->Initialize();
 	}
+	AssertNotNull(PrimaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a PrimaryModule");
+	AssertNotNull(SecondaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a SecondaryModule");
 }
 
 bool ABaseWeapon::IsReadyForInitialization() {
@@ -161,37 +137,30 @@ void ABaseWeapon::AttachToOwner() {
 
 void ABaseWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	if(HasAuthority()) {
-		if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
-			&& CurrentState != EWeaponState::EQUIPPING /*&& timeSinceLastShot >= GetCurrentWeaponModus().ReloadDelay*/) {
-			StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
-		}
-
-		if(GetCurrentWeaponModus().PrimaryModule)
-			GetCurrentWeaponModus().PrimaryModule->AuthorityTick(DeltaTime);
-		if(GetCurrentWeaponModus().SecondaryModule)
-			GetCurrentWeaponModus().SecondaryModule->AuthorityTick(DeltaTime);
-
-		if(Recorder && RecordKeyReleaseNextTick) {
-			RecordKeyReleaseNextTick = false;
-			Recorder->ServerRecordKeyReleased("WeaponModuleFired");
-		}
+	if(!HasAuthority())
+		return;
+	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
+		&& CurrentState != EWeaponState::EQUIPPING /*&& timeSinceLastShot >= GetCurrentWeaponModus().ReloadDelay*/) {
+		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	}
-	if(GetCurrentWeaponModus().PrimaryModule)
-		GetCurrentWeaponModus().PrimaryModule->Tick(DeltaTime);
-	if(GetCurrentWeaponModus().SecondaryModule)
-		GetCurrentWeaponModus().SecondaryModule->Tick(DeltaTime);
+
+	if(PrimaryModule)
+		PrimaryModule->AuthorityTick(DeltaTime);
+	if(SecondaryModule)
+		SecondaryModule->AuthorityTick(DeltaTime);
+
+	if(Recorder && RecordKeyReleaseNextTick) {
+		RecordKeyReleaseNextTick = false;
+		Recorder->ServerRecordKeyReleased("WeaponModuleFired");
+	}
 }
 
 void ABaseWeapon::StartFire(EFireMode mode) {
-	if(!CanFire(mode))
+	if(!SimultaneouslyModuleFire && (GetCurrentWeaponModule(EFireMode::Primary)->IsFiring() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFiring()))
 		return;
-	if(!GetCurrentWeaponModus().IsAsync && (GetCurrentWeaponModule(EFireMode::Primary)->IsFireing() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFireing()))
-		return;
-	GetCurrentWeaponModule(mode)->StartFire();
-	if(CurrentState == EWeaponState::IDLE && (GetCurrentWeaponModule(EFireMode::Primary)->IsFireing() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFireing())) {
+	bool success = GetCurrentWeaponModule(mode)->StartFire();
+	if(CurrentState == EWeaponState::IDLE && success)
 		ChangeWeaponState(EWeaponState::FIRING);
-	}
 }
 
 void ABaseWeapon::RecordModuleFired(UBaseWeaponModule* module) {
@@ -203,7 +172,7 @@ void ABaseWeapon::RecordModuleFired(UBaseWeaponModule* module) {
 	} else if(module == GetCurrentWeaponModule(EFireMode::Secondary)) {
 		mode = EFireMode::Secondary;
 	} else {
-		SoftAssertTrue(false, GetWorld(), __FILE__, __LINE__,"Fired module is not the current weapon module!");
+		SoftAssertTrue(false, GetWorld(), __FILE__, __LINE__, "Fired module is not the current weapon module!");
 		return;
 	}
 	Recorder->RecordFirePressed(mode);
@@ -220,12 +189,7 @@ void ABaseWeapon::StopFire(EFireMode mode) {
 }
 
 void ABaseWeapon::FireOnce(EFireMode mode) {
-	if(CanFire(mode)) // propably no check needed here ...
-		GetCurrentWeaponModule(mode)->FireOnce();
-}
-
-bool ABaseWeapon::CanFire(EFireMode mode) {
-	return true;
+	GetCurrentWeaponModule(mode)->FireOnce();
 }
 
 void ABaseWeapon::OnEquip() {
@@ -315,7 +279,7 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 		ChangeWeaponState(EWeaponState::IDLE);
 		GetCurrentWeaponModule(EFireMode::Primary)->OnActivate();
 		GetCurrentWeaponModule(EFireMode::Secondary)->OnActivate();
-		if(GetCurrentWeaponModule(EFireMode::Primary)->IsFireing() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFireing()) {
+		if(GetCurrentWeaponModule(EFireMode::Primary)->IsFiring() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFiring()) {
 			ChangeWeaponState(EWeaponState::FIRING);
 		}
 	}
@@ -446,17 +410,10 @@ void ABaseWeapon::ServerIncreaseCurrentAmmo_Implementation(int amount) {
 	CurrentAmmo += amount;
 }
 
-FBaseWeaponModus& ABaseWeapon::GetCurrentWeaponModus() {
-	AssertTrue(WeaponModi.Num()>0, GetWorld(), __FILE__, __LINE__);
-	int index = FMath::Clamp(CurrentWeaponModusIndex, 0, WeaponModi.Num() - 1);
-	return WeaponModi[index];
-}
-
-
 UBaseWeaponModule* ABaseWeapon::GetCurrentWeaponModule(EFireMode mode) {
 	auto module = mode == EFireMode::Primary ?
-		GetCurrentWeaponModus().PrimaryModule :
-		GetCurrentWeaponModus().SecondaryModule;
+		PrimaryModule :
+		SecondaryModule;
 	AssertNotNull(module, GetWorld(), __FILE__, __LINE__);
 	return module;
 }

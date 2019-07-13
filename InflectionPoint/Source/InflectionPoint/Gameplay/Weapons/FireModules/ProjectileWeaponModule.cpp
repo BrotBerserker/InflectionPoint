@@ -4,8 +4,8 @@
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "ProjectileWeaponModule.h"
 
-void UProjectileWeaponModule::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
+void UProjectileWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
+	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
 	if(ProjectileClass != NULL && ProjectileClass.GetDefaultObject()->Homing && Weapon->CurrentAmmoInClip > 0) { 
 		UPrimitiveComponent* newTarget = FindSelectedTarget();
 		if(newTarget != SelectedTargetComponent) {

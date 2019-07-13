@@ -35,7 +35,7 @@ public:
 public:
 	//ABuildingWeapon();
 
-	virtual void Tick(float DeltaTime) override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) override;
 
 	virtual bool CanFire() override;
 

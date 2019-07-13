@@ -14,15 +14,14 @@ void UBaseWeaponModule::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	DOREPLIFETIME(UBaseWeaponModule, shouldPlayFireFX);
 }
 
-void UBaseWeaponModule::Initialize() {}
-
-void UBaseWeaponModule::Dispose() {
+void UBaseWeaponModule::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	if(FireLoopSoundComponent)
 		FireLoopSoundComponent->DestroyComponent();
 	if(ChargeSoundComponent)
 		ChargeSoundComponent->DestroyComponent();
 	StopFire();
 }
+
 
 void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
 	timeSinceLastShot += DeltaTime;
@@ -38,14 +37,11 @@ void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
 	}
 }
 
-void UBaseWeaponModule::Tick(float DeltaTime) {
+void UBaseWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
+	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
 	UE_LOG(LogTemp, Warning, TEXT("Tick! %i"), OwningCharacter->HasAuthority());
 	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
 	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponModuleState::CHARGING);
-}
-
-UWorld* UBaseWeaponModule::GetWorld() const {
-	return GetOuter()->GetWorld();
 }
 
 void UBaseWeaponModule::FireOnce() {
@@ -69,22 +65,25 @@ void UBaseWeaponModule::StopFire() {
 		ChangeModuleState(EWeaponModuleState::IDLE);
 }
 
-void UBaseWeaponModule::StartFire() {
+bool UBaseWeaponModule::StartFire() {
 	wantsToFire = true;
 	timeSinceStartFire = 0;
 	if(CurrentState == EWeaponModuleState::DEACTIVATED)
-		return;
+		return false;
 	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0)
 		Weapon->MulticastSpawnWeaponSound(NoAmmoSound);
-	if(CurrentState == EWeaponModuleState::IDLE && Weapon->CurrentAmmoInClip > 0)
+	if(CurrentState == EWeaponModuleState::IDLE && Weapon->CurrentAmmoInClip > 0) {
 		ChangeModuleState(EWeaponModuleState::CHARGING);
+		return true;
+	}
+	return false;
 }
 
 bool UBaseWeaponModule::CanFire() {
 	return true;
 }
 
-bool UBaseWeaponModule::IsFireing() {
+bool UBaseWeaponModule::IsFiring() {
 	return CurrentState == EWeaponModuleState::FIRING || CurrentState == EWeaponModuleState::CHARGING;
 }
 

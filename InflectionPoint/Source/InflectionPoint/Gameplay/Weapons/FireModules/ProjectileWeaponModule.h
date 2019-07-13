@@ -42,7 +42,7 @@ public:
 
 public:
 
-	virtual void Tick(float DeltaTime) override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) override;
 
 	void SwitchSelectedTarget(UPrimitiveComponent * newTarget);
 

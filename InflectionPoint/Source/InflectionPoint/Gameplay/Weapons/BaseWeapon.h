@@ -20,44 +20,11 @@ enum class EWeaponState : uint8 {
 	FIRING
 };
 
-UENUM(Blueprintable)
-enum class EFireMode : uint8 {
-	Primary = 0,
-	Secondary = 1,
-};
-
-USTRUCT(BlueprintType)
-struct FBaseWeaponModus {
-	GENERATED_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadonly)
-		TSubclassOf<UBaseWeaponModule> PrimaryModuleClass;
-	UPROPERTY(BlueprintReadonly)
-		UBaseWeaponModule* PrimaryModule;
-
-	UPROPERTY(EditAnywhere, BlueprintReadonly)
-		TSubclassOf<UBaseWeaponModule> SecondaryModuleClass;
-	UPROPERTY(BlueprintReadonly)
-		UBaseWeaponModule* SecondaryModule;
-
-	/** Delay before reloading */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
-		float ReloadDelay = 0;
-	
-	/* Weather you can use primary & secondary fire modules async */
-	UPROPERTY(EditAnywhere, BlueprintReadonly)
-		bool IsAsync = true;
-};
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnFireExecutedDelegate);
 
 UCLASS()
 class INFLECTIONPOINT_API ABaseWeapon : public AActor {
 	GENERATED_BODY()
-
-public:
-	virtual bool ReplicateSubobjects(class UActorChannel *Channel, class FOutBunch *Bunch, FReplicationFlags *RepFlags) override;
 
 public:
 	/* -------------- */
@@ -165,9 +132,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|3P")
 		class UAnimMontage* EquipAnimation3P;
 
-	/** List of fire Modi for this weapon */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Replicated, Category = WeaponConfig)
-		TArray<FBaseWeaponModus> WeaponModi;
+	/* Weather you can use primary & secondary fire modules async */
+	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = WeaponConfig)
+		bool SimultaneouslyModuleFire = true;
 
 	/** Number of shots per clip */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
@@ -180,6 +147,10 @@ public:
 	/** Max amount of munition (with CurrentAmmoInClip included) */
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		int MaxAmmo = -1;
+
+	/** Delay before reloading */
+	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
+		float ReloadDelay = 0;
 
 	/** Delay before firstshot after equip */
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
@@ -225,8 +196,6 @@ public:
 	/** Initializes variables and attachments */
 	virtual void BeginPlay() override;
 
-	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
 	void Setup();
 	void SetupReferences();
 
@@ -250,9 +219,6 @@ public:
 
 	/** If currently firing, changes the current state to IDLE */
 	virtual void StopFire(EFireMode mode);
-
-	/** Returns true if firing module should be possible */
-	virtual bool CanFire(EFireMode mode);
 
 	/** Notify Weapon that it is aiming  */
 	virtual void StartAiming();
@@ -351,6 +317,9 @@ public:
 	FScriptDelegate AnimationNotifyDelegate;
 protected:
 
+	UBaseWeaponModule* PrimaryModule;
+	UBaseWeaponModule* SecondaryModule;
+
 	UPROPERTY(Replicated)
 		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE;
 
@@ -364,7 +333,6 @@ protected:
 	void SetupWeaponModi();
 
 	UBaseWeaponModule* CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz);
-	FBaseWeaponModus& GetCurrentWeaponModus();
 	UBaseWeaponModule* GetCurrentWeaponModule(EFireMode mode);
 
 	UFUNCTION()

@@ -6,9 +6,10 @@
 #include "AimingWeaponModule.h"
 
 
-void UAimingWeaponModule::StartFire() {
+bool UAimingWeaponModule::StartFire() {
 	Super::StartFire();
 	OwningCharacter->StartAiming();
+	return true;
 }
 
 void UAimingWeaponModule::StopFire() {

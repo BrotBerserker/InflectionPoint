@@ -4,8 +4,8 @@
 #include "LaserWeaponModule.h"
 
 
-void ULaserWeaponModule::Tick(float DeltaTime) {
-	Super::Tick(DeltaTime);
+void ULaserWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
+	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
 
 	if(shouldPlayFireFX) {
 		SpawnLaserFX();

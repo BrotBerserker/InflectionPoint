@@ -13,7 +13,7 @@ UCLASS()
 class INFLECTIONPOINT_API ULaserWeaponModule : public UInstantWeaponModule {
 	GENERATED_BODY()
 public:
-	virtual void Tick(float DeltaTime) override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) override;
 
 	virtual void SpawnInstantWeaponFX(const FHitResult hitResult) override;
 	virtual void OnDeactivate() override;

@@ -8,6 +8,12 @@
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "BaseWeaponModule.generated.h"
 
+UENUM(Blueprintable)
+enum class EFireMode : uint8 {
+	Primary = 0,
+	Secondary = 1,
+};
+
 UENUM(BlueprintType)
 enum class EWeaponModuleState : uint8 {
 	DEACTIVATED,
@@ -20,7 +26,7 @@ enum class EWeaponModuleState : uint8 {
  *
  */
 UCLASS(BlueprintType, Blueprintable)
-class INFLECTIONPOINT_API UBaseWeaponModule : public UObject { 
+class INFLECTIONPOINT_API UBaseWeaponModule : public UActorComponent {
 	GENERATED_BODY()
 public:
 	// ===
@@ -28,7 +34,7 @@ public:
 	// ===
 	// https://wiki.unrealengine.com/Replication#Advanced:_Generic_replication_of_Actor_Subobjects
 	/** Enables replication for UObject */
-	virtual bool IsSupportedForNetworking() const override { return true; }	
+	//virtual bool IsSupportedForNetworking() const override { return true; }	
 
 public:
 	/* ---------------------- */
@@ -65,6 +71,11 @@ public:
 	/** CameraShake when fiering */
 	UPROPERTY(EditDefaultsOnly, Category = Effects)
 		TSubclassOf<UCameraShake> FireCameraShake;
+
+	/** Whether automatic fire should be enabled for this weapon */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FireMode)
+		EFireMode FireMode;
+
 	/** Whether automatic fire should be enabled for this weapon */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		bool AutoFire = true;
@@ -93,18 +104,23 @@ public:
 	/* ------------- */
 	/*   Functions   */
 	/* ------------- */
+
+	/* Gets called when properties like owner etc are set properly */
+	virtual void Initialize() {};
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	/* Tick that only gets called on the server (called before Tick) */
 	virtual void AuthorityTick(float DeltaTime);
 	/* Tick that is called on server & clients*/
-	virtual void Tick(float DeltaTime);
-	UWorld* GetWorld() const override;
+	virtual void TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) override;
 
 
 	/** If possible, fires once */
 	virtual void FireOnce();
 
 	/** If possible, changes the current state to FIRING */
-	virtual void StartFire();
+	virtual bool StartFire();
 
 	/** If currently firing, changes the current state to IDLE */
 	virtual void StopFire();
@@ -116,7 +132,7 @@ public:
 	virtual bool CanFire();
 
 	/** Fires a shot (includes animation, sound, and decreasing ammo) */
-	bool IsFireing();
+	bool IsFiring();
 
 	/** Called before ExecuteFire */
 	virtual void PreExecuteFire();
@@ -132,12 +148,6 @@ public:
 
 	/** Called when this module is detached from the weapon */
 	virtual void OnDeactivate();
-
-	/** Called when this module is detached from the weapon */
-	virtual void Initialize();
-
-	/** Called when this module is detached from the weapon */
-	virtual void Dispose();
 
 	/** Notifies clients about projectile fired (plays animation, sound etc.) */
 	virtual void FireExecuted();
