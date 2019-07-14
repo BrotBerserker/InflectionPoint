@@ -5,6 +5,12 @@
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "BaseWeaponModule.h"
 
+UBaseWeaponModule::UBaseWeaponModule() {
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bStartWithTickEnabled = true;
+	//SetComponentTickEnabled(true);
+}
+
 void UBaseWeaponModule::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	
@@ -89,7 +95,7 @@ bool UBaseWeaponModule::IsFiring() {
 
 void UBaseWeaponModule::Fire() {
 	if(CanFire()) {
-		Weapon->RecordModuleFired(this);
+		Weapon->RecordModuleFired(FireMode);
 		if(Weapon->CurrentAmmoInClip <= 0)
 			return;
 		shouldPlayFireFX = true;

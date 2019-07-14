@@ -35,7 +35,7 @@ public:
 	// https://wiki.unrealengine.com/Replication#Advanced:_Generic_replication_of_Actor_Subobjects
 	/** Enables replication for UObject */
 	//virtual bool IsSupportedForNetworking() const override { return true; }	
-
+	UBaseWeaponModule();
 public:
 	/* ---------------------- */
 	/*    Editor Settings     */
@@ -92,6 +92,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		int FireShotNum = 1;
 public:
+	float timeSinceLastShot = 0.f;
 
 	UPROPERTY(BlueprintReadOnly, Replicated)
 		class ABaseWeapon* Weapon;
@@ -162,7 +163,6 @@ protected:
 	UAudioComponent* FireLoopSoundComponent;
 
 	bool RecordKeyReleaseNextTick = false;
-	float timeSinceLastShot = 0.f;
 	float timeSinceStartFire = 0.f;
 
 	bool wantsToFire = false;

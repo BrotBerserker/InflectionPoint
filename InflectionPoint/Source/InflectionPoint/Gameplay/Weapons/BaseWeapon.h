@@ -302,7 +302,7 @@ public:
 	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
 
 	/** Records fire of module */
-	void RecordModuleFired(UBaseWeaponModule* module);
+	void RecordModuleFired(EFireMode mode);
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;
@@ -331,6 +331,7 @@ protected:
 	void UpdateEquippedState(bool equipped);
 
 	void SetupWeaponModi();
+	float GetTimeSinceLastShot();
 
 	UBaseWeaponModule* CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz);
 	UBaseWeaponModule* GetCurrentWeaponModule(EFireMode mode);

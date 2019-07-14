@@ -197,17 +197,13 @@ void AReplayCharacterBase::PressKey(FString key) {
 		Jump();
 	} else if(key == "ToggleCrouching") {
 		ToggleCrouching();
-	//} else if(key == "Aim") {
-	//	StartAiming();
 	} else if(key == "Sprint") {
 		EnableSprint();
-	} else if(key == "WeaponFired") {
-	//  CurrentWeapon->Fire(); // TODO: hmmmmmm ... why WeaponFired ? should be Fire ? regardless this needs to be reworked  
 	}  else if(key.Contains("FireWithMode")) {
 		auto str = FString(key); // to not alter string
 		str.RemoveFromStart("FireWithMode");
 		int index = FCString::Atoi(*str);
-		CurrentWeapon->FireOnce((EFireMode)index);
+		ServerFireOnce((EFireMode)index);
 	} else if(key == "Reload") {
 		CurrentWeapon->Reload();
 	} else if(key == "EquipNextWeapon") {

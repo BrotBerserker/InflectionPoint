@@ -140,7 +140,7 @@ void ABaseWeapon::Tick(float DeltaTime) {
 	if(!HasAuthority())
 		return;
 	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
-		&& CurrentState != EWeaponState::EQUIPPING /*&& timeSinceLastShot >= GetCurrentWeaponModus().ReloadDelay*/) {
+		&& CurrentState != EWeaponState::EQUIPPING && GetTimeSinceLastShot() >= ReloadDelay) {
 		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	}
 
@@ -163,20 +163,10 @@ void ABaseWeapon::StartFire(EFireMode mode) {
 		ChangeWeaponState(EWeaponState::FIRING);
 }
 
-void ABaseWeapon::RecordModuleFired(UBaseWeaponModule* module) {
+void ABaseWeapon::RecordModuleFired(EFireMode mode) {
 	if(!Recorder)
 		return;
-	EFireMode mode;
-	if(module == GetCurrentWeaponModule(EFireMode::Primary)) {
-		mode = EFireMode::Primary;
-	} else if(module == GetCurrentWeaponModule(EFireMode::Secondary)) {
-		mode = EFireMode::Secondary;
-	} else {
-		SoftAssertTrue(false, GetWorld(), __FILE__, __LINE__, "Fired module is not the current weapon module!");
-		return;
-	}
 	Recorder->RecordFirePressed(mode);
-	Recorder->RecordFireReleased(mode);
 }
 
 void ABaseWeapon::StopFire(EFireMode mode) {
@@ -416,4 +406,8 @@ UBaseWeaponModule* ABaseWeapon::GetCurrentWeaponModule(EFireMode mode) {
 		SecondaryModule;
 	AssertNotNull(module, GetWorld(), __FILE__, __LINE__);
 	return module;
+}
+
+float ABaseWeapon::GetTimeSinceLastShot() {
+	return FMath::Min(PrimaryModule->timeSinceLastShot, SecondaryModule->timeSinceLastShot);
 }
