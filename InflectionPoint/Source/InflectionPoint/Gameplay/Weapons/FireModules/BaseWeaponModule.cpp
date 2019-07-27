@@ -8,12 +8,12 @@
 UBaseWeaponModule::UBaseWeaponModule() {
 	PrimaryComponentTick.bCanEverTick = true;
 	PrimaryComponentTick.bStartWithTickEnabled = true;
-	//SetComponentTickEnabled(true);
+	SetIsReplicated(true); // wtf junge warum ist ihm das egal und man muss es trotzdem noch im blueprint anhaken?!
 }
 
 void UBaseWeaponModule::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-	
+
 	DOREPLIFETIME(UBaseWeaponModule, Weapon);
 	DOREPLIFETIME(UBaseWeaponModule, OwningCharacter);
 	DOREPLIFETIME(UBaseWeaponModule, CurrentState);
@@ -25,9 +25,10 @@ void UBaseWeaponModule::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 		FireLoopSoundComponent->DestroyComponent();
 	if(ChargeSoundComponent)
 		ChargeSoundComponent->DestroyComponent();
-	StopFire();
+	if(CurrentState == EWeaponModuleState::FIRING) {
+		StopFire();
+	}
 }
-
 
 void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
 	timeSinceLastShot += DeltaTime;
@@ -45,7 +46,6 @@ void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
 
 void UBaseWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
 	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
-	UE_LOG(LogTemp, Warning, TEXT("Tick! %i"), OwningCharacter->HasAuthority());
 	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
 	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponModuleState::CHARGING);
 }
@@ -115,15 +115,17 @@ void UBaseWeaponModule::Fire() {
 }
 
 void UBaseWeaponModule::FireExecuted() {
-	if(OwningCharacter && Cast<APlayerController>(OwningCharacter->GetController()))
-		Cast<APlayerController>(OwningCharacter->GetController())->PlayerCameraManager->PlayCameraShake(FireCameraShake, 1.0f);
-	UE_LOG(LogTemp, Warning, TEXT("MulticastFireExecuted! %i"), OwningCharacter->HasAuthority());
-
+	MulticastPlayCameraShake();
 	Weapon->MulticastSpawnMuzzleFX(MuzzleFX, MuzzleFXDuration, MuzzleFXScale);
 	Weapon->MulticastSpawnWeaponSound(FireSound);
 	Weapon->MulticastPlayFireAnimation();
 }
 
+void UBaseWeaponModule::MulticastPlayCameraShake_Implementation() {
+	if(OwningCharacter && Cast<APlayerController>(OwningCharacter->GetController())) {
+		Cast<APlayerController>(OwningCharacter->GetController())->PlayerCameraManager->PlayCameraShake(FireCameraShake, 1.0f);
+	} 
+}
 
 void UBaseWeaponModule::ChangeModuleState(EWeaponModuleState newState) {
 	CurrentState = newState;

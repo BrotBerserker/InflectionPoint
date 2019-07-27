@@ -77,8 +77,7 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 		FRandomStream WeaponRandomStream = FRandomStream(0);
 
-	UPROPERTY(EditDefaultsOnly)
-		UDebugLineDrawer* DebugLineDrawer;
+	UDebugLineDrawer* DebugLineDrawer;
 
 public:
 	/* ------------- */

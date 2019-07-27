@@ -155,6 +155,9 @@ public:
 
 	UFUNCTION()
 		void ChangeModuleState(EWeaponModuleState newState);
+
+	UFUNCTION(NetMulticast, Reliable)
+		void MulticastPlayCameraShake();
 protected:
 	UPROPERTY(Replicated) // gets set to true if weapon fires
 		bool shouldPlayFireFX = false;

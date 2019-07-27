@@ -6,7 +6,7 @@
 
 void UInstantWeaponModule::Initialize() {
 	Super::Initialize();
-	//DebugLineDrawer = CreateDefaultSubobject<UDebugLineDrawer>(TEXT("DebugLineDrawer"));
+	DebugLineDrawer = GetOwner()->FindComponentByClass<UDebugLineDrawer>();
 	// always start with a new RandomStream for replay Precision
 	WeaponRandomStream = FRandomStream(0);
 }
