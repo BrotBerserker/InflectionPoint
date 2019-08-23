@@ -323,7 +323,7 @@ protected:
 	UBaseWeaponModule* SecondaryModule;
 
 	UPROPERTY(Replicated)
-		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE;
+		EWeaponState CurrentState = EWeaponState::IDLE;
 
 	UPlayerStateRecorder* Recorder;
 

@@ -100,7 +100,7 @@ public:
 		class ABaseCharacter* OwningCharacter;
 
 	UPROPERTY(Replicated)
-		TEnumAsByte<EWeaponModuleState> CurrentState = EWeaponModuleState::DEACTIVATED;
+		EWeaponModuleState CurrentState = EWeaponModuleState::DEACTIVATED;
 public:
 	/* ------------- */
 	/*   Functions   */
