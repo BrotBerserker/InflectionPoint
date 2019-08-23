@@ -31,6 +31,28 @@ void UBaseWeaponModule::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 }
 
 void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
+	//timeSinceLastShot += DeltaTime;
+	//timeSinceStartFire += DeltaTime;
+
+	//// You can not only take the CurrentState because of replays only calling FireOnce()
+	//shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
+
+	//if(CurrentState == EWeaponModuleState::CHARGING && timeSinceStartFire >= ChargeDuration) {
+	//	ChangeModuleState(EWeaponModuleState::FIRING);
+	//} else if(CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
+	//	Fire();
+	//}
+}
+
+void UBaseWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
+	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
+	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
+	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponModuleState::CHARGING);
+
+	if(!GetOwner() || !GetOwner()->HasAuthority()) {
+		return;
+	}
+
 	timeSinceLastShot += DeltaTime;
 	timeSinceStartFire += DeltaTime;
 
@@ -42,12 +64,6 @@ void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
 	} else if(CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
 		Fire();
 	}
-}
-
-void UBaseWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
-	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
-	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
-	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponModuleState::CHARGING);
 }
 
 void UBaseWeaponModule::FireOnce() {

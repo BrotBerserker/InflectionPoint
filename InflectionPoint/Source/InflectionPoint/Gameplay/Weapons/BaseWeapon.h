@@ -214,6 +214,8 @@ public:
 	/** If possible, fires once */
 	virtual void FireOnce(EFireMode mode);
 
+	virtual void Fire(EFireMode mode);
+
 	/** If possible, changes the current state to FIRING */
 	virtual void StartFire(EFireMode mode);
 

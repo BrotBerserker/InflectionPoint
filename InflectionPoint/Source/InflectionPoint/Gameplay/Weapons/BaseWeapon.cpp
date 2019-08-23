@@ -144,10 +144,10 @@ void ABaseWeapon::Tick(float DeltaTime) {
 		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	}
 
-	if(PrimaryModule)
-		PrimaryModule->AuthorityTick(DeltaTime);
-	if(SecondaryModule)
-		SecondaryModule->AuthorityTick(DeltaTime);
+	//if(PrimaryModule)
+	//	PrimaryModule->AuthorityTick(DeltaTime);
+	//if(SecondaryModule)
+	//	SecondaryModule->AuthorityTick(DeltaTime);
 
 	if(Recorder && RecordKeyReleaseNextTick) {
 		RecordKeyReleaseNextTick = false;
@@ -180,6 +180,10 @@ void ABaseWeapon::StopFire(EFireMode mode) {
 
 void ABaseWeapon::FireOnce(EFireMode mode) {
 	GetCurrentWeaponModule(mode)->FireOnce();
+}
+
+void ABaseWeapon::Fire(EFireMode mode) {
+	GetCurrentWeaponModule(mode)->Fire();
 }
 
 void ABaseWeapon::OnEquip() {

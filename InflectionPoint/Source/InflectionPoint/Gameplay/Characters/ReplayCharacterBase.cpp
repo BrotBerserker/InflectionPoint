@@ -203,7 +203,7 @@ void AReplayCharacterBase::PressKey(FString key) {
 		auto str = FString(key); // to not alter string
 		str.RemoveFromStart("FireWithMode");
 		int index = FCString::Atoi(*str);
-		ServerFireOnce((EFireMode)index);
+		CurrentWeapon->Fire((EFireMode)index);
 	} else if(key == "Reload") {
 		CurrentWeapon->Reload();
 	} else if(key == "EquipNextWeapon") {
