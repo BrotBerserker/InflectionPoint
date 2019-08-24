@@ -196,7 +196,7 @@ public:
 	/** Initializes variables and attachments */
 	virtual void BeginPlay() override;
 
-	void Setup();
+	void InitializeWeaponModi();
 	void SetupReferences();
 
 	virtual bool IsReadyForInitialization();

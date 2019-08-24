@@ -61,22 +61,16 @@ ABaseWeapon::ABaseWeapon() {
 void ABaseWeapon::BeginPlay() {
 	Super::BeginPlay();
 	CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
-
+	SetupWeaponModi();
 	if(!HasAuthority())
 		return; // On Client the Instigator is not set yet
 	if(GetWorld()->WorldType == EWorldType::PIE)
 		CurrentAmmo = -1;
-	Setup();
+	SetupReferences();
 }
 
 void ABaseWeapon::OnRep_Instigator() {
-	Setup(); // Setup the client
-}
-
-void ABaseWeapon::Setup() {
-	SetupReferences();
-	if(HasAuthority())
-		SetupWeaponModi();
+	SetupReferences(); // Setup the client
 }
 
 void ABaseWeapon::SetupReferences() {
@@ -84,6 +78,18 @@ void ABaseWeapon::SetupReferences() {
 	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
 	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.7f, false);
+	InitializeWeaponModi();
+}
+
+void ABaseWeapon::InitializeWeaponModi() {
+	TArray<UBaseWeaponModule*> modules;
+	GetComponents<UBaseWeaponModule>(modules);
+	for(int i = 0; i < modules.Num(); i++) {
+		auto module = modules[i];
+		module->Weapon = this;
+		module->OwningCharacter = OwningCharacter;
+		module->Initialize();
+	}
 }
 
 void ABaseWeapon::SetupWeaponModi() {
@@ -95,9 +101,6 @@ void ABaseWeapon::SetupWeaponModi() {
 			PrimaryModule = module;
 		if(module->FireMode == EFireMode::Secondary)
 			SecondaryModule = module;
-		module->Weapon = this;
-		module->OwningCharacter = OwningCharacter;
-		module->Initialize();
 	}
 	AssertNotNull(PrimaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a PrimaryModule");
 	AssertNotNull(SecondaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a SecondaryModule");
