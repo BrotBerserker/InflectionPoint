@@ -111,11 +111,8 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	/* Tick that only gets called on the server (called before Tick) */
-	virtual void AuthorityTick(float DeltaTime);
 	/* Tick that is called on server & clients*/
 	virtual void TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) override;
-
 
 	/** If possible, fires once */
 	virtual void FireOnce();
@@ -159,9 +156,6 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 		void MulticastPlayCameraShake();
 protected:
-	UPROPERTY(Replicated) // gets set to true if weapon fires
-		bool shouldPlayFireFX = false;
-
 	UAudioComponent* ChargeSoundComponent;
 	UAudioComponent* FireLoopSoundComponent;
 

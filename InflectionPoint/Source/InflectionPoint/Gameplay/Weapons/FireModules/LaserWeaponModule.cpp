@@ -7,7 +7,7 @@
 void ULaserWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
 	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
 
-	if(shouldPlayFireFX) {
+	if(CurrentState == EWeaponModuleState::FIRING) {
 		SpawnLaserFX();
 	} else {
 		DisposeLaserTrailFX();

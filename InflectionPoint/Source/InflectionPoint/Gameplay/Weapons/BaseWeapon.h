@@ -328,7 +328,6 @@ protected:
 	UPlayerStateRecorder* Recorder;
 
 	bool equipped = false;
-	bool RecordKeyReleaseNextTick = false;
 
 	void UpdateEquippedState(bool equipped);
 

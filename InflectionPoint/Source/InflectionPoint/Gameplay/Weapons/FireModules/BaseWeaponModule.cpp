@@ -17,7 +17,6 @@ void UBaseWeaponModule::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	DOREPLIFETIME(UBaseWeaponModule, Weapon);
 	DOREPLIFETIME(UBaseWeaponModule, OwningCharacter);
 	DOREPLIFETIME(UBaseWeaponModule, CurrentState);
-	DOREPLIFETIME(UBaseWeaponModule, shouldPlayFireFX);
 }
 
 void UBaseWeaponModule::EndPlay(const EEndPlayReason::Type EndPlayReason) {
@@ -30,23 +29,9 @@ void UBaseWeaponModule::EndPlay(const EEndPlayReason::Type EndPlayReason) {
 	}
 }
 
-void UBaseWeaponModule::AuthorityTick(float DeltaTime) {
-	//timeSinceLastShot += DeltaTime;
-	//timeSinceStartFire += DeltaTime;
-
-	//// You can not only take the CurrentState because of replays only calling FireOnce()
-	//shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
-
-	//if(CurrentState == EWeaponModuleState::CHARGING && timeSinceStartFire >= ChargeDuration) {
-	//	ChangeModuleState(EWeaponModuleState::FIRING);
-	//} else if(CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
-	//	Fire();
-	//}
-}
-
 void UBaseWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
 	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
-	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
+	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, CurrentState == EWeaponModuleState::FIRING);
 	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponModuleState::CHARGING);
 
 	if(!GetOwner() || !GetOwner()->HasAuthority()) {
@@ -56,12 +41,9 @@ void UBaseWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType,
 	timeSinceLastShot += DeltaTime;
 	timeSinceStartFire += DeltaTime;
 
-	// You can not only take the CurrentState because of replays only calling FireOnce()
-	shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
-
 	if(CurrentState == EWeaponModuleState::CHARGING && timeSinceStartFire >= ChargeDuration) {
 		ChangeModuleState(EWeaponModuleState::FIRING);
-	} else if(CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
+	} else if(!OwningCharacter->IsAReplay() && CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
 		Fire();
 	}
 }
@@ -80,7 +62,6 @@ void UBaseWeaponModule::FireOnce() {
 
 void UBaseWeaponModule::StopFire() {
 	wantsToFire = false;
-	shouldPlayFireFX = false;
 	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
 	Weapon->TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
 	if(CurrentState != EWeaponModuleState::DEACTIVATED)
@@ -114,7 +95,6 @@ void UBaseWeaponModule::Fire() {
 		Weapon->RecordModuleFired(FireMode);
 		if(Weapon->CurrentAmmoInClip <= 0)
 			return;
-		shouldPlayFireFX = true;
 		timeSinceLastShot = 0;
 		PreExecuteFire();
 		for(int i = 0; i < FireShotNum; i++)

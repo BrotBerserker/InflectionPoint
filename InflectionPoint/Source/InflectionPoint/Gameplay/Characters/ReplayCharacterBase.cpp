@@ -199,7 +199,12 @@ void AReplayCharacterBase::PressKey(FString key) {
 		ToggleCrouching();
 	} else if(key == "Sprint") {
 		EnableSprint();
-	}  else if(key.Contains("FireWithMode")) {
+	} else if(key.Contains("StartFireWithMode")) {
+		auto str = FString(key); // to not alter string
+		str.RemoveFromStart("StartFireWithMode");
+		int index = FCString::Atoi(*str);
+		CurrentWeapon->StartFire((EFireMode)index);
+	} else if(key.Contains("FireWithMode")) {
 		auto str = FString(key); // to not alter string
 		str.RemoveFromStart("FireWithMode");
 		int index = FCString::Atoi(*str);
@@ -235,6 +240,11 @@ void AReplayCharacterBase::ReleaseKey(FString key) {
 		DisableSprint();
 	//} else if(key == "Aim") {
 	//	StopAiming();
+	} else if(key.Contains("StartFireWithMode")) {
+		auto str = FString(key); // to not alter string
+		str.RemoveFromStart("StartFireWithMode");
+		int index = FCString::Atoi(*str);
+		CurrentWeapon->StopFire((EFireMode)index);
 	}
 }
 

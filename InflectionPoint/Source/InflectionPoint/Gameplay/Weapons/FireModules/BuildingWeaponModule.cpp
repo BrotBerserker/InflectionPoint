@@ -56,7 +56,7 @@ void UBuildingWeaponModule::OnDeactivate() {
 }
 
 bool UBuildingWeaponModule::CanFire() {
-	return buildableActor && buildableActor->CanBeBuilt;
+	return Super::CanFire() && buildableActor && buildableActor->CanBeBuilt;
 }
 
 void UBuildingWeaponModule::ExecuteFire() {

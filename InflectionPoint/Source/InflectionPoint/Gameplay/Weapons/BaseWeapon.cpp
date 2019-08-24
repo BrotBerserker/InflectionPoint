@@ -153,22 +153,14 @@ void ABaseWeapon::Tick(float DeltaTime) {
 		&& CurrentState != EWeaponState::EQUIPPING && GetTimeSinceLastShot() >= ReloadDelay) {
 		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	}
-
-	//if(PrimaryModule)
-	//	PrimaryModule->AuthorityTick(DeltaTime);
-	//if(SecondaryModule)
-	//	SecondaryModule->AuthorityTick(DeltaTime);
-
-	if(Recorder && RecordKeyReleaseNextTick) {
-		RecordKeyReleaseNextTick = false;
-		Recorder->ServerRecordKeyReleased("WeaponModuleFired");
-	}
 }
 
 void ABaseWeapon::StartFire(EFireMode mode) {
 	if(!SimultaneouslyModuleFire && (GetCurrentWeaponModule(EFireMode::Primary)->IsFiring() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFiring()))
 		return;
 	bool success = GetCurrentWeaponModule(mode)->StartFire();
+	if(Recorder)
+		Recorder->RecordStartFirePressed(mode);
 	if(CurrentState == EWeaponState::IDLE && success)
 		ChangeWeaponState(EWeaponState::FIRING);
 }
@@ -176,11 +168,13 @@ void ABaseWeapon::StartFire(EFireMode mode) {
 void ABaseWeapon::RecordModuleFired(EFireMode mode) {
 	if(!Recorder)
 		return;
-	Recorder->RecordFirePressed(mode);
+	Recorder->RecordFire(mode);
 }
 
 void ABaseWeapon::StopFire(EFireMode mode) {
 	GetCurrentWeaponModule(mode)->StopFire();
+	if(Recorder)
+		Recorder->RecordStartFireReleased(mode);
 	if(CurrentState == EWeaponState::FIRING
 		&& GetCurrentWeaponModule(EFireMode::Primary)->CurrentState == EWeaponModuleState::IDLE
 		&& GetCurrentWeaponModule(EFireMode::Secondary)->CurrentState == EWeaponModuleState::IDLE) {

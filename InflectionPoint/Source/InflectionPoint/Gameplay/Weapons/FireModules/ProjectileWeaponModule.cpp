@@ -115,7 +115,7 @@ void UProjectileWeaponModule::OnDeactivate() {
 }
 
 bool UProjectileWeaponModule::CanFire() {
-	if(ProjectileClass == NULL)
+	if(ProjectileClass == NULL || !Super::CanFire())
 		return false;
 	return !ProjectileClass.GetDefaultObject()->Homing || SelectedTargetComponent != NULL;
 }

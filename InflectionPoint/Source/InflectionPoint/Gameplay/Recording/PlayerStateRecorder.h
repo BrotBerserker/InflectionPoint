@@ -153,7 +153,8 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerRecordKeyReleased(const FString &key);
-
-	void RecordFirePressed(EFireMode mode);
-	void RecordFireReleased(EFireMode mode);
+	
+	void RecordFire(EFireMode mode);
+	void RecordStartFirePressed(EFireMode mode);
+	void RecordStartFireReleased(EFireMode mode);
 };
