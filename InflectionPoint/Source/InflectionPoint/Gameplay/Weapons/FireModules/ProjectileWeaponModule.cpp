@@ -6,7 +6,7 @@
 
 void UProjectileWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
 	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
-	if(ProjectileClass != NULL && ProjectileClass.GetDefaultObject()->Homing && Weapon->CurrentAmmoInClip > 0) { 
+	if(ProjectileClass != NULL && ProjectileClass.GetDefaultObject()->Homing && Weapon->CurrentAmmoInClip > 0) {
 		UPrimitiveComponent* newTarget = FindSelectedTarget();
 		if(newTarget != SelectedTargetComponent) {
 			SwitchSelectedTarget(newTarget);
@@ -88,8 +88,9 @@ void UProjectileWeaponModule::UnMarkTarget(UPrimitiveComponent* targetComponent)
 }
 
 void UProjectileWeaponModule::UpdateTargetBeam() {
-	if(!TargetBeamComponent)
+	if(!TargetBeamComponent) {
 		return;
+	}
 	if(SelectedTargetComponent) {
 		TargetBeamComponent->SetBeamTargetPoint(0, SelectedTargetComponent->GetComponentLocation(), 0);
 		TargetBeamComponent->SetBeamSourcePoint(0, Weapon->Mesh1P->GetComponentLocation(), 0);
@@ -101,7 +102,7 @@ void UProjectileWeaponModule::UpdateTargetBeam() {
 
 void UProjectileWeaponModule::Initialize() {
 	Super::Initialize();
-	TargetBeamComponent = UGameplayStatics::SpawnEmitterAttached(TargetBeam, Weapon->Mesh1P, NAME_None);
+	TargetBeamComponent = UGameplayStatics::SpawnEmitterAttached(TargetBeam, Weapon->Mesh1P, NAME_None, FVector::ZeroVector, FRotator::ZeroRotator, EAttachLocation::Type::SnapToTarget, false);
 }
 
 void UProjectileWeaponModule::OnActivate() {
