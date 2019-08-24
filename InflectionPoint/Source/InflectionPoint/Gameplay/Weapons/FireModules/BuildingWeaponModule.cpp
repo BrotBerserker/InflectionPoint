@@ -3,13 +3,10 @@
 #include "InflectionPoint.h"
 #include "BuildingWeaponModule.h"
 
-//ABuildingWeapon::ABuildingWeapon() {
-//	OutOfRangeText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("OutOfRangeText"));
-//	OutOfRangeText->SetText(FText::FromString("Out of range!"));
-//	OutOfRangeText->SetRelativeLocation(FVector(8.78f, -1.66f, -11.13f));
-//	OutOfRangeText->SetRelativeRotation(FRotator(10.85f, -106.02f, 59.62f));
-//	OutOfRangeText->SetupAttachment(Mesh1P);
-//}
+UBuildingWeaponModule::UBuildingWeaponModule() {
+	OutOfRangeText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("OutOfRangeText"));
+	OutOfRangeText->SetText(FText::FromString("Out of range!"));
+}
 
 void UBuildingWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
 	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
@@ -36,7 +33,7 @@ void UBuildingWeaponModule::UpdateBuildableActor(FHitResult &HitResult) {
 		buildableActor = GetWorld()->SpawnActor<ABuildableActor>(BuildableActorClass, spawnParams);
 	}
 	buildableActor->UpdateLocation(HitResult.Location, HitResult.ImpactNormal, HitResult.Actor.Get());
-	//OutOfRangeText->SetVisibility(false);
+	OutOfRangeText->SetVisibility(false);
 }
 
 void UBuildingWeaponModule::ShowOutOfRange() {
@@ -44,7 +41,16 @@ void UBuildingWeaponModule::ShowOutOfRange() {
 		buildableActor->Destroy();
 		buildableActor = nullptr;
 	}
-	//OutOfRangeText->SetVisibility(true);
+	ABaseWeapon* owner = Cast<ABaseWeapon>(GetOwner());
+	if(owner) {
+		OutOfRangeText->AttachToComponent(owner->Mesh1P, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		OutOfRangeText->SetRelativeLocation(FVector(8.78f, -1.66f, -11.13f));
+		OutOfRangeText->SetRelativeRotation(FRotator(10.85f, -106.02f, 59.62f));
+		OutOfRangeText->SetRelativeScale3D(FVector(0.12f, 0.12f, 0.12f));
+	} else {
+		UE_LOG(LogTemp, Warning, TEXT("Achtung achtung, owner nicht vorhanden!"));
+	}
+	OutOfRangeText->SetVisibility(true);
 }
 
 void UBuildingWeaponModule::OnDeactivate() {

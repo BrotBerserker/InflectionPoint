@@ -17,8 +17,8 @@ class INFLECTIONPOINT_API UBuildingWeaponModule : public UBaseWeaponModule
 {
 	GENERATED_BODY()
 public:
-	//UPROPERTY(VisibleDefaultsOnly)
-	//	UTextRenderComponent* OutOfRangeText;
+	UPROPERTY(VisibleDefaultsOnly)
+		UTextRenderComponent* OutOfRangeText;
 
 public:
 
@@ -33,7 +33,7 @@ public:
 		void MulticastHidePreview();
 
 public:
-	//ABuildingWeapon();
+	UBuildingWeaponModule();
 
 	virtual void TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) override;
 
