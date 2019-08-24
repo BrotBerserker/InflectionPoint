@@ -3,6 +3,7 @@
 #include "InflectionPoint.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Characters/ReplayCharacterBase.h"
+#include "Gameplay/Weapons/FireModules/AimingWeaponModule.h"
 #include "Engine/ActorChannel.h"
 #include "BaseWeapon.h"
 
@@ -101,6 +102,12 @@ void ABaseWeapon::SetupWeaponModi() {
 			PrimaryModule = module;
 		if(module->FireMode == EFireMode::Secondary)
 			SecondaryModule = module;
+	}
+	if(!SecondaryModule) {
+		UAimingWeaponModule* AimingModule = NewObject<UAimingWeaponModule>(this, UAimingWeaponModule::StaticClass(), *FString("AimingWeaponModule"));
+		AimingModule->RegisterComponent();
+		AimingModule->OnComponentCreated(); // Might need this line, might not.
+		SecondaryModule = AimingModule;
 	}
 	AssertNotNull(PrimaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a PrimaryModule");
 	AssertNotNull(SecondaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a SecondaryModule");
