@@ -211,6 +211,8 @@ void ABaseWeapon::OnUnequip() {
 void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 	this->equipped = newEquipped;
 	SetActorTickEnabled(newEquipped);
+	GetCurrentWeaponModule(EFireMode::Primary)->SetComponentTickEnabled(newEquipped);
+	GetCurrentWeaponModule(EFireMode::Secondary)->SetComponentTickEnabled(newEquipped);
 	Mesh1P->SetHiddenInGame(!newEquipped, true);
 	Mesh3P->SetHiddenInGame(!newEquipped, true);
 	Mesh3P->bCastHiddenShadow = newEquipped;
