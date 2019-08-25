@@ -31,11 +31,11 @@ void APlayerCharacterBase::SetupPlayerInputComponent(class UInputComponent* Play
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ABaseCharacter::ToggleCrouching);
 
-	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ABaseCharacter::StartFire);
-	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ABaseCharacter::StopFire);
+	PlayerInputComponent->BindAction("FirePrimary", IE_Pressed, this, &APlayerCharacterBase::StartFireWithMode<EFireMode::Primary>);
+	PlayerInputComponent->BindAction("FirePrimary", IE_Released, this, &APlayerCharacterBase::StopFireWithMode<EFireMode::Primary>);
 
-	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ABaseCharacter::StartAiming);
-	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ABaseCharacter::StopAiming);
+	PlayerInputComponent->BindAction("FireSecondary", IE_Pressed, this, &APlayerCharacterBase::StartFireWithMode<EFireMode::Secondary>);
+	PlayerInputComponent->BindAction("FireSecondary", IE_Released, this, &APlayerCharacterBase::StopFireWithMode<EFireMode::Secondary>);
 
 	PlayerInputComponent->BindAction("Reload", IE_Pressed, this, &ABaseCharacter::ServerReload);
 
@@ -89,6 +89,18 @@ void APlayerCharacterBase::EquipSpecificWeapon() {
 	ServerEquipSpecificWeapon(slot);
 }
 
+/* Is Called from the Binding fire with a specific mode*/
+template<EFireMode mode>
+void APlayerCharacterBase::StartFireWithMode() {
+	StartFire(mode);
+}
+
+/* Is Called from the Binding fire with a specific mode*/
+template<EFireMode mode>
+void APlayerCharacterBase::StopFireWithMode() {
+	StopFire(mode);
+}
+
 bool APlayerCharacterBase::DEBUG_ServerSpawnReplay_Validate() {
 	return true;
 }
@@ -130,19 +142,20 @@ void APlayerCharacterBase::ClientStartRecording_Implementation() {
 	PlayerStateRecorder->ServerStartRecording();
 }
 
-void APlayerCharacterBase::ServerStartFire_Implementation() {
-	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
-	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
+void APlayerCharacterBase::ServerStartFire_Implementation(EFireMode mode) {
+	//UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
+	//AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	recorder->ServerRecordKeyPressed("Fire");
+	//recorder->RecordFirePressed(mode);
 
-	Super::ServerStartFire_Implementation();
+	Super::ServerStartFire_Implementation(mode);
 }
 
-void APlayerCharacterBase::ServerStopFire_Implementation() {
-	UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
-	AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
+void APlayerCharacterBase::ServerStopFire_Implementation(EFireMode mode) {
+	//UPlayerStateRecorder* recorder = FindComponentByClass<UPlayerStateRecorder>();
+	//AssertNotNull(recorder, GetWorld(), __FILE__, __LINE__);
 
-	recorder->ServerRecordKeyReleased("Fire");
-	Super::ServerStopFire_Implementation();
+	//recorder->RecordFireReleased(mode);
+
+	Super::ServerStopFire_Implementation(mode);
 }

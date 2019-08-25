@@ -3,8 +3,10 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "Gameplay/Weapons/WeaponInventory.h"
 #include "PlayerStateRecorder.generated.h"
+
+enum class EInventorySlotPosition : uint8;
+enum class EFireMode : uint8;
 
 /** Represents a player's state (location, rotation, pressed keys) at a certain point of time */
 USTRUCT(BlueprintType)
@@ -151,5 +153,8 @@ public:
 
 	UFUNCTION(Server, Reliable, WithValidation)
 		void ServerRecordKeyReleased(const FString &key);
-
+	
+	void RecordFire(EFireMode mode);
+	void RecordStartFirePressed(EFireMode mode);
+	void RecordStartFireReleased(EFireMode mode);
 };

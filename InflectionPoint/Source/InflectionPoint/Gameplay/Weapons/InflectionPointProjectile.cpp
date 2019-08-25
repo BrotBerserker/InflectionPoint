@@ -5,7 +5,6 @@
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Controllers/PlayerControllerBase.h"
 #include "GameFramework/ProjectileMovementComponent.h"
-#include "ProjectileWeapon.h"
 
 void AInflectionPointProjectile::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLifetimeProps) const {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);

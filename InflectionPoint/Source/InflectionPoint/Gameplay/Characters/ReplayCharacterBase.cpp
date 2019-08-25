@@ -67,7 +67,7 @@ void AReplayCharacterBase::MulticastUpdateCustomDepthStencil_Implementation() {
 
 void AReplayCharacterBase::SetReplayData(TArray<FRecordedPlayerState> RecordData) {
 	recordData = RecordData;
-	TotalReplayDuration = recordData.Last().Timestamp;
+	TotalReplayDuration = recordData.Num() > 0 ? recordData.Last().Timestamp : 0.f;
 }
 
 void AReplayCharacterBase::StopReplay() {
@@ -196,12 +196,18 @@ void AReplayCharacterBase::PressKey(FString key) {
 		Jump();
 	} else if(key == "ToggleCrouching") {
 		ToggleCrouching();
-	} else if(key == "Aim") {
-		StartAiming();
 	} else if(key == "Sprint") {
 		EnableSprint();
-	} else if(key == "WeaponFired") {
-		CurrentWeapon->Fire();
+	} else if(key.Contains("StartFireWithMode")) {
+		auto str = FString(key); // to not alter string
+		str.RemoveFromStart("StartFireWithMode");
+		int index = FCString::Atoi(*str);
+		CurrentWeapon->StartFire((EFireMode)index);
+	} else if(key.Contains("FireWithMode")) {
+		auto str = FString(key); // to not alter string
+		str.RemoveFromStart("FireWithMode");
+		int index = FCString::Atoi(*str);
+		CurrentWeapon->Fire((EFireMode)index);
 	} else if(key == "Reload") {
 		CurrentWeapon->Reload();
 	} else if(key == "EquipNextWeapon") {
@@ -231,8 +237,13 @@ void AReplayCharacterBase::HoldKey(FString key) {
 void AReplayCharacterBase::ReleaseKey(FString key) {
 	if(key == "Sprint") {
 		DisableSprint();
-	} else if(key == "Aim") {
-		StopAiming();
+	//} else if(key == "Aim") {
+	//	StopAiming();
+	} else if(key.Contains("StartFireWithMode")) {
+		auto str = FString(key); // to not alter string
+		str.RemoveFromStart("StartFireWithMode");
+		int index = FCString::Atoi(*str);
+		CurrentWeapon->StopFire((EFireMode)index);
 	}
 }
 

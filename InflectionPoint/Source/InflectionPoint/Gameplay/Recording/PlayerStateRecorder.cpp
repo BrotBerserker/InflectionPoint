@@ -2,6 +2,8 @@
 
 #include "InflectionPoint.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
+#include "Gameplay/Weapons/WeaponInventory.h"
 #include "PlayerStateRecorder.h"
 
 // Sets default values for this component's properties
@@ -114,6 +116,18 @@ bool UPlayerStateRecorder::ServerRecordKeyReleased_Validate(const FString &key) 
 
 void UPlayerStateRecorder::ServerRecordKeyReleased_Implementation(const FString &key) {
 	releasedKeys.Add(key);
+}
+
+void UPlayerStateRecorder::RecordFire(EFireMode mode) {
+	RecordKey(FString("FireWithMode") + FString::FromInt((int)mode), EInputEvent::IE_Pressed);
+}
+
+void UPlayerStateRecorder::RecordStartFirePressed(EFireMode mode) {
+	RecordKey(FString("StartFireWithMode") + FString::FromInt((int)mode), EInputEvent::IE_Pressed);
+}
+
+void UPlayerStateRecorder::RecordStartFireReleased(EFireMode mode) {
+	RecordKey(FString("StartFireWithMode") + FString::FromInt((int)mode), EInputEvent::IE_Released);
 }
 
 void UPlayerStateRecorder::RecordMoveForward(float val) {

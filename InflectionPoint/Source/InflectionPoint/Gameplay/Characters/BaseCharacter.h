@@ -205,10 +205,10 @@ public:
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
 	/** These two are needed because sprinting is handled on client side */
-	void StartFire();
+	void StartFire(EFireMode mode);
 
 	UFUNCTION(BlueprintCallable)
-		void StopFire();
+		void StopFire(EFireMode mode);
 
 	/** Start/stop aiming has to be done on clients and server to ensure smooth animations */
 	void StartAiming();
@@ -263,15 +263,15 @@ public:
 
 	/** Starts firing the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-		virtual void ServerFireOnce();
+		virtual void ServerFireOnce(EFireMode mode);
 
 	/** Starts firing the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-		virtual void ServerStartFire();
+		virtual void ServerStartFire(EFireMode mode);
 
 	/** Stops firing the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-		virtual void ServerStopFire();
+		virtual void ServerStopFire(EFireMode mode);
 
 	/** Starts aiming, which changes some animations and increases the weapon's precision */
 	UFUNCTION(Server, Reliable, WithValidation)

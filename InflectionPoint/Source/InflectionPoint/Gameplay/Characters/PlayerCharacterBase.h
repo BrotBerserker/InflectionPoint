@@ -5,6 +5,7 @@
 #include "BaseCharacter.h"
 #include "Gameplay/Recording/PlayerStateRecorder.h"
 #include "Gameplay/CharacterInfoProvider.h"
+#include "Gameplay/Weapons/BaseWeapon.h"
 #include "Gameplay/Weapons/WeaponInventory.h"
 #include "PlayerCharacterBase.generated.h"
 
@@ -55,11 +56,18 @@ public:
 	UFUNCTION(Client, Reliable)
 		void ClientStartRecording();
 
-	void ServerStartFire_Implementation() override;
-
-	void ServerStopFire_Implementation() override;	
+	void ServerStartFire_Implementation(EFireMode mode) override;
+	void ServerStopFire_Implementation(EFireMode mode) override;
 	
 	/* Is Called from the Binding to swich to a specific weapon*/
 	template<EInventorySlotPosition slot>
 	void EquipSpecificWeapon();
+
+	/* Is Called from the Binding fire with a specific mode*/
+	template<EFireMode mode>
+	void StartFireWithMode();
+
+	/* Is Called from the Binding fire with a specific mode*/
+	template<EFireMode mode>
+	void StopFireWithMode();
 };

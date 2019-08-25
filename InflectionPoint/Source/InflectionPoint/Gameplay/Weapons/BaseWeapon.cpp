@@ -3,6 +3,8 @@
 #include "InflectionPoint.h"
 #include "Gameplay/Characters/BaseCharacter.h"
 #include "Gameplay/Characters/ReplayCharacterBase.h"
+#include "Gameplay/Weapons/FireModules/AimingWeaponModule.h"
+#include "Engine/ActorChannel.h"
 #include "BaseWeapon.h"
 
 
@@ -12,7 +14,7 @@ void ABaseWeapon::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > & OutLi
 	DOREPLIFETIME(ABaseWeapon, CurrentAmmo);
 	DOREPLIFETIME(ABaseWeapon, OwningCharacter);
 	DOREPLIFETIME(ABaseWeapon, CurrentState);
-	DOREPLIFETIME(ABaseWeapon, shouldPlayFireFX);
+	DOREPLIFETIME(ABaseWeapon, CurrentWeaponModusIndex);
 }
 
 // Sets default values
@@ -60,7 +62,7 @@ ABaseWeapon::ABaseWeapon() {
 void ABaseWeapon::BeginPlay() {
 	Super::BeginPlay();
 	CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
-
+	SetupWeaponModi();
 	if(!HasAuthority())
 		return; // On Client the Instigator is not set yet
 	if(GetWorld()->WorldType == EWorldType::PIE)
@@ -68,25 +70,47 @@ void ABaseWeapon::BeginPlay() {
 	SetupReferences();
 }
 
-void ABaseWeapon::EndPlay(const EEndPlayReason::Type EndPlayReason) {
-	if(FireLoopSoundComponent)
-		FireLoopSoundComponent->DestroyComponent();
-	if(ChargeSoundComponent)
-		ChargeSoundComponent->DestroyComponent();
-	StopFire();
-	Super::EndPlay(EndPlayReason);
-}
-
 void ABaseWeapon::OnRep_Instigator() {
-	SetupReferences();
+	SetupReferences(); // Setup the client
 }
 
 void ABaseWeapon::SetupReferences() {
 	OwningCharacter = Cast<ABaseCharacter>(Instigator);
 	AssertNotNull(OwningCharacter, GetWorld(), __FILE__, __LINE__);
 	Recorder = OwningCharacter->FindComponentByClass<UPlayerStateRecorder>();
-	//ReattachMuzzleLocation(); // doesnt work because the muzzle location would end up at the wrong location
 	StartTimer(this, GetWorld(), "ReattachMuzzleLocation", 0.7f, false);
+	InitializeWeaponModi();
+}
+
+void ABaseWeapon::InitializeWeaponModi() {
+	TArray<UBaseWeaponModule*> modules;
+	GetComponents<UBaseWeaponModule>(modules);
+	for(int i = 0; i < modules.Num(); i++) {
+		auto module = modules[i];
+		module->Weapon = this;
+		module->OwningCharacter = OwningCharacter;
+		module->Initialize();
+	}
+}
+
+void ABaseWeapon::SetupWeaponModi() {
+	TArray<UBaseWeaponModule*> modules;
+	GetComponents<UBaseWeaponModule>(modules);
+	for(int i = 0; i < modules.Num(); i++) {
+		auto module = modules[i];
+		if(module->FireMode == EFireMode::Primary)
+			PrimaryModule = module;
+		if(module->FireMode == EFireMode::Secondary)
+			SecondaryModule = module;
+	}
+	if(!SecondaryModule) {
+		UAimingWeaponModule* AimingModule = NewObject<UAimingWeaponModule>(this, UAimingWeaponModule::StaticClass(), *FString("AimingWeaponModule"));
+		AimingModule->RegisterComponent();
+		AimingModule->OnComponentCreated(); // Might need this line, might not.
+		SecondaryModule = AimingModule;
+	}
+	AssertNotNull(PrimaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a PrimaryModule");
+	AssertNotNull(SecondaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a SecondaryModule");
 }
 
 bool ABaseWeapon::IsReadyForInitialization() {
@@ -106,7 +130,10 @@ void ABaseWeapon::ReattachMuzzleLocation() {
 void ABaseWeapon::DetachFromOwner() {
 	Mesh1P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
 	Mesh3P->DetachFromComponent(FDetachmentTransformRules::KeepRelativeTransform);
-	StopFire();
+	if(!HasAuthority())
+		return;
+	StopFire(EFireMode::Primary);
+	StopFire(EFireMode::Secondary);
 }
 
 void ABaseWeapon::AttachToOwner() {
@@ -120,117 +147,88 @@ void ABaseWeapon::AttachToOwner() {
 
 void ABaseWeapon::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
-	if(HasAuthority()) {
-		timeSinceLastShot += DeltaTime;
-		timeSinceStartFire += DeltaTime;
-
-		if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
-			&& CurrentState != EWeaponState::EQUIPPING && timeSinceLastShot >= ReloadDelay) {
-			StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
-		} else if(CurrentState == EWeaponState::CHARGING && timeSinceStartFire >= ChargeDuration) {
-			ChangeWeaponState(EWeaponState::FIRING);
-		} else if(CurrentState == EWeaponState::FIRING && timeSinceLastShot >= FireInterval) {
-			Fire();
-		} else if(Recorder && RecordKeyReleaseNextTick) {
-			RecordKeyReleaseNextTick = false;
-			Recorder->ServerRecordKeyReleased("WeaponFired");
-		}
-		// You can not only take the CurrentState because of replays only calling FireOnce()
-		shouldPlayFireFX = shouldPlayFireFX && timeSinceLastShot <= FireInterval + 0.1;
-	}
-	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, shouldPlayFireFX);
-	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, CurrentState == EWeaponState::CHARGING);
-}
-
-void ABaseWeapon::StartFire() {
-	wantsToFire = true;
-	timeSinceStartFire = 0;
-	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-		MulticastSpawnNoAmmoSound();
-	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0) {
-		ChangeWeaponState(EWeaponState::CHARGING);
+	if(!HasAuthority())
+		return;
+	if(CurrentAmmoInClip == 0 && CurrentAmmo != 0 && CurrentState != EWeaponState::RELOADING
+		&& CurrentState != EWeaponState::EQUIPPING && GetTimeSinceLastShot() >= ReloadDelay) {
+		StartTimer(this, GetWorld(), "Reload", 0.1f, false); // use timer to avoid reload animation loops
 	}
 }
 
-void ABaseWeapon::FireOnce() {
-	if(CurrentAmmo == 0 && CurrentAmmoInClip == 0) {
-		MulticastSpawnNoAmmoSound();
-	} else if(CurrentState == EWeaponState::IDLE && CurrentAmmoInClip > 0 && timeSinceLastShot >= FireInterval) {
-		ChangeWeaponState(EWeaponState::FIRING); // No charging for replays
-		Fire();
+void ABaseWeapon::StartFire(EFireMode mode) {
+	if(!SimultaneouslyModuleFire && (GetCurrentWeaponModule(EFireMode::Primary)->IsFiring() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFiring()))
+		return;
+	bool success = GetCurrentWeaponModule(mode)->StartFire();
+	if(Recorder)
+		Recorder->RecordStartFirePressed(mode);
+	if(CurrentState == EWeaponState::IDLE && success)
+		ChangeWeaponState(EWeaponState::FIRING);
+}
+
+void ABaseWeapon::RecordModuleFired(EFireMode mode) {
+	if(!Recorder)
+		return;
+	Recorder->RecordFire(mode);
+}
+
+void ABaseWeapon::StopFire(EFireMode mode) {
+	GetCurrentWeaponModule(mode)->StopFire();
+	if(Recorder)
+		Recorder->RecordStartFireReleased(mode);
+	if(CurrentState == EWeaponState::FIRING
+		&& GetCurrentWeaponModule(EFireMode::Primary)->CurrentState == EWeaponModuleState::IDLE
+		&& GetCurrentWeaponModule(EFireMode::Secondary)->CurrentState == EWeaponModuleState::IDLE) {
 		ChangeWeaponState(EWeaponState::IDLE);
 	}
 }
 
-bool ABaseWeapon::CanFire() {
-	return true;
+void ABaseWeapon::FireOnce(EFireMode mode) {
+	GetCurrentWeaponModule(mode)->FireOnce();
 }
 
-void ABaseWeapon::Fire() {
-	if(CanFire()) {
-		if(Recorder) {
-			RecordKeyReleaseNextTick = true;
-			Recorder->ServerRecordKeyPressed("WeaponFired");
-		}
-		if(CurrentAmmoInClip <= 0)
-			return;
-		shouldPlayFireFX = true;
-		timeSinceLastShot = 0;
-		PreExecuteFire();
-		for(int i = 0; i < FireShotNum; i++)
-			ExecuteFire();
-		PostExecuteFire();
-		CurrentAmmoInClip--;
-		CurrentAmmo--;
-		ForceNetUpdate();
-		MulticastFireExecuted();
-	}
-	if(!AutoFire)
-		ChangeWeaponState(EWeaponState::IDLE);
+void ABaseWeapon::Fire(EFireMode mode) {
+	GetCurrentWeaponModule(mode)->Fire();
 }
 
 void ABaseWeapon::OnEquip() {
-	timeSinceLastShot = FireInterval; // so you can fire after EquipDelay
 	ChangeWeaponState(EWeaponState::EQUIPPING);
 
 	UpdateEquippedState(true);
 
 	StartTimer(this, GetWorld(), "ChangeWeaponState", EquipDelay + 0.001f, false, EWeaponState::IDLE);
+	if(!HasAuthority())
+		return;
+	GetCurrentWeaponModule(EFireMode::Primary)->OnActivate();
+	GetCurrentWeaponModule(EFireMode::Secondary)->OnActivate();
 }
 
 void ABaseWeapon::OnUnequip() {
-	wantsToFire = false;
+	if(HasAuthority()) {
+		GetCurrentWeaponModule(EFireMode::Primary)->StopFire();
+		GetCurrentWeaponModule(EFireMode::Secondary)->StopFire();
+		GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
+		GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
+	}
 	UpdateEquippedState(false);
 }
 
 void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 	this->equipped = newEquipped;
 	SetActorTickEnabled(newEquipped);
+	GetCurrentWeaponModule(EFireMode::Primary)->SetComponentTickEnabled(newEquipped);
+	GetCurrentWeaponModule(EFireMode::Secondary)->SetComponentTickEnabled(newEquipped);
 	Mesh1P->SetHiddenInGame(!newEquipped, true);
 	Mesh3P->SetHiddenInGame(!newEquipped, true);
 	Mesh3P->bCastHiddenShadow = newEquipped;
 	newEquipped ? AttachToOwner() : DetachFromOwner();
 }
 
-void ABaseWeapon::MulticastFireExecuted_Implementation() {
-	if(OwningCharacter && Cast<APlayerController>(OwningCharacter->GetController()))
-		Cast<APlayerController>(OwningCharacter->GetController())->PlayerCameraManager->PlayCameraShake(FireCameraShake, 1.0f);
-	SpawnMuzzleFX();
-	SpawnFireSound();
-	PlayFireAnimation();
-	OnFireExecuted.Broadcast();
-}
-
-void ABaseWeapon::SpawnFireSound() {
-	UGameplayStatics::SpawnSoundAttached(FireSound, Mesh1P);
-}
-
-void ABaseWeapon::MulticastSpawnNoAmmoSound_Implementation() {
-	UGameplayStatics::SpawnSoundAttached(NoAmmoSound, Mesh1P);
+void ABaseWeapon::MulticastSpawnWeaponSound_Implementation(USoundBase* sound) {
+	UGameplayStatics::SpawnSoundAttached(sound, Mesh1P);
 }
 
 void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut) {
-	if(shouldPlay) {
+	if(shouldPlay && soundClass) {
 		if(!component) {
 			component = UGameplayStatics::SpawnSoundAttached(soundClass, Mesh1P, NAME_None, FVector(ForceInit), FRotator::ZeroRotator, EAttachLocation::KeepRelativeOffset, false, 1.f, 1.f, 0.f, nullptr, nullptr, false); // bAutoDestroy=false
 		} else if(!component->IsPlaying()) {
@@ -241,7 +239,7 @@ void ABaseWeapon::TogglePersistentSoundFX(UAudioComponent*& component, class USo
 	}
 }
 
-void ABaseWeapon::PlayFireAnimation() {
+void ABaseWeapon::MulticastPlayFireAnimation_Implementation() {
 	UAnimInstance* AnimInstance = OwningCharacter->Mesh1P->GetAnimInstance();
 	if(AnimInstance != NULL) {
 		AnimInstance->Montage_Play(FireAnimation, 1.f);
@@ -249,21 +247,15 @@ void ABaseWeapon::PlayFireAnimation() {
 	Mesh1P->PlayAnimation(FireAnimationWeapon1P, false);
 }
 
-void ABaseWeapon::StopFire() {
-	wantsToFire = false;
-	shouldPlayFireFX = false;
-	TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
-	TogglePersistentSoundFX(ChargeSoundComponent, ChargeSound, false);
-	if(CurrentState == EWeaponState::FIRING || CurrentState == EWeaponState::CHARGING) {
-		ChangeWeaponState(EWeaponState::IDLE);
-	}
-}
-
 void ABaseWeapon::Reload() {
 	if(CurrentState != EWeaponState::RELOADING && CurrentState != EWeaponState::EQUIPPING && CurrentAmmoInClip != ClipSize && CurrentAmmoInClip != CurrentAmmo) {
 		OwningCharacter->Mesh1P->GetAnimInstance()->OnPlayMontageNotifyBegin.AddUnique(AnimationNotifyDelegate);
 
 		ChangeWeaponState(EWeaponState::RELOADING);
+
+		GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
+		GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
+
 		MulticastPlayReloadAnimation();
 		OwningCharacter->Mesh1P->GetAnimInstance()->Montage_Play(ReloadAnimation1P);
 		OwningCharacter->Mesh3P->GetAnimInstance()->Montage_Play(ReloadAnimation3P);
@@ -284,37 +276,64 @@ void ABaseWeapon::ReloadAnimationNotifyCallback(FName NotifyName, const FBranchi
 		CurrentAmmoInClip = CurrentAmmo < 0 ? ClipSize : FMath::Min(CurrentAmmo, ClipSize);
 		ForceNetUpdate();
 	} else if(NotifyName.ToString() == "EnableFiring") {
-		if(wantsToFire) {
-			timeSinceStartFire = 0;
-			ChangeWeaponState(EWeaponState::CHARGING);
-		} else {
-			ChangeWeaponState(EWeaponState::IDLE);
+		ChangeWeaponState(EWeaponState::IDLE);
+		GetCurrentWeaponModule(EFireMode::Primary)->OnActivate();
+		GetCurrentWeaponModule(EFireMode::Secondary)->OnActivate();
+		if(GetCurrentWeaponModule(EFireMode::Primary)->IsFiring() || GetCurrentWeaponModule(EFireMode::Secondary)->IsFiring()) {
+			ChangeWeaponState(EWeaponState::FIRING);
 		}
 	}
 }
 
-void ABaseWeapon::SpawnMuzzleFX() {
-	if(!MuzzleFX)
-		return;
-
-	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh1P, NAME_None);
+void ABaseWeapon::MulticastSpawnMuzzleFX_Implementation(UParticleSystem* muzzleFx, float duration, FVector scale) {
+	UParticleSystemComponent* mesh1pFX = UGameplayStatics::SpawnEmitterAttached(muzzleFx, Mesh1P, NAME_None);
 	if(mesh1pFX) {
-		mesh1pFX->SetRelativeScale3D(MuzzleFXScale);
+		mesh1pFX->SetRelativeScale3D(scale);
 		mesh1pFX->SetWorldLocation(GetFPMuzzleLocation());
 		mesh1pFX->SetWorldRotation(GetAimDirection());
 		mesh1pFX->bOwnerNoSee = false;
 		mesh1pFX->bOnlyOwnerSee = true;
-		if(MuzzleFXDuration > 0)
-			StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh1pFX);
+		if(duration > 0)
+			StartTimer(this, GetWorld(), "DecativateParticleSystem", duration, false, mesh1pFX);
 	}
-	UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(MuzzleFX, Mesh3P, NAME_None);
+	UParticleSystemComponent* mesh3pFX = UGameplayStatics::SpawnEmitterAttached(muzzleFx, Mesh3P, NAME_None);
 	if(mesh3pFX) {
+		mesh3pFX->SetRelativeScale3D(scale);
 		mesh3pFX->SetWorldLocation(GetTPMuzzleLocation());
 		mesh3pFX->SetWorldRotation(GetAimDirection());
 		mesh3pFX->bOwnerNoSee = true;
 		mesh3pFX->bOnlyOwnerSee = false;
-		if(MuzzleFXDuration > 0)
-			StartTimer(this, GetWorld(), "DecativateParticleSystem", MuzzleFXDuration, false, mesh3pFX);
+		if(duration > 0)
+			StartTimer(this, GetWorld(), "DecativateParticleSystem", duration, false, mesh3pFX);
+	}
+}
+
+
+void ABaseWeapon::MulticastSpawnTrailFX_Implementation(UParticleSystem* trailFX, FVector end, FName trailSourceParamName, FName trailTargetParamName, bool isFirstPerson) {
+	SpawnTrailFX(trailFX, end, trailSourceParamName, trailTargetParamName, isFirstPerson);
+}
+
+UParticleSystemComponent* ABaseWeapon::SpawnTrailFX(UParticleSystem* trailFX, FVector end, FName trailSourceParamName, FName trailTargetParamName, bool isFirstPerson) {
+	UParticleSystemComponent* fpTrail = UGameplayStatics::SpawnEmitterAttached(trailFX, isFirstPerson ? Mesh1P : Mesh3P, NAME_None);
+	if(!fpTrail)
+		return nullptr;
+	FVector start = isFirstPerson ? GetFPMuzzleLocation() : GetTPMuzzleLocation();
+	fpTrail->bOwnerNoSee = !isFirstPerson;
+	fpTrail->bOnlyOwnerSee = isFirstPerson;
+	fpTrail->SetBeamSourcePoint(0, start, 0);
+	fpTrail->SetBeamTargetPoint(0, end, 0);
+	fpTrail->SetVectorParameter(trailSourceParamName, start);
+	fpTrail->SetVectorParameter(trailTargetParamName, end);
+	return fpTrail;
+}
+
+void ABaseWeapon::MulticastSpawnFXAtLocation_Implementation(UParticleSystem* fx, FVector location, FRotator rotation, FVector scale) {
+	if(!fx)
+		return;
+	UParticleSystemComponent* tpTrail = UGameplayStatics::SpawnEmitterAtLocation(this, fx, location);
+	if(tpTrail) {
+		tpTrail->SetWorldRotation(rotation);
+		tpTrail->SetRelativeScale3D(scale);
 	}
 }
 
@@ -341,16 +360,16 @@ FVector ABaseWeapon::GetTPMuzzleLocation() {
 }
 
 void ABaseWeapon::StartAiming() {
-	if(HideWeaponWhenAiming)
+	if(HideWeaponWhenAiming) {
 		Mesh1P->SetVisibility(false, true);
-	if(OwningCharacter && HideWeaponWhenAiming)
-		OwningCharacter->Mesh1P->SetVisibility(false, false);
+		if(OwningCharacter)
+			OwningCharacter->Mesh1P->SetVisibility(false, false);
+	}
 }
 
 void ABaseWeapon::StopAiming() {
-	if(HideWeaponWhenAiming)
-		Mesh1P->SetVisibility(true, true);
-	if(OwningCharacter && HideWeaponWhenAiming)
+	Mesh1P->SetVisibility(true, true);
+	if(OwningCharacter)
 		OwningCharacter->Mesh1P->SetVisibility(true, false);
 }
 
@@ -368,13 +387,13 @@ EWeaponState ABaseWeapon::GetCurrentWeaponState() {
 }
 
 float ABaseWeapon::GetAIWeaponSuitability(ABaseCharacter* shooter, AActor* victim) {
-	if(CurrentAmmo == 0)
-		return 0;
-	float distance = 1000;
-	if(shooter && victim)
-		distance = (shooter->GetActorLocation() - victim->GetActorLocation()).Size();
-	return AISuitabilityWeaponRangeCurve.GetRichCurveConst()->Eval(distance, 0);
-	//return 1.0;
+	//if(CurrentAmmo == 0)
+	//	return 0;
+	//float distance = 1000;
+	//if(shooter && victim)
+	//	distance = (shooter->GetActorLocation() - victim->GetActorLocation()).Size();
+	//return AISuitabilityWeaponRangeCurve.GetRichCurveConst()->Eval(distance, 0);
+	return 1.0;
 }
 
 bool ABaseWeapon::ServerIncreaseCurrentAmmo_Validate(int amount) {
@@ -391,5 +410,14 @@ void ABaseWeapon::ServerIncreaseCurrentAmmo_Implementation(int amount) {
 	CurrentAmmo += amount;
 }
 
-void ABaseWeapon::PreExecuteFire() {}
-void ABaseWeapon::PostExecuteFire() {}
+UBaseWeaponModule* ABaseWeapon::GetCurrentWeaponModule(EFireMode mode) {
+	auto module = mode == EFireMode::Primary ?
+		PrimaryModule :
+		SecondaryModule;
+	AssertNotNull(module, GetWorld(), __FILE__, __LINE__);
+	return module;
+}
+
+float ABaseWeapon::GetTimeSinceLastShot() {
+	return FMath::Min(PrimaryModule->timeSinceLastShot, SecondaryModule->timeSinceLastShot);
+}

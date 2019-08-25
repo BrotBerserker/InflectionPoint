@@ -43,9 +43,9 @@ void UDebugLineDrawer::DrawDebugLineTrace(FVector StartPos, FVector EndPos, bool
 		return;
 	if(!IsReplay) {
 		DrawDebugLine(GetWorld(), StartPos, EndPos, PlayerDebugColor, true, 1000, 0, LineThickness);
-		DrawDebugPoint(GetWorld(), EndPos, 3, PlayerDebugColor, true);
+		DrawDebugPoint(GetWorld(), EndPos, 3, PlayerDebugColor, true, 1000);
 	} else {
 		DrawDebugLine(GetWorld(), StartPos, EndPos, ReplayDebugColor, true, 1000, 0, LineThickness);
-		DrawDebugPoint(GetWorld(), EndPos, 3, ReplayDebugColor, true);
+		DrawDebugPoint(GetWorld(), EndPos, 3, ReplayDebugColor, true, 1000);
 	}
 }

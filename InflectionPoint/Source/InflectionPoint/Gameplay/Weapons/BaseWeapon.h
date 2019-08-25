@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Gameplay/Weapons/InflectionPointProjectile.h"
+#include "Gameplay/Weapons/FireModules/BaseWeaponModule.h"
 #include "Blueprint/UserWidget.h"
 #include "BaseWeapon.generated.h"
 
@@ -12,11 +13,10 @@ class ABaseCharacter;
 class UPlayerStateRecorder;
 
 UENUM(BlueprintType)
-enum EWeaponState {
+enum class EWeaponState : uint8 {
 	IDLE,
 	RELOADING,
 	EQUIPPING,
-	CHARGING,
 	FIRING
 };
 
@@ -59,22 +59,6 @@ public:
 	/** Sound to play each time we fire */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GUI)
 		UTexture2D* WeaponTexture;
-
-	/** Sound to play when no Ammo is left */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
-		class USoundBase* NoAmmoSound;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
-		class USoundBase* ChargeSound;
-
-	/** Sound to play each time we fire */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
-		class USoundBase* FireSound;
-
-	/** Sound to play each while fireing */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Sound)
-		class USoundBase* FireLoopSound;
 
 	/** Idle animation (without aiming) for 1P */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|1P")
@@ -148,21 +132,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation|3P")
 		class UAnimMontage* EquipAnimation3P;
 
-	/** FX for muzzle flash */
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		UParticleSystem* MuzzleFX;
-
-	/** Can be used to scale the muzzle fx */
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		FVector MuzzleFXScale = FVector(1.f, 1.f, 1.f);
-
-	/** Duration for the muzzle FX flash (-1 for endless)*/
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		float MuzzleFXDuration = 0.1;
-
-	/** CameraShake when fiering */
-	UPROPERTY(EditDefaultsOnly, Category = Effects)
-		TSubclassOf<UCameraShake> FireCameraShake;
+	/* Weather you can use primary & secondary fire modules async */
+	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = WeaponConfig)
+		bool SimultaneouslyModuleFire = true;
 
 	/** Number of shots per clip */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
@@ -176,18 +148,6 @@ public:
 	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		int MaxAmmo = -1;
 
-	/** Whether automatic fire should be enabled for this weapon */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
-		bool AutoFire = true;
-
-	/** Seconds to wait for the first shot */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
-		float ChargeDuration = 0.0f;
-
-	/** Seconds to wait between two shots */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
-		float FireInterval = 1.0f;
-
 	/** Delay before reloading */
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		float ReloadDelay = 0;
@@ -196,17 +156,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
 		float EquipDelay = 0.2f;
 
-	/** How many shots are fired at once */
-	UPROPERTY(EditDefaultsOnly, Category = WeaponConfig)
-		int FireShotNum = 1;
+	/** The FieldOfView when Aiming with the Weapon (for a zoom effect) */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
+		float AimFieldOfView = 75.f;
+
+	/** The FieldOfView when Aiming with the Weapon (for a zoom effect) */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "WeaponConfig|AI")
+		FRuntimeFloatCurve AISuitabilityWeaponRangeCurve;
 
 	/** If true, the crosshair will be hidden when aiming with this weapon */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
 		bool HideCrosshairWhenAiming = true;
-
-	/** The FieldOfView when Aiming with the Weapon (for a zoom effect) */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = WeaponConfig)
-		float AimFieldOfView = 75.f;
 
 	/** Widget that gets displayed when aiming */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
@@ -219,10 +179,6 @@ public:
 	/** Widget that shows the crosshair */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = WeaponConfig)
 		TSubclassOf<UUserWidget> CrosshairDisplayWidget;
-
-	/** The FieldOfView when Aiming with the Weapon (for a zoom effect) */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "WeaponConfig|AI")
-		FRuntimeFloatCurve AISuitabilityWeaponRangeCurve;
 public:
 	/* ------------- */
 	/*    Events     */
@@ -240,8 +196,7 @@ public:
 	/** Initializes variables and attachments */
 	virtual void BeginPlay() override;
 
-	void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
+	void InitializeWeaponModi();
 	void SetupReferences();
 
 	virtual bool IsReadyForInitialization();
@@ -257,28 +212,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	/** If possible, fires once */
-	virtual void FireOnce();
+	virtual void FireOnce(EFireMode mode);
+
+	virtual void Fire(EFireMode mode);
 
 	/** If possible, changes the current state to FIRING */
-	virtual void StartFire();
+	virtual void StartFire(EFireMode mode);
 
 	/** If currently firing, changes the current state to IDLE */
-	virtual void StopFire();
-
-	/** Fires a shot (includes animation, sound, and decreasing ammo) */
-	virtual void Fire();
-
-	/** Returns true if firing should be possible */
-	virtual bool CanFire();
-
-	/** Called before ExecuteFire */
-	virtual void PreExecuteFire();
-
-	/** This function should be overriden in subclasses to implement specific fire behaviour */
-	virtual void ExecuteFire() PURE_VIRTUAL(ABaseWeapon::ExecuteFire, ;);
-
-	/** Called after ExecuteFire*/
-	virtual void PostExecuteFire();
+	virtual void StopFire(EFireMode mode);
 
 	/** Notify Weapon that it is aiming  */
 	virtual void StartAiming();
@@ -309,18 +251,24 @@ public:
 	/** Dettaches this weapon's meshes from the owning character */
 	void DetachFromOwner();
 
-	/* Spawns the Fire Sound (called from multicast)*/
-	void SpawnFireSound();
+	/* Spawns the Fire Sound */
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastSpawnWeaponSound(USoundBase* sound);
 
-	/* Spawns the No Ammo Sound */
-	UFUNCTION(NetMulticast, Reliable)
-		void MulticastSpawnNoAmmoSound();
+	/* Plays the Fire Animation */
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastPlayFireAnimation();
 
-	/* Plays the Fire Animation (called from multicast)*/
-	void PlayFireAnimation();
+	/* Spawns the MuzzleFX for 1P and 3P */
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastSpawnMuzzleFX(UParticleSystem* muzzleFx, float duration, FVector scale);
 
-	/* Spawns the MuzzleFX for 1P and 3P (called from multicast)*/
-	void SpawnMuzzleFX();
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastSpawnTrailFX(UParticleSystem* trailFX, FVector end, FName trailSourceParamName, FName trailTargetParamName, bool isFirstPerson);
+	UParticleSystemComponent* SpawnTrailFX(UParticleSystem* trailFX, FVector end, FName trailSourceParamName, FName trailTargetParamName, bool isFirstPerson);
+
+	UFUNCTION(Reliable, NetMulticast)
+		void MulticastSpawnFXAtLocation(UParticleSystem* fx, FVector location, FRotator rotation, FVector scale);
 
 	/** Callback for anim notifies during the reload animation */
 	UFUNCTION()
@@ -337,10 +285,6 @@ public:
 	/** Returns the owning character's aim direction */
 	FRotator GetAimDirection();
 
-	/** Notifies clients about projectile fired (plays animation, sound etc.) */
-	UFUNCTION(Reliable, NetMulticast)
-		void MulticastFireExecuted();
-
 	UFUNCTION(BlueprintCallable)
 		EWeaponState GetCurrentWeaponState();
 
@@ -355,6 +299,12 @@ public:
 	/** Fired when the weapon state has been changed */
 	UFUNCTION(BlueprintImplementableEvent)
 		void OnStateChanged(EWeaponState NewState);
+
+	/** Spawns the sound if not existent and starts or stops it*/
+	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
+
+	/** Records fire of module */
+	void RecordModuleFired(EFireMode mode);
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;
@@ -362,34 +312,31 @@ public:
 	UPROPERTY(Replicated, BlueprintReadWrite)
 		int CurrentAmmoInClip;
 
+	UPROPERTY(Replicated, BlueprintReadOnly)
+		int CurrentWeaponModusIndex = 0;
+
 public:
 	FScriptDelegate AnimationNotifyDelegate;
-
 protected:
-	/** Spawns the sound if not existent and starts or stops it*/
-	void TogglePersistentSoundFX(UAudioComponent*& component, class USoundBase* soundClass, bool shouldPlay, float fadeOut = 0.2);
+
+	UBaseWeaponModule* PrimaryModule;
+	UBaseWeaponModule* SecondaryModule;
 
 	UPROPERTY(Replicated)
-		TEnumAsByte<EWeaponState> CurrentState = EWeaponState::IDLE;
+		EWeaponState CurrentState = EWeaponState::IDLE;
 
 	UPlayerStateRecorder* Recorder;
 
-	UPROPERTY(Replicated) // gets set to true if weapon fires
-		bool shouldPlayFireFX = false;
-
-	float timeSinceLastShot = 0.f;
-	float timeSinceStartFire = 0.f;
-
-	bool wantsToFire = false;
-
 	bool equipped = false;
-	bool RecordKeyReleaseNextTick = false;
 
 	void UpdateEquippedState(bool equipped);
 
+	void SetupWeaponModi();
+	float GetTimeSinceLastShot();
+
+	UBaseWeaponModule* CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz);
+	UBaseWeaponModule* GetCurrentWeaponModule(EFireMode mode);
+
 	UFUNCTION()
 		void ChangeWeaponState(EWeaponState newState);
-private:
-	UAudioComponent* ChargeSoundComponent;
-	UAudioComponent* FireLoopSoundComponent;
 };
