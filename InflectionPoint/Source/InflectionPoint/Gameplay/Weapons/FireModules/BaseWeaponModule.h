@@ -73,7 +73,7 @@ public:
 		TSubclassOf<UCameraShake> FireCameraShake;
 
 	/** Whether automatic fire should be enabled for this weapon */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FireMode)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FireMode, Replicated)
 		EFireMode FireMode;
 
 	/** Whether automatic fire should be enabled for this weapon */

@@ -17,6 +17,7 @@ void UBaseWeaponModule::GetLifetimeReplicatedProps(TArray< FLifetimeProperty > &
 	DOREPLIFETIME(UBaseWeaponModule, Weapon);
 	DOREPLIFETIME(UBaseWeaponModule, OwningCharacter);
 	DOREPLIFETIME(UBaseWeaponModule, CurrentState);
+	DOREPLIFETIME(UBaseWeaponModule, FireMode);
 }
 
 void UBaseWeaponModule::EndPlay(const EEndPlayReason::Type EndPlayReason) {

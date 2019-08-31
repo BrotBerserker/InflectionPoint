@@ -10,6 +10,7 @@ UBuildingWeaponModule::UBuildingWeaponModule() {
 
 void UBuildingWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) {
 	Super::TickComponent(DeltaTime, tickType, thisTickFunction);
+	Weapon->ForceNetUpdate();
 	if(!OwningCharacter || !OwningCharacter->FirstPersonCameraComponent || Weapon->CurrentAmmoInClip <= 0) {
 		return;
 	}

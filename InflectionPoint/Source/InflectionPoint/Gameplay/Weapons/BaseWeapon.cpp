@@ -103,14 +103,15 @@ void ABaseWeapon::SetupWeaponModi() {
 		if(module->FireMode == EFireMode::Secondary)
 			SecondaryModule = module;
 	}
-	if(!SecondaryModule) {
+	if(!SecondaryModule && HasAuthority()) {
 		UAimingWeaponModule* AimingModule = NewObject<UAimingWeaponModule>(this, UAimingWeaponModule::StaticClass(), *FString("AimingWeaponModule"));
 		AimingModule->RegisterComponent();
 		AimingModule->OnComponentCreated(); // Might need this line, might not.
+		AimingModule->FireMode = EFireMode::Secondary;
 		SecondaryModule = AimingModule;
 	}
-	AssertNotNull(PrimaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a PrimaryModule");
-	AssertNotNull(SecondaryModule, GetWorld(), __FILE__, __LINE__,"Weapon is missing a SecondaryModule");
+	AssertNotNull(PrimaryModule, GetWorld(), __FILE__, __LINE__, "Weapon is missing a PrimaryModule");
+	AssertNotNull(SecondaryModule, GetWorld(), __FILE__, __LINE__, "Weapon is missing a SecondaryModule");
 }
 
 bool ABaseWeapon::IsReadyForInitialization() {
@@ -206,17 +207,21 @@ void ABaseWeapon::OnUnequip() {
 	if(HasAuthority()) {
 		GetCurrentWeaponModule(EFireMode::Primary)->StopFire();
 		GetCurrentWeaponModule(EFireMode::Secondary)->StopFire();
-		GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
-		GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
 	}
+	GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
+	GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
 	UpdateEquippedState(false);
 }
 
 void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 	this->equipped = newEquipped;
 	SetActorTickEnabled(newEquipped);
-	GetCurrentWeaponModule(EFireMode::Primary)->SetComponentTickEnabled(newEquipped);
-	GetCurrentWeaponModule(EFireMode::Secondary)->SetComponentTickEnabled(newEquipped);
+	if(GetCurrentWeaponModule(EFireMode::Primary)) {
+		GetCurrentWeaponModule(EFireMode::Primary)->SetComponentTickEnabled(newEquipped);
+	}
+	if(GetCurrentWeaponModule(EFireMode::Secondary)) {
+		GetCurrentWeaponModule(EFireMode::Secondary)->SetComponentTickEnabled(newEquipped);
+	}
 	Mesh1P->SetHiddenInGame(!newEquipped, true);
 	Mesh3P->SetHiddenInGame(!newEquipped, true);
 	Mesh3P->bCastHiddenShadow = newEquipped;
