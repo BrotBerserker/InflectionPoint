@@ -115,7 +115,7 @@ void ABaseWeapon::SetupWeaponModi() {
 }
 
 bool ABaseWeapon::IsReadyForInitialization() {
-	return OwningCharacter != nullptr;
+	return !OwningCharacter && PrimaryModule && SecondaryModule;
 }
 
 void ABaseWeapon::ReattachMuzzleLocation() {
@@ -183,8 +183,14 @@ void ABaseWeapon::StopFire(EFireMode mode) {
 	}
 }
 
-void ABaseWeapon::FireOnce(EFireMode mode) {
-	GetCurrentWeaponModule(mode)->FireOnce();
+void ABaseWeapon::EnsureFireStarted(EFireMode mode) {
+	if(CurrentState != EWeaponState::FIRING) {
+		GetCurrentWeaponModule(mode)->StartFire();
+		return;
+	}
+	if(GetCurrentWeaponModule(mode)->AutoFire)
+		return;
+	GetCurrentWeaponModule(mode)->StartFire();
 }
 
 void ABaseWeapon::Fire(EFireMode mode) {
@@ -216,11 +222,11 @@ void ABaseWeapon::OnUnequip() {
 void ABaseWeapon::UpdateEquippedState(bool newEquipped) {
 	this->equipped = newEquipped;
 	SetActorTickEnabled(newEquipped);
-	if(GetCurrentWeaponModule(EFireMode::Primary)) {
-		GetCurrentWeaponModule(EFireMode::Primary)->SetComponentTickEnabled(newEquipped);
+	if(PrimaryModule) {
+		PrimaryModule->SetComponentTickEnabled(newEquipped);
 	}
-	if(GetCurrentWeaponModule(EFireMode::Secondary)) {
-		GetCurrentWeaponModule(EFireMode::Secondary)->SetComponentTickEnabled(newEquipped);
+	if(SecondaryModule) {
+		SecondaryModule->SetComponentTickEnabled(newEquipped);
 	}
 	Mesh1P->SetHiddenInGame(!newEquipped, true);
 	Mesh3P->SetHiddenInGame(!newEquipped, true);

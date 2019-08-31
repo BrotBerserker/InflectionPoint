@@ -234,15 +234,15 @@ void ABaseCharacter::StartFire(EFireMode mode) {
 	ServerStartFire(mode);
 }
 
-bool ABaseCharacter::ServerFireOnce_Validate(EFireMode mode) {
+bool ABaseCharacter::ServerEnsureFireStarted_Validate(EFireMode mode) {
 	return true;
 }
 
-void ABaseCharacter::ServerFireOnce_Implementation(EFireMode mode) {
+void ABaseCharacter::ServerEnsureFireStarted_Implementation(EFireMode mode) {
 	DrawDebugArrow();
 	if(!AssertNotNull(CurrentWeapon, GetWorld(), __FILE__, __LINE__))
 		return;
-	CurrentWeapon->FireOnce(mode);
+	CurrentWeapon->EnsureFireStarted(mode);
 }
 
 bool ABaseCharacter::ServerStartFire_Validate(EFireMode mode) {

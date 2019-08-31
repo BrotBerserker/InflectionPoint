@@ -211,8 +211,8 @@ public:
 	/** Executes behaviour depending on the current state */
 	virtual void Tick(float DeltaTime) override;
 
-	/** If possible, fires once */
-	virtual void FireOnce(EFireMode mode);
+	/** Makes shure the weapon is firing (if needed StartFire will be called again) */
+	virtual void EnsureFireStarted(EFireMode mode);
 
 	virtual void Fire(EFireMode mode);
 

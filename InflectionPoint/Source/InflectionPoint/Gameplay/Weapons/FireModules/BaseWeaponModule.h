@@ -114,9 +114,6 @@ public:
 	/* Tick that is called on server & clients*/
 	virtual void TickComponent(float DeltaTime, enum ELevelTick tickType, FActorComponentTickFunction *thisTickFunction) override;
 
-	/** If possible, fires once */
-	virtual void FireOnce();
-
 	/** If possible, changes the current state to FIRING */
 	virtual bool StartFire();
 

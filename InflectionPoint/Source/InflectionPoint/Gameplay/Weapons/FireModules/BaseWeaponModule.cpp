@@ -49,18 +49,6 @@ void UBaseWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType,
 	}
 }
 
-void UBaseWeaponModule::FireOnce() {
-	if(Weapon->CurrentAmmo == 0 && Weapon->CurrentAmmoInClip == 0) {
-		Weapon->MulticastSpawnWeaponSound(NoAmmoSound);
-		return;
-	}
-	if(CurrentState != EWeaponModuleState::IDLE || timeSinceLastShot < FireInterval)
-		return;
-	ChangeModuleState(EWeaponModuleState::FIRING); // No charging for replays
-	Fire();
-	ChangeModuleState(EWeaponModuleState::IDLE);
-}
-
 void UBaseWeaponModule::StopFire() {
 	wantsToFire = false;
 	Weapon->TogglePersistentSoundFX(FireLoopSoundComponent, FireLoopSound, false);
