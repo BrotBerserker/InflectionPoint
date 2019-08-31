@@ -2,6 +2,7 @@
 
 #include "InflectionPoint.h"
 #include "Gameplay/Characters/BaseCharacter.h"
+#include "Gameplay/Characters/ReplayCharacterBase.h"
 #include "Gameplay/Weapons/BaseWeapon.h"
 #include "BaseWeaponModule.h"
 
@@ -42,9 +43,10 @@ void UBaseWeaponModule::TickComponent(float DeltaTime, enum ELevelTick tickType,
 	timeSinceLastShot += DeltaTime;
 	timeSinceStartFire += DeltaTime;
 
+	bool disableTickFire = OwningCharacter->IsAReplay() && Cast<AReplayCharacterBase>(OwningCharacter)->IsReplaying;
 	if(CurrentState == EWeaponModuleState::CHARGING && timeSinceStartFire >= ChargeDuration) {
 		ChangeModuleState(EWeaponModuleState::FIRING);
-	} else if(!OwningCharacter->IsAReplay() && CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
+	} else if(!disableTickFire && CurrentState == EWeaponModuleState::FIRING && timeSinceLastShot >= FireInterval) {
 		Fire();
 	}
 }

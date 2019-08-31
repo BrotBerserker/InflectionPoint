@@ -263,10 +263,6 @@ public:
 
 	/** Starts firing the currently equipped weapon */
 	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
-		virtual void ServerEnsureFireStarted(EFireMode mode);
-
-	/** Starts firing the currently equipped weapon */
-	UFUNCTION(BlueprintCallable, Server, Reliable, WithValidation)
 		virtual void ServerStartFire(EFireMode mode);
 
 	/** Stops firing the currently equipped weapon */

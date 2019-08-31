@@ -147,9 +147,9 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		float passedTime = 0.f;
 
+	bool IsReplaying = false;
 private:
 	TArray<FRecordedPlayerState> recordData;
-	bool isReplaying = false;
 	int replayIndex = 0;
 	TArray<FString> pressedKeys;
 

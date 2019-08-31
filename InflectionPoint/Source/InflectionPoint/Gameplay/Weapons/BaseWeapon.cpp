@@ -71,6 +71,7 @@ void ABaseWeapon::BeginPlay() {
 }
 
 void ABaseWeapon::OnRep_Instigator() {
+	SetupWeaponModi();
 	SetupReferences(); // Setup the client
 }
 
@@ -183,16 +184,6 @@ void ABaseWeapon::StopFire(EFireMode mode) {
 	}
 }
 
-void ABaseWeapon::EnsureFireStarted(EFireMode mode) {
-	if(CurrentState != EWeaponState::FIRING) {
-		GetCurrentWeaponModule(mode)->StartFire();
-		return;
-	}
-	if(GetCurrentWeaponModule(mode)->AutoFire)
-		return;
-	GetCurrentWeaponModule(mode)->StartFire();
-}
-
 void ABaseWeapon::Fire(EFireMode mode) {
 	GetCurrentWeaponModule(mode)->Fire();
 }
@@ -210,10 +201,8 @@ void ABaseWeapon::OnEquip() {
 }
 
 void ABaseWeapon::OnUnequip() {
-	if(HasAuthority()) {
-		GetCurrentWeaponModule(EFireMode::Primary)->StopFire();
-		GetCurrentWeaponModule(EFireMode::Secondary)->StopFire();
-	}
+	GetCurrentWeaponModule(EFireMode::Primary)->StopFire();
+	GetCurrentWeaponModule(EFireMode::Secondary)->StopFire();
 	GetCurrentWeaponModule(EFireMode::Primary)->OnDeactivate();
 	GetCurrentWeaponModule(EFireMode::Secondary)->OnDeactivate();
 	UpdateEquippedState(false);

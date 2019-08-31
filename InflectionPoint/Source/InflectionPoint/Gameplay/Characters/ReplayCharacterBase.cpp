@@ -53,7 +53,7 @@ void AReplayCharacterBase::Initialize() {
 
 void AReplayCharacterBase::StartReplay() {
 	replayIndex = 0;
-	isReplaying = true;
+	IsReplaying = true;
 }
 
 void AReplayCharacterBase::MulticastUpdateCustomDepthStencil_Implementation() {
@@ -71,7 +71,7 @@ void AReplayCharacterBase::SetReplayData(TArray<FRecordedPlayerState> RecordData
 }
 
 void AReplayCharacterBase::StopReplay() {
-	isReplaying = false;
+	IsReplaying = false;
 	replayIndex = 0;
 }
 
@@ -122,7 +122,7 @@ void AReplayCharacterBase::DematerializeCallback(float value) {
 
 void AReplayCharacterBase::Tick(float deltaTime) {
 	Super::Tick(deltaTime);
-	if(!isReplaying)
+	if(!IsReplaying)
 		return;
 
 	if(!AssertTrue(recordData.Num() > 0, GetWorld(), __FILE__, __LINE__, TEXT("No record data for replay!")))
@@ -147,7 +147,7 @@ void AReplayCharacterBase::Tick(float deltaTime) {
 	}
 
 	// stop replay when end of recordData reached
-	if(HasFinishedReplaying() && isReplaying) {
+	if(HasFinishedReplaying() && IsReplaying) {
 		OnFinishedReplaying.Broadcast();
 		StopReplay();
 		StartTimer(this, GetWorld(), "TransformToInflectionPoint", 1.f, false);

@@ -211,9 +211,6 @@ public:
 	/** Executes behaviour depending on the current state */
 	virtual void Tick(float DeltaTime) override;
 
-	/** Makes shure the weapon is firing (if needed StartFire will be called again) */
-	virtual void EnsureFireStarted(EFireMode mode);
-
 	virtual void Fire(EFireMode mode);
 
 	/** If possible, changes the current state to FIRING */
@@ -305,6 +302,9 @@ public:
 
 	/** Records fire of module */
 	void RecordModuleFired(EFireMode mode);
+
+	UFUNCTION(BlueprintCallable)
+		UBaseWeaponModule* GetCurrentWeaponModule(EFireMode mode);
 public:
 	UPROPERTY(BlueprintReadWrite, Replicated)
 		ABaseCharacter* OwningCharacter;
@@ -335,7 +335,6 @@ protected:
 	float GetTimeSinceLastShot();
 
 	UBaseWeaponModule* CreateWeaponModule(TSubclassOf<UBaseWeaponModule> clazz);
-	UBaseWeaponModule* GetCurrentWeaponModule(EFireMode mode);
 
 	UFUNCTION()
 		void ChangeWeaponState(EWeaponState newState);
