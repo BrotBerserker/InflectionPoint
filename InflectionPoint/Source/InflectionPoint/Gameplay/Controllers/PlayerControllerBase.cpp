@@ -40,8 +40,8 @@ void APlayerControllerBase::UpdateCharactersInLineOfSight() {
 	CharactersInLineOfSight = newArray;
 }
 
-void APlayerControllerBase::Possess(APawn* InPawn) {
-	Super::Possess(InPawn);
+void APlayerControllerBase::OnPossess(APawn* InPawn) {
+	Super::OnPossess(InPawn);
 	SpectatedCharacter = nullptr;
 	AssertNotNull(InPawn->GetPlayerState(), GetWorld(), __FILE__, __LINE__);
 	GetCharacter()->FindComponentByClass<UCharacterInfoProvider>()->PlayerState = InPawn->GetPlayerState();

@@ -51,7 +51,7 @@ public:
 
 	void UpdateCharactersInLineOfSight();
 
-	void Possess(APawn* InPawn) override;
+	void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION(Client, Reliable)
 		void ClientSetControlRotation(FRotator rotation);

@@ -54,7 +54,6 @@ FHitResult UInstantWeaponModule::WeaponTrace(const FVector& startTrace, const FV
 
 	// Perform trace to retrieve hit info
 	FCollisionQueryParams TraceParams(WeaponFireTag, true, Weapon->Instigator);
-	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = true;
 
 	FHitResult Hit(ForceInit);
